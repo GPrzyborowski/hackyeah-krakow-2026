@@ -29,7 +29,7 @@ class GeneratePostmanCollectionTest extends TestCase
 
     public function test_every_spec_operation_appears_exactly_once_in_the_collection(): void
     {
-        $this->artisan('momjobs:postman', ['--output' => $this->outputPath])->assertSuccessful();
+        $this->artisan('mumjobs:postman', ['--output' => $this->outputPath])->assertSuccessful();
 
         $collection = json_decode((string) file_get_contents($this->outputPath), true, flags: JSON_THROW_ON_ERROR);
         $items = collect($collection['item'])->flatMap(fn (array $folder): array => $folder['item'])->keyBy('id');
@@ -60,7 +60,7 @@ class GeneratePostmanCollectionTest extends TestCase
 
     public function test_login_requests_store_the_token_and_public_endpoints_skip_auth(): void
     {
-        $this->artisan('momjobs:postman', ['--output' => $this->outputPath])->assertSuccessful();
+        $this->artisan('mumjobs:postman', ['--output' => $this->outputPath])->assertSuccessful();
 
         $collection = json_decode((string) file_get_contents($this->outputPath), true, flags: JSON_THROW_ON_ERROR);
         $items = collect($collection['item'])->flatMap(fn (array $folder): array => $folder['item'])->keyBy('id');
@@ -69,7 +69,7 @@ class GeneratePostmanCollectionTest extends TestCase
         $this->assertSame('noauth', $items['publicOffers']['request']['auth']['type']);
         $this->assertArrayNotHasKey('auth', $items['me']['request']);
 
-        foreach (['login' => 'marta@momjobs.test', GeneratePostmanCollection::EMPLOYER_LOGIN_ITEM_ID => 'hr@zielonebiuro.test'] as $id => $email) {
+        foreach (['login' => 'marta@mumjobs.test', GeneratePostmanCollection::EMPLOYER_LOGIN_ITEM_ID => 'hr@zielonebiuro.test'] as $id => $email) {
             $this->assertSame($email, json_decode($items[$id]['request']['body']['raw'], true)['email']);
             $this->assertContains("pm.collectionVariables.set('token', pm.response.json().token);", $items[$id]['event'][0]['script']['exec']);
         }

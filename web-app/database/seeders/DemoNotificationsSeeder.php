@@ -21,7 +21,7 @@ class DemoNotificationsSeeder extends Seeder
 {
     public function run(): void
     {
-        $marta = User::firstWhere('email', 'marta@momjobs.test');
+        $marta = User::firstWhere('email', 'marta@mumjobs.test');
         $greenOfficeRecruiter = User::firstWhere('email', 'hr@zielonebiuro.test');
 
         if ($marta === null || $greenOfficeRecruiter === null) {

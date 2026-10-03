@@ -144,7 +144,7 @@ class AuthController extends Controller
 
     private function dummyPasswordHash(): string
     {
-        return once(fn (): string => Hash::make('momjobs-timing-safe-dummy-password'));
+        return once(fn (): string => Hash::make('mumjobs-timing-safe-dummy-password'));
     }
 
     private function tokenResponse(User $user, string $deviceName, int $status = Response::HTTP_OK): JsonResponse

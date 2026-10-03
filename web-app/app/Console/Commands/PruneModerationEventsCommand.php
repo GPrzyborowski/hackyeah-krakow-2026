@@ -7,7 +7,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('momjobs:prune-moderation-events')]
+#[Signature('mumjobs:prune-moderation-events')]
 #[Description('Delete moderation log entries older than the retention period (90 days)')]
 class PruneModerationEventsCommand extends Command
 {

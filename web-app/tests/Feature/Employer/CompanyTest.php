@@ -62,7 +62,7 @@ class CompanyTest extends TestCase
 
         $this->actingAs($this->employer())
             ->put('/employer/company', ['name' => 'Zielone Biuro', 'nip' => '5260250274'])
-            ->assertSessionHasErrors(['nip' => 'Firma z tym NIP-em ma już konto w MomJobs.']);
+            ->assertSessionHasErrors(['nip' => 'Firma z tym NIP-em ma już konto w mumjobs.']);
     }
 
     public function test_company_description_asking_about_family_plans_is_rejected()

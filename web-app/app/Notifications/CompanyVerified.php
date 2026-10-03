@@ -8,7 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
 /**
- * Tells the company's members that a MomJobs administrator verified their company (NIP checked).
+ * Tells the company's members that a mumjobs administrator verified their company (NIP checked).
  */
 class CompanyVerified extends Notification
 {
@@ -32,7 +32,7 @@ class CompanyVerified extends Notification
         return [
             'kind' => 'company_verified',
             'title' => 'Twoja firma została zweryfikowana',
-            'body' => "MomJobs potwierdził dane firmy {$this->company->name}. Kandydatki zobaczą przy Waszych ofertach odznakę „Zweryfikowana firma”.",
+            'body' => "mumjobs potwierdził dane firmy {$this->company->name}. Kandydatki zobaczą przy Waszych ofertach odznakę „Zweryfikowana firma”.",
             'url' => route('employer.company.edit', absolute: false),
             'company_id' => $this->company->id,
         ];

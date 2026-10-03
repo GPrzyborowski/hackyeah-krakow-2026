@@ -11,13 +11,13 @@ defineProps<{
 <template>
     <LegalPageShell
         title="Regulamin serwisu"
-        lead="Zasady korzystania z MomJobs – serwisu, który łączy przyszłe i obecne mamy z pracodawcami przyjaznymi rodzicom."
+        lead="Zasady korzystania z mumjobs – serwisu, który łączy przyszłe i obecne mamy z pracodawcami przyjaznymi rodzicom."
         updated-at="3 października 2026"
     >
         <h2>1. Postanowienia ogólne</h2>
         <ol>
             <li>
-                Regulamin określa zasady korzystania z serwisu MomJobs
+                Regulamin określa zasady korzystania z serwisu mumjobs
                 („Serwis”), prowadzonego przez
                 <strong>[Nazwa administratora]</strong>, [adres siedziby], [NIP
                 / KRS] („Usługodawca”).

@@ -10,7 +10,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
-#[Signature('momjobs:demo-reset {--force : Skip the confirmation and allow running in production}')]
+#[Signature('mumjobs:demo-reset {--force : Skip the confirmation and allow running in production}')]
 #[Description('Rebuild the database with fresh demo data, clear demo uploads and print demo logins')]
 class DemoResetCommand extends Command
 {
@@ -18,7 +18,7 @@ class DemoResetCommand extends Command
 
     private const string CV_DIRECTORY = 'cvs';
 
-    private const string JOB_SHARING_CANDIDATE_EMAIL = 'marta@momjobs.test';
+    private const string JOB_SHARING_CANDIDATE_EMAIL = 'marta@mumjobs.test';
 
     private const string JOB_SHARING_EMPLOYER_EMAIL = 'hr@zielonebiuro.test';
 
@@ -80,7 +80,7 @@ class DemoResetCommand extends Command
         $demoUsers = User::query()
             ->where(fn ($query) => $query
                 ->whereIn('role', [UserRole::Admin, UserRole::Employer])
-                ->orWhere('email', 'like', '%@momjobs.test'))
+                ->orWhere('email', 'like', '%@mumjobs.test'))
             ->orderBy('role')
             ->orderBy('id')
             ->get(['name', 'email', 'role']);

@@ -29,7 +29,7 @@ class LegalAssistant
     ];
 
     private const string SYSTEM_PROMPT = <<<'PROMPT'
-        Jesteś asystentem MomJobs - serwisu pracy dla kobiet w ciąży i mam wracających do pracy.
+        Jesteś asystentem mumjobs - serwisu pracy dla kobiet w ciąży i mam wracających do pracy.
         Odpowiadasz po polsku, krótko (2-5 zdań), ciepło i konkretnie, zwracając się do użytkowniczki na "Ty".
         Odpowiadaj WYŁĄCZNIE na podstawie źródeł przekazanych w wiadomości. Nie dopowiadaj przepisów, kwot ani
         terminów, których w źródłach nie ma. Jeśli źródła nie odpowiadają na pytanie, napisz wprost, że nie masz

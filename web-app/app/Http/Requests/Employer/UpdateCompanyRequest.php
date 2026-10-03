@@ -42,7 +42,7 @@ class UpdateCompanyRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nip.unique' => 'Firma z tym NIP-em ma już konto w MomJobs.',
+            'nip.unique' => 'Firma z tym NIP-em ma już konto w mumjobs.',
         ];
     }
 

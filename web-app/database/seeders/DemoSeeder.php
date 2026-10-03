@@ -27,7 +27,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
- * Demo data mirroring the MomJobs design mockups: companies, offers, reviews and candidates.
+ * Demo data mirroring the mumjobs design mockups: companies, offers, reviews and candidates.
  */
 class DemoSeeder extends Seeder
 {
@@ -203,7 +203,7 @@ class DemoSeeder extends Seeder
      */
     private function seedDemoCandidate($skills): void
     {
-        $user = User::factory()->create(['name' => 'Marta Kowalska', 'email' => 'marta@momjobs.test']);
+        $user = User::factory()->create(['name' => 'Marta Kowalska', 'email' => 'marta@mumjobs.test']);
 
         $profile = $user->candidateProfile()->create([
             'headline' => 'Specjalistka ds. rekrutacji',
@@ -279,7 +279,7 @@ class DemoSeeder extends Seeder
      */
     private function seedDemoRecruitment(): void
     {
-        $marta = User::firstWhere('email', 'marta@momjobs.test')->candidateProfile;
+        $marta = User::firstWhere('email', 'marta@mumjobs.test')->candidateProfile;
         $recruiterOffer = JobOffer::firstWhere('title', 'Specjalistka ds. rekrutacji');
         $projectOffer = JobOffer::firstWhere('title', 'Koordynatorka projektów');
         $hrOffer = JobOffer::firstWhere('title', 'Specjalistka ds. HR');
@@ -324,7 +324,7 @@ class DemoSeeder extends Seeder
 
     private function seedAdmin(): void
     {
-        User::factory()->admin()->create(['name' => 'Admin MomJobs', 'email' => 'admin@momjobs.test']);
+        User::factory()->admin()->create(['name' => 'Admin mumjobs', 'email' => 'admin@mumjobs.test']);
     }
 
     /**
@@ -332,7 +332,7 @@ class DemoSeeder extends Seeder
      */
     private function seedPendingReviews(): void
     {
-        $authors = User::query()->where('role', UserRole::Candidate)->where('email', '!=', 'marta@momjobs.test')->oldest('id')->limit(2)->get();
+        $authors = User::query()->where('role', UserRole::Candidate)->where('email', '!=', 'marta@mumjobs.test')->oldest('id')->limit(2)->get();
         $reviews = [
             ['Nadrzeczna Fintech', [5, 5, 4, '„Na rozmowie pytano tylko o doświadczenie, a powrót na 3/4 etatu ustaliłyśmy od ręki.”', 'Mama jednego dziecka, analityka']],
             ['Północ Logistyka', [3, 2, 4, '„Ludzie życzliwi, ale elastyczne godziny są raczej na papierze.”', 'Mama dwójki, spedycja']],
@@ -387,14 +387,14 @@ class DemoSeeder extends Seeder
             $skills['Employer branding']->id => ['importance' => SkillImportance::NiceToHave->value],
         ]);
 
-        $marta = User::firstWhere('email', 'marta@momjobs.test')->candidateProfile;
+        $marta = User::firstWhere('email', 'marta@mumjobs.test')->candidateProfile;
         $marta->update([
             'open_to_job_sharing' => true,
             'preferred_day_part' => DayPart::Morning,
             'employment_fractions' => [EmploymentFraction::Half->value, EmploymentFraction::ThreeFifths->value, EmploymentFraction::ThreeQuarters->value],
         ]);
 
-        $ewa = $this->jobSharingCandidate($skills, 'Ewa Nowak', 'ewa@momjobs.test', 'Specjalistka ds. rekrutacji i onboardingu', DayPart::Afternoon, ['Rekrutacja IT', 'Onboarding', 'Employer branding', 'Szkolenia']);
+        $ewa = $this->jobSharingCandidate($skills, 'Ewa Nowak', 'ewa@mumjobs.test', 'Specjalistka ds. rekrutacji i onboardingu', DayPart::Afternoon, ['Rekrutacja IT', 'Onboarding', 'Employer branding', 'Szkolenia']);
 
         $this->jobSharingCandidate($skills, 'Joanna Sikora', null, 'Rekruterka IT', DayPart::Afternoon, ['Rekrutacja IT', 'Employer branding', 'Język angielski']);
         $this->jobSharingCandidate($skills, 'Karolina Pawlak', null, 'HR generalistka', DayPart::Morning, ['Onboarding', 'Prawo pracy', 'Kadry i płace']);

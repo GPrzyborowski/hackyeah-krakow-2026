@@ -160,7 +160,7 @@ class DemoPolishSeeder extends Seeder
      */
     private function verifyDemoCompanies(): void
     {
-        $admin = User::query()->where('email', 'admin@momjobs.test')->first();
+        $admin = User::query()->where('email', 'admin@mumjobs.test')->first();
 
         Company::query()
             ->whereNull('verified_at')
@@ -199,7 +199,7 @@ class DemoPolishSeeder extends Seeder
             ->get();
 
         foreach ($profiles as $profile) {
-            if ($profile->user === null || Str::endsWith($profile->user->email, '@momjobs.test')) {
+            if ($profile->user === null || Str::endsWith($profile->user->email, '@mumjobs.test')) {
                 continue;
             }
 

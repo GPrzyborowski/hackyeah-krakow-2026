@@ -148,7 +148,7 @@ class CompanyTeam
         }
 
         if ($user->company_id !== null) {
-            return 'Twoje konto należy już do innej firmy w MomJobs. Jedno konto może należeć tylko do jednej firmy.';
+            return 'Twoje konto należy już do innej firmy w mumjobs. Jedno konto może należeć tylko do jednej firmy.';
         }
 
         return null;

@@ -88,7 +88,7 @@ function writeDirectMessage(): void {
     }
 }
 
-const SHORTCUTS_STORAGE_KEY = 'momjobs.candidate-shortcuts';
+const SHORTCUTS_STORAGE_KEY = 'mumjobs.candidate-shortcuts';
 const areShortcutsEnabled = ref(true);
 
 const INTERACTIVE_TARGET_SELECTOR = [

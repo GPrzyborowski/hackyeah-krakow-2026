@@ -1,4 +1,4 @@
-# MomJobs API v1 – Shared endpoints
+# mumjobs API v1 – Shared endpoints
 
 Base URL `/api/v1`, `Accept: application/json`. See [README.md](README.md) for auth, errors, pagination and polling.
 Auth column: **public** = no token; **auth** = any signed-in user (candidate or employer); **candidate** = role `candidate`
@@ -35,7 +35,7 @@ Published offers, newest first by default, no match score. Query (all optional, 
 | `with_reviews` | `1` | Only offers of companies with at least one approved parent review ("Firma z opiniami rodziców") |
 | `job_share` | `1` | Only job-sharing offers |
 | `nursery_nearby` | `1` | Only offers with a nursery/kindergarten at most 3 km from the workplace (`nursery_distance_km` set and `<= 3`) |
-| `verified_only` | `1` | Only offers of companies verified by MomJobs (badge "Zweryfikowana firma") |
+| `verified_only` | `1` | Only offers of companies verified by mumjobs (badge "Zweryfikowana firma") |
 | `start_from` | `2027-09-01` | "Mogę zacząć od": offers starting no earlier than 30 days before this date (same tolerance as matching); invalid dates ignored |
 | `sort` | `rating` | `newest` (default, by published date), `rating` (best company rating, unrated last), `start_date` (soonest start first) |
 | `page` | `2` | Page (20 per page) |
@@ -212,7 +212,7 @@ Header of the thread.
 }
 ```
 
-For an employer `counterpart` is `{"type": "candidate", "name": "Marta Kowalska", "email": "marta@momjobs.test", "phone": "+48 600 100 200", "photo_url": "https://momjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d"}` (`phone` / `photo_url` may be `null`). Show the photo as the header avatar, or the name's initial without one.
+For an employer `counterpart` is `{"type": "candidate", "name": "Marta Kowalska", "email": "marta@mumjobs.test", "phone": "+48 600 100 200", "photo_url": "https://mumjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d"}` (`phone` / `photo_url` may be `null`). Show the photo as the header avatar, or the name's initial without one.
 `pair_partner_name` is set when the invitation was for a job-sharing pair: the candidate's partner, anonymous ("Ewa N."); `null` in a team chat.
 
 For a team chat `counterpart` is (employer view; header "Czat zespołu: … · {offer.title}"):
@@ -223,7 +223,7 @@ For a team chat `counterpart` is (employer view; header "Czat zespołu: … · {
   "name": "Czat zespołu: Marta Kowalska i Ewa N.",
   "company": { "id": 2, "name": "Zielone Biuro", "verified": true, "rating": 4.6 },
   "members": [
-    { "name": "Marta Kowalska", "joined": true, "is_me": false, "email": "marta@momjobs.test", "phone": null, "photo_url": null },
+    { "name": "Marta Kowalska", "joined": true, "is_me": false, "email": "marta@mumjobs.test", "phone": null, "photo_url": null },
     { "name": "Ewa N.", "joined": false, "is_me": false, "email": null, "phone": null, "photo_url": null }
   ]
 }

@@ -18,7 +18,7 @@ defineProps<{
                 <Link
                     :href="home()"
                     class="inline-flex items-center"
-                    aria-label="MomJobs – strona główna"
+                    aria-label="mumjobs – strona główna"
                 >
                     <BrandLogo class="h-12" />
                 </Link>
@@ -39,7 +39,7 @@ defineProps<{
             </div>
 
             <p class="mt-6 text-center text-xs text-muted-foreground">
-                MomJobs · praca dla przyszłych i obecnych mam
+                mumjobs · praca dla przyszłych i obecnych mam
             </p>
         </div>
     </div>

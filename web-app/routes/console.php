@@ -10,17 +10,17 @@ Artisan::command('inspire', function () {
 
 Schedule::command('sanctum:prune-expired --hours=24')->daily();
 
-Schedule::command('momjobs:send-job-alerts')
+Schedule::command('mumjobs:send-job-alerts')
     ->weeklyOn(1, '8:00')
     ->timezone('Europe/Warsaw')
     ->withoutOverlapping();
 
-Schedule::command('momjobs:send-newsletter')
+Schedule::command('mumjobs:send-newsletter')
     ->weeklyOn(1, '9:00')
     ->timezone('Europe/Warsaw')
     ->withoutOverlapping();
 
-Schedule::command('momjobs:prune-moderation-events')
+Schedule::command('mumjobs:prune-moderation-events')
     ->dailyAt('3:00')
     ->timezone('Europe/Warsaw')
     ->withoutOverlapping();

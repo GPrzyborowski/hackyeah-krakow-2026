@@ -11,15 +11,15 @@ class ScheduledMailsScheduleTest extends TestCase
     public function test_weekly_mail_commands_are_listed_in_the_schedule(): void
     {
         $this->artisan('schedule:list')
-            ->expectsOutputToContain('momjobs:send-job-alerts')
-            ->expectsOutputToContain('momjobs:send-newsletter')
+            ->expectsOutputToContain('mumjobs:send-job-alerts')
+            ->expectsOutputToContain('mumjobs:send-newsletter')
             ->assertSuccessful();
     }
 
     public function test_weekly_mail_commands_run_on_monday_morning_warsaw_time(): void
     {
-        $this->assertSame(['0 8 * * 1', 'Europe/Warsaw'], $this->scheduleOf('momjobs:send-job-alerts'));
-        $this->assertSame(['0 9 * * 1', 'Europe/Warsaw'], $this->scheduleOf('momjobs:send-newsletter'));
+        $this->assertSame(['0 8 * * 1', 'Europe/Warsaw'], $this->scheduleOf('mumjobs:send-job-alerts'));
+        $this->assertSame(['0 9 * * 1', 'Europe/Warsaw'], $this->scheduleOf('mumjobs:send-newsletter'));
     }
 
     /**

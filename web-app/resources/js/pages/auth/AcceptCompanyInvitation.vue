@@ -29,7 +29,7 @@ defineProps<{
 defineOptions({
     layout: {
         title: 'Dołącz do zespołu',
-        description: 'Zaproszenie do zespołu rekrutacyjnego w MomJobs.',
+        description: 'Zaproszenie do zespołu rekrutacyjnego w mumjobs.',
     },
 });
 </script>

@@ -30,14 +30,14 @@ class DemoResetCommandTest extends TestCase
         Storage::disk('local')->put('cvs/old-upload.pdf', 'cv');
         Storage::disk('local')->put('keep/other.txt', 'keep');
 
-        $this->artisan('momjobs:demo-reset', ['--force' => true])
-            ->expectsOutputToContain('marta@momjobs.test')
+        $this->artisan('mumjobs:demo-reset', ['--force' => true])
+            ->expectsOutputToContain('marta@mumjobs.test')
             ->expectsOutputToContain('hr@zielonebiuro.test')
             ->assertSuccessful();
 
-        $this->assertDatabaseHas(User::class, ['email' => 'marta@momjobs.test']);
+        $this->assertDatabaseHas(User::class, ['email' => 'marta@mumjobs.test']);
         $this->assertDatabaseHas(User::class, ['email' => 'hr@zielonebiuro.test']);
-        $marta = User::firstWhere('email', 'marta@momjobs.test');
+        $marta = User::firstWhere('email', 'marta@mumjobs.test');
         $recruiter = User::firstWhere('email', 'hr@zielonebiuro.test');
         $this->assertTrue($marta->unreadNotifications()->where('data->kind', 'invitation_received')->where('data->title', 'like', 'Firma Kamienica Studio zaprasza Cię%')->exists());
         $this->assertTrue($marta->notifications()->where('data->kind', 'pair_invitation_accepted')->exists());
@@ -54,7 +54,7 @@ class DemoResetCommandTest extends TestCase
     {
         $this->app->detectEnvironment(fn (): string => 'production');
 
-        $this->artisan('momjobs:demo-reset', ['--no-interaction' => true])
+        $this->artisan('mumjobs:demo-reset', ['--no-interaction' => true])
             ->expectsOutputToContain('Refusing to reset demo data in production')
             ->doesntExpectOutputToContain('Demo data restored')
             ->assertFailed();

@@ -11,7 +11,7 @@ export type UseAppearanceReturn = {
 };
 
 /**
- * MomJobs ships a single light brand theme, so the dark class is never applied.
+ * mumjobs ships a single light brand theme, so the dark class is never applied.
  */
 export function updateTheme(_value: Appearance): void {
     if (typeof window === 'undefined') {

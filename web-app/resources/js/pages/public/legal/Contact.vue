@@ -18,7 +18,7 @@ const faq: { question: string; answer: string }[] = [
         answer: 'Dopiero gdy przyjmiesz jej zaproszenie. Wcześniej widzi tylko anonimowy profil: doświadczenie, umiejętności i preferencje.',
     },
     {
-        question: 'Czy korzystanie z MomJobs jest płatne?',
+        question: 'Czy korzystanie z mumjobs jest płatne?',
         answer: 'Dla kandydatek serwis jest bezpłatny.',
     },
     {

@@ -9,7 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
 /**
- * Invite a recruiter by e-mail. Whether the address already has a MomJobs account is never revealed here
+ * Invite a recruiter by e-mail. Whether the address already has a mumjobs account is never revealed here
  * (it could expose candidates); the acceptance page explains when an account cannot join.
  */
 class InviteTeamMemberRequest extends FormRequest

@@ -22,7 +22,7 @@ class BrandedMailTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_app_notifications_render_in_polish_with_momjobs_branding(): void
+    public function test_app_notifications_render_in_polish_with_mumjobs_branding(): void
     {
         $user = User::factory()->create();
         $mails = [
@@ -41,7 +41,7 @@ class BrandedMailTest extends TestCase
     {
         $mail = (new VerifyEmail)->toMail(User::factory()->unverified()->create());
 
-        $this->assertSame('Potwierdź swój adres e-mail w MomJobs', $mail->subject);
+        $this->assertSame('Potwierdź swój adres e-mail w mumjobs', $mail->subject);
         $this->assertSame('Potwierdź adres e-mail', $mail->actionText);
         $this->assertBrandedPolishMail($mail);
     }
@@ -50,7 +50,7 @@ class BrandedMailTest extends TestCase
     {
         $mail = (new ResetPassword('token'))->toMail(User::factory()->create());
 
-        $this->assertSame('Ustaw nowe hasło w MomJobs', $mail->subject);
+        $this->assertSame('Ustaw nowe hasło w mumjobs', $mail->subject);
         $this->assertSame('Ustaw nowe hasło', $mail->actionText);
         $this->assertStringContainsString('Link do zmiany hasła będzie ważny przez 60 minut.', (string) $mail->render());
         $this->assertBrandedPolishMail($mail);
@@ -62,7 +62,7 @@ class BrandedMailTest extends TestCase
 
         $this->assertStringContainsString('Cześć!', $html);
         $this->assertStringContainsString('Pozdrawiamy,', $html);
-        $this->assertStringContainsString('zespół MomJobs', $html);
+        $this->assertStringContainsString('zespół mumjobs', $html);
         $this->assertStringContainsString('praca dla przyszłych i obecnych mam', $html);
         $this->assertStringContainsString(config('app.url').'/images/logo.png', $html);
         $this->assertStringContainsString('#143f3b', $html);

@@ -1,4 +1,4 @@
-# MomJobs API v1 – Candidate
+# mumjobs API v1 – Candidate
 
 Base URL: `/api/v1`. Every endpoint below requires `Authorization: Bearer <token>` (from `POST /auth/login`) and a user with role `candidate`. Send `Accept: application/json`.
 
@@ -34,7 +34,7 @@ The candidate's own full profile, including private dates (never shown to employ
     "years_of_experience": 6,
     "city": "Kraków",
     "phone": "+48 600 100 200",
-    "photo_url": "https://momjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d",
+    "photo_url": "https://mumjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d",
     "ai_summary": "Rekruterka IT z 6-letnim doświadczeniem…",
     "available_from": "2027-09-01",
     "leave_starts_on": "2026-12-01",
@@ -208,12 +208,12 @@ Published offers ranked by match (same filters as the web list). Query parameter
 | `employment_fractions[]` | `1`, `3/4`, `3/5`, `1/2` |
 | `flexible_hours`, `childcare_subsidy`, `with_reviews`, `job_share`, `saved` | `1` to enable |
 | `nursery_nearby` | `1` = only offers with a nursery/kindergarten at most 3 km from the workplace (`nursery_distance_km` set and `<= 3`) |
-| `verified_only` | `1` = only offers of companies verified by MomJobs ("Tylko zweryfikowane firmy") |
+| `verified_only` | `1` = only offers of companies verified by mumjobs ("Tylko zweryfikowane firmy") |
 | `start_from` | date; offers starting no earlier than 30 days before it. Defaults to the candidate's `available_from`; send `start_from=` (empty) to disable |
 | `sort` | `match` (default) or `newest` |
 | `page` | page number (20 per page) |
 
-Offer card (also used in `home.top_offers`). `company.verified` = the company's NIP was checked by a MomJobs admin – show the mint badge "Zweryfikowana firma" (check icon) next to the company name (same flag on offer detail, invitations and the conversation header). `nursery_distance_km` is the distance in km from the workplace to the nearest nursery/kindergarten (`null` = not provided; show it as the chip "Przedszkole {N} km"):
+Offer card (also used in `home.top_offers`). `company.verified` = the company's NIP was checked by a mumjobs admin – show the mint badge "Zweryfikowana firma" (check icon) next to the company name (same flag on offer detail, invitations and the conversation header). `nursery_distance_km` is the distance in km from the workplace to the nearest nursery/kindergarten (`null` = not provided; show it as the chip "Przedszkole {N} km"):
 
 ```json
 {

@@ -11,7 +11,7 @@ use Throwable;
 class ClaudeMessageModerator implements MessageModerator
 {
     private const string SYSTEM_PROMPT = <<<'PROMPT'
-        You moderate messages that employers send to job candidates on MomJobs, a Polish recruitment platform for
+        You moderate messages that employers send to job candidates on mumjobs, a Polish recruitment platform for
         pregnant women and mothers. Under Polish labour law (Kodeks pracy, art. 22¹ and art. 18³a) an employer must not
         ask a candidate about pregnancy, plans to have children, number or age of children, childcare arrangements,
         marital status, a partner's situation or family plans - directly or indirectly.

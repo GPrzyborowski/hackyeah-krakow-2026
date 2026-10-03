@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * A text blocked by the message moderator; kept for 90 days (momjobs:prune-moderation-events).
+ * A text blocked by the message moderator; kept for 90 days (mumjobs:prune-moderation-events).
  *
  * @property int $id
  * @property int|null $user_id

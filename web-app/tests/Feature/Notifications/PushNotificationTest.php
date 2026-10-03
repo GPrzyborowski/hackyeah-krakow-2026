@@ -18,7 +18,7 @@ class PushNotificationTest extends TestCase
 
     private const string TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
-    private const string SEND_URL = 'https://fcm.googleapis.com/v1/projects/momjobs-test/messages:send';
+    private const string SEND_URL = 'https://fcm.googleapis.com/v1/projects/mumjobs-test/messages:send';
 
     private string $publicKey;
 
@@ -38,8 +38,8 @@ class PushNotificationTest extends TestCase
             'services.fcm.project_id' => null,
             'services.fcm.credentials' => json_encode([
                 'type' => 'service_account',
-                'project_id' => 'momjobs-test',
-                'client_email' => 'push@momjobs-test.iam.gserviceaccount.com',
+                'project_id' => 'mumjobs-test',
+                'client_email' => 'push@mumjobs-test.iam.gserviceaccount.com',
                 'private_key' => $privateKey,
                 'token_uri' => self::TOKEN_URL,
             ]),
@@ -71,7 +71,7 @@ class PushNotificationTest extends TestCase
 
             return $request['grant_type'] === 'urn:ietf:params:oauth:grant-type:jwt-bearer'
                 && json_decode($this->base64UrlDecode($header), true)['alg'] === 'RS256'
-                && $payload['iss'] === 'push@momjobs-test.iam.gserviceaccount.com'
+                && $payload['iss'] === 'push@mumjobs-test.iam.gserviceaccount.com'
                 && $payload['scope'] === 'https://www.googleapis.com/auth/firebase.messaging'
                 && $payload['aud'] === self::TOKEN_URL
                 && openssl_verify("{$header}.{$claims}", $this->base64UrlDecode($signature), $this->publicKey, OPENSSL_ALGO_SHA256) === 1;
@@ -99,7 +99,7 @@ class PushNotificationTest extends TestCase
             && $request['message']['token'] === 'device-a'
             && $request['message']['notification'] === [
                 'title' => 'Twoja firma została zweryfikowana',
-                'body' => 'MomJobs potwierdził dane firmy Zielone Biuro. Kandydatki zobaczą przy Waszych ofertach odznakę „Zweryfikowana firma”.',
+                'body' => 'mumjobs potwierdził dane firmy Zielone Biuro. Kandydatki zobaczą przy Waszych ofertach odznakę „Zweryfikowana firma”.',
             ]
             && $request['message']['data'] === [
                 'kind' => 'company_verified',
@@ -123,7 +123,7 @@ class PushNotificationTest extends TestCase
                     'gone' => $this->fcmError(404, 'NOT_FOUND', 'UNREGISTERED'),
                     'malformed' => $this->fcmError(400, 'INVALID_ARGUMENT', 'INVALID_ARGUMENT'),
                     'throttled' => $this->fcmError(429, 'RESOURCE_EXHAUSTED', 'QUOTA_EXCEEDED'),
-                    default => Http::response(['name' => 'projects/momjobs-test/messages/1']),
+                    default => Http::response(['name' => 'projects/mumjobs-test/messages/1']),
                 };
             },
         ]);
@@ -170,7 +170,7 @@ class PushNotificationTest extends TestCase
     {
         Http::fake([
             self::TOKEN_URL => Http::response(['access_token' => 'access-123', 'expires_in' => 3599, 'token_type' => 'Bearer']),
-            self::SEND_URL => Http::response(['name' => 'projects/momjobs-test/messages/1']),
+            self::SEND_URL => Http::response(['name' => 'projects/mumjobs-test/messages/1']),
         ]);
     }
 

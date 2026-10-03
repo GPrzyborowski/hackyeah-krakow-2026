@@ -11,7 +11,7 @@ defineProps<{
 <template>
     <LegalPageShell
         title="Polityka prywatności"
-        lead="Jak MomJobs przetwarza Twoje dane osobowe – prostym językiem, zgodnie z RODO."
+        lead="Jak mumjobs przetwarza Twoje dane osobowe – prostym językiem, zgodnie z RODO."
         updated-at="3 października 2026"
     >
         <h2>1. Administrator danych</h2>

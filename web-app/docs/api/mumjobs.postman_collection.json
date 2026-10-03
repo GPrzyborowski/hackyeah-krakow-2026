@@ -1,8 +1,8 @@
 {
     "info": {
-        "_postman_id": "b6240c5d-5b1f-596c-a05e-f5a720d08d89",
-        "name": "MomJobs mobile API v1",
-        "description": "Generated from docs/api/openapi.yaml by `php artisan momjobs:postman` – do not edit by hand. Run \"Auth / Login as candidate\" or \"Login as employer\" first – the test script stores the bearer token in {{token}}. Candidate endpoints need the candidate token, Employer endpoints the employer token. Set the *Id variables to real ids from list responses.",
+        "_postman_id": "f839ff40-2da5-50a5-bf06-011824a2f3a8",
+        "name": "mumjobs API v1",
+        "description": "Generated from docs/api/openapi.yaml by `php artisan mumjobs:postman` – do not edit by hand. Run \"Auth / Login as candidate\" or \"Login as employer\" first – the test script stores the bearer token in {{token}}. Candidate endpoints need the candidate token, Employer endpoints the employer token. Set the *Id variables to real ids from list responses.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "auth": {
@@ -139,7 +139,7 @@
                 },
                 {
                     "id": "login",
-                    "name": "Login as candidate (marta@momjobs.test)",
+                    "name": "Login as candidate (marta@mumjobs.test)",
                     "event": [
                         {
                             "listen": "test",
@@ -169,7 +169,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"marta@momjobs.test\",\n    \"password\": \"password\",\n    \"device_name\": \"Postman\"\n}",
+                            "raw": "{\n    \"email\": \"marta@mumjobs.test\",\n    \"password\": \"password\",\n    \"device_name\": \"Postman\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"

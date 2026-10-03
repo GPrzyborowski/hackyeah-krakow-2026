@@ -38,8 +38,8 @@ class WeeklyNewsletter extends Notification
 
         $message = (new MailMessage)
             ->subject($this->articles->count() === 1
-                ? "Nowy tekst na blogu MomJobs: {$leadArticle->title}"
-                : 'Nowe teksty na blogu MomJobs')
+                ? "Nowy tekst na blogu mumjobs: {$leadArticle->title}"
+                : 'Nowe teksty na blogu mumjobs')
             ->greeting('Cześć!')
             ->line('Jeden nowy tekst w tygodniu – bez reklam i bez spamu. Oto, co przygotowałyśmy:');
 

@@ -76,7 +76,7 @@ class CompanyTest extends TestCase
 
         $this->putJson('/api/v1/employer/company', ['name' => 'Zielone Biuro', 'nip' => '526-025-02-74'])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['nip' => 'Firma z tym NIP-em ma już konto w MomJobs.']);
+            ->assertJsonValidationErrors(['nip' => 'Firma z tym NIP-em ma już konto w mumjobs.']);
 
         $this->putJson('/api/v1/employer/company', ['name' => 'Zielone Biuro', 'nip' => '1234563218'])
             ->assertOk();

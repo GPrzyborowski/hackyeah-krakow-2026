@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
-  title: MomJobs mobile API
+  title: mumjobs API
   version: 1.0.0
-  summary: REST/JSON API for the MomJobs mobile app (candidates and employers).
+  summary: REST/JSON API for the mumjobs mobile app (candidates and employers).
   description: |
-    Plain REST/JSON API that mirrors the MomJobs web app (same business rules, privacy rules, moderation and rate limits).
+    Plain REST/JSON API that mirrors the mumjobs web app (same business rules, privacy rules, moderation and rate limits).
     Human-readable reference: `docs/api/README.md`, `candidate.md`, `employer.md`, `shared.md`.
 
     **Headers.** Send `Accept: application/json` (the server also forces it for `/api/*`, so errors are always JSON). Bodies are JSON, except the CV upload
@@ -37,7 +37,7 @@ info:
     chat messages) are checked for questions about pregnancy or family plans and rejected with `422`; invitations and
     chat messages also return a rewritten suggestion (`errors.message_suggestion` / `errors.body_suggestion`).
 
-    Demo accounts (password `password`): `marta@momjobs.test` (candidate), `hr@zielonebiuro.test` (employer).
+    Demo accounts (password `password`): `marta@mumjobs.test` (candidate), `hr@zielonebiuro.test` (employer).
 servers:
   - url: http://localhost/api/v1
     description: Local (Laravel Sail)
@@ -125,7 +125,7 @@ paths:
         content:
           application/json:
             schema: { $ref: '#/components/schemas/LoginRequest' }
-            example: { email: marta@momjobs.test, password: password, device_name: iPhone Marty }
+            example: { email: marta@mumjobs.test, password: password, device_name: iPhone Marty }
       responses:
         '200':
           description: Token issued.
@@ -2566,7 +2566,7 @@ components:
             id: { type: integer }
             name: { type: string }
             city: { type: [string, 'null'] }
-            verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+            verified: { type: boolean, description: 'Verified by a mumjobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
             average_rating: { type: [number, 'null'] }
             reviews_count: { type: integer }
             first_review: { $ref: '#/components/schemas/FeaturedQuote' }
@@ -2745,7 +2745,7 @@ components:
           properties:
             id: { type: integer }
             name: { type: string }
-            verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+            verified: { type: boolean, description: 'Verified by a mumjobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
             average_rating: { type: [number, 'null'] }
             reviews_count: { type: integer }
 
@@ -3134,7 +3134,7 @@ components:
           properties:
             id: { type: integer }
             name: { type: string }
-            verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+            verified: { type: boolean, description: 'Verified by a mumjobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
             rating: { type: [number, 'null'] }
             featured_quote: { $ref: '#/components/schemas/FeaturedQuote' }
     PublicOfferDetail:
@@ -3154,7 +3154,7 @@ components:
                 id: { type: integer }
                 name: { type: string }
                 city: { type: [string, 'null'] }
-                verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+                verified: { type: boolean, description: 'Verified by a mumjobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
                 rating: { $ref: '#/components/schemas/RatingSummary' }
                 featured_quote: { $ref: '#/components/schemas/FeaturedQuote' }
     PublicCompany:
@@ -3163,7 +3163,7 @@ components:
         id: { type: integer }
         name: { type: string }
         city: { type: [string, 'null'] }
-        verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+        verified: { type: boolean, description: 'Verified by a mumjobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
         description: { type: [string, 'null'] }
         rating: { $ref: '#/components/schemas/RatingSummary' }
         reviews:
@@ -3249,7 +3249,7 @@ components:
                 type: { const: company }
                 id: { type: integer }
                 name: { type: string }
-                verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+                verified: { type: boolean, description: 'Verified by a mumjobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
                 rating: { type: [number, 'null'] }
             - type: object
               properties:

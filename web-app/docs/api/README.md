@@ -1,6 +1,6 @@
-# MomJobs mobile API v1
+# mumjobs mobile API v1
 
-Plain REST/JSON API for the MomJobs mobile app. It mirrors the web app (same business rules, privacy rules,
+Plain REST/JSON API for the mumjobs mobile app. It mirrors the web app (same business rules, privacy rules,
 moderation and rate limits) and is grouped into three reference documents:
 
 | Document | Covers |
@@ -14,9 +14,9 @@ Machine-readable versions:
 - [openapi.yaml](openapi.yaml) – OpenAPI 3.1 spec of every endpoint (also served outside production at
   `GET /api/v1/openapi.yaml`, e.g. `http://localhost/api/v1/openapi.yaml` – import it into Swagger UI, Redocly, Insomnia…).
   `tests/Feature/Api/OpenApiSpecTest.php` fails when a route is missing from the spec (or the spec lists a removed one).
-- [momjobs.postman_collection.json](momjobs.postman_collection.json) – Postman v2.1 collection (folders per area,
+- [mumjobs.postman_collection.json](mumjobs.postman_collection.json) – Postman v2.1 collection (folders per area,
   `{{baseUrl}}` / `{{token}}` variables). Run *Auth → Login as candidate / employer* first; it stores the token.
-  Generated from the spec – after changing `openapi.yaml` run `vendor/bin/sail artisan momjobs:postman` (don't edit the JSON by hand).
+  Generated from the spec – after changing `openapi.yaml` run `vendor/bin/sail artisan mumjobs:postman` (don't edit the JSON by hand).
 
 ## Base URL
 
@@ -66,7 +66,7 @@ Locally (Sail): `http://localhost/api/v1`. All paths in the docs are relative to
   "user": {
     "id": 1,
     "name": "Marta Kowalska",
-    "email": "marta@momjobs.test",
+    "email": "marta@mumjobs.test",
     "email_verified": true,
     "role": "candidate",
     "push_enabled": true,
@@ -76,7 +76,7 @@ Locally (Sail): `http://localhost/api/v1`. All paths in the docs are relative to
 }
 ```
 
-Demo accounts (password `password`): `marta@momjobs.test` (candidate), `hr@zielonebiuro.test` (employer).
+Demo accounts (password `password`): `marta@mumjobs.test` (candidate), `hr@zielonebiuro.test` (employer).
 
 ## Responses
 

@@ -31,11 +31,11 @@ class CompanyTeamInvitation extends Notification
         $inviterName = $this->invitation->invitedBy?->name;
 
         return (new MailMessage)
-            ->subject("Zaproszenie do zespołu firmy {$companyName} w MomJobs")
+            ->subject("Zaproszenie do zespołu firmy {$companyName} w mumjobs")
             ->greeting('Cześć!')
             ->line($inviterName !== null
-                ? "{$inviterName} zaprasza Cię do zespołu rekrutacyjnego firmy {$companyName} w MomJobs."
-                : "Zapraszamy Cię do zespołu rekrutacyjnego firmy {$companyName} w MomJobs.")
+                ? "{$inviterName} zaprasza Cię do zespołu rekrutacyjnego firmy {$companyName} w mumjobs."
+                : "Zapraszamy Cię do zespołu rekrutacyjnego firmy {$companyName} w mumjobs.")
             ->line('Po dołączeniu zobaczysz oferty firmy, dopasowane kandydatki i rozmowy zespołu.')
             ->action('Dołącz do zespołu', $this->url())
             ->line('Zaproszenie jest ważne do '.$this->invitation->expires_at->format('d.m.Y').'. Jeśli się go nie spodziewasz, zignoruj tę wiadomość.');

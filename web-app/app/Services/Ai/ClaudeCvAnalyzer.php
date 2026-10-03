@@ -21,7 +21,7 @@ class ClaudeCvAnalyzer implements CvAnalyzer
     private const int MAX_EXTRACTED_TEXT_LENGTH = 20000;
 
     private const string SYSTEM_PROMPT = <<<'PROMPT'
-        You analyse CVs for MomJobs, a Polish job platform for pregnant women and mothers returning to work.
+        You analyse CVs for mumjobs, a Polish job platform for pregnant women and mothers returning to work.
         Employers see an anonymous profile, so the summary and headline must never contain personal data
         (names, surnames, e-mail, phone, address, exact dates of birth, photos) and must never mention pregnancy,
         children, maternity or parental leave, or the reason for any career gap.

@@ -41,7 +41,7 @@ class Company extends Model
     }
 
     /**
-     * Whether MomJobs checked the company's NIP (admin verification).
+     * Whether mumjobs checked the company's NIP (admin verification).
      */
     public function isVerified(): bool
     {

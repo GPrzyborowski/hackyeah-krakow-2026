@@ -27,7 +27,7 @@ class CompanyFactory extends Factory
     }
 
     /**
-     * A company whose NIP was checked by a MomJobs administrator.
+     * A company whose NIP was checked by a mumjobs administrator.
      */
     public function verified(): static
     {

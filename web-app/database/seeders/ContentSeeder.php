@@ -252,9 +252,9 @@ class ContentSeeder extends Seeder
 
                     To Twoja decyzja. Niektóre kandydatki mówią o ciąży, gdy rozmowy są już zaawansowane, żeby wspólnie ustalić termin startu. Inne mówią dopiero po podpisaniu umowy. Pamiętaj, że ochrona przed zwolnieniem z art. 177 Kodeksu pracy działa od początku ciąży, a z niektórych uprawnień (np. zwolnienia na badania) skorzystasz po przedstawieniu zaświadczenia lekarskiego.
 
-                    ## Jak MomJobs Ci pomaga
+                    ## Jak mumjobs Ci pomaga
 
-                    W MomJobs pracodawca widzi Twój anonimowy profil: umiejętności, doświadczenie i datę, od kiedy jesteś dostępna. Nie widzi przyczyny przerwy, terminu porodu ani zdjęcia. Wiadomości od firm przechodzą przez filtr, który blokuje pytania o ciążę i plany rodzinne.
+                    W mumjobs pracodawca widzi Twój anonimowy profil: umiejętności, doświadczenie i datę, od kiedy jesteś dostępna. Nie widzi przyczyny przerwy, terminu porodu ani zdjęcia. Wiadomości od firm przechodzą przez filtr, który blokuje pytania o ciążę i plany rodzinne.
 
                     > To informacja ogólna, a nie porada prawna.
                     MD,
@@ -292,7 +292,7 @@ class ContentSeeder extends Seeder
 
                     Jeśli padnie pytanie o przerwę, odpowiedz krótko i wróć do konkretów: „Miałam przerwę w pracy, teraz jestem gotowa wrócić od marca. W ostatnim projekcie odpowiadałam za…”. Nie musisz mówić więcej.
 
-                    W MomJobs profil pokazuje datę dostępności zamiast przerwy – pracodawca widzi Twoje umiejętności, a nie lukę w kalendarzu.
+                    W mumjobs profil pokazuje datę dostępności zamiast przerwy – pracodawca widzi Twoje umiejętności, a nie lukę w kalendarzu.
                     MD,
             ],
             [
@@ -390,7 +390,7 @@ class ContentSeeder extends Seeder
 
                     ## 3. Czy można pracować na część etatu?
 
-                    Jeśli planujesz 3/4 lub 1/2 etatu, zapytaj od razu. W MomJobs wymiar etatu jest widoczny w każdej ofercie.
+                    Jeśli planujesz 3/4 lub 1/2 etatu, zapytaj od razu. W mumjobs wymiar etatu jest widoczny w każdej ofercie.
 
                     ## 4. Co się dzieje, gdy dziecko zachoruje?
 
@@ -398,7 +398,7 @@ class ContentSeeder extends Seeder
 
                     ## 5. Czy firma ma doświadczenie z rodzicami?
 
-                    Zapytaj o osoby, które wróciły po urlopie rodzicielskim. Sprawdź też oceny firmy wystawione przez mamy – na MomJobs znajdziesz je przy profilu pracodawcy.
+                    Zapytaj o osoby, które wróciły po urlopie rodzicielskim. Sprawdź też oceny firmy wystawione przez mamy – na mumjobs znajdziesz je przy profilu pracodawcy.
 
                     ## Twoje prawa
 

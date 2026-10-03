@@ -31,7 +31,7 @@ class SendNewsletterCommandTest extends TestCase
         $unsubscribed = NewsletterSubscriber::factory()->unsubscribed()->create();
         $unconfirmed = NewsletterSubscriber::factory()->create();
 
-        $this->artisan('momjobs:send-newsletter')->assertSuccessful();
+        $this->artisan('mumjobs:send-newsletter')->assertSuccessful();
 
         Notification::assertSentTo($active, WeeklyNewsletter::class, fn (WeeklyNewsletter $notification): bool => $notification->articles->modelKeys() === [$article->id]);
         Notification::assertNotSentTo([$unsubscribed, $unconfirmed], WeeklyNewsletter::class);
@@ -45,8 +45,8 @@ class SendNewsletterCommandTest extends TestCase
         Article::factory()->create(['published_at' => now()->subDay()]);
         $subscriber = NewsletterSubscriber::factory()->confirmed()->create();
 
-        $this->artisan('momjobs:send-newsletter')->assertSuccessful();
-        $this->artisan('momjobs:send-newsletter')->assertSuccessful();
+        $this->artisan('mumjobs:send-newsletter')->assertSuccessful();
+        $this->artisan('mumjobs:send-newsletter')->assertSuccessful();
 
         Notification::assertSentToTimes($subscriber, WeeklyNewsletter::class, 1);
     }
@@ -57,7 +57,7 @@ class SendNewsletterCommandTest extends TestCase
         Article::factory()->create(['title' => 'Elastyczny etat', 'published_at' => now()->subDay()]);
         $subscriber = NewsletterSubscriber::factory()->confirmed()->create(['email' => 'anna@example.com']);
 
-        $this->artisan('momjobs:send-newsletter', ['--dry-run' => true])
+        $this->artisan('mumjobs:send-newsletter', ['--dry-run' => true])
             ->expectsOutputToContain('anna@example.com')
             ->assertSuccessful();
 
@@ -71,7 +71,7 @@ class SendNewsletterCommandTest extends TestCase
         $article = Article::factory()->create(['published_at' => now()->subDay()]);
         $subscriber = NewsletterSubscriber::factory()->confirmed()->create();
 
-        $this->artisan('momjobs:send-newsletter')->assertSuccessful();
+        $this->artisan('mumjobs:send-newsletter')->assertSuccessful();
 
         $unsubscribeUrl = route('newsletter.unsubscribe', ['token' => $subscriber->token]);
         /** @var ArrayTransport $transport */
@@ -97,7 +97,7 @@ class SendNewsletterCommandTest extends TestCase
         Article::factory()->create(['published_at' => now()->subDay()]);
         NewsletterSubscriber::factory()->confirmed()->count(2)->create();
 
-        $this->artisan('momjobs:send-newsletter')
+        $this->artisan('mumjobs:send-newsletter')
             ->expectsOutputToContain('Sent 0 newsletter(s), 2 failed.')
             ->assertSuccessful();
 

@@ -11,7 +11,7 @@ class LegalPageController extends Controller
     /**
      * Contact address shown on the static legal pages.
      */
-    public const string CONTACT_EMAIL = 'kontakt@momjobs.test';
+    public const string CONTACT_EMAIL = 'kontakt@mumjobs.test';
 
     /**
      * Terms of service (Regulamin serwisu).

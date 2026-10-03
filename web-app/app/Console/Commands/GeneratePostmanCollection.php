@@ -10,9 +10,9 @@ use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Yaml\Yaml;
 
-#[Signature('momjobs:postman
+#[Signature('mumjobs:postman
     {--spec=docs/api/openapi.yaml : OpenAPI spec to read (relative to the project root or absolute)}
-    {--output=docs/api/momjobs.postman_collection.json : Where to write the Postman v2.1 collection}')]
+    {--output=docs/api/mumjobs.postman_collection.json : Where to write the Postman v2.1 collection}')]
 #[Description('Generate the Postman collection of the mobile API from docs/api/openapi.yaml')]
 class GeneratePostmanCollection extends Command
 {
@@ -24,7 +24,7 @@ class GeneratePostmanCollection extends Command
 
     private const string DEMO_PASSWORD = 'password';
 
-    private const string CANDIDATE_EMAIL = 'marta@momjobs.test';
+    private const string CANDIDATE_EMAIL = 'marta@mumjobs.test';
 
     private const string EMPLOYER_EMAIL = 'hr@zielonebiuro.test';
 
@@ -142,9 +142,9 @@ class GeneratePostmanCollection extends Command
 
         return [
             'info' => [
-                '_postman_id' => Uuid::uuid5(Uuid::NAMESPACE_URL, 'momjobs-api-v1')->toString(),
-                'name' => 'MomJobs mobile API v1',
-                'description' => 'Generated from docs/api/openapi.yaml by `php artisan momjobs:postman` – do not edit by hand. '
+                '_postman_id' => Uuid::uuid5(Uuid::NAMESPACE_URL, 'mumjobs-api-v1')->toString(),
+                'name' => 'mumjobs API v1',
+                'description' => 'Generated from docs/api/openapi.yaml by `php artisan mumjobs:postman` – do not edit by hand. '
                     .'Run "Auth / Login as candidate" or "Login as employer" first – the test script stores the bearer token in {{token}}. '
                     .'Candidate endpoints need the candidate token, Employer endpoints the employer token. '
                     .'Set the *Id variables to real ids from list responses.',

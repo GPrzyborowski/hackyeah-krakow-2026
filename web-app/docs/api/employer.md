@@ -1,4 +1,4 @@
-# MomJobs API v1 – Employer
+# mumjobs API v1 – Employer
 
 Base URL: `/api/v1`. Every endpoint below requires `Authorization: Bearer <token>` (from `POST /auth/login`), a user with role `employer`, a **verified email address** and a company attached to the account. Send `Accept: application/json`. All data is scoped to the signed-in employer's company.
 
@@ -76,7 +76,7 @@ The employer home screen; the web panel (`/employer`) renders the same data. Cou
 - `funnel` – one row per published offer: matched → reviewed (skipped / saved / invited) → invited → accepted.
 - `todo[].kind`: `unread_messages` (conversations with unread candidate messages, `names` = up to 3 candidates), `submitted_pairs` (job-share pairs waiting for a decision), `candidates_to_review` (top 3 offers by queue size), `offer_incomplete` (published or draft offer; `hints`: `missing_required_skills`, `missing_salary`, `no_flexible_hours`), `no_approved_reviews` (no approved company review yet – no offer can get the badge). `url` is a web path; use `offer_id` in the app.
 - `activity` – last 10 items: the employer's notifications (`invitation_accepted`, `invitation_declined`, `new_message`, `pair_hired_company`, …, same shape as `GET /notifications`) merged with job-share pair submissions (`pair_submitted`), newest first.
-- `company.verified` is `true` once MomJobs verified the NIP.
+- `company.verified` is `true` once mumjobs verified the NIP.
 
 ---
 
@@ -108,13 +108,13 @@ The employer home screen; the web panel (`/employer`) renders the same data. Cou
 
 Only approved reviews are included; rating fields are `null` when there are none.
 
-`verified` / `verified_at` (ISO 8601): whether a MomJobs admin verified the company's NIP. While `verified` is `false` show the banner "Twoja firma czeka na weryfikację – zweryfikowane firmy dostają więcej odpowiedzi." (invitations are not blocked). Verification is done by an admin on the web; members get a `company_verified` notification.
+`verified` / `verified_at` (ISO 8601): whether a mumjobs admin verified the company's NIP. While `verified` is `false` show the banner "Twoja firma czeka na weryfikację – zweryfikowane firmy dostają więcej odpowiedzi." (invitations are not blocked). Verification is done by an admin on the web; members get a `company_verified` notification.
 
 ### PUT /employer/company
 
 Body: `name` (required, max 255), `nip` (optional, valid Polish NIP – 10 digits with a correct checksum, unique across companies; spaces and dashes are stripped, e.g. `123-456-32-18`), `city`, `description` (max 5000, moderated). Returns the company resource.
 
-Throttle 20/min. Errors: 422 `nip` ("NIP musi składać się z 10 cyfr." / "Podany NIP jest nieprawidłowy." / "Firma z tym NIP-em ma już konto w MomJobs."), 422 `description` (moderation reason + suggestion).
+Throttle 20/min. Errors: 422 `nip` ("NIP musi składać się z 10 cyfr." / "Podany NIP jest nieprawidłowy." / "Firma z tym NIP-em ma już konto w mumjobs."), 422 `description` (moderation reason + suggestion).
 
 ---
 
@@ -122,7 +122,7 @@ Throttle 20/min. Errors: 422 `nip` ("NIP musi składać się z 10 cyfr." / "Poda
 
 A company can have many recruiters (`users.company_id`). Every member sees the same company data (offers, candidates, conversations) – nothing beyond what the company already sees – and every member may manage the team (no owner role).
 
-**Joining is web-only.** `POST /employer/team/invitations` e-mails a signed link (`/company-invitations/{token}?signature=…`, valid 7 days). On that web page a person without an account sets name + password (the account is created as a verified employer attached to the company); a signed-in employer **without a company** whose e-mail matches joins with one click; an existing account of that address is asked to log in first. Expired / used links show a friendly message. The API never exposes the token. Registration with a NIP that already exists answers `company_nip`: "Firma z tym NIP-em ma już konto w MomJobs. Poproś osobę z Twojej firmy o zaproszenie do zespołu w MomJobs."
+**Joining is web-only.** `POST /employer/team/invitations` e-mails a signed link (`/company-invitations/{token}?signature=…`, valid 7 days). On that web page a person without an account sets name + password (the account is created as a verified employer attached to the company); a signed-in employer **without a company** whose e-mail matches joins with one click; an existing account of that address is asked to log in first. Expired / used links show a friendly message. The API never exposes the token. Registration with a NIP that already exists answers `company_nip`: "Firma z tym NIP-em ma już konto w mumjobs. Poproś osobę z Twojej firmy o zaproszenie do zespołu w mumjobs."
 
 ### GET /employer/team
 
@@ -147,7 +147,7 @@ Small fixed lists (not paginated). Members sorted by name; invitations = not acc
 
 Body: `email` (required, e-mail; trimmed and lower-cased). Sends the e-mail and returns the invitation (`data`, same shape as above). A previous expired invitation for the same address is replaced. Throttle 10/min.
 
-Errors: 422 `email` – "Ta osoba już należy do Twojego zespołu." / "Zaproszenie na ten adres już czeka na akceptację.". Whether the address already has a MomJobs account is never revealed; the acceptance page explains when an account cannot join (candidate account, member of another company).
+Errors: 422 `email` – "Ta osoba już należy do Twojego zespołu." / "Zaproszenie na ten adres już czeka na akceptację.". Whether the address already has a mumjobs account is never revealed; the acceptance page explains when an account cannot join (candidate account, member of another company).
 
 ### DELETE /employer/team/invitations/{invitation} → 204
 
@@ -359,7 +359,7 @@ Paginated, newest first. Optional `status` = `pending|accepted|declined|withdraw
       "offer": { "id": 21, "title": "Specjalistka ds. rekrutacji" },
       "candidate": {
         "id": 12, "anonymous_name": "Marta K.", "full_name": "Marta Kowalska", "email": "marta@example.com",
-        "phone": "+48 600 100 200", "photo_url": "https://momjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d",
+        "phone": "+48 600 100 200", "photo_url": "https://mumjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d",
         "headline": "Specjalistka ds. rekrutacji IT", "years_of_experience": 6,
         "career_gap_note": null
       },

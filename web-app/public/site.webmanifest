@@ -1,6 +1,6 @@
 {
-    "name": "MomJobs",
-    "short_name": "MomJobs",
+    "name": "mumjobs",
+    "short_name": "mumjobs",
     "description": "Praca dla przyszłych i obecnych mam",
     "lang": "pl",
     "start_url": "/",

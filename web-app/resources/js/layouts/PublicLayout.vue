@@ -61,7 +61,7 @@ onUnmounted(stopListening);
             <div
                 class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8"
             >
-                <Link :href="home()" aria-label="MomJobs – strona główna">
+                <Link :href="home()" aria-label="mumjobs – strona główna">
                     <BrandLogo />
                 </Link>
 
@@ -178,7 +178,7 @@ onUnmounted(stopListening);
                 class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
             >
                 <p class="text-brand-green/80">
-                    MomJobs · praca dla przyszłych i obecnych mam
+                    mumjobs · praca dla przyszłych i obecnych mam
                 </p>
                 <nav class="flex gap-5 font-medium" aria-label="Stopka">
                     <Link

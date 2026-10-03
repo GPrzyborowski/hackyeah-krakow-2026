@@ -10,7 +10,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('momjobs:send-newsletter {--dry-run : List recipients and articles without sending anything}')]
+#[Signature('mumjobs:send-newsletter {--dry-run : List recipients and articles without sending anything}')]
 #[Description('Send the newest blog articles of the last week to confirmed newsletter subscribers')]
 class SendNewsletterCommand extends Command
 {

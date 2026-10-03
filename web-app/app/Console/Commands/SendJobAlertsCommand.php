@@ -9,7 +9,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('momjobs:send-job-alerts {--dry-run : List recipients and offers without sending anything}')]
+#[Signature('mumjobs:send-job-alerts {--dry-run : List recipients and offers without sending anything}')]
 #[Description('E-mail published candidates up to 5 new, well-matched offers they can start in time')]
 class SendJobAlertsCommand extends Command
 {

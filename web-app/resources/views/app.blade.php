@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="theme-color" content="#eaf0ee">
 
-        {{-- MomJobs uses a single light brand theme --}}
+        {{-- mumjobs uses a single light brand theme --}}
         <style>
             html {
                 background-color: #eaf0ee;
@@ -19,20 +19,20 @@
         <link rel="manifest" href="/site.webmanifest">
 
         @php($appUrl = rtrim(config('app.url'), '/'))
-        @php($appDescription = 'MomJobs – praca dla przyszłych i obecnych mam. Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.')
+        @php($appDescription = 'mumjobs – praca dla przyszłych i obecnych mam. Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.')
         <meta name="description" content="{{ $appDescription }}">
         <meta property="og:type" content="website">
-        <meta property="og:site_name" content="{{ config('app.name', 'MomJobs') }}">
+        <meta property="og:site_name" content="{{ config('app.name', 'mumjobs') }}">
         <meta property="og:locale" content="pl_PL">
-        <meta property="og:title" content="{{ config('app.name', 'MomJobs') }} – Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.">
+        <meta property="og:title" content="{{ config('app.name', 'mumjobs') }} – Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.">
         <meta property="og:description" content="{{ $appDescription }}">
         <meta property="og:url" content="{{ $appUrl.request()->getPathInfo() }}">
         <meta property="og:image" content="{{ $appUrl }}/og-image.png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
-        <meta property="og:image:alt" content="MomJobs – Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.">
+        <meta property="og:image:alt" content="mumjobs – Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="{{ config('app.name', 'MomJobs') }} – Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.">
+        <meta name="twitter:title" content="{{ config('app.name', 'mumjobs') }} – Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.">
         <meta name="twitter:description" content="{{ $appDescription }}">
         <meta name="twitter:image" content="{{ $appUrl }}/og-image.png">
 

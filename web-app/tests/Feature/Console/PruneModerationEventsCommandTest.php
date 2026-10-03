@@ -15,7 +15,7 @@ class PruneModerationEventsCommandTest extends TestCase
         $expired = ModerationEvent::factory()->create(['created_at' => now()->subDays(91)]);
         $kept = ModerationEvent::factory()->create(['created_at' => now()->subDays(89)]);
 
-        $this->artisan('momjobs:prune-moderation-events')->assertSuccessful();
+        $this->artisan('mumjobs:prune-moderation-events')->assertSuccessful();
 
         $this->assertModelMissing($expired);
         $this->assertModelExists($kept);
@@ -24,7 +24,7 @@ class PruneModerationEventsCommandTest extends TestCase
     public function test_it_runs_daily_in_the_schedule(): void
     {
         $this->artisan('schedule:list')
-            ->expectsOutputToContain('momjobs:prune-moderation-events')
+            ->expectsOutputToContain('mumjobs:prune-moderation-events')
             ->assertSuccessful();
     }
 }

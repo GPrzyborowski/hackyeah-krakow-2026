@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 /*
-| JSON API for the MomJobs mobile app. Authenticate with a Sanctum bearer token from POST /api/v1/auth/login.
+| JSON API for the mumjobs mobile app. Authenticate with a Sanctum bearer token from POST /api/v1/auth/login.
 */
 Route::prefix('v1')->name('api.v1.')->group(function () {
     require __DIR__.'/api/auth.php';

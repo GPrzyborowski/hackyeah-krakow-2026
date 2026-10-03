@@ -41,7 +41,7 @@ class SendJobAlertsCommandTest extends TestCase
         $goodMatch = $this->offer(['title' => 'Rekruterka IT', 'salary_min' => 8000, 'salary_max' => 10000]);
         $weakMatch = $this->offer(requiredSkill: Skill::factory()->create());
 
-        $this->artisan('momjobs:send-job-alerts')->assertSuccessful();
+        $this->artisan('mumjobs:send-job-alerts')->assertSuccessful();
 
         Notification::assertSentTo($this->candidate->user, JobAlert::class, function (JobAlert $notification) use ($goodMatch): bool {
             $mail = $notification->toMail($this->candidate->user);
@@ -61,7 +61,7 @@ class SendJobAlertsCommandTest extends TestCase
         $this->offer(['published_at' => now()->subDays(8)]);
         $this->offer(['start_date' => '2027-07-01']);
 
-        $this->artisan('momjobs:send-job-alerts')->assertSuccessful();
+        $this->artisan('mumjobs:send-job-alerts')->assertSuccessful();
 
         Notification::assertNothingSent();
     }
@@ -70,8 +70,8 @@ class SendJobAlertsCommandTest extends TestCase
     {
         $this->offer();
 
-        $this->artisan('momjobs:send-job-alerts')->assertSuccessful();
-        $this->artisan('momjobs:send-job-alerts')->assertSuccessful();
+        $this->artisan('mumjobs:send-job-alerts')->assertSuccessful();
+        $this->artisan('mumjobs:send-job-alerts')->assertSuccessful();
 
         Notification::assertSentToTimes($this->candidate->user, JobAlert::class, 1);
     }
@@ -82,7 +82,7 @@ class SendJobAlertsCommandTest extends TestCase
             $this->offer();
         }
 
-        $this->artisan('momjobs:send-job-alerts')->assertSuccessful();
+        $this->artisan('mumjobs:send-job-alerts')->assertSuccessful();
 
         Notification::assertSentTo($this->candidate->user, JobAlert::class, fn (JobAlert $notification): bool => $notification->matches->count() === 5);
     }
@@ -94,7 +94,7 @@ class SendJobAlertsCommandTest extends TestCase
         $unpublished = CandidateProfile::factory()->create(['available_from' => '2027-09-01']);
         $unpublished->skills()->attach($this->recruitment, ['source' => 'manual', 'confirmed_at' => now()]);
 
-        $this->artisan('momjobs:send-job-alerts')->assertSuccessful();
+        $this->artisan('mumjobs:send-job-alerts')->assertSuccessful();
 
         Notification::assertNothingSent();
     }
@@ -103,7 +103,7 @@ class SendJobAlertsCommandTest extends TestCase
     {
         $this->offer();
 
-        $this->artisan('momjobs:send-job-alerts', ['--dry-run' => true])
+        $this->artisan('mumjobs:send-job-alerts', ['--dry-run' => true])
             ->expectsOutputToContain($this->candidate->user->email)
             ->assertSuccessful();
 

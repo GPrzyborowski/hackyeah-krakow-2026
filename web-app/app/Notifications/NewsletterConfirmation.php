@@ -26,7 +26,7 @@ class NewsletterConfirmation extends Notification
     public function toMail(NewsletterSubscriber $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Potwierdź zapis do newslettera MomJobs')
+            ->subject('Potwierdź zapis do newslettera mumjobs')
             ->greeting('Cześć!')
             ->line('Dziękujemy za zapis. Jeden nowy tekst w tygodniu, bez reklam i bez spamu.')
             ->action('Potwierdzam zapis', URL::temporarySignedRoute('newsletter.confirm', now()->addDays(7), ['token' => $notifiable->token]))
