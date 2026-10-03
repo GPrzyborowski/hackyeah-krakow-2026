@@ -239,7 +239,7 @@ const activityIcons: Record<string, typeof Mail> = {
     invitation_declined: Mail,
     new_message: MessageCircle,
     pair_submitted: UsersRound,
-    pair_hired_company: UsersRound,
+    pair_accepted_company: UsersRound,
 };
 </script>
 
@@ -401,14 +401,14 @@ const activityIcons: Record<string, typeof Mail> = {
                 v-else
                 class="rounded-2xl bg-white/70 p-4 text-sm text-brand-green/80"
             >
-                Zaznacz „Oferta dla dwóch osób” przy stanowisku, a kandydatki
+                Zaznacz „Oferta dla wielu osób” przy stanowisku, a kandydatki
                 zgłoszą się do niego w parach.
                 <Link
                     :href="
                         JobOfferController.create({ query: { job_share: 1 } })
                     "
                     class="font-semibold underline underline-offset-4"
-                    >Dodaj stanowisko dla pary</Link
+                    >Dodaj ofertę dla wielu osób</Link
                 >
             </p>
         </section>

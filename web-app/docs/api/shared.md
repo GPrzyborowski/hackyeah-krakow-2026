@@ -293,8 +293,8 @@ Allowed: the candidate herself, or a member of a company whose invitation she **
 Two candidates apply together for a job-sharing offer and split the workday. Other candidates are always shown
 anonymously (first name + surname initial). Pair statuses: `forming` (invited partner has not answered), `formed`
 (both in, planning the split), `submitted` (sent to the employer), `invited` (employer invited the pair),
-`rejected`, `cancelled`, `hired` (both members accepted their invitations), `declined` (a member declined her
-invitation) – each with a Polish `status_label`.
+`accepted` (both members accepted their invitations, talks with the employer), `rejected`, `cancelled`, `hired`
+(the employer marked the pair as hired), `declined` (a member declined her invitation) – each with a Polish `status_label`.
 
 ### GET /job-sharing
 
@@ -429,7 +429,7 @@ everyone else; the employer never sees it). Newest first, paginated, polling wit
 ### POST /job-sharing/pairs/{pair}/messages
 
 Throttle: 30/min. Body `{"body": "…"}` (required, max 2000; not moderated – candidates only). → `201 {"data": <message>}`.
-Only while the pair is active (`forming`, `formed`, `submitted`, `invited`, `hired`; `can.send_message`). In a
+Only while the pair is active (`forming`, `formed`, `submitted`, `invited`, `accepted`, `hired`; `can.send_message`). In a
 `cancelled`, `rejected` or `declined` pair the chat stays readable (`can.chat`) but posting is `403`
 ("Ta para została zakończona – czat jest już tylko do odczytu.").
 

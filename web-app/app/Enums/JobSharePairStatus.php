@@ -14,6 +14,7 @@ enum JobSharePairStatus: string
     case Formed = 'formed';
     case Submitted = 'submitted';
     case Invited = 'invited';
+    case Accepted = 'accepted';
     case Rejected = 'rejected';
     case Cancelled = 'cancelled';
     case Hired = 'hired';
@@ -26,6 +27,7 @@ enum JobSharePairStatus: string
             self::Formed => 'Ustalacie podział dnia',
             self::Submitted => 'Wysłane do pracodawcy',
             self::Invited => 'Pracodawca zaprosił Waszą parę',
+            self::Accepted => 'Rozmawiacie z pracodawcą',
             self::Rejected => 'Pracodawca odrzucił parę',
             self::Cancelled => 'Para rozwiązana',
             self::Hired => 'Zatrudnione',

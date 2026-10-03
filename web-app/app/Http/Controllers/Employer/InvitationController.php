@@ -58,7 +58,7 @@ class InvitationController extends Controller
     }
 
     /**
-     * Invite a candidate to an offer; the message is moderated by the form request.
+     * Invite a candidate to an offer, or turn an unanswered question into an invitation; the message is moderated by the form request.
      */
     public function store(StoreInvitationRequest $request, JobOffer $offer, CandidateProfile $candidate, InviteCandidate $inviteCandidate): RedirectResponse
     {
@@ -68,7 +68,9 @@ class InvitationController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Zaproszenie wysłane. Dane kontaktowe zobaczysz po jego akceptacji.']);
 
-        return to_route('employer.candidates.index', ['offer' => $offer->id]);
+        return $request->validated('from') === 'invitations'
+            ? to_route('employer.invitations.index')
+            : to_route('employer.candidates.index', ['offer' => $offer->id]);
     }
 
     /**

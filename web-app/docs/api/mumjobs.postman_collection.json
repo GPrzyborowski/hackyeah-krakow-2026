@@ -1782,7 +1782,7 @@
                                 "invitation"
                             ]
                         },
-                        "description": "Invite a matched candidate\n\nMessage is moderated (`422` with `errors.message` and `errors.message_suggestion`). Duplicate invitation → `422`\non `message`. The candidate must match the offer (`404` otherwise). Throttle 20/min. The invitation stays anonymous until accepted.",
+                        "description": "Invite a matched candidate\n\nMessage is moderated (`422` with `errors.message` and `errors.message_suggestion`). Duplicate invitation → `422`\non `message`. The candidate must match the offer (`404` otherwise). Throttle 20/min. The invitation stays anonymous until accepted.\nAn unanswered or ignored question (direct message) to the same candidate is turned into this invitation (same id,\n`kind: invitation`, `status: pending`); a question she already answered → `422` on `message`.",
                         "body": {
                             "mode": "raw",
                             "raw": "{\n    \"message\": \"Dzień dobry, zapraszamy na rozmowę o roli rekruterki IT.\"\n}",
@@ -1936,6 +1936,32 @@
                                 }
                             }
                         }
+                    }
+                },
+                {
+                    "id": "employerHirePair",
+                    "name": "Mark a pair as hired",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/employer/job-share-pairs/{{pairId}}/hire",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "employer",
+                                "job-share-pairs",
+                                "{{pairId}}",
+                                "hire"
+                            ]
+                        },
+                        "description": "Mark a pair as hired\n\nAllowed only for a pair in status `accepted` (both members accepted the invitation), otherwise `403`; both members get a `pair_hired` notification."
                     }
                 },
                 {

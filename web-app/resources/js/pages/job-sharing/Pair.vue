@@ -556,6 +556,7 @@ const inputClass =
                     v-if="
                         pair.status === 'submitted' ||
                         pair.status === 'invited' ||
+                        pair.status === 'accepted' ||
                         pair.status === 'hired' ||
                         pair.status === 'declined'
                     "
@@ -564,14 +565,23 @@ const inputClass =
                 >
                     <ShieldCheck class="mt-0.5 size-5 shrink-0" />
                     <p v-if="pair.status === 'hired'">
-                        Gratulacje! Obie przyjęłyście zaproszenie, więc Wasza
-                        para została zatrudniona. Szczegóły ustalicie z firmą w
-                        zakładce
+                        Gratulacje! Firma potwierdziła zatrudnienie Waszej pary.
+                        Szczegóły ustalicie z firmą w zakładce
                         <Link
                             :href="invitationsIndex()"
                             class="font-semibold underline underline-offset-2"
                             >„Zaproszenia”</Link
                         >.
+                    </p>
+                    <p v-else-if="pair.status === 'accepted'">
+                        Obie przyjęłyście zaproszenie, więc firma zna już Wasze
+                        dane i rozmawiacie na wspólnym czacie w zakładce
+                        <Link
+                            :href="invitationsIndex()"
+                            class="font-semibold underline underline-offset-2"
+                            >„Zaproszenia”</Link
+                        >. Gdy firma potwierdzi zatrudnienie, dostaniecie
+                        powiadomienie.
                     </p>
                     <p v-else-if="pair.status === 'declined'">
                         Jedna z Was odrzuciła zaproszenie pracodawcy, więc para

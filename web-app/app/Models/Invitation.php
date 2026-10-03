@@ -94,7 +94,8 @@ class Invitation extends Model
     /**
      * Accept the invitation and open the conversation; contact data becomes visible to the company.
      * A newly opened conversation starts with the invitation message, so the chat never opens empty.
-     * A job-sharing pair is hired once both of its members accepted their invitations. A pair member also joins the pair's
+     * A job-sharing pair moves to talks with the company once both of its members accepted their invitations
+     * (the company marks it as hired later). A pair member also joins the pair's
      * team chat (opened by the first acceptance); her own 1:1 chat with the company stays for private matters.
      */
     public function accept(): Conversation
@@ -102,7 +103,7 @@ class Invitation extends Model
         return DB::transaction(function (): Conversation {
             $this->update(['status' => InvitationStatus::Accepted, 'responded_at' => now()]);
 
-            $this->markPairHiredWhenEveryoneAccepted();
+            $this->markPairAcceptedWhenEveryoneAccepted();
 
             $conversation = $this->conversation()->firstOrCreate([], ['last_message_at' => now()]);
 
@@ -192,7 +193,7 @@ class Invitation extends Model
         });
     }
 
-    private function markPairHiredWhenEveryoneAccepted(): void
+    private function markPairAcceptedWhenEveryoneAccepted(): void
     {
         $pair = $this->lockedPair();
 
@@ -203,7 +204,7 @@ class Invitation extends Model
         $acceptedCount = $pair->invitations()->where('status', InvitationStatus::Accepted)->count();
 
         if ($acceptedCount === $pair->invitations()->count() && $acceptedCount >= $pair->members()->count()) {
-            $pair->update(['status' => JobSharePairStatus::Hired]);
+            $pair->update(['status' => JobSharePairStatus::Accepted]);
         }
     }
 

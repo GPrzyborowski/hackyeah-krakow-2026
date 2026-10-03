@@ -27,6 +27,7 @@ class JobSharePairReview
     public const array VISIBLE_STATUSES = [
         JobSharePairStatus::Submitted,
         JobSharePairStatus::Invited,
+        JobSharePairStatus::Accepted,
         JobSharePairStatus::Rejected,
         JobSharePairStatus::Hired,
         JobSharePairStatus::Declined,

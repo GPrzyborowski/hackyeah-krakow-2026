@@ -26,6 +26,7 @@ class StoreInvitationRequest extends FormRequest
     {
         return [
             'message' => ['required', 'string', 'max:2000'],
+            'from' => ['nullable', 'string', 'in:invitations'],
         ];
     }
 

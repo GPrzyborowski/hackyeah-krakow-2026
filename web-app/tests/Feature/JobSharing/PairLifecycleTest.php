@@ -10,8 +10,8 @@ use App\Models\Invitation;
 use App\Models\JobOffer;
 use App\Models\JobSharePair;
 use App\Models\User;
+use App\Notifications\PairAcceptedForCompany;
 use App\Notifications\PairHired;
-use App\Notifications\PairHiredForCompany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -159,37 +159,62 @@ class PairLifecycleTest extends TestCase
         $this->assertDatabaseCount('job_share_messages', 0);
     }
 
-    public function test_pair_is_hired_once_both_members_accept_their_invitations(): void
+    public function test_pair_moves_to_talks_with_the_company_once_both_members_accept_their_invitations(): void
     {
         Notification::fake();
         [$employer, $offer, $marta, $ewa, $pair] = $this->invitedPair();
-        $martaInvitation = $this->invitationOf($pair, $marta);
-        $ewaInvitation = $this->invitationOf($pair, $ewa);
 
-        $this->actingAs($marta->user)->post(route('candidate.invitations.accept', $martaInvitation))->assertRedirect();
+        $this->actingAs($marta->user)->post(route('candidate.invitations.accept', $this->invitationOf($pair, $marta)))->assertRedirect();
 
         $this->assertSame(JobSharePairStatus::Invited, $pair->fresh()?->status);
-        Notification::assertNotSentTo($marta->user, PairHired::class);
+        Notification::assertNotSentTo($employer, PairAcceptedForCompany::class);
 
-        $this->actingAs($ewa->user)->post(route('candidate.invitations.accept', $ewaInvitation))->assertRedirect();
-        $ewaInvitation->refresh()->accept();
+        $this->actingAs($ewa->user)->post(route('candidate.invitations.accept', $this->invitationOf($pair, $ewa)))->assertRedirect();
+
+        $this->assertSame(JobSharePairStatus::Accepted, $pair->fresh()?->status);
+        Notification::assertSentToTimes($employer, PairAcceptedForCompany::class, 1);
+        Notification::assertNotSentTo([$marta->user, $ewa->user], PairHired::class);
+
+        $this->actingAs($employer)
+            ->get(route('employer.offers.job-share-pairs.index', $offer))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('pairs.0.id', $pair->id)
+                ->where('pairs.0.status', 'accepted'));
+    }
+
+    public function test_employer_hires_a_pair_after_both_members_accepted(): void
+    {
+        Notification::fake();
+        [$employer, $offer, $marta, $ewa, $pair] = $this->invitedPair();
+        $this->invitationOf($pair, $marta)->accept();
+        $this->invitationOf($pair, $ewa)->accept();
+
+        $this->actingAs($employer)
+            ->post(route('employer.job-share-pairs.hire', $pair))
+            ->assertRedirect(route('employer.offers.job-share-pairs.index', $offer));
 
         $this->assertSame(JobSharePairStatus::Hired, $pair->fresh()?->status);
         foreach ([$marta->user, $ewa->user] as $member) {
             Notification::assertSentToTimes($member, PairHired::class, 1);
             Notification::assertSentTo($member, PairHired::class, fn (PairHired $notification): bool => $notification->toArray($member)['title'] === "Gratulacje! Wasza para została zatrudniona na stanowisko {$offer->title}");
         }
-        Notification::assertSentToTimes($employer, PairHiredForCompany::class, 1);
-
-        $this->actingAs($employer)
-            ->get(route('employer.offers.job-share-pairs.index', $offer))
-            ->assertInertia(fn (Assert $page) => $page
-                ->where('pairs.0.id', $pair->id)
-                ->where('pairs.0.status', 'hired'));
 
         $this->actingAs($marta->user)
             ->get(route('candidate.invitations.index'))
             ->assertInertia(fn (Assert $page) => $page->where('invitations.0.job_share_pair.status', 'hired'));
+    }
+
+    public function test_pair_cannot_be_hired_before_both_members_accept_or_by_another_company(): void
+    {
+        Notification::fake();
+        [$employer, , $marta, , $pair] = $this->invitedPair();
+        $this->invitationOf($pair, $marta)->accept();
+
+        $this->actingAs($employer)->post(route('employer.job-share-pairs.hire', $pair))->assertForbidden();
+        $this->actingAs($this->employer())->post(route('employer.job-share-pairs.hire', $pair))->assertNotFound();
+
+        $this->assertSame(JobSharePairStatus::Invited, $pair->fresh()?->status);
+        Notification::assertNotSentTo($marta->user, PairHired::class);
     }
 
     public function test_member_declining_her_invitation_declines_the_pair_and_withdraws_the_partners_invitation(): void

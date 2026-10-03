@@ -81,6 +81,21 @@ class EmployerPairController extends Controller
         return to_route('employer.offers.job-share-pairs.index', $pair->job_offer_id);
     }
 
+    /**
+     * Mark a pair as hired once both members accepted the invitation; both members are congratulated.
+     */
+    public function hire(Request $request, JobSharePair $pair): RedirectResponse
+    {
+        Gate::authorize('hire', $pair);
+        abort_unless($this->pairReview->isVisibleTo($pair, $this->currentCompany($request)), 404);
+
+        $pair->update(['status' => JobSharePairStatus::Hired]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Para zatrudniona. Wysłaliśmy jej gratulacje.']);
+
+        return to_route('employer.offers.job-share-pairs.index', $pair->job_offer_id);
+    }
+
     public function reject(Request $request, JobSharePair $pair): RedirectResponse
     {
         Gate::authorize('review', $pair);

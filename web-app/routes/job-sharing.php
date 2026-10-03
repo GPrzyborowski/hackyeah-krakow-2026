@@ -33,5 +33,6 @@ Route::middleware(['auth', 'verified', 'role:employer'])->prefix('employer')->na
     Route::post('job-share-pairs/{pair}/invitation', [EmployerPairController::class, 'invite'])
         ->middleware('throttle:20,1,employer-pair-invitations')
         ->name('job-share-pairs.invitation');
+    Route::post('job-share-pairs/{pair}/hire', [EmployerPairController::class, 'hire'])->name('job-share-pairs.hire');
     Route::post('job-share-pairs/{pair}/reject', [EmployerPairController::class, 'reject'])->name('job-share-pairs.reject');
 });

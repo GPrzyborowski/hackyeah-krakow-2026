@@ -53,5 +53,6 @@ Route::middleware(['auth:sanctum', 'throttle:120,1,api-user', 'role:employer', '
     Route::post('job-share-pairs/{pair}/invitation', [JobSharePairController::class, 'invite'])
         ->middleware('throttle:20,1,api-employer-pair-invitations')
         ->name('job-share-pairs.invitation');
+    Route::post('job-share-pairs/{pair}/hire', [JobSharePairController::class, 'hire'])->name('job-share-pairs.hire');
     Route::post('job-share-pairs/{pair}/reject', [JobSharePairController::class, 'reject'])->name('job-share-pairs.reject');
 });

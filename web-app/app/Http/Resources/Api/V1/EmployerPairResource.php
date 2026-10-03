@@ -31,6 +31,7 @@ class EmployerPairResource extends JsonResource
             'status_label' => match ($pair->status) {
                 JobSharePairStatus::Submitted => 'Czeka na decyzję',
                 JobSharePairStatus::Invited => 'Zaproszona',
+                JobSharePairStatus::Accepted => 'Przyjęła zaproszenie',
                 JobSharePairStatus::Rejected => 'Odrzucona',
                 JobSharePairStatus::Hired => 'Zatrudniona',
                 JobSharePairStatus::Declined => 'Odrzucona przez członkinię',

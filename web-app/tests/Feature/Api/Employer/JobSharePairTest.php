@@ -80,6 +80,7 @@ class JobSharePairTest extends TestCase
         $this->getJson("/api/v1/employer/offers/{$offer->id}/job-share-pairs")->assertForbidden();
         $this->postJson("/api/v1/employer/job-share-pairs/{$pair->id}/invitation", ['message' => self::MESSAGE])->assertNotFound();
         $this->postJson("/api/v1/employer/job-share-pairs/{$pair->id}/reject")->assertNotFound();
+        $this->postJson("/api/v1/employer/job-share-pairs/{$pair->id}/hire")->assertNotFound();
 
         $this->assertSame(JobSharePairStatus::Submitted, $pair->fresh()?->status);
     }
@@ -135,6 +136,28 @@ class JobSharePairTest extends TestCase
             ->assertJsonPath('data.status', 'rejected');
 
         $this->assertSame(JobSharePairStatus::Rejected, $pair->fresh()?->status);
+    }
+
+    public function test_employer_hires_only_a_pair_whose_members_both_accepted(): void
+    {
+        $employer = $this->employer();
+        $recruitment = $this->skill('Rekrutacja IT');
+        $offer = $this->jobShareOffer($employer->company, [$recruitment]);
+        $invited = $this->scheduledPair($offer, $this->sharer([$recruitment], 'Anna Zielińska'), $this->sharer([$recruitment], 'Ola Mazur'), JobSharePairStatus::Invited);
+        $accepted = $this->scheduledPair($offer, $this->sharer([$recruitment], 'Marta Kowalska'), $this->sharer([$recruitment], 'Ewa Nowak'), JobSharePairStatus::Accepted);
+        Sanctum::actingAs($employer);
+
+        $this->postJson("/api/v1/employer/job-share-pairs/{$invited->id}/hire")
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Parę można zatrudnić, gdy obie osoby przyjmą zaproszenie.');
+
+        $this->postJson("/api/v1/employer/job-share-pairs/{$accepted->id}/hire")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'hired')
+            ->assertJsonPath('data.status_label', 'Zatrudniona');
+
+        $this->assertSame(JobSharePairStatus::Invited, $invited->fresh()?->status);
+        $this->assertSame(JobSharePairStatus::Hired, $accepted->fresh()?->status);
     }
 
     public function test_hired_and_declined_pairs_are_listed_with_their_labels(): void

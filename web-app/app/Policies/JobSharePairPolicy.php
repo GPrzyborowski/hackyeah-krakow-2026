@@ -18,6 +18,7 @@ class JobSharePairPolicy
         JobSharePairStatus::Formed,
         JobSharePairStatus::Submitted,
         JobSharePairStatus::Invited,
+        JobSharePairStatus::Accepted,
         JobSharePairStatus::Hired,
     ];
 
@@ -102,17 +103,36 @@ class JobSharePairPolicy
     }
 
     /**
+     * The offer's company marks a pair as hired after both members accepted its invitation.
+     */
+    public function hire(User $user, JobSharePair $pair): Response
+    {
+        if (! $this->belongsToOfferCompany($user, $pair)) {
+            return Response::denyAsNotFound();
+        }
+
+        return $pair->status === JobSharePairStatus::Accepted
+            ? Response::allow()
+            : Response::deny('Parę można zatrudnić, gdy obie osoby przyjmą zaproszenie.');
+    }
+
+    /**
      * Employers of the offer's company decide on pairs that were sent to them.
      */
     public function review(User $user, JobSharePair $pair): Response
     {
-        if (! $user->isEmployer() || $user->company_id === null || $pair->jobOffer->company_id !== $user->company_id) {
+        if (! $this->belongsToOfferCompany($user, $pair)) {
             return Response::denyAsNotFound();
         }
 
         return $pair->status === JobSharePairStatus::Submitted
             ? Response::allow()
             : Response::deny('O tej parze już zdecydowano.');
+    }
+
+    private function belongsToOfferCompany(User $user, JobSharePair $pair): bool
+    {
+        return $user->isEmployer() && $user->company_id !== null && $pair->jobOffer->company_id === $user->company_id;
     }
 
     private function profileOf(User $user): ?CandidateProfile

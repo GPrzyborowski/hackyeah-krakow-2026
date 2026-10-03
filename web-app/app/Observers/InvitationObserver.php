@@ -10,7 +10,7 @@ use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Illuminate\Support\Facades\Notification;
 
 /**
- * Notifies the candidate about a new invitation and the company about a declined one.
+ * Notifies the candidate about a new invitation (also when a question becomes an invitation) and the company about a declined one.
  * Acceptance is announced by ConversationObserver, once the conversation exists.
  */
 class InvitationObserver implements ShouldHandleEventsAfterCommit
@@ -26,6 +26,12 @@ class InvitationObserver implements ShouldHandleEventsAfterCommit
 
     public function updated(Invitation $invitation): void
     {
+        if ($invitation->wasChanged('kind') && ! $invitation->isDirectMessage() && $invitation->isPending()) {
+            $invitation->candidateProfile->user->notify(new InvitationReceived($invitation));
+
+            return;
+        }
+
         if (! $invitation->wasChanged('status') || $invitation->status !== InvitationStatus::Declined) {
             return;
         }

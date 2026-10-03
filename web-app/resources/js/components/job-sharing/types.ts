@@ -10,6 +10,7 @@ export type PairStatus =
     | 'formed'
     | 'submitted'
     | 'invited'
+    | 'accepted'
     | 'rejected'
     | 'cancelled'
     | 'hired'
@@ -34,6 +35,7 @@ export const pairStatusLabels: Record<PairStatus, string> = {
     formed: 'Ustalacie podział dnia',
     submitted: 'Wysłane do pracodawcy',
     invited: 'Pracodawca zaprosił Waszą parę',
+    accepted: 'Rozmawiacie z pracodawcą',
     rejected: 'Pracodawca odrzucił parę',
     cancelled: 'Para rozwiązana',
     hired: 'Zatrudnione',

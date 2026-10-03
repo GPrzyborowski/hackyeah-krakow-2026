@@ -8,7 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
 /**
- * Congratulates a member of a job-sharing pair: both of them accepted the employer's invitation.
+ * Congratulates a member of a job-sharing pair: the employer marked the pair as hired.
  */
 class PairHired extends Notification
 {
@@ -32,7 +32,7 @@ class PairHired extends Notification
         return [
             'kind' => 'pair_hired',
             'title' => "Gratulacje! Wasza para została zatrudniona na stanowisko {$this->pair->jobOffer->title}",
-            'body' => "Obie przyjęłyście zaproszenie od {$this->pair->jobOffer->company->name}. Szczegóły ustalicie w rozmowie z firmą.",
+            'body' => "{$this->pair->jobOffer->company->name} potwierdziła zatrudnienie Waszej pary. Szczegóły ustalicie w rozmowie z firmą.",
             'url' => route('job-sharing.pairs.show', $this->pair, absolute: false),
             'job_share_pair_id' => $this->pair->id,
         ];

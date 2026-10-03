@@ -1076,6 +1076,8 @@ paths:
       description: |
         Message is moderated (`422` with `errors.message` and `errors.message_suggestion`). Duplicate invitation → `422`
         on `message`. The candidate must match the offer (`404` otherwise). Throttle 20/min. The invitation stays anonymous until accepted.
+        An unanswered or ignored question (direct message) to the same candidate is turned into this invitation (same id,
+        `kind: invitation`, `status: pending`); a question she already answered → `422` on `message`.
       parameters:
         - $ref: '#/components/parameters/OfferId'
         - $ref: '#/components/parameters/CandidateId'
@@ -1221,6 +1223,28 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationFailed' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+  /employer/job-share-pairs/{pair}/hire:
+    post:
+      tags: [Employer]
+      operationId: employerHirePair
+      summary: Mark a pair as hired
+      description: Allowed only for a pair in status `accepted` (both members accepted the invitation), otherwise `403`; both members get a `pair_hired` notification.
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      responses:
+        '200':
+          description: The pair, now `hired`.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/EmployerPair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /employer/job-share-pairs/{pair}/reject:
     post:
       tags: [Employer]
@@ -2307,7 +2331,7 @@ components:
       description: '`invitation` – a full invitation to talk; `direct_message` – a short question sent via the direct-message endpoint.'
     PairStatus:
       type: string
-      enum: [forming, formed, submitted, invited, rejected, cancelled, hired, declined]
+      enum: [forming, formed, submitted, invited, accepted, rejected, cancelled, hired, declined]
     ArticleCategory:
       type: string
       enum: [pregnancy, leave, return, rights, cv_and_interviews]
@@ -2907,7 +2931,7 @@ components:
       type: object
       properties:
         id: { type: string, description: 'Notification uuid, or `pair-<id>` for a pair submission.' }
-        kind: { type: [string, 'null'], examples: [invitation_accepted, invitation_declined, new_message, pair_hired_company, pair_submitted] }
+        kind: { type: [string, 'null'], examples: [invitation_accepted, invitation_declined, new_message, pair_accepted_company, pair_submitted] }
         title: { type: string }
         body: { type: [string, 'null'] }
         url: { type: [string, 'null'], description: Web path. }
@@ -3436,7 +3460,7 @@ components:
           properties:
             respond: { type: boolean }
             chat: { type: boolean, description: 'May read the pair chat (accepted member; also after the pair ended).' }
-            send_message: { type: boolean, description: 'May post to the chat: only while the pair is forming, formed, submitted, invited or hired.' }
+            send_message: { type: boolean, description: 'May post to the chat: only while the pair is forming, formed, submitted, invited, accepted or hired.' }
             plan_schedule: { type: boolean }
             cancel: { type: boolean }
     PairMessage:

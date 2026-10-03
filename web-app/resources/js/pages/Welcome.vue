@@ -271,7 +271,7 @@ const pairChat = [
                             "
                             class="rounded-full border border-brand-green px-5 py-2.5 text-sm font-medium text-brand-green transition hover:bg-white"
                             data-test="job-share-offer-cta"
-                            >Dodaj ofertę dla dwóch osób</Link
+                            >Dodaj ofertę dla wielu osób</Link
                         >
                     </div>
                 </div>

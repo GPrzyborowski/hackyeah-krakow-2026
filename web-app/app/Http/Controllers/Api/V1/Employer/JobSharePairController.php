@@ -63,6 +63,19 @@ class JobSharePairController extends Controller
         return (new EmployerPairResource($this->pairReview->row($pair)))->response()->setStatusCode(201);
     }
 
+    /**
+     * Mark a pair as hired once both members accepted the invitation; 403 in any other status.
+     */
+    public function hire(Request $request, JobSharePair $pair): EmployerPairResource
+    {
+        Gate::authorize('hire', $pair);
+        abort_unless($this->pairReview->isVisibleTo($pair, $this->currentCompany($request)), 404);
+
+        $pair->update(['status' => JobSharePairStatus::Hired]);
+
+        return new EmployerPairResource($this->pairReview->row($pair));
+    }
+
     public function reject(Request $request, JobSharePair $pair): EmployerPairResource
     {
         Gate::authorize('review', $pair);

@@ -85,7 +85,7 @@ class TeamChatTest extends TestCase
         $this->accept($this->ewa);
 
         $teamChat = $this->teamChat();
-        $this->assertSame(JobSharePairStatus::Hired, $this->pair->refresh()->status);
+        $this->assertSame(JobSharePairStatus::Accepted, $this->pair->refresh()->status);
         $this->assertSame(3, Conversation::query()->count());
 
         $this->actingAs($this->ewa->user)

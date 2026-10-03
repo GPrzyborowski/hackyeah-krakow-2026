@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Check, MessageSquare, UsersRound, X } from '@lucide/vue';
+import {
+    ArrowLeft,
+    BadgeCheck,
+    Check,
+    MessageSquare,
+    UsersRound,
+    X,
+} from '@lucide/vue';
 import { computed, ref } from 'vue';
 import EmployerPairController from '@/actions/App/Http/Controllers/JobSharing/EmployerPairController';
 import CandidateController from '@/actions/App/Http/Controllers/Employer/CandidateController';
@@ -56,6 +63,7 @@ defineOptions({
 const statusLabels: Partial<Record<PairStatus, string>> = {
     submitted: 'Czeka na decyzję',
     invited: 'Zaproszona',
+    accepted: 'Przyjęła zaproszenie',
     rejected: 'Odrzucona',
     hired: 'Zatrudniona',
     declined: 'Odrzucona przez członkinię',
@@ -104,6 +112,7 @@ function scheduleSummary(pair: Pair): string {
 const invitedPair = ref<Pair | null>(null);
 const isInviteOpen = ref(false);
 const rejectingId = ref<number | null>(null);
+const hiringId = ref<number | null>(null);
 
 function openInvite(pair: Pair): void {
     invitedPair.value = pair;
@@ -117,6 +126,18 @@ function reject(pair: Pair): void {
         {
             preserveScroll: true,
             onFinish: () => (rejectingId.value = null),
+        },
+    );
+}
+
+function hire(pair: Pair): void {
+    router.post(
+        EmployerPairController.hire.url(pair.id),
+        {},
+        {
+            preserveScroll: true,
+            onStart: () => (hiringId.value = pair.id),
+            onFinish: () => (hiringId.value = null),
         },
     );
 }
@@ -209,7 +230,8 @@ const sections = computed(() =>
                     <span
                         class="rounded-full px-3 py-1 text-xs font-semibold text-brand-green"
                         :class="
-                            pair.status === 'submitted'
+                            pair.status === 'submitted' ||
+                            pair.status === 'accepted'
                                 ? 'bg-brand-yellow'
                                 : pair.status === 'hired'
                                   ? 'bg-brand-peach'
@@ -372,6 +394,27 @@ const sections = computed(() =>
                         @click="openInvite(pair)"
                     >
                         <MessageSquare class="size-4" /> Zaproś parę
+                    </button>
+                </div>
+
+                <div
+                    v-if="pair.status === 'accepted'"
+                    class="mt-5 flex flex-col gap-3 rounded-2xl bg-brand-mint-soft p-4 sm:flex-row sm:items-center sm:justify-between"
+                    data-test="hire-pair-box"
+                >
+                    <p class="text-sm text-brand-green">
+                        Obie osoby przyjęły zaproszenie i macie wspólny czat.
+                        Gdy się dogadacie, potwierdź zatrudnienie pary.
+                    </p>
+                    <button
+                        type="button"
+                        class="inline-flex h-10 shrink-0 items-center gap-2 self-start rounded-full bg-brand-green px-5 text-sm font-semibold text-white hover:bg-brand-green-soft disabled:opacity-50 sm:self-auto"
+                        :disabled="hiringId === pair.id"
+                        data-test="hire-pair"
+                        @click="hire(pair)"
+                    >
+                        <BadgeCheck class="size-4" aria-hidden="true" />
+                        Zatrudnij parę
                     </button>
                 </div>
             </article>

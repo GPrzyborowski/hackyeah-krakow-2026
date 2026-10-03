@@ -75,7 +75,7 @@ The employer home screen; the web panel (`/employer`) renders the same data. Cou
 - `stats.parent_friendly` – published offers that have the "Przyjazna rodzicom" badge out of all published offers.
 - `funnel` – one row per published offer: matched → reviewed (skipped / saved / invited) → invited → accepted.
 - `todo[].kind`: `unread_messages` (conversations with unread candidate messages, `names` = up to 3 candidates), `submitted_pairs` (job-share pairs waiting for a decision), `candidates_to_review` (top 3 offers by queue size), `offer_incomplete` (published or draft offer; `hints`: `missing_required_skills`, `missing_salary`, `no_flexible_hours`), `no_approved_reviews` (no approved company review yet – no offer can get the badge). `url` is a web path; use `offer_id` in the app.
-- `activity` – last 10 items: the employer's notifications (`invitation_accepted`, `invitation_declined`, `new_message`, `pair_hired_company`, …, same shape as `GET /notifications`) merged with job-share pair submissions (`pair_submitted`), newest first.
+- `activity` – last 10 items: the employer's notifications (`invitation_accepted`, `invitation_declined`, `new_message`, `pair_accepted_company`, …, same shape as `GET /notifications`) merged with job-share pair submissions (`pair_submitted`), newest first.
 - `company.verified` is `true` once mumjobs verified the NIP.
 
 ---
@@ -329,6 +329,10 @@ Errors:
 
 Duplicate invitation → 422 `errors.message`: "Ta kandydatka ma już zaproszenie do tej oferty."
 
+A question (direct message) the candidate has not answered yet or ignored is turned into this invitation: the same
+record becomes `kind: invitation`, `status: pending` with the new message, and the candidate is notified again. If she
+already answered the question → 422 "Kandydatka odpowiedziała już na Twoje pytanie. Rozmawiajcie dalej na czacie."
+
 ### POST /employer/offers/{offer}/candidates/{candidate}/direct-message → 201
 
 A lightweight question without an invitation ("Napisz wiadomość"), allowed only when the card has `accepts_direct_messages: true` (the candidate's privacy toggle "Pozwól firmom pisać bez zaproszenia"). Body: `message` (required, max 1000, moderated – same 422 shape as invitations). Throttle 20/min. Same 404/403 rules as the invitation.
@@ -384,7 +388,7 @@ Paginated, newest first. Optional `status` = `pending|accepted|declined|withdraw
 
 ### GET /employer/offers/{offer}/job-share-pairs
 
-Pairs that applied together for a published job-share offer (404 for a regular offer, 403 for another company's / unpublished offer). Includes pairs `submitted` (waiting), `invited`, `rejected`, `hired` (both members accepted) and `declined` (a member declined her invitation); waiting first. Pairs with a member who hid her profile from the company are excluded. Not paginated.
+Pairs that applied together for a published job-share offer (404 for a regular offer, 403 for another company's / unpublished offer). Includes pairs `submitted` (waiting), `invited`, `accepted` (both members accepted), `rejected`, `hired` (marked as hired by the company) and `declined` (a member declined her invitation); waiting first. Pairs with a member who hid her profile from the company are excluded. Not paginated.
 
 ```json
 {
@@ -410,11 +414,17 @@ Pairs that applied together for a published job-share offer (404 for a regular o
 }
 ```
 
-Status labels: submitted "Czeka na decyzję", invited "Zaproszona", rejected "Odrzucona", hired "Zatrudniona", declined "Odrzucona przez członkinię". `coverage`: required skills of the offer covered by the two members together (`covered`), the ones neither has (`missing`) and `percent` covered.
+Status labels: submitted "Czeka na decyzję", invited "Zaproszona", accepted "Przyjęła zaproszenie", rejected "Odrzucona", hired "Zatrudniona", declined "Odrzucona przez członkinię". `coverage`: required skills of the offer covered by the two members together (`covered`), the ones neither has (`missing`) and `percent` covered.
 
 ### POST /employer/job-share-pairs/{pair}/invitation → 201
 
 Body: `message` (required, max 2000, moderated – same 422 shape as candidate invitations). Throttle 20/min. Creates one pending invitation per member and marks the pair `invited`. Returns the pair resource. Errors: 404 (another company's or hidden pair), 403 "O tej parze już zdecydowano." (pair not `submitted`), 422 "Jedna z osób z pary ma już zaproszenie do tej oferty."
+
+### POST /employer/job-share-pairs/{pair}/hire → 200
+
+Marks an `accepted` pair (both members accepted the invitation) as `hired` and sends both members a `pair_hired`
+notification; returns the pair resource. Errors: 404 (another company's or hidden pair), 403 "Parę można zatrudnić, gdy
+obie osoby przyjmą zaproszenie." (any other status).
 
 ### POST /employer/job-share-pairs/{pair}/reject → 200
 

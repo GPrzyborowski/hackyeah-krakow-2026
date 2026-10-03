@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { Mail, MessageCircle, Phone } from '@lucide/vue';
+import { Mail, MessageCircle, Phone, Send } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import CandidateController from '@/actions/App/Http/Controllers/Employer/CandidateController';
 import InvitationController from '@/actions/App/Http/Controllers/Employer/InvitationController';
 import CandidateAvatar from '@/components/candidate/CandidateAvatar.vue';
 import { formatShortDate } from '@/components/employer/format';
+import UpgradeQuestionDialog from '@/components/employer/UpgradeQuestionDialog.vue';
 
 type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'withdrawn';
 
@@ -59,6 +60,24 @@ const statusClasses: Record<InvitationStatus, string> = {
 };
 
 const filter = ref<InvitationStatus | 'all'>('all');
+
+const upgradedInvitation = ref<InvitationRow | null>(null);
+const isUpgradeOpen = ref(false);
+
+/**
+ * An unanswered or ignored question can still become a regular invitation.
+ */
+function canInviteAfterQuestion(invitation: InvitationRow): boolean {
+    return (
+        invitation.kind === 'direct_message' &&
+        (invitation.status === 'pending' || invitation.status === 'declined')
+    );
+}
+
+function openUpgrade(invitation: InvitationRow): void {
+    upgradedInvitation.value = invitation;
+    isUpgradeOpen.value = true;
+}
 
 const visibleInvitations = computed(() =>
     filter.value === 'all'
@@ -193,8 +212,25 @@ const filters: { value: InvitationStatus | 'all'; label: string }[] = [
                     >
                         <MessageCircle class="size-4" /> Czat
                     </Link>
+                    <button
+                        v-if="canInviteAfterQuestion(invitation)"
+                        type="button"
+                        class="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand-green px-4 text-sm font-semibold text-white hover:bg-brand-green-soft"
+                        data-test="invite-after-question"
+                        @click="openUpgrade(invitation)"
+                    >
+                        <Send class="size-4" aria-hidden="true" /> Zaproś do
+                        rozmowy
+                    </button>
                 </div>
             </li>
         </ul>
+
+        <UpgradeQuestionDialog
+            v-if="upgradedInvitation"
+            v-model:open="isUpgradeOpen"
+            :offer="upgradedInvitation.offer"
+            :candidate="upgradedInvitation.candidate"
+        />
     </div>
 </template>

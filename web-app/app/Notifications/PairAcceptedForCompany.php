@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notification;
 /**
  * Tells the offer's company that both members of an invited job-sharing pair accepted; their names are revealed.
  */
-class PairHiredForCompany extends Notification
+class PairAcceptedForCompany extends Notification
 {
     use Queueable, SendsPush;
 
@@ -33,9 +33,9 @@ class PairHiredForCompany extends Notification
         $names = $this->pair->members->map(fn (CandidateProfile $member): string => $member->user->name)->join(' i ');
 
         return [
-            'kind' => 'pair_hired_company',
+            'kind' => 'pair_accepted_company',
             'title' => "Para job-sharing {$names} przyjęła zaproszenie na stanowisko {$this->pair->jobOffer->title}",
-            'body' => 'Obie osoby zaakceptowały zaproszenie – para jest zatrudniona.',
+            'body' => 'Obie osoby zaakceptowały zaproszenie. Gdy się dogadacie, oznacz parę jako zatrudnioną.',
             'url' => route('employer.offers.job-share-pairs.index', $this->pair->job_offer_id, absolute: false),
             'job_share_pair_id' => $this->pair->id,
         ];

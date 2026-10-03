@@ -26,7 +26,7 @@ const icon = computed(() => {
         case 'pair_invitation_received':
             return UsersRound;
         case 'pair_hired':
-        case 'pair_hired_company':
+        case 'pair_accepted_company':
             return PartyPopper;
         case 'invitation_declined':
             return CircleX;

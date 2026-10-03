@@ -170,6 +170,7 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                 <Chip tone="peach">Zaproszenie dla Waszej pary</Chip>
                 <Chip
                     v-if="
+                        invitation.job_share_pair.status === 'accepted' ||
                         invitation.job_share_pair.status === 'hired' ||
                         invitation.job_share_pair.status === 'declined'
                     "
