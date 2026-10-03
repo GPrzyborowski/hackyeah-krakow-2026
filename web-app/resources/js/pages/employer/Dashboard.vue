@@ -18,6 +18,7 @@ import {
 import { computed, ref } from 'vue';
 import CandidateController from '@/actions/App/Http/Controllers/Employer/CandidateController';
 import JobOfferController from '@/actions/App/Http/Controllers/Employer/JobOfferController';
+import EmployerPairController from '@/actions/App/Http/Controllers/JobSharing/EmployerPairController';
 import { pluralize } from '@/components/employer/format';
 import { dashboard } from '@/routes/employer';
 
@@ -130,6 +131,10 @@ function stageShare(row: FunnelRow, key: StageKey): string | null {
     return `${Math.round((row[key] / row.matched_count) * 100)}% dopasowanych`;
 }
 
+const jobShareOffers = computed(() =>
+    props.funnel.filter((row) => row.is_job_share),
+);
+
 const parentFriendlyShare = computed(() =>
     props.stats.parent_friendly.total === 0
         ? 0
@@ -140,15 +145,9 @@ const parentFriendlyShare = computed(() =>
 
 const tiles = computed(() => [
     {
-        label: 'Opublikowane oferty',
-        value: String(props.stats.published_offers_count),
-        hint: 'aktywne ogłoszenia',
-        icon: Briefcase,
-    },
-    {
         label: 'Do przejrzenia',
         value: String(props.stats.to_review_count),
-        hint: 'profile w kolejce',
+        hint: 'anonimowe profile w kolejce',
         icon: Users,
         highlight: props.stats.to_review_count > 0,
     },
@@ -171,17 +170,23 @@ const tiles = computed(() => [
         icon: CheckCircle2,
     },
     {
+        label: 'Zgłoszone pary',
+        value: String(props.stats.submitted_pairs_count),
+        hint: 'job sharing czeka na decyzję',
+        icon: UsersRound,
+        highlight: props.stats.submitted_pairs_count > 0,
+    },
+    {
         label: 'Aktywne rozmowy',
         value: String(props.stats.active_conversations_count),
         hint: `wiadomości w ${props.stats.recent_days} dniach`,
         icon: MessageCircle,
     },
     {
-        label: 'Zgłoszone pary',
-        value: String(props.stats.submitted_pairs_count),
-        hint: 'job sharing czeka na decyzję',
-        icon: UsersRound,
-        highlight: props.stats.submitted_pairs_count > 0,
+        label: 'Opublikowane oferty',
+        value: String(props.stats.published_offers_count),
+        hint: 'stanowiska, do których zapraszasz',
+        icon: Briefcase,
     },
 ]);
 
@@ -234,7 +239,7 @@ const activityIcons: Record<string, typeof Mail> = {
     invitation_declined: Mail,
     new_message: MessageCircle,
     pair_submitted: UsersRound,
-    pair_hired_company: UsersRound,
+    pair_accepted_company: UsersRound,
 };
 </script>
 
@@ -274,7 +279,7 @@ const activityIcons: Record<string, typeof Mail> = {
             </div>
             <Link
                 :href="JobOfferController.create()"
-                class="inline-flex items-center gap-2 rounded-full bg-brand-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-green-soft"
+                class="inline-flex items-center gap-2 rounded-full border border-brand-green px-5 py-2.5 text-sm font-semibold text-brand-green transition hover:bg-white"
             >
                 <Plus class="size-4" aria-hidden="true" /> Dodaj ofertę
             </Link>
@@ -286,7 +291,7 @@ const activityIcons: Record<string, typeof Mail> = {
         >
             <div>
                 <h2 id="hero-heading" class="text-sm text-white/80">
-                    Kandydatki pasujące do Twoich ofert
+                    Kandydatki, które możesz zaprosić
                 </h2>
                 <p
                     class="mt-1 text-5xl font-extrabold md:text-6xl"
@@ -294,26 +299,118 @@ const activityIcons: Record<string, typeof Mail> = {
                 >
                     {{ stats.matching_candidates_count }}
                 </p>
-                <p class="mt-1 text-sm text-white/80">
-                    unikalnych profili w
-                    {{ stats.published_offers_count }}
-                    {{
-                        pluralize(
-                            stats.published_offers_count,
-                            'opublikowanej ofercie',
-                            'opublikowanych ofertach',
-                            'opublikowanych ofertach',
-                        )
-                    }}
+                <p class="mt-1 max-w-md text-sm text-white/80">
+                    <template v-if="stats.published_offers_count">
+                        Anonimowe profile pasujące do
+                        {{ stats.published_offers_count }}
+                        {{
+                            pluralize(
+                                stats.published_offers_count,
+                                'Twojego stanowiska',
+                                'Twoich stanowisk',
+                                'Twoich stanowisk',
+                            )
+                        }}. Ty zapraszasz, one decydują, czy pokazać dane.
+                    </template>
+                    <template v-else>
+                        Opisz stanowisko (umiejętności, wymiar, start), a
+                        pokażemy Ci kandydatki, które możesz zaprosić.
+                    </template>
                 </p>
             </div>
             <Link
-                :href="CandidateController.index()"
+                :href="
+                    stats.published_offers_count
+                        ? CandidateController.index()
+                        : JobOfferController.create()
+                "
                 class="inline-flex items-center gap-2 self-start rounded-full bg-brand-yellow px-5 py-2.5 text-sm font-semibold text-brand-green transition hover:brightness-95 md:self-auto"
+                data-test="invite-candidates-cta"
             >
-                {{ stats.to_review_count }} do przejrzenia
+                <template v-if="stats.published_offers_count">
+                    Zaproś kandydatki ({{ stats.to_review_count }} do
+                    przejrzenia)
+                </template>
+                <template v-else>Opisz pierwsze stanowisko</template>
                 <ArrowRight class="size-4" aria-hidden="true" />
             </Link>
+        </section>
+
+        <section
+            class="flex flex-col gap-3 rounded-3xl bg-brand-mint-soft p-6"
+            aria-labelledby="job-sharing-heading"
+            data-test="job-sharing-section"
+        >
+            <div class="flex flex-wrap items-start justify-between gap-2">
+                <div class="min-w-0">
+                    <h2
+                        id="job-sharing-heading"
+                        class="flex items-center gap-2 text-lg font-bold text-brand-green"
+                    >
+                        <UsersRound class="size-5" aria-hidden="true" />
+                        Job sharing: jeden etat, dwie mamy
+                    </h2>
+                    <p class="mt-1 max-w-2xl text-sm text-brand-green/80">
+                        Kandydatki same dobierają się w pary i ustalają podział
+                        dnia. Ty dostajesz gotowy zespół, który pokrywa cały
+                        etat.
+                    </p>
+                </div>
+                <span
+                    v-if="stats.submitted_pairs_count"
+                    class="shrink-0 rounded-full bg-brand-yellow px-3 py-1 text-xs font-semibold text-brand-green"
+                >
+                    {{ stats.submitted_pairs_count }}
+                    {{
+                        pluralize(
+                            stats.submitted_pairs_count,
+                            'para czeka',
+                            'pary czekają',
+                            'par czeka',
+                        )
+                    }}
+                </span>
+            </div>
+            <ul v-if="jobShareOffers.length" class="flex flex-col gap-2">
+                <li v-for="row in jobShareOffers" :key="row.offer_id">
+                    <Link
+                        :href="EmployerPairController.index(row.offer_id)"
+                        class="flex items-center justify-between gap-3 rounded-2xl bg-white p-3 text-brand-green transition hover:shadow-sm"
+                    >
+                        <span class="min-w-0 truncate font-semibold">{{
+                            row.title
+                        }}</span>
+                        <span
+                            class="flex shrink-0 items-center gap-2 text-xs font-semibold"
+                        >
+                            {{ row.submitted_pairs_count }}
+                            {{
+                                pluralize(
+                                    row.submitted_pairs_count,
+                                    'zgłoszona para',
+                                    'zgłoszone pary',
+                                    'zgłoszonych par',
+                                )
+                            }}
+                            <ArrowRight class="size-4" aria-hidden="true" />
+                        </span>
+                    </Link>
+                </li>
+            </ul>
+            <p
+                v-else
+                class="rounded-2xl bg-white/70 p-4 text-sm text-brand-green/80"
+            >
+                Zaznacz „Oferta dla wielu osób” przy stanowisku, a kandydatki
+                zgłoszą się do niego w parach.
+                <Link
+                    :href="
+                        JobOfferController.create({ query: { job_share: 1 } })
+                    "
+                    class="font-semibold underline underline-offset-4"
+                    >Dodaj ofertę dla wielu osób</Link
+                >
+            </p>
         </section>
 
         <section aria-label="Najważniejsze liczby">
@@ -406,7 +503,7 @@ const activityIcons: Record<string, typeof Mail> = {
                         id="funnel-heading"
                         class="text-lg font-bold text-brand-green"
                     >
-                        Lejek kandydatek w ofertach
+                        Lejek zaproszeń
                     </h2>
                     <button
                         v-if="funnel.length"

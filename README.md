@@ -3,7 +3,7 @@
 | Folder | What |
 |---|---|
 | [`web-app/`](web-app/) | Laravel 13 + Inertia/Vue (SSR) on Laravel Sail (Docker) — see [web-app/README.md](web-app/README.md) |
-| `mobile-app/` | Mobile app (coming soon) |
+| `mobile-app/` | Mobile app (coming soon) — local backend for it: [web-app/docs/mobile-local-dev.md](web-app/docs/mobile-local-dev.md) |
 
 ## Quick start (web-app)
 

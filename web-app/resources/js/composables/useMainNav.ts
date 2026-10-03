@@ -27,26 +27,31 @@ export type NavSection = {
 };
 
 /**
- * Candidate navigation grouped into sections for the sidebar.
+ * Candidate navigation grouped into sections for the sidebar: companies writing to her and applying in pairs
+ * come first, browsing offers second.
  */
 export const candidateNavSections: NavSection[] = [
     {
-        title: 'Szukam pracy',
+        title: 'Praca',
         items: [
             { title: 'Start', href: '/candidate', icon: Home },
-            { title: 'Oferty', href: '/candidate/offers', icon: Briefcase },
             {
                 title: 'Zaproszenia',
                 href: '/candidate/invitations',
                 icon: Mail,
             },
-            { title: 'Job sharing', href: '/job-sharing', icon: UsersRound },
+            {
+                title: 'Aplikuj w parze',
+                href: '/job-sharing',
+                icon: UsersRound,
+            },
+            { title: 'Czaty', href: '/conversations', icon: MessageCircle },
         ],
     },
     {
-        title: 'Rozmowy',
+        title: 'Oferty i firmy',
         items: [
-            { title: 'Czaty', href: '/conversations', icon: MessageCircle },
+            { title: 'Oferty', href: '/candidate/offers', icon: Briefcase },
             { title: 'Opinie o firmach', href: '/reviews', icon: Star },
         ],
     },
@@ -66,10 +71,10 @@ const candidateItems: NavItem[] = candidateNavSections.flatMap(
 
 const employerItems: NavItem[] = [
     { title: 'Start', href: '/employer', icon: Home },
-    { title: 'Ogłoszenia', href: '/employer/offers', icon: Briefcase },
     { title: 'Kandydatki', href: '/employer/candidates', icon: Users },
     { title: 'Zaproszenia', href: '/employer/invitations', icon: Mail },
     { title: 'Czaty', href: '/conversations', icon: MessageCircle },
+    { title: 'Ogłoszenia', href: '/employer/offers', icon: Briefcase },
     { title: 'Konto firmy', href: '/employer/company', icon: Building2 },
     { title: 'Blog', href: '/blog', icon: BookOpen },
 ];

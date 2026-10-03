@@ -327,7 +327,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                                 v-model="form.is_job_share"
                                 data-test="job-share-toggle"
                             />
-                            Oferta dla dwóch osób (job sharing)
+                            Oferta dla wielu osób (job sharing)
                         </label>
                         <p class="mt-1 text-xs text-brand-green/80">
                             Jedno stanowisko, dwie osoby dzielące dzień pracy.

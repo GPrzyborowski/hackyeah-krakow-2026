@@ -58,7 +58,9 @@ defineProps<{
 
 defineOptions({
     layout: {
-        breadcrumbs: [{ title: 'Job sharing', href: PairController.index() }],
+        breadcrumbs: [
+            { title: 'Aplikuj w parze', href: PairController.index() },
+        ],
     },
 });
 
@@ -207,7 +209,7 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
 
         <section class="flex flex-col gap-3">
             <h2 class="text-xl font-bold text-brand-green">
-                Oferty dla dwóch osób
+                Oferty dla wielu osób
             </h2>
             <article
                 v-for="offer in offers"
@@ -254,7 +256,7 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
                 v-if="offers.length === 0"
                 class="rounded-3xl bg-white p-6 text-sm text-brand-green/80"
             >
-                Na razie nie ma ofert dla dwóch osób.
+                Na razie nie ma ofert dla wielu osób.
             </p>
         </section>
     </div>

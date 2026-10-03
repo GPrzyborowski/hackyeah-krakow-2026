@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowRight, BookOpen, Bookmark, Lock, Sparkles } from '@lucide/vue';
+import {
+    ArrowRight,
+    BookOpen,
+    Bookmark,
+    Lock,
+    Mail,
+    Sparkles,
+    UsersRound,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import PairController from '@/actions/App/Http/Controllers/JobSharing/PairController';
 import { pluralize } from '@/components/candidate/format';
@@ -123,36 +131,36 @@ function editCalendar() {
                 </p>
                 <p class="mt-1 inline-flex items-center gap-1 text-xs">
                     <Lock class="size-3" aria-hidden="true" />
-                    Tę informację widzisz tylko Ty. Nie pokazujemy jej pracodawcom.
+                    Tę informację widzisz tylko Ty. Nie pokazujemy jej
+                    pracodawcom.
                 </p>
             </div>
             <ArrowRight class="size-5 shrink-0" aria-hidden="true" />
         </Link>
 
-        <ReturnCalendarCard
-            :calendar="calendar"
-            :edit-label="calendarEditLabel"
-            @edit="editCalendar"
-        />
-
         <Link
             :href="invitationsIndex()"
-            class="flex items-center justify-between gap-4 rounded-3xl bg-white p-6 shadow-sm transition hover:shadow-md"
+            class="flex flex-col gap-4 rounded-3xl bg-brand-green p-6 text-white transition hover:bg-brand-green-soft sm:flex-row sm:items-center sm:justify-between"
+            data-test="invitations-card"
         >
             <div class="min-w-0">
-                <h2 class="text-lg font-bold text-brand-green">
+                <h2 class="flex items-center gap-2 text-xl font-bold">
+                    <Mail
+                        class="size-5 shrink-0 text-brand-yellow"
+                        aria-hidden="true"
+                    />
                     Zaproszenia od firm
                 </h2>
-                <p class="truncate text-brand-green/80">
+                <p class="mt-1 text-white/85">
                     {{
                         invitations.company_names.length
                             ? invitations.company_names.join(', ')
-                            : 'Na razie brak nowych zaproszeń.'
+                            : 'Firmy przeglądają anonimowe profile i same zapraszają do rozmowy. Twoje dane zobaczą dopiero po Twojej zgodzie.'
                     }}
                 </p>
             </div>
             <span
-                class="shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold text-brand-green"
+                class="shrink-0 self-start rounded-full px-4 py-1.5 text-sm font-semibold text-brand-green sm:self-auto"
                 :class="
                     invitations.pending_count
                         ? 'bg-brand-yellow'
@@ -172,40 +180,49 @@ function editCalendar() {
         </Link>
 
         <Link
-            v-if="pairInvitationsCount"
             :href="PairController.index()"
             class="flex items-center justify-between gap-4 rounded-3xl bg-brand-mint-soft p-6 transition hover:shadow-md"
-            data-test="pair-invitations-card"
+            data-test="job-sharing-card"
         >
             <div class="min-w-0">
-                <h2 class="text-lg font-bold text-brand-green">
-                    Zaproszenia do pary
+                <h2
+                    class="flex items-center gap-2 text-lg font-bold text-brand-green"
+                >
+                    <UsersRound class="size-5 shrink-0" aria-hidden="true" />
+                    {{
+                        pairInvitationsCount
+                            ? 'Zaproszenia do pary'
+                            : 'Job sharing'
+                    }}
                 </h2>
                 <p class="text-brand-green/80">
-                    Ktoś chce dzielić z Tobą stanowisko w job sharingu.
+                    {{
+                        pairInvitationsCount
+                            ? 'Ktoś chce dzielić z Tobą stanowisko w job sharingu.'
+                            : 'Podziel etat z inną mamą: jedna pracuje rano, druga po południu.'
+                    }}
                 </p>
             </div>
             <span
+                v-if="pairInvitationsCount"
                 class="shrink-0 rounded-full bg-brand-yellow px-4 py-1.5 text-sm font-semibold text-brand-green"
+                data-test="pair-invitations-count"
             >
                 {{ pairInvitationsCount }}
                 {{ pluralize(pairInvitationsCount, 'nowe', 'nowe', 'nowych') }}
             </span>
+            <ArrowRight
+                v-else
+                class="size-5 shrink-0 text-brand-green"
+                aria-hidden="true"
+            />
         </Link>
 
-        <Link
-            :href="offersIndex({ query: { saved: 1 } })"
-            class="flex items-center justify-between gap-4 rounded-3xl bg-white px-6 py-4 shadow-sm transition hover:shadow-md"
-            data-test="saved-offers-card"
-        >
-            <span
-                class="inline-flex items-center gap-2 font-semibold text-brand-green"
-            >
-                <Bookmark class="size-4" />
-                Zapisane oferty ({{ savedOffersCount }})
-            </span>
-            <ArrowRight class="size-4 text-brand-green" />
-        </Link>
+        <ReturnCalendarCard
+            :calendar="calendar"
+            :edit-label="calendarEditLabel"
+            @edit="editCalendar"
+        />
 
         <Link
             :href="cvAnalysis()"
@@ -235,15 +252,24 @@ function editCalendar() {
         <section class="rounded-3xl bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between gap-2">
                 <h2 class="text-lg font-bold text-brand-green">
-                    Pasujące oferty
+                    Możesz też sama rozejrzeć się po ofertach
                 </h2>
                 <Link
                     :href="offersIndex()"
-                    class="text-sm font-semibold text-brand-green underline underline-offset-4"
+                    class="shrink-0 text-sm font-semibold text-brand-green underline underline-offset-4"
                 >
                     Zobacz wszystkie
                 </Link>
             </div>
+            <Link
+                v-if="savedOffersCount"
+                :href="offersIndex({ query: { saved: 1 } })"
+                class="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-brand-green hover:underline"
+                data-test="saved-offers-card"
+            >
+                <Bookmark class="size-4" aria-hidden="true" />
+                Zapisane oferty ({{ savedOffersCount }})
+            </Link>
             <ul class="mt-3 divide-y divide-brand-cream">
                 <li v-for="offer in topOffers" :key="offer.id">
                     <Link
@@ -309,7 +335,9 @@ function editCalendar() {
         >
             <div>
                 <h2 class="text-lg font-bold">Masz pytanie o swoje prawa?</h2>
-                <p class="text-sm">Zapytaj asystenta. Do każdej odpowiedzi poda źródło.</p>
+                <p class="text-sm">
+                    Zapytaj asystenta. Do każdej odpowiedzi poda źródło.
+                </p>
             </div>
             <ArrowRight class="size-5 shrink-0" />
         </Link>

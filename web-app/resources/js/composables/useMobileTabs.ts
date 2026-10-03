@@ -1,13 +1,13 @@
 import { usePage } from '@inertiajs/vue3';
 import type { LucideIcon } from '@lucide/vue';
 import {
-    Briefcase,
     Building2,
-    FileText,
     Home,
+    Mail,
     MessageCircle,
     User,
     Users,
+    UsersRound,
 } from '@lucide/vue';
 import type { ComputedRef } from 'vue';
 import { computed } from 'vue';
@@ -29,16 +29,16 @@ export type MobileTab = {
 
 const candidateTabs: MobileTab[] = [
     { title: 'Start', href: '/candidate', icon: Home, exact: true },
-    { title: 'Oferty', href: '/candidate/offers', icon: Briefcase },
-    { title: 'Blog', href: '/blog', icon: FileText },
-    { title: 'Asystent', href: '/assistant', icon: MessageCircle },
+    { title: 'Zaproszenia', href: '/candidate/invitations', icon: Mail },
+    { title: 'W parze', href: '/job-sharing', icon: UsersRound },
+    { title: 'Czaty', href: '/conversations', icon: MessageCircle },
     { title: 'Profil', href: '/candidate/profile', icon: User },
 ];
 
 const employerTabs: MobileTab[] = [
     { title: 'Start', href: '/employer', icon: Home, exact: true },
     { title: 'Kandydatki', href: '/employer/candidates', icon: Users },
-    { title: 'Blog', href: '/blog', icon: FileText },
+    { title: 'Zaproszenia', href: '/employer/invitations', icon: Mail },
     { title: 'Czaty', href: '/conversations', icon: MessageCircle },
     { title: 'Firma', href: '/employer/company', icon: Building2 },
 ];

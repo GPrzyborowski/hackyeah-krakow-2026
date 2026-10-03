@@ -327,8 +327,8 @@ function confirmAndContinue() {
                 >To zobaczą pracodawcy</label
             >
             <p class="mt-1 text-xs text-brand-green/80">
-                Krótki opis na Twoim anonimowym profilu. Popraw go po swojemu, ale
-                bez e-maila, telefonu i informacji o rodzinie.
+                Krótki opis na Twoim anonimowym profilu. Popraw go po swojemu,
+                ale bez e-maila, telefonu i informacji o rodzinie.
             </p>
             <textarea
                 id="ai_summary"

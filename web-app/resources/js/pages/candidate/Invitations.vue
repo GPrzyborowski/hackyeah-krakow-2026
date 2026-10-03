@@ -260,8 +260,8 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
         >
             <p class="font-semibold">Nie masz jeszcze zaproszeń.</p>
             <p class="mt-1 text-sm text-brand-green/80">
-                Gdy firma uzna, że pasujesz do oferty, zaproszenie pojawi się
-                tutaj.
+                Firmy przeglądają anonimowe profile i same zapraszają do
+                rozmowy. Gdy któraś Cię zaprosi, zobaczysz to tutaj.
             </p>
         </div>
     </div>

@@ -76,7 +76,9 @@ const props = defineProps<{
 
 defineOptions({
     layout: {
-        breadcrumbs: [{ title: 'Job sharing', href: PairController.index() }],
+        breadcrumbs: [
+            { title: 'Aplikuj w parze', href: PairController.index() },
+        ],
     },
 });
 
@@ -564,8 +566,8 @@ const inputClass =
                 >
                     <ShieldCheck class="mt-0.5 size-5 shrink-0" />
                     <p v-if="pair.status === 'hired'">
-                        Gratulacje! Obie przyjęłyście zaproszenie, więc Wasza para
-                        została zatrudniona. Szczegóły ustalicie z firmą w
+                        Gratulacje! Obie przyjęłyście zaproszenie, więc Wasza
+                        para została zatrudniona. Szczegóły ustalicie z firmą w
                         zakładce
                         <Link
                             :href="invitationsIndex()"
