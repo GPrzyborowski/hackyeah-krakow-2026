@@ -1182,7 +1182,7 @@
                                 "accept"
                             ]
                         },
-                        "description": "Accept an invitation\n\nOpens the conversation (`conversation_id`). **Privacy:** from now on the inviting company sees the candidate's\nfull name and e-mail. Requires a verified e-mail address (otherwise `403` with `email_verification_required: true`).\n`403` for someone else's invitation or one already answered (\"Na to zaproszenie już odpowiedziano.\").\nFor `kind: direct_message` accepting opens the chat in the same way."
+                        "description": "Accept an invitation\n\nOpens the conversation (`conversation_id`). **Privacy:** from now on the inviting company sees the candidate's\nfull name and e-mail. Requires a verified e-mail address (otherwise `403` with `email_verification_required: true`).\n`403` for someone else's invitation or one already answered (\"Na to zaproszenie już odpowiedziano.\").\nA job-sharing pair member gets `status: awaiting_partner` and no conversation until her partner accepts too; nothing\nis revealed before that, and if the partner declines her invitation is `withdrawn`.\nFor `kind: direct_message` accepting opens the chat in the same way."
                     }
                 },
                 {

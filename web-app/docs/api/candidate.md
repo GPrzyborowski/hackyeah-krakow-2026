@@ -304,13 +304,16 @@ Paginated, pending first, then newest.
 }], "links": { … }, "meta": { … } }
 ```
 
-`status`: `pending` | `accepted` | `declined` | `withdrawn`. For job-sharing invitations `job_share_pair` is `{ "id": 9, "partner_name": "Anna N.", "team_conversation_id": 12 }` – `team_conversation_id` is the pair's shared team chat with the company ("Czat zespołu"), set once she accepted (`null` before).
+`status`: `pending` | `awaiting_partner` | `accepted` | `declined` | `withdrawn` (`awaiting_partner`: a job-sharing pair member accepted, her partner has not answered yet). For job-sharing invitations `job_share_pair` is `{ "id": 9, "partner_name": "Anna N.", "team_conversation_id": 12 }` – `team_conversation_id` is the pair's shared team chat with the company ("Czat zespołu"), set once she accepted (`null` before).
 
 `kind`: `invitation` | `direct_message`. A `direct_message` ("Pytanie od firmy") is a question from a company sent without an invitation (only when `allow_direct_messages` is on). Show it with "Odpowiedz" (= `accept`: opens the conversation with the question as the first message and **reveals her full name and e-mail to the company** – say so in the UI: "Odpowiedź ujawni firmie Twoje imię, nazwisko i e-mail") and "Zignoruj" (= `decline`: she stays anonymous).
 
 ### POST /candidate/invitations/{invitation}/accept
 
-Accepts and opens the chat; the company now sees her full name and e-mail. Returns the invitation with `status: "accepted"` and `conversation_id` (open the conversation with the conversations API). `403` for someone else's invitation or one already answered (`"message": "Na to zaproszenie już odpowiedziano."`). Requires a **verified e-mail**: otherwise `403` with `"email_verification_required": true` – offer to resend the link (`POST /auth/email/verification-notification`; the link opens in the browser).
+Accepts and opens the chat; the company now sees her full name and e-mail. For a job-sharing pair invitation the
+first member to accept gets `status: "awaiting_partner"` and `conversation_id: null` – nothing is revealed until her
+partner accepts as well, then both invitations become `accepted` together (UI: "Twoja zgoda jest zapisana. Firma pozna
+Wasze dane, gdy partnerka też przyjmie zaproszenie."). If the partner declines, her invitation becomes `withdrawn`. Returns the invitation with `status: "accepted"` and `conversation_id` (open the conversation with the conversations API). `403` for someone else's invitation or one already answered (`"message": "Na to zaproszenie już odpowiedziano."`). Requires a **verified e-mail**: otherwise `403` with `"email_verification_required": true` – offer to resend the link (`POST /auth/email/verification-notification`; the link opens in the browser).
 
 ### POST /candidate/invitations/{invitation}/decline
 

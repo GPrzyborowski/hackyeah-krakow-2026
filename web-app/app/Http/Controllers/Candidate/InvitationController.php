@@ -65,13 +65,20 @@ class InvitationController extends Controller
     }
 
     /**
-     * Accept: opens the conversation and reveals the candidate's name and e-mail to the company.
+     * Accept: opens the conversation and reveals the candidate's name and e-mail to the company
+     * (for a job-sharing pair only once her partner accepted too).
      */
     public function accept(Invitation $invitation): RedirectResponse
     {
         Gate::authorize('respond', $invitation);
 
         $conversation = $invitation->accept();
+
+        if ($conversation === null) {
+            Inertia::flash('toast', ['type' => 'success', 'message' => 'Twoja zgoda jest zapisana. Firma pozna Wasze dane, gdy partnerka też przyjmie zaproszenie.']);
+
+            return to_route('candidate.invitations.index');
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => $invitation->isDirectMessage()
             ? 'Rozmowa otwarta. Napisz firmie swoją odpowiedź.'

@@ -8,7 +8,12 @@ import CandidateAvatar from '@/components/candidate/CandidateAvatar.vue';
 import { formatShortDate } from '@/components/employer/format';
 import UpgradeQuestionDialog from '@/components/employer/UpgradeQuestionDialog.vue';
 
-type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'withdrawn';
+type InvitationStatus =
+    | 'pending'
+    | 'awaiting_partner'
+    | 'accepted'
+    | 'declined'
+    | 'withdrawn';
 
 type InvitationRow = {
     id: number;
@@ -47,6 +52,7 @@ defineOptions({
 
 const statusLabels: Record<InvitationStatus, string> = {
     pending: 'Czeka na odpowiedź',
+    awaiting_partner: 'Czeka na drugą osobę z pary',
     accepted: 'Zaakceptowane',
     declined: 'Odrzucone',
     withdrawn: 'Wycofane',
@@ -54,6 +60,7 @@ const statusLabels: Record<InvitationStatus, string> = {
 
 const statusClasses: Record<InvitationStatus, string> = {
     pending: 'bg-brand-yellow text-brand-green',
+    awaiting_partner: 'bg-brand-yellow text-brand-green',
     accepted: 'bg-brand-green text-white',
     declined: 'bg-brand-peach/60 text-brand-green',
     withdrawn: 'bg-neutral-200 text-neutral-600',
@@ -83,7 +90,10 @@ const visibleInvitations = computed(() =>
     filter.value === 'all'
         ? props.invitations
         : props.invitations.filter(
-              (invitation) => invitation.status === filter.value,
+              (invitation) =>
+                  invitation.status === filter.value ||
+                  (filter.value === 'pending' &&
+                      invitation.status === 'awaiting_partner'),
           ),
 );
 

@@ -31,6 +31,7 @@ class InvitationController extends Controller
 
     /**
      * Accept: opens the conversation (its id is in conversation_id) and reveals the candidate's name and e-mail to the company.
+     * A job-sharing pair member gets `awaiting_partner` (no conversation yet) until her partner accepts too.
      */
     public function accept(Invitation $invitation): InvitationResource
     {

@@ -94,27 +94,57 @@ class Invitation extends Model
     /**
      * Accept the invitation and open the conversation; contact data becomes visible to the company.
      * A newly opened conversation starts with the invitation message, so the chat never opens empty.
-     * A job-sharing pair moves to talks with the company once both of its members accepted their invitations
-     * (the company marks it as hired later). A pair member also joins the pair's
-     * team chat (opened by the first acceptance); her own 1:1 chat with the company stays for private matters.
+     * A job-sharing pair member's consent first waits for her partner: nothing is revealed to the company until every
+     * member accepted, then all of them are accepted together and the pair moves to talks with the company (the company
+     * marks it as hired later). Each member also joins the pair's team chat; her own 1:1 chat with the company stays for
+     * private matters. Returns null while the partner has not answered yet.
      */
-    public function accept(): Conversation
+    public function accept(): ?Conversation
     {
-        return DB::transaction(function (): Conversation {
-            $this->update(['status' => InvitationStatus::Accepted, 'responded_at' => now()]);
+        return DB::transaction(function (): ?Conversation {
+            $pair = $this->lockedPair();
 
-            $this->markPairAcceptedWhenEveryoneAccepted();
-
-            $conversation = $this->conversation()->firstOrCreate([], ['last_message_at' => now()]);
-
-            if ($conversation->wasRecentlyCreated) {
-                $this->seedConversation($conversation);
+            if ($pair === null) {
+                return $this->open();
             }
 
-            $this->joinPairTeamChat();
+            $this->update(['status' => InvitationStatus::AwaitingPartner, 'responded_at' => now()]);
 
-            return $conversation;
+            $invitations = $pair->invitations()->get();
+            $everyoneAgreed = $pair->status === JobSharePairStatus::Invited
+                && $invitations->count() >= $pair->members()->count()
+                && $invitations->every(fn (Invitation $invitation): bool => $invitation->status === InvitationStatus::AwaitingPartner);
+
+            if (! $everyoneAgreed) {
+                return null;
+            }
+
+            $pair->update(['status' => JobSharePairStatus::Accepted]);
+
+            foreach ($invitations->except([$this->id]) as $invitation) {
+                $invitation->open();
+            }
+
+            return $this->open();
         });
+    }
+
+    /**
+     * Mark the invitation accepted and open its conversation (and, for a pair member, the pair's team chat).
+     */
+    private function open(): Conversation
+    {
+        $this->update(['status' => InvitationStatus::Accepted, 'responded_at' => $this->responded_at ?? now()]);
+
+        $conversation = $this->conversation()->firstOrCreate([], ['last_message_at' => now()]);
+
+        if ($conversation->wasRecentlyCreated) {
+            $this->seedConversation($conversation);
+        }
+
+        $this->joinPairTeamChat();
+
+        return $conversation;
     }
 
     /**
@@ -169,7 +199,8 @@ class Invitation extends Model
     }
 
     /**
-     * Decline; for a job-sharing pair the whole pair is declined and the partner's pending invitation withdrawn.
+     * Decline; for a job-sharing pair the whole pair is declined and the partner's invitation withdrawn, also when she
+     * already gave her consent (the company never learns who she is).
      */
     public function decline(): void
     {
@@ -188,24 +219,9 @@ class Invitation extends Model
 
             $pair->invitations()
                 ->whereKeyNot($this->id)
-                ->where('status', InvitationStatus::Pending)
+                ->whereIn('status', InvitationStatus::UNANSWERED)
                 ->update(['status' => InvitationStatus::Withdrawn]);
         });
-    }
-
-    private function markPairAcceptedWhenEveryoneAccepted(): void
-    {
-        $pair = $this->lockedPair();
-
-        if ($pair === null || $pair->status !== JobSharePairStatus::Invited) {
-            return;
-        }
-
-        $acceptedCount = $pair->invitations()->where('status', InvitationStatus::Accepted)->count();
-
-        if ($acceptedCount === $pair->invitations()->count() && $acceptedCount >= $pair->members()->count()) {
-            $pair->update(['status' => JobSharePairStatus::Accepted]);
-        }
     }
 
     /**

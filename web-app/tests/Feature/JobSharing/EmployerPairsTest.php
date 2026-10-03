@@ -139,7 +139,7 @@ class EmployerPairsTest extends TestCase
         $this->assertSame(JobSharePairStatus::Submitted, $hiddenPair->fresh()?->status);
     }
 
-    public function test_candidate_accepts_her_pair_invitation_and_gets_a_conversation()
+    public function test_candidate_accepting_her_pair_invitation_gets_a_conversation_once_her_partner_accepts_too()
     {
         $employer = $this->employer();
         $recruitment = $this->skill('Rekrutacja IT');
@@ -154,9 +154,17 @@ class EmployerPairsTest extends TestCase
                 ->where('invitations.0.job_share_pair.id', $pair->id)
                 ->where('invitations.0.job_share_pair.partner_name', 'Ewa N.'));
 
-        $this->actingAs($marta->user)->post(route('candidate.invitations.accept', $invitation))->assertRedirect();
+        $this->actingAs($marta->user)
+            ->post(route('candidate.invitations.accept', $invitation))
+            ->assertRedirect(route('candidate.invitations.index'));
+
+        $this->assertSame(InvitationStatus::AwaitingPartner, $invitation->fresh()?->status);
+        $this->assertSame(0, Conversation::query()->count());
+
+        $partnerInvitation = Invitation::factory()->for($offer)->for($pair->members()->whereKeyNot($marta->id)->sole())->create(['job_share_pair_id' => $pair->id]);
+        $partnerInvitation->accept();
 
         $this->assertSame(InvitationStatus::Accepted, $invitation->fresh()?->status);
-        $this->assertSame($invitation->id, Conversation::query()->whereNull('job_share_pair_id')->sole()->invitation_id);
+        $this->assertSame($invitation->id, Conversation::query()->where('invitation_id', $invitation->id)->sole()->invitation_id);
     }
 }

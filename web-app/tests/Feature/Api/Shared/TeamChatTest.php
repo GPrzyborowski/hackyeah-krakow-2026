@@ -40,21 +40,30 @@ class TeamChatTest extends TestCase
         app(InviteJobSharePair::class)->handle($this->pair, $this->recruiter, 'Zapraszamy Was na wspólną rozmowę.');
     }
 
-    public function test_accepting_returns_the_team_chat_id_and_only_joined_members_can_open_it(): void
+    public function test_first_acceptance_waits_for_the_partner_and_the_second_returns_the_team_chat_id(): void
     {
         Sanctum::actingAs($this->marta->user);
-        $response = $this->postJson("/api/v1/candidate/invitations/{$this->invitationOf($this->marta)->id}/accept")->assertOk();
-        $teamChat = Conversation::query()->where('job_share_pair_id', $this->pair->id)->sole();
-        $response->assertJsonPath('data.job_share_pair.team_conversation_id', $teamChat->id);
+        $this->postJson("/api/v1/candidate/invitations/{$this->invitationOf($this->marta)->id}/accept")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'awaiting_partner')
+            ->assertJsonPath('data.status_label', 'Czeka na partnerkę')
+            ->assertJsonPath('data.conversation_id', null)
+            ->assertJsonPath('data.job_share_pair.team_conversation_id', null);
+        $this->assertSame(0, Conversation::query()->count());
+
+        Sanctum::actingAs($this->recruiter);
+        $this->getJson('/api/v1/employer/invitations?status=awaiting_partner')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.status_label', 'Czeka na drugą osobę z pary')
+            ->assertJsonMissingPath('data.0.candidate.email');
 
         Sanctum::actingAs($this->ewa->user);
-        $this->getJson('/api/v1/candidate/invitations')
+        $response = $this->postJson("/api/v1/candidate/invitations/{$this->invitationOf($this->ewa)->id}/accept")
             ->assertOk()
-            ->assertJsonPath('data.0.id', $this->invitationOf($this->ewa)->id)
-            ->assertJsonPath('data.0.job_share_pair.team_conversation_id', null);
-        $this->getJson("/api/v1/conversations/{$teamChat->id}")->assertForbidden();
-        $this->getJson("/api/v1/conversations/{$teamChat->id}/messages")->assertForbidden();
-        $this->postJson("/api/v1/conversations/{$teamChat->id}/messages", ['body' => 'Cześć'])->assertForbidden();
+            ->assertJsonPath('data.status', 'accepted');
+        $teamChat = Conversation::query()->where('job_share_pair_id', $this->pair->id)->sole();
+        $response->assertJsonPath('data.job_share_pair.team_conversation_id', $teamChat->id);
 
         Sanctum::actingAs($this->employer());
         $this->getJson("/api/v1/conversations/{$teamChat->id}")->assertForbidden();

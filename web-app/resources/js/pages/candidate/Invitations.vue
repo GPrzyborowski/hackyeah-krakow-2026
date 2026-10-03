@@ -14,7 +14,12 @@ import { show as offerShow } from '@/routes/candidate/offers';
 
 type Invitation = {
     id: number;
-    status: 'pending' | 'accepted' | 'declined' | 'withdrawn';
+    status:
+        | 'pending'
+        | 'awaiting_partner'
+        | 'accepted'
+        | 'declined'
+        | 'withdrawn';
     kind: 'invitation' | 'direct_message';
     kind_label: string;
     message: string;
@@ -52,6 +57,7 @@ defineOptions({
 
 const statusLabels: Record<Invitation['status'], string> = {
     pending: 'Czeka na odpowiedź',
+    awaiting_partner: 'Przyjęte, czeka na partnerkę',
     accepted: 'Przyjęte',
     declined: 'Odrzucone',
     withdrawn: 'Wycofane przez firmę',
@@ -59,12 +65,20 @@ const statusLabels: Record<Invitation['status'], string> = {
 
 const directMessageStatusLabels: Record<Invitation['status'], string> = {
     pending: 'Czeka na odpowiedź',
+    awaiting_partner: 'Odpowiedziano',
     accepted: 'Odpowiedziano',
     declined: 'Zignorowane',
     withdrawn: 'Wycofane przez firmę',
 };
 
 function statusLabel(invitation: Invitation): string {
+    if (
+        invitation.status === 'withdrawn' &&
+        invitation.job_share_pair?.status === 'declined'
+    ) {
+        return 'Para nie przeszła dalej';
+    }
+
     return invitation.kind === 'direct_message'
         ? directMessageStatusLabels[invitation.status]
         : statusLabels[invitation.status];
@@ -137,7 +151,8 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                 </div>
                 <Chip
                     :tone="
-                        invitation.status === 'pending'
+                        invitation.status === 'pending' ||
+                        invitation.status === 'awaiting_partner'
                             ? 'yellow'
                             : invitation.status === 'accepted'
                               ? 'dark'
@@ -245,6 +260,14 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                         }}
                     </button>
                 </div>
+                <p
+                    v-else-if="invitation.status === 'awaiting_partner'"
+                    class="text-sm text-brand-green"
+                    data-test="awaiting-partner"
+                >
+                    Twoja zgoda jest zapisana. Firma pozna Wasze dane, gdy
+                    partnerka też przyjmie zaproszenie.
+                </p>
                 <Link
                     v-else-if="invitation.conversation_id"
                     :href="conversationShow(invitation.conversation_id)"

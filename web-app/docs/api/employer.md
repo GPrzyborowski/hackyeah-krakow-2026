@@ -347,7 +347,7 @@ Errors: candidate does not allow direct messages → 422 `errors.message`: "Ta k
 
 ### GET /employer/invitations?status=accepted
 
-Paginated, newest first. Optional `status` = `pending|accepted|declined|withdrawn` (otherwise 422). Pending/declined/withdrawn invitations of candidates who later hid their profile from the company are not listed; accepted ones stay.
+Paginated, newest first. Optional `status` = `pending|awaiting_partner|accepted|declined|withdrawn` (otherwise 422). Pending/declined/withdrawn invitations of candidates who later hid their profile from the company are not listed; accepted ones stay.
 
 ```json
 {
@@ -380,7 +380,7 @@ Paginated, newest first. Optional `status` = `pending|accepted|declined|withdraw
 }
 ```
 
-`kind`: `invitation` | `direct_message` (question sent via `/direct-message`). Status labels: pending "Czeka na odpowiedź", accepted "Zaakceptowane", declined "Odrzucone", withdrawn "Wycofane". `conversation_id` (accepted only) is used with the shared conversations endpoints. `phone` and `photo_url` (accepted only, each `null` when the candidate did not provide it) – fetch the photo with the bearer token via `GET /candidate-photos/{profile}` ([shared.md](shared.md)).
+`kind`: `invitation` | `direct_message` (question sent via `/direct-message`). Status labels: pending "Czeka na odpowiedź", awaiting_partner "Czeka na drugą osobę z pary" (a pair member accepted, still anonymous), accepted "Zaakceptowane", declined "Odrzucone", withdrawn "Wycofane". `conversation_id` (accepted only) is used with the shared conversations endpoints. `phone` and `photo_url` (accepted only, each `null` when the candidate did not provide it) – fetch the photo with the bearer token via `GET /candidate-photos/{profile}` ([shared.md](shared.md)).
 
 ---
 

@@ -68,6 +68,7 @@ class InvitationResource extends JsonResource
     {
         return match ($status) {
             InvitationStatus::Pending => 'Oczekuje na odpowiedź',
+            InvitationStatus::AwaitingPartner => 'Czeka na partnerkę',
             InvitationStatus::Accepted => 'Przyjęte',
             InvitationStatus::Declined => 'Odrzucone',
             InvitationStatus::Withdrawn => 'Wycofane',

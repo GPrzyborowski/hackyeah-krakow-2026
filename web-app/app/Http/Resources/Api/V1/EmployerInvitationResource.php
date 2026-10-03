@@ -29,6 +29,7 @@ class EmployerInvitationResource extends JsonResource
             'status' => $invitation->status->value,
             'status_label' => match ($invitation->status) {
                 InvitationStatus::Pending => 'Czeka na odpowiedź',
+                InvitationStatus::AwaitingPartner => 'Czeka na drugą osobę z pary',
                 InvitationStatus::Accepted => 'Zaakceptowane',
                 InvitationStatus::Declined => 'Odrzucone',
                 InvitationStatus::Withdrawn => 'Wycofane',

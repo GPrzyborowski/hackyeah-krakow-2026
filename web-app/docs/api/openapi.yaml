@@ -680,6 +680,8 @@ paths:
         Opens the conversation (`conversation_id`). **Privacy:** from now on the inviting company sees the candidate's
         full name and e-mail. Requires a verified e-mail address (otherwise `403` with `email_verification_required: true`).
         `403` for someone else's invitation or one already answered ("Na to zaproszenie już odpowiedziano.").
+        A job-sharing pair member gets `status: awaiting_partner` and no conversation until her partner accepts too; nothing
+        is revealed before that, and if the partner declines her invitation is `withdrawn`.
         For `kind: direct_message` accepting opens the chat in the same way.
       parameters:
         - $ref: '#/components/parameters/InvitationId'
@@ -2324,7 +2326,7 @@ components:
       enum: [draft, published, closed]
     InvitationStatus:
       type: string
-      enum: [pending, accepted, declined, withdrawn]
+      enum: [pending, awaiting_partner, accepted, declined, withdrawn]
     InvitationKind:
       type: string
       enum: [invitation, direct_message]

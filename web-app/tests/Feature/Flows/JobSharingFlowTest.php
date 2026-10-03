@@ -165,8 +165,9 @@ class JobSharingFlowTest extends TestCase
                     ->where('invitations.0.job_share_pair.id', $pair->id));
 
             $this->actingAs($member->user)->post(route('candidate.invitations.accept', $invitation))->assertRedirect();
-            $this->assertSame(InvitationStatus::Accepted, $invitation->refresh()->status);
         }
+
+        $this->assertTrue($invitations->every(fn (Invitation $invitation): bool => $invitation->refresh()->status === InvitationStatus::Accepted));
 
         $this->assertSame(2, Conversation::query()->whereNotNull('invitation_id')->count());
         $this->assertSame(1, Conversation::query()->where('job_share_pair_id', $pair->id)->count());

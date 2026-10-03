@@ -28,7 +28,7 @@ class CloseJobOffer
     {
         DB::transaction(function () use ($offer): void {
             $offer->update(['status' => OfferStatus::Closed]);
-            $offer->invitations()->where('status', InvitationStatus::Pending)->update(['status' => InvitationStatus::Withdrawn]);
+            $offer->invitations()->whereIn('status', InvitationStatus::UNANSWERED)->update(['status' => InvitationStatus::Withdrawn]);
             $offer->jobSharePairs()->whereIn('status', self::CANCELLED_PAIR_STATUSES)->update(['status' => JobSharePairStatus::Cancelled]);
         });
 

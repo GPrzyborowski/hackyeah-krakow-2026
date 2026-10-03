@@ -143,6 +143,11 @@ class PairNotificationsTest extends TestCase
             'job_share_pair_id' => $pair->id,
             'sent_by_user_id' => $employer->id,
         ]);
+        Invitation::factory()->for($offer)->create([
+            'candidate_profile_id' => $ewa->id,
+            'job_share_pair_id' => $pair->id,
+            'sent_by_user_id' => $employer->id,
+        ])->accept();
         $conversation = $invitation->accept();
 
         $this->actingAs($marta->user)

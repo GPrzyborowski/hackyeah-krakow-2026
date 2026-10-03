@@ -43,12 +43,23 @@ class TeamChatTest extends TestCase
         app(InviteJobSharePair::class)->handle($this->pair, $this->recruiter, 'Zapraszamy Was na wspólną rozmowę.');
     }
 
-    public function test_first_acceptance_opens_the_team_chat_for_the_company_and_that_member_only(): void
+    public function test_first_acceptance_opens_no_chat_and_reveals_nothing_until_the_partner_accepts(): void
     {
         $this->accept($this->marta);
 
+        $this->assertSame(0, Conversation::query()->count());
+        $this->actingAs($this->recruiter)
+            ->get(route('employer.invitations.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('invitations', fn ($rows): bool => collect($rows)->every(fn (array $row): bool => ! isset($row['candidate']['full_name']) && $row['conversation_url'] === null)));
+    }
+
+    public function test_team_chat_opens_for_the_company_and_both_members_once_both_accepted(): void
+    {
+        $this->accept($this->marta);
+        $this->accept($this->ewa);
+
         $teamChat = $this->teamChat();
-        $this->assertSame(2, Conversation::query()->count(), 'Marta keeps her own 1:1 chat next to the team chat.');
         $this->assertSame(['Zapraszamy Was na wspólną rozmowę.'], $teamChat->messages()->pluck('body')->all());
 
         $this->actingAs($this->recruiter)
@@ -57,26 +68,8 @@ class TeamChatTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->where('conversation.is_team_chat', true)
                 ->where('conversation.counterpart.type', 'team')
-                ->where('conversation.counterpart.name', 'Czat zespołu: Marta Kowalska i Ewa N.')
                 ->where('conversation.counterpart.members.0.joined', true)
-                ->where('conversation.counterpart.members.0.email', $this->marta->user->email)
-                ->where('conversation.counterpart.members.1.joined', false)
-                ->where('conversation.counterpart.members.1.email', null));
-
-        $this->actingAs($this->marta->user)
-            ->get(route('conversations.show', $teamChat))
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->where('conversation.counterpart.name', 'Czat zespołu: Marta K. i Ewa N.')
-                ->where('conversation.counterpart.members.0.is_me', true));
-
-        $this->actingAs($this->ewa->user)->get(route('conversations.show', $teamChat))->assertForbidden();
-        $this->actingAs($this->ewa->user)
-            ->post(route('conversations.messages.store', $teamChat), ['body' => 'Cześć!'])
-            ->assertForbidden();
-        $this->actingAs($this->ewa->user)
-            ->get(route('conversations.index'))
-            ->assertInertia(fn (Assert $page) => $page->has('conversations', 0));
+                ->where('conversation.counterpart.members.1.joined', true));
     }
 
     public function test_second_member_joins_the_same_team_chat_and_her_partner_sees_her_only_anonymously(): void
@@ -110,6 +103,7 @@ class TeamChatTest extends TestCase
     public function test_members_of_another_company_cannot_open_the_team_chat(): void
     {
         $this->accept($this->marta);
+        $this->accept($this->ewa);
         $outsider = $this->employer();
 
         $this->actingAs($outsider)->get(route('conversations.show', $this->teamChat()))->assertForbidden();
@@ -121,6 +115,7 @@ class TeamChatTest extends TestCase
     public function test_employer_messages_in_the_team_chat_are_moderated(): void
     {
         $this->accept($this->marta);
+        $this->accept($this->ewa);
         $teamChat = $this->teamChat();
 
         $this->actingAs($this->recruiter)

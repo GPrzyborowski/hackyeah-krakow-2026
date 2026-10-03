@@ -232,6 +232,30 @@ class PairLifecycleTest extends TestCase
         Notification::assertNotSentTo([$marta->user, $ewa->user], PairHired::class);
     }
 
+    public function test_partner_declining_after_the_first_acceptance_reveals_nothing_to_the_company(): void
+    {
+        Notification::fake();
+        [$employer, , $marta, $ewa, $pair] = $this->invitedPair();
+
+        $this->actingAs($marta->user)
+            ->post(route('candidate.invitations.accept', $this->invitationOf($pair, $marta)))
+            ->assertRedirect(route('candidate.invitations.index'));
+
+        $this->assertSame(InvitationStatus::AwaitingPartner, $this->invitationOf($pair, $marta)->status);
+
+        $this->actingAs($ewa->user)->post(route('candidate.invitations.decline', $this->invitationOf($pair, $ewa)))->assertRedirect();
+
+        $this->assertSame(JobSharePairStatus::Declined, $pair->fresh()?->status);
+        $this->assertSame(InvitationStatus::Withdrawn, $this->invitationOf($pair, $marta)->status);
+        $this->assertDatabaseCount('conversations', 0);
+        Notification::assertNotSentTo($employer, PairAcceptedForCompany::class);
+
+        $this->actingAs($employer)
+            ->get(route('employer.invitations.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('invitations', fn ($rows): bool => collect($rows)->every(fn (array $row): bool => ! isset($row['candidate']['full_name']))));
+    }
+
     public function test_closing_the_offer_cancels_pairs_in_progress_and_keeps_hired_ones(): void
     {
         $employer = $this->employer();
