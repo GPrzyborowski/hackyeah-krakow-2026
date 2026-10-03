@@ -16,6 +16,7 @@ Machine-readable versions:
   `tests/Feature/Api/OpenApiSpecTest.php` fails when a route is missing from the spec (or the spec lists a removed one).
 - [momjobs.postman_collection.json](momjobs.postman_collection.json) – Postman v2.1 collection (folders per area,
   `{{baseUrl}}` / `{{token}}` variables). Run *Auth → Login as candidate / employer* first; it stores the token.
+  Generated from the spec – after changing `openapi.yaml` run `vendor/bin/sail artisan momjobs:postman` (don't edit the JSON by hand).
 
 ## Base URL
 
