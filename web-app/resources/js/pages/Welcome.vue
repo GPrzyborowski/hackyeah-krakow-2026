@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ArrowRight, Send, Sparkles } from '@lucide/vue';
+import {
+    ArrowRight,
+    Lock,
+    Mail,
+    Send,
+    Sparkles,
+    UsersRound,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import ArticleCard from '@/components/brand/ArticleCard.vue';
 import CompanyRatingCard from '@/components/brand/CompanyRatingCard.vue';
@@ -9,8 +16,9 @@ import type {
     PublicCompanySummary,
 } from '@/components/brand/types';
 import { dashboard, register } from '@/routes';
-import { index as candidateOffers } from '@/routes/candidate/offers';
+import { index as assistantIndex } from '@/routes/assistant';
 import { create as createOffer } from '@/routes/employer/offers';
+import { index as jobSharingIndex } from '@/routes/job-sharing';
 
 defineProps<{
     companies: PublicCompanySummary[];
@@ -20,6 +28,14 @@ defineProps<{
 const page = usePage();
 const isSignedIn = computed(() => Boolean(page.props.auth.user));
 const isEmployer = computed(() => page.props.auth.role === 'employer');
+const isCandidate = computed(() => page.props.auth.role === 'candidate');
+
+/**
+ * The assistant needs an account, so guests are sent to registration instead of a login wall.
+ */
+const assistantHref = computed(() =>
+    isSignedIn.value ? assistantIndex() : register(),
+);
 
 const steps = [
     {
@@ -28,7 +44,7 @@ const steps = [
     },
     {
         title: 'Firmy wybierają tagi i przeglądają profile',
-        body: 'Pracodawca opisuje ofertę, a Ty pojawiasz się, gdy pasujesz. Do akceptacji widzi tylko imię, umiejętności i datę dostępności.',
+        body: 'Pracodawca opisuje ofertę, a Ty pojawiasz się, gdy pasujesz. Do akceptacji widzi tylko imię z inicjałem nazwiska, umiejętności i datę dostępności.',
     },
     {
         title: 'Ty decydujesz, z kim rozmawiasz',
@@ -36,15 +52,32 @@ const steps = [
     },
 ];
 
-const interestedCompanies = [
+const employerSteps = [
     {
+        title: 'Opisujesz stanowisko',
+        body: 'Wymiar etatu, tryb pracy, potrzebne umiejętności i najwcześniejszą datę startu.',
+    },
+    {
+        title: 'Widzisz pasujące kandydatki',
+        body: 'Bez pełnych nazwisk i zdjęć: umiejętności, doświadczenie i data, od kiedy ktoś może pracować.',
+    },
+    {
+        title: 'Wysyłasz zaproszenie',
+        body: 'Kontakt i czat otwierają się po akceptacji. Do ofert dla wielu osób kandydatki zgłaszają się też w gotowych parach.',
+    },
+];
+
+const receivedInvitations = [
+    {
+        company: 'Zielone Biuro',
         title: 'Specjalistka ds. HR',
-        meta: 'Zielone Biuro · 3/5 etatu · zdalnie',
+        meta: '3/5 etatu · zdalnie',
         start: 'start 1 wrz',
     },
     {
+        company: 'Kamienica Studio',
         title: 'Koordynatorka projektów',
-        meta: 'Kamienica Studio · 3/4 etatu · hybrydowo',
+        meta: '3/4 etatu · hybrydowo',
         start: 'start 15 wrz',
     },
 ];
@@ -75,13 +108,39 @@ const pairChat = [
                     <h1
                         class="text-4xl leading-[1.05] font-semibold tracking-tight text-brand-green sm:text-5xl lg:text-6xl"
                     >
-                        Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.
+                        To nie jest tablica ogłoszeń. Firmy piszą do Ciebie albo
+                        aplikujesz w parze.
                     </h1>
                     <p class="mt-6 max-w-lg text-base text-brand-green/80">
-                        Wypełniasz profil, a firmy z elastycznymi ofertami
-                        wybierają Cię po umiejętnościach i piszą pierwsze. O
-                        ciąży mówisz wtedy, kiedy sama zdecydujesz.
+                        Nie wysyłasz CV w ciemno. O ciąży mówisz wtedy, kiedy
+                        sama zdecydujesz.
                     </p>
+                    <ul class="mt-6 grid max-w-lg gap-3 sm:grid-cols-2">
+                        <li class="rounded-2xl bg-white p-4 text-brand-green">
+                            <p
+                                class="flex items-center gap-2 text-sm font-semibold"
+                            >
+                                <Mail class="size-4" aria-hidden="true" />
+                                Firma pisze pierwsza
+                            </p>
+                            <p class="mt-1 text-xs text-brand-green/80">
+                                Uzupełniasz profil, a pracodawcy z elastycznymi
+                                stanowiskami wysyłają Ci zaproszenia.
+                            </p>
+                        </li>
+                        <li class="rounded-2xl bg-white p-4 text-brand-green">
+                            <p
+                                class="flex items-center gap-2 text-sm font-semibold"
+                            >
+                                <UsersRound class="size-4" aria-hidden="true" />
+                                Aplikujesz w parze
+                            </p>
+                            <p class="mt-1 text-xs text-brand-green/80">
+                                Dzielisz etat z drugą mamą i razem zgłaszacie
+                                się na jedno stanowisko.
+                            </p>
+                        </li>
+                    </ul>
                     <div class="mt-8 flex flex-wrap gap-3">
                         <Link
                             :href="isSignedIn ? dashboard() : register()"
@@ -101,14 +160,8 @@ const pairChat = [
                         </a>
                     </div>
                     <p class="mt-6 text-xs text-brand-green/80">
-                        Dla pracodawców:
-                        <Link
-                            :href="register({ query: { role: 'employer' } })"
-                            class="font-semibold underline underline-offset-2"
-                            >dodaj ogłoszenie</Link
-                        >
-                        – zobaczysz pasujące kandydatki, a ich dane dopiero po
-                        akceptacji zaproszenia.
+                        Zaproszenia od firm i od kandydatek do pary przychodzą
+                        na maila i do aplikacji.
                     </p>
                 </div>
 
@@ -121,7 +174,8 @@ const pairChat = [
                         Twój kalendarz powrotu
                     </h2>
                     <p class="mt-1 text-xs text-white/70">
-                        Oferty pojawiają się wtedy, kiedy możesz zacząć.
+                        Firmy widzą tylko datę, od której możesz pracować, i
+                        piszą z wyprzedzeniem.
                     </p>
 
                     <div
@@ -135,36 +189,54 @@ const pairChat = [
                         class="mt-3 grid grid-cols-3 gap-2 text-[11px] leading-tight"
                     >
                         <div>
-                            <p class="font-semibold">Ciąża</p>
+                            <p
+                                class="inline-flex items-center gap-1 font-semibold"
+                            >
+                                Ciąża
+                                <Lock
+                                    class="size-2.5"
+                                    aria-label="tylko dla Ciebie"
+                                />
+                            </p>
                             <p class="text-white/80">dziś: 24. tydzień</p>
                         </div>
                         <div>
-                            <p class="font-semibold">Urlop macierzyński</p>
+                            <p
+                                class="inline-flex items-center gap-1 font-semibold"
+                            >
+                                Urlop macierzyński
+                                <Lock
+                                    class="size-2.5"
+                                    aria-label="tylko dla Ciebie"
+                                />
+                            </p>
                             <p class="text-white/80">od 14 mar 2027</p>
                         </div>
                         <div>
-                            <p class="font-semibold">Gotowa</p>
+                            <p class="font-semibold">Gotowa · widzą firmy</p>
                             <p class="text-white/80">od 1 wrz 2027</p>
                         </div>
                     </div>
 
-                    <p class="mt-6 text-xs font-semibold text-brand-yellow">
-                        Już zainteresowane firmy
+                    <p
+                        class="mt-6 flex items-center gap-1.5 text-xs font-semibold text-brand-yellow"
+                    >
+                        <Mail class="size-3.5" /> Zaproszenia od firm
                     </p>
                     <ul class="mt-3 space-y-2.5">
                         <li
-                            v-for="item in interestedCompanies"
+                            v-for="item in receivedInvitations"
                             :key="item.title"
                             class="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 text-brand-green"
                         >
                             <div class="min-w-0">
                                 <p class="truncate text-sm font-semibold">
-                                    {{ item.title }}
+                                    {{ item.company }} zaprasza na rozmowę
                                 </p>
                                 <p
                                     class="truncate text-[11px] text-brand-green/80"
                                 >
-                                    {{ item.meta }}
+                                    {{ item.title }} · {{ item.meta }}
                                 </p>
                             </div>
                             <span
@@ -176,7 +248,8 @@ const pairChat = [
                     <p
                         class="mt-3 rounded-2xl bg-white/10 px-4 py-3 text-[11px] text-white/80"
                     >
-                        Dodaj CV – asystent AI zaproponuje kolejne oferty.
+                        Przyjmujesz albo odrzucasz. Firma nie zobaczy Twoich
+                        danych, dopóki się nie zgodzisz.
                     </p>
                 </div>
             </div>
@@ -208,6 +281,54 @@ const pairChat = [
                         </p>
                     </li>
                 </ol>
+
+                <div
+                    class="mt-12 rounded-3xl bg-brand-green p-6 text-white sm:p-8"
+                >
+                    <div
+                        class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+                    >
+                        <div>
+                            <p class="text-xs font-semibold text-brand-yellow">
+                                Dla pracodawców
+                            </p>
+                            <h3
+                                class="mt-2 max-w-xl text-2xl leading-tight font-semibold"
+                            >
+                                Nie czekasz na CV. Sam wybierasz, do kogo
+                                napisać.
+                            </h3>
+                        </div>
+                        <Link
+                            :href="
+                                isEmployer
+                                    ? createOffer()
+                                    : register({ query: { role: 'employer' } })
+                            "
+                            class="w-fit shrink-0 rounded-full bg-brand-peach px-5 py-2.5 text-sm font-semibold text-brand-green transition hover:bg-white"
+                            data-test="employer-cta"
+                            >{{
+                                isEmployer
+                                    ? 'Opisz stanowisko'
+                                    : 'Załóż konto firmy'
+                            }}</Link
+                        >
+                    </div>
+                    <ol class="mt-6 grid gap-3 md:grid-cols-3">
+                        <li
+                            v-for="(step, index) in employerSteps"
+                            :key="step.title"
+                            class="rounded-2xl bg-white/10 p-5"
+                        >
+                            <p class="text-sm font-semibold">
+                                {{ index + 1 }}. {{ step.title }}
+                            </p>
+                            <p class="mt-1.5 text-sm text-white/75">
+                                {{ step.body }}
+                            </p>
+                        </li>
+                    </ol>
+                </div>
             </div>
         </section>
 
@@ -220,13 +341,16 @@ const pairChat = [
                     <h2
                         class="text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
                     >
-                        Job sharing: jedno stanowisko, dwie osoby po 4 godziny
+                        Aplikuj w parze: jedno stanowisko, dwie osoby
                     </h2>
                     <p class="mt-4 max-w-lg text-sm text-brand-green/80">
                         Firma zatrudnia dwie osoby na jedno stanowisko. Każda
-                        pracuje pół dnia, więc w drugiej połowie możesz zająć
-                        się domem i dzieckiem, a stanowisko jest obsadzone od
-                        rana do popołudnia.
+                        pracuje część dnia, więc resztę możesz poświęcić domowi
+                        i dziecku, a stanowisko jest obsadzone od rana do
+                        popołudnia. Wybierz ofertę dla wielu osób, zaproś
+                        partnerkę albo przyjmij jej zaproszenie, ustalcie
+                        podział dnia i wyślijcie parę do firmy. Firma zobaczy
+                        Was dopiero wtedy, gdy obie się zgodzicie.
                     </p>
 
                     <div class="mt-6 rounded-3xl bg-white p-5">
@@ -258,10 +382,10 @@ const pairChat = [
 
                     <div class="mt-6 flex flex-wrap gap-3">
                         <Link
-                            :href="candidateOffers({ query: { job_share: 1 } })"
+                            :href="isCandidate ? jobSharingIndex() : register()"
                             class="rounded-full bg-brand-green px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-green-soft"
                             data-test="find-partner-cta"
-                            >Znajdź partnerkę do pary</Link
+                            >Chcę pracować w parze</Link
                         >
                         <Link
                             :href="
@@ -271,7 +395,7 @@ const pairChat = [
                             "
                             class="rounded-full border border-brand-green px-5 py-2.5 text-sm font-medium text-brand-green transition hover:bg-white"
                             data-test="job-share-offer-cta"
-                            >Dodaj ofertę dla dwóch osób</Link
+                            >Dodaj ofertę dla wielu osób</Link
                         >
                     </div>
                 </div>
@@ -348,10 +472,15 @@ const pairChat = [
                         pokazuje, skąd ją wziął.
                     </p>
                     <Link
-                        href="/assistant"
+                        :href="assistantHref"
                         class="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-green px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-green-soft"
                     >
-                        <Sparkles class="size-4" /> Zadaj pytanie asystentowi
+                        <Sparkles class="size-4" />
+                        {{
+                            isSignedIn
+                                ? 'Zadaj pytanie asystentowi'
+                                : 'Załóż konto i zapytaj asystenta'
+                        }}
                     </Link>
                 </div>
 
@@ -373,13 +502,13 @@ const pairChat = [
                             kandydata. Możesz odmówić odpowiedzi.
                         </p>
                         <Link
-                            href="/assistant"
+                            :href="assistantHref"
                             class="mt-3 inline-flex rounded-full bg-brand-yellow px-3 py-1 text-xs font-medium text-brand-green hover:underline"
                             >Źródło: Kodeks pracy, art. 22¹</Link
                         >
                     </div>
                     <Link
-                        href="/assistant"
+                        :href="assistantHref"
                         class="mt-5 flex items-center justify-between gap-3 rounded-full border border-brand-green/20 py-1.5 pr-1.5 pl-4 text-sm text-brand-green/80 transition hover:border-brand-green/50"
                     >
                         <span>Napisz pytanie…</span>
@@ -455,7 +584,8 @@ const pairChat = [
                 <h2
                     class="max-w-md text-3xl leading-tight font-semibold tracking-tight text-white"
                 >
-                    Wypełnij profil raz, a firmy same wyślą Ci zaproszenia.
+                    Wypełnij profil raz. Zaproszenia od firm i propozycje
+                    wspólnego etatu przyjdą do Ciebie.
                 </h2>
                 <Link
                     :href="isSignedIn ? dashboard() : register()"
