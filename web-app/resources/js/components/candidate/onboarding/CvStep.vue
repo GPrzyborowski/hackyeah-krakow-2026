@@ -298,7 +298,7 @@ function confirmAndContinue() {
         </h3>
         <div
             v-if="profile.suggested_positions.length"
-            class="mt-3 grid gap-3 sm:grid-cols-2"
+            class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-3"
         >
             <div
                 v-for="(
@@ -310,7 +310,9 @@ function confirmAndContinue() {
                     position_index < 2 ? 'bg-brand-yellow' : 'bg-brand-cream'
                 "
             >
-                <p class="font-semibold">{{ position.title }}</p>
+                <p class="font-semibold break-words hyphens-auto" lang="pl">
+                    {{ position.title }}
+                </p>
                 <p class="text-xs">pasuje w {{ position.score }}%</p>
             </div>
         </div>
@@ -319,7 +321,7 @@ function confirmAndContinue() {
             Twoje CV.
         </p>
 
-        <div class="mt-8 flex items-center justify-between gap-3">
+        <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
             <Link
                 v-if="profile.is_published"
                 :href="home()"
@@ -331,7 +333,7 @@ function confirmAndContinue() {
             <button
                 type="button"
                 :disabled="confirming || skills.length === 0"
-                class="rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-soft disabled:opacity-50"
+                class="rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold whitespace-nowrap text-white hover:bg-brand-green-soft disabled:opacity-50"
                 @click="confirmAndContinue"
             >
                 Zatwierdź i przejdź dalej

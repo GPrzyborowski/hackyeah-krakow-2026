@@ -121,7 +121,10 @@ const niceRatio = computed(() => {
             </div>
         </template>
         <div v-else class="mt-4 space-y-2">
-            <div class="h-10 w-20 animate-pulse rounded-lg bg-white/10" />
+            <div
+                v-if="preview.processing"
+                class="h-10 w-20 animate-pulse rounded-lg bg-white/10"
+            />
             <p class="text-sm text-white/70">
                 Ustaw planowany start i dodaj tagi, a policzymy pasujące
                 kandydatki.

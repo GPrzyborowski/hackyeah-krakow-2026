@@ -10,7 +10,14 @@ const longDate = new Intl.DateTimeFormat('pl-PL', {
     year: 'numeric',
 });
 
-const money = new Intl.NumberFormat('pl-PL');
+/**
+ * Groups thousands with a non-breaking space; Intl skips grouping for 4-digit
+ * numbers in Polish, which made "8500–11 000" inconsistent.
+ */
+const money = {
+    format: (amount: number): string =>
+        String(amount).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'),
+};
 
 function parseDate(value: string): Date {
     return new Date(`${value.slice(0, 10)}T00:00:00`);

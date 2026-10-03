@@ -88,7 +88,9 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 title="Średnia ocena firmy"
             >
                 <Star class="size-3.5 fill-current" />
-                {{ conversation.counterpart.rating.toFixed(1) }}
+                {{
+                    conversation.counterpart.rating.toFixed(1).replace('.', ',')
+                }}
             </span>
         </header>
 
