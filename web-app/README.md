@@ -20,6 +20,9 @@ Step-by-step guides for your system:
 - **Windows:** [docs/setup-windows.md](docs/setup-windows.md) — Docker Desktop + WSL 2 (Ubuntu). Sail doesn't run in PowerShell/Git Bash, and the project must live in WSL (`~/code`), not on `C:\`.
 - **Linux / macOS:** [docs/setup-linux-macos.md](docs/setup-linux-macos.md) — Docker Desktop (macOS) or Docker Engine + Compose plugin (Linux).
 
+**Mobile developers:** after the setup below, see [docs/mobile-local-dev.md](docs/mobile-local-dev.md) — connecting
+an emulator / phone to the local API, test accounts, resetting data. API reference: [docs/api/README.md](docs/api/README.md).
+
 ## First-time setup
 
 ```bash

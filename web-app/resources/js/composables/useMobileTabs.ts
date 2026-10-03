@@ -30,7 +30,7 @@ export type MobileTab = {
 const candidateTabs: MobileTab[] = [
     { title: 'Start', href: '/candidate', icon: Home, exact: true },
     { title: 'Zaproszenia', href: '/candidate/invitations', icon: Mail },
-    { title: 'Job sharing', href: '/job-sharing', icon: UsersRound },
+    { title: 'W parze', href: '/job-sharing', icon: UsersRound },
     { title: 'Czaty', href: '/conversations', icon: MessageCircle },
     { title: 'Profil', href: '/candidate/profile', icon: User },
 ];

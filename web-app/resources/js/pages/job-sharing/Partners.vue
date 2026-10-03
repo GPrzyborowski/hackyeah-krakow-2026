@@ -44,7 +44,9 @@ const props = defineProps<{
 
 defineOptions({
     layout: {
-        breadcrumbs: [{ title: 'Job sharing', href: PairController.index() }],
+        breadcrumbs: [
+            { title: 'Aplikuj w parze', href: PairController.index() },
+        ],
     },
 });
 

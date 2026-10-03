@@ -24,7 +24,8 @@ Machine-readable versions:
 https://<host>/api/v1
 ```
 
-Locally (Sail): `http://localhost/api/v1`. All paths in the docs are relative to the base URL.
+Locally (Sail): `http://localhost/api/v1` (Android emulator: `http://10.0.2.2/api/v1`; real phone, tunnel, test accounts:
+[../mobile-local-dev.md](../mobile-local-dev.md)). All paths in the docs are relative to the base URL.
 
 ## Headers
 
