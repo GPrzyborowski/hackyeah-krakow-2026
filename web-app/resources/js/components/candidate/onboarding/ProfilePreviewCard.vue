@@ -6,6 +6,7 @@ const props = defineProps<{
     anonymousName: string;
     headline: string | null;
     yearsOfExperience: number | null;
+    summary: string | null;
     skills: string[];
     availableFrom: string | null;
 }>();
@@ -39,6 +40,12 @@ const subtitle = computed(() =>
                     </p>
                 </div>
             </div>
+            <p
+                v-if="summary"
+                class="mt-3 text-sm leading-relaxed text-brand-green/80"
+            >
+                {{ summary }}
+            </p>
             <div class="mt-4 flex flex-wrap gap-1.5">
                 <span
                     v-for="skill in skills.slice(0, 6)"

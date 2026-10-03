@@ -116,6 +116,29 @@ class EmployerPairsTest extends TestCase
         $this->assertSame(JobSharePairStatus::Rejected, $pair->fresh()?->status);
     }
 
+    public function test_pairs_with_a_hidden_or_unpublished_member_are_not_counted_listed_or_rejectable()
+    {
+        $employer = $this->employer();
+        $recruitment = $this->skill('Rekrutacja IT');
+        $offer = $this->jobShareOffer($employer->company, [$recruitment]);
+        $visiblePair = $this->scheduledPair($offer, $this->sharer([$recruitment], 'Marta Kowalska'), $this->sharer([$recruitment], 'Ewa Nowak'), JobSharePairStatus::Submitted);
+        $hiddenPair = $this->scheduledPair($offer, $this->sharer([$recruitment], 'Anna Zielińska'), $this->sharer([$recruitment], 'Ola Mazur', attributes: ['hidden_from_company_id' => $employer->company_id]), JobSharePairStatus::Submitted);
+        $this->scheduledPair($offer, $this->sharer([$recruitment], 'Iza Wójcik'), $this->sharer([$recruitment], 'Kasia Lis', attributes: ['published_at' => null]), JobSharePairStatus::Submitted);
+
+        $this->actingAs($employer)
+            ->get(route('employer.offers.index'))
+            ->assertInertia(fn (Assert $page) => $page->where('offers.0.submitted_pairs_count', 1));
+        $this->actingAs($employer)
+            ->get(route('employer.candidates.index', ['offer' => $offer->id]))
+            ->assertInertia(fn (Assert $page) => $page->where('currentOffer.submitted_pairs_count', 1));
+        $this->actingAs($employer)
+            ->get(route('employer.offers.job-share-pairs.index', $offer))
+            ->assertInertia(fn (Assert $page) => $page->has('pairs', 1)->where('pairs.0.id', $visiblePair->id));
+        $this->actingAs($employer)->post(route('employer.job-share-pairs.reject', $hiddenPair))->assertNotFound();
+
+        $this->assertSame(JobSharePairStatus::Submitted, $hiddenPair->fresh()?->status);
+    }
+
     public function test_candidate_accepts_her_pair_invitation_and_gets_a_conversation()
     {
         $employer = $this->employer();

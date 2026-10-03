@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'role:candidate'])->prefix('job-sharing')->name('job-sharing.')->group(function () {
     Route::get('/', [PairController::class, 'index'])->name('index');
     Route::get('offers/{offer}/partners', [PartnerController::class, 'index'])->name('partners.index');
-    Route::post('offers/{offer}/pairs', [PairController::class, 'store'])->name('pairs.store');
+    Route::post('offers/{offer}/pairs', [PairController::class, 'store'])
+        ->middleware('throttle:20,1,job-sharing-pairs')
+        ->name('pairs.store');
 
     Route::get('pairs/{pair}', [PairController::class, 'show'])->name('pairs.show');
     Route::post('pairs/{pair}/accept', [PairController::class, 'accept'])->name('pairs.accept');
@@ -26,8 +28,10 @@ Route::middleware(['auth', 'role:candidate'])->prefix('job-sharing')->name('job-
     Route::post('pairs/{pair}/submit', [PairScheduleController::class, 'submit'])->name('pairs.submit');
 });
 
-Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
     Route::get('offers/{offer}/job-share-pairs', [EmployerPairController::class, 'index'])->name('offers.job-share-pairs.index');
-    Route::post('job-share-pairs/{pair}/invitation', [EmployerPairController::class, 'invite'])->name('job-share-pairs.invitation');
+    Route::post('job-share-pairs/{pair}/invitation', [EmployerPairController::class, 'invite'])
+        ->middleware('throttle:20,1,employer-pair-invitations')
+        ->name('job-share-pairs.invitation');
     Route::post('job-share-pairs/{pair}/reject', [EmployerPairController::class, 'reject'])->name('job-share-pairs.reject');
 });

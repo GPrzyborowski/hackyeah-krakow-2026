@@ -55,4 +55,16 @@ class CompanyTest extends TestCase
             ->put('/employer/company', ['name' => 'Zielone Biuro', 'nip' => '12345'])
             ->assertSessionHasErrors('nip');
     }
+
+    public function test_company_description_asking_about_family_plans_is_rejected()
+    {
+        $employer = $this->employer();
+        $originalDescription = $employer->company->description;
+
+        $this->actingAs($employer)
+            ->put('/employer/company', ['name' => 'Zielone Biuro', 'description' => 'Szukamy osób, które nie planują powiększenia rodziny.'])
+            ->assertSessionHasErrors('description');
+
+        $this->assertSame($originalDescription, $employer->company->refresh()->description);
+    }
 }

@@ -6,6 +6,7 @@ use App\Enums\JobSharePairStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\JobSharePairFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -71,6 +72,18 @@ class JobSharePair extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(Invitation::class);
+    }
+
+    /**
+     * Pairs whose every member is visible to the company: none of them unpublished her profile or hid it from that company.
+     *
+     * @param  Builder<self>  $query
+     */
+    public function scopeVisibleToCompany(Builder $query, Company $company): void
+    {
+        $query->whereDoesntHave('members', function (Builder $members) use ($company): void {
+            $members->whereNot(fn (Builder $member) => $member->visibleTo($company));
+        });
     }
 
     public function hasMember(CandidateProfile $candidate): bool

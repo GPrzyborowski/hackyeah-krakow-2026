@@ -95,16 +95,20 @@ class SaveJobOfferRequest extends FormRequest
     {
         return [
             function (Validator $validator): void {
-                $description = $this->input('description');
+                $moderator = app(MessageModerator::class);
 
-                if (! is_string($description) || trim($description) === '') {
-                    return;
-                }
+                foreach (['title', 'description'] as $field) {
+                    $text = $this->input($field);
 
-                $result = app(MessageModerator::class)->check($description);
+                    if (! is_string($text) || trim($text) === '' || $validator->errors()->has($field)) {
+                        continue;
+                    }
 
-                if (! $result->allowed) {
-                    $validator->errors()->add('description', trim($result->reason.' '.$result->suggestion));
+                    $result = $moderator->check($text);
+
+                    if (! $result->allowed) {
+                        $validator->errors()->add($field, trim($result->reason.' '.$result->suggestion));
+                    }
                 }
             },
         ];

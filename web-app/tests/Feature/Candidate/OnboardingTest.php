@@ -14,6 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -119,6 +120,62 @@ class OnboardingTest extends TestCase
             ->assertRedirect();
 
         $this->assertSame(CvStatus::Failed, $this->profile->refresh()->cv_status);
+    }
+
+    public function test_cv_analysis_is_rate_limited(): void
+    {
+        $this->fakeAnalyzer(new CvAnalysis(skills: []));
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->actingAs($this->candidate)
+                ->post(route('candidate.onboarding.cv'), ['cv_text' => 'Rekrutacja IT'])
+                ->assertRedirect();
+        }
+
+        $this->actingAs($this->candidate)
+            ->post(route('candidate.onboarding.cv'), ['cv_text' => 'Rekrutacja IT'])
+            ->assertTooManyRequests();
+    }
+
+    public function test_candidate_sees_and_edits_the_summary_shown_to_employers(): void
+    {
+        $this->profile->update(['ai_summary' => 'Doświadczona rekruterka IT.']);
+
+        $this->actingAs($this->candidate)
+            ->get(route('candidate.onboarding.show'))
+            ->assertInertia(fn (Assert $page) => $page->where('profile.ai_summary', 'Doświadczona rekruterka IT.'));
+
+        $this->actingAs($this->candidate)
+            ->patch(route('candidate.onboarding.summary'), ['ai_summary' => '  Od 6 lat prowadzę rekrutacje IT i onboarding.  '])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $this->assertSame('Od 6 lat prowadzę rekrutacje IT i onboarding.', $this->profile->refresh()->ai_summary);
+    }
+
+    #[DataProvider('rejectedSummaries')]
+    public function test_summary_with_contact_details_or_family_information_is_rejected(string $summary): void
+    {
+        $this->profile->update(['ai_summary' => 'Doświadczona rekruterka IT.']);
+
+        $this->actingAs($this->candidate)
+            ->patch(route('candidate.onboarding.summary'), ['ai_summary' => $summary])
+            ->assertSessionHasErrors('ai_summary');
+
+        $this->assertSame('Doświadczona rekruterka IT.', $this->profile->refresh()->ai_summary);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function rejectedSummaries(): array
+    {
+        return [
+            'e-mail' => ['Rekruterka IT, pisz na marta.kowalska@example.com'],
+            'phone' => ['Rekruterka IT, tel. +48 601 234 567'],
+            'pregnancy' => ['Rekruterka IT, obecnie w ciąży.'],
+            'too long' => [str_repeat('a', 401)],
+        ];
     }
 
     public function test_cv_step_requires_a_pdf_or_pasted_text(): void

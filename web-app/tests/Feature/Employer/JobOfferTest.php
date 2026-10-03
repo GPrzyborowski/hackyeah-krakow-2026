@@ -107,6 +107,16 @@ class JobOfferTest extends TestCase
         $this->assertSame(0, JobOffer::count());
     }
 
+    public function test_title_mentioning_pregnancy_is_rejected()
+    {
+        $this->actingAs($this->employer())
+            ->post('/employer/offers', $this->payload(['title' => 'Asystentka (nie w ciąży)']))
+            ->assertSessionHasErrors('title')
+            ->assertSessionDoesntHaveErrors('description');
+
+        $this->assertSame(0, JobOffer::count());
+    }
+
     public function test_employer_updates_own_offer_and_replaces_skills()
     {
         $employer = $this->employer();

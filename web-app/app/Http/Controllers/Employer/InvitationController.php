@@ -12,6 +12,8 @@ use App\Models\CandidateDecision;
 use App\Models\CandidateProfile;
 use App\Models\Invitation;
 use App\Models\JobOffer;
+use App\Services\Matching\MatchScorer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +28,7 @@ class InvitationController extends Controller
 
     /**
      * Invitations sent by the company; contact data is revealed only for accepted ones.
+     * Unanswered and declined invitations disappear once the candidate hides her profile from the company.
      */
     public function index(Request $request): Response
     {
@@ -33,6 +36,11 @@ class InvitationController extends Controller
 
         $invitations = Invitation::query()
             ->whereRelation('jobOffer', 'company_id', $company->id)
+            ->where(fn (Builder $query) => $query
+                ->where('status', InvitationStatus::Accepted)
+                ->orWhereHas('candidateProfile', fn (Builder $candidate) => $candidate->where(fn (Builder $candidate) => $candidate
+                    ->whereNull('hidden_from_company_id')
+                    ->orWhere('hidden_from_company_id', '!=', $company->id))))
             ->with(['jobOffer', 'candidateProfile.user', 'conversation'])
             ->latest()
             ->get()
@@ -59,11 +67,11 @@ class InvitationController extends Controller
     /**
      * Invite a candidate to an offer; the message is moderated by the form request.
      */
-    public function store(StoreInvitationRequest $request, JobOffer $offer, CandidateProfile $candidate): RedirectResponse
+    public function store(StoreInvitationRequest $request, JobOffer $offer, CandidateProfile $candidate, MatchScorer $scorer): RedirectResponse
     {
         Gate::authorize('reviewCandidates', $offer);
 
-        abort_unless(CandidateProfile::query()->visibleTo($this->currentCompany($request))->whereKey($candidate->id)->exists(), 404);
+        abort_unless($scorer->matchingCandidates($offer)->whereKey($candidate->id)->exists(), 404);
 
         if ($offer->invitations()->where('candidate_profile_id', $candidate->id)->exists()) {
             throw ValidationException::withMessages(['message' => 'Ta kandydatka ma już zaproszenie do tej oferty.']);

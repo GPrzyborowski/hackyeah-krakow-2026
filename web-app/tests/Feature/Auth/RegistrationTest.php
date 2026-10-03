@@ -108,4 +108,32 @@ class RegistrationTest extends TestCase
         $response->assertSessionHasErrors('role');
         $this->assertGuest();
     }
+
+    public function test_freshly_registered_employer_must_verify_email_before_browsing_candidates()
+    {
+        $this->post(route('register.store'), [
+            'name' => 'Rekruterka',
+            'email' => 'hr@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'employer',
+            'company_name' => 'Zielone Biuro',
+            'company_nip' => '526-025-09-95',
+        ]);
+
+        $this->get(route('employer.candidates.index'))->assertRedirect(route('verification.notice'));
+        $this->get(route('verification.notice'))->assertOk();
+    }
+
+    public function test_registration_attempts_are_rate_limited_per_ip()
+    {
+        $invalidAttempt = ['name' => 'Bot', 'email' => 'not-an-email', 'role' => 'candidate'];
+
+        for ($attempt = 1; $attempt <= 10; $attempt++) {
+            $this->post(route('register.store'), $invalidAttempt)->assertSessionHasErrors('email');
+        }
+
+        $this->post(route('register.store'), $invalidAttempt)->assertTooManyRequests();
+        $this->get(route('login'))->assertOk();
+    }
 }

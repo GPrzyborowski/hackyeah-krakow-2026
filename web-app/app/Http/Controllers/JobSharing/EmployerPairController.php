@@ -60,11 +60,11 @@ class EmployerPairController extends Controller
 
         $pairs = $offer->jobSharePairs()
             ->whereIn('status', self::VISIBLE_STATUSES)
+            ->visibleToCompany($company)
             ->with(['members.user', 'members.confirmedSkills'])
             ->orderByRaw('case when status = ? then 0 else 1 end', [JobSharePairStatus::Submitted->value])
             ->latest('submitted_at')
             ->get()
-            ->filter(fn (JobSharePair $pair): bool => $this->isVisibleTo($pair, $company))
             ->map(function (JobSharePair $pair) use ($offer, $scorer, $request, $requiredSkillNames): array {
                 $pair->setRelation('jobOffer', $offer);
                 $members = $this->presenter->members($pair);
@@ -145,9 +145,10 @@ class EmployerPairController extends Controller
         return to_route('employer.offers.job-share-pairs.index', $offer);
     }
 
-    public function reject(JobSharePair $pair): RedirectResponse
+    public function reject(Request $request, JobSharePair $pair): RedirectResponse
     {
         Gate::authorize('review', $pair);
+        abort_unless($this->isVisibleTo($pair, $this->currentCompany($request)), 404);
 
         $pair->update(['status' => JobSharePairStatus::Rejected]);
 
@@ -161,8 +162,6 @@ class EmployerPairController extends Controller
      */
     private function isVisibleTo(JobSharePair $pair, Company $company): bool
     {
-        $memberIds = $pair->members()->pluck('candidate_profiles.id');
-
-        return CandidateProfile::query()->visibleTo($company)->whereKey($memberIds)->count() === $memberIds->count();
+        return JobSharePair::query()->visibleToCompany($company)->whereKey($pair->id)->exists();
     }
 }

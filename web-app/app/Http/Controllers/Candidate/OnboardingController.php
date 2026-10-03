@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Candidate\AnalyzeCvRequest;
 use App\Http\Requests\Candidate\UpdatePreferencesRequest;
 use App\Http\Requests\Candidate\UpdatePrivacyRequest;
+use App\Http\Requests\Candidate\UpdateSummaryRequest;
 use App\Models\CandidateProfile;
 use App\Models\Company;
 use App\Models\Skill;
@@ -20,6 +21,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -133,6 +135,20 @@ class OnboardingController extends Controller
     }
 
     /**
+     * Step 2: the candidate reviews and edits the summary that employers see on her anonymous profile.
+     */
+    public function updateSummary(UpdateSummaryRequest $request): RedirectResponse
+    {
+        $summary = $request->string('ai_summary')->trim()->toString();
+
+        $this->candidateProfile($request)->update(['ai_summary' => $summary === '' ? null : $summary]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Opis dla pracodawców zapisany.']);
+
+        return back();
+    }
+
+    /**
      * Step 3: work preferences and the private return calendar.
      */
     public function updatePreferences(UpdatePreferencesRequest $request): RedirectResponse
@@ -221,7 +237,7 @@ class OnboardingController extends Controller
             }
 
             $profile->suggested_positions = $analysis->positions;
-            $profile->ai_summary = $analysis->summary ?? $profile->ai_summary;
+            $profile->ai_summary = $analysis->summary !== null ? Str::limit($analysis->summary, UpdateSummaryRequest::MAX_LENGTH - 1, '…') : $profile->ai_summary;
             $profile->headline = filled($profile->headline) ? $profile->headline : $analysis->headline;
             $profile->years_of_experience ??= $analysis->yearsOfExperience;
 
@@ -292,9 +308,7 @@ class OnboardingController extends Controller
             'wants_flexible_hours' => (bool) $profile->wants_flexible_hours,
             'open_to_job_sharing' => (bool) $profile->open_to_job_sharing,
             'preferred_day_part' => $profile->preferred_day_part?->value,
-            'show_availability_instead_of_gap' => $profile->show_availability_instead_of_gap ?? true,
             'hidden_from_company_id' => $profile->hidden_from_company_id,
-            'allow_direct_messages' => (bool) $profile->allow_direct_messages,
             'onboarding_step' => $profile->onboarding_step,
             'cv_original_name' => $profile->cv_original_name,
             'cv_size' => $cvExists ? Storage::disk('local')->size($profile->cv_path) : null,

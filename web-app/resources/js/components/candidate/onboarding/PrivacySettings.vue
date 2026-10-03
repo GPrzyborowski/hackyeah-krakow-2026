@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
+import { CalendarCheck } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import BrandSwitch from '@/components/candidate/BrandSwitch.vue';
 import { privacy } from '@/routes/candidate/onboarding';
 
 const props = defineProps<{
-    showAvailabilityInsteadOfGap: boolean;
-    allowDirectMessages: boolean;
     hiddenFromCompanyId: number | null;
     companies: { id: number; name: string }[];
 }>();
 
-const showAvailability = ref(props.showAvailabilityInsteadOfGap);
-const allowMessages = ref(props.allowDirectMessages);
 const hideFromEmployer = ref(props.hiddenFromCompanyId !== null);
 const hiddenCompanyId = ref<number | null>(props.hiddenFromCompanyId);
 
@@ -24,7 +21,7 @@ watch(
     },
 );
 
-function save(data: Record<string, boolean | number | null>) {
+function save(data: Record<string, number | null>) {
     router.patch(privacy.url(), data, {
         preserveScroll: true,
         preserveState: true,
@@ -43,13 +40,11 @@ function onHideToggle(value: boolean) {
     <section class="rounded-3xl bg-white p-6 shadow-sm">
         <h2 class="text-lg font-bold text-brand-green">Prywatność</h2>
         <div class="mt-2 divide-y divide-brand-cream">
-            <BrandSwitch
-                v-model="showAvailability"
-                label="Pokaż datę dostępności zamiast powodu przerwy"
-                @change="
-                    (value) => save({ show_availability_instead_of_gap: value })
-                "
-            />
+            <p class="flex items-start gap-2 py-3 text-sm text-brand-green">
+                <CalendarCheck class="mt-0.5 size-4 shrink-0" />
+                Pracodawcy widzą tylko datę, od kiedy możesz zacząć – nigdy
+                powodu przerwy.
+            </p>
             <div>
                 <BrandSwitch
                     v-model="hideFromEmployer"
@@ -82,11 +77,6 @@ function onHideToggle(value: boolean) {
                     </p>
                 </div>
             </div>
-            <BrandSwitch
-                v-model="allowMessages"
-                label="Pozwól firmom pisać bez zaproszenia"
-                @change="(value) => save({ allow_direct_messages: value })"
-            />
         </div>
     </section>
 </template>

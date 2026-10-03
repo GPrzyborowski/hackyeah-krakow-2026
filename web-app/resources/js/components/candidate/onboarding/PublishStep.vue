@@ -126,10 +126,6 @@ function submit(action: 'publish' | 'visibility') {
         </div>
 
         <PrivacySettings
-            :show-availability-instead-of-gap="
-                profile.show_availability_instead_of_gap
-            "
-            :allow-direct-messages="profile.allow_direct_messages"
             :hidden-from-company-id="profile.hidden_from_company_id"
             :companies="companies"
         />

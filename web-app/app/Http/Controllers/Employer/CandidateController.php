@@ -30,7 +30,7 @@ class CandidateController extends Controller
     {
         $company = $this->currentCompany($request);
 
-        $publishedOffers = $company->jobOffers()->published()->with(['skills', 'company', 'invitations'])->latest('published_at')->get();
+        $publishedOffers = $company->jobOffers()->published()->with(['skills', 'company', 'invitations', 'decisions:id,job_offer_id,candidate_profile_id'])->latest('published_at')->get();
 
         $offer = $this->selectedOffer($request, $publishedOffers);
 
@@ -71,7 +71,7 @@ class CandidateController extends Controller
                 'fixed_meeting_hours' => $offer->fixed_meeting_hours,
                 'is_job_share' => $offer->is_job_share,
                 'submitted_pairs_count' => $offer->is_job_share
-                    ? $offer->jobSharePairs()->where('status', JobSharePairStatus::Submitted)->count()
+                    ? $offer->jobSharePairs()->where('status', JobSharePairStatus::Submitted)->visibleToCompany($company)->count()
                     : 0,
             ],
             'candidate' => $current

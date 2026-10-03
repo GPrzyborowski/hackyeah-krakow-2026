@@ -63,9 +63,7 @@ export type OnboardingProfile = {
     wants_flexible_hours: boolean;
     open_to_job_sharing: boolean;
     preferred_day_part: 'morning' | 'afternoon' | 'any' | null;
-    show_availability_instead_of_gap: boolean;
     hidden_from_company_id: number | null;
-    allow_direct_messages: boolean;
     onboarding_step: number;
     cv_original_name: string | null;
     cv_size: number | null;

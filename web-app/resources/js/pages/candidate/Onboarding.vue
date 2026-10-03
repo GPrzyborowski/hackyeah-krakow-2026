@@ -117,15 +117,12 @@ function toggleVisibility() {
                 :anonymous-name="profile.anonymous_name"
                 :headline="preview.headline"
                 :years-of-experience="preview.years_of_experience"
+                :summary="profile.ai_summary"
                 :skills="skills.map((skill) => skill.name)"
                 :available-from="preview.available_from"
             />
             <PrivacySettings
                 v-if="step !== 4"
-                :show-availability-instead-of-gap="
-                    profile.show_availability_instead_of_gap
-                "
-                :allow-direct-messages="profile.allow_direct_messages"
                 :hidden-from-company-id="profile.hidden_from_company_id"
                 :companies="companies"
             />

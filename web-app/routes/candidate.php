@@ -12,7 +12,10 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     Route::get('/', HomeController::class)->name('home');
 
     Route::get('onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
-    Route::post('onboarding/cv', [OnboardingController::class, 'analyzeCv'])->name('onboarding.cv');
+    Route::post('onboarding/cv', [OnboardingController::class, 'analyzeCv'])
+        ->middleware('throttle:5,1,candidate-cv')
+        ->name('onboarding.cv');
+    Route::patch('onboarding/summary', [OnboardingController::class, 'updateSummary'])->name('onboarding.summary');
     Route::post('onboarding/skills/confirm', [OnboardingController::class, 'confirmSkills'])->name('onboarding.skills.confirm');
     Route::put('onboarding/preferences', [OnboardingController::class, 'updatePreferences'])->name('onboarding.preferences');
     Route::patch('onboarding/privacy', [OnboardingController::class, 'updatePrivacy'])->name('onboarding.privacy');

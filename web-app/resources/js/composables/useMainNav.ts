@@ -3,10 +3,12 @@ import {
     BookOpen,
     Briefcase,
     Building2,
+    FileText,
     Home,
     LayoutDashboard,
     Mail,
     MessageCircle,
+    Scale,
     ShieldCheck,
     Sparkles,
     Star,
@@ -39,6 +41,8 @@ const employerItems: NavItem[] = [
 const adminItems: NavItem[] = [
     { title: 'Panel', href: '/admin', icon: LayoutDashboard },
     { title: 'Opinie do moderacji', href: '/admin/reviews', icon: ShieldCheck },
+    { title: 'Artykuły', href: '/admin/articles', icon: FileText },
+    { title: 'Źródła prawne', href: '/admin/legal-sources', icon: Scale },
     { title: 'Blog', href: '/blog', icon: BookOpen },
 ];
 

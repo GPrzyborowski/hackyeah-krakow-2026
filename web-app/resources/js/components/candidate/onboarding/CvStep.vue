@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { FileText, Info, Plus, Sparkles, Upload, X } from '@lucide/vue';
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { formatFileSize } from '@/components/candidate/format';
 import type {
     OnboardingProfile,
@@ -9,7 +9,7 @@ import type {
 } from '@/components/candidate/types';
 import InputError from '@/components/InputError.vue';
 import { home } from '@/routes/candidate';
-import { cv } from '@/routes/candidate/onboarding';
+import { cv, summary } from '@/routes/candidate/onboarding';
 import { confirm } from '@/routes/candidate/onboarding/skills';
 import { destroy, store } from '@/routes/candidate/skills';
 
@@ -25,6 +25,22 @@ const form = useForm<{ cv: File | null; cv_text: string }>({
     cv: null,
     cv_text: props.profile.cv_text ?? '',
 });
+
+const SUMMARY_MAX_LENGTH = 400;
+
+const summaryForm = useForm<{ ai_summary: string }>({
+    ai_summary: props.profile.ai_summary ?? '',
+});
+
+watch(
+    () => props.profile.ai_summary,
+    (value) => {
+        if (!summaryForm.isDirty) {
+            summaryForm.defaults({ ai_summary: value ?? '' });
+            summaryForm.reset();
+        }
+    },
+);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const showTextarea = ref(!props.profile.cv_original_name);
@@ -75,6 +91,13 @@ function analyze() {
                 fileInput.value.value = '';
             }
         },
+    });
+}
+
+function saveSummary() {
+    summaryForm.patch(summary.url(), {
+        preserveScroll: true,
+        onSuccess: () => summaryForm.defaults(),
     });
 }
 
@@ -292,6 +315,39 @@ function confirmAndContinue() {
             Jeszcze nic tu nie ma. Przeanalizuj CV albo dodaj tagi ręcznie.
         </p>
         <InputError class="mt-2" :message="skillsError" />
+
+        <form class="mt-8" @submit.prevent="saveSummary">
+            <label for="ai_summary" class="text-lg font-bold text-brand-green"
+                >To zobaczą pracodawcy</label
+            >
+            <p class="mt-1 text-xs text-brand-green/60">
+                Krótki opis na Twoim anonimowym profilu. Popraw go po swojemu –
+                bez e-maila, telefonu i informacji o rodzinie.
+            </p>
+            <textarea
+                id="ai_summary"
+                v-model="summaryForm.ai_summary"
+                rows="3"
+                :maxlength="SUMMARY_MAX_LENGTH"
+                placeholder="Np. Od 6 lat prowadzę rekrutacje IT i onboarding nowych osób."
+                class="mt-2 w-full rounded-2xl border border-brand-mint-soft p-3 text-sm text-brand-green outline-none focus:border-brand-mint"
+            />
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <InputError :message="summaryForm.errors.ai_summary" />
+                <span class="ml-auto text-xs text-brand-green/60"
+                    >{{ summaryForm.ai_summary.length }}/{{
+                        SUMMARY_MAX_LENGTH
+                    }}</span
+                >
+            </div>
+            <button
+                type="submit"
+                :disabled="summaryForm.processing || !summaryForm.isDirty"
+                class="mt-2 rounded-full border border-brand-green px-5 py-2 text-sm font-semibold text-brand-green hover:bg-brand-cream disabled:opacity-50"
+            >
+                Zapisz opis
+            </button>
+        </form>
 
         <h3 class="mt-8 text-lg font-bold text-brand-green">
             Stanowiska, które do Ciebie pasują

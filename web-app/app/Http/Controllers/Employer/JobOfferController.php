@@ -38,8 +38,8 @@ class JobOfferController extends Controller
         $hasApprovedReview = $company->approvedReviews()->exists();
 
         $offers = $company->jobOffers()
-            ->with(['skills', 'invitations', 'company'])
-            ->withCount(['jobSharePairs as submitted_pairs_count' => fn ($query) => $query->where('status', JobSharePairStatus::Submitted)])
+            ->with(['skills', 'invitations', 'decisions:id,job_offer_id,candidate_profile_id', 'company'])
+            ->withCount(['jobSharePairs as submitted_pairs_count' => fn ($query) => $query->where('status', JobSharePairStatus::Submitted)->visibleToCompany($company)])
             ->orderByRaw('case status when ? then 0 when ? then 1 else 2 end', [OfferStatus::Published->value, OfferStatus::Draft->value])
             ->latest()
             ->get()

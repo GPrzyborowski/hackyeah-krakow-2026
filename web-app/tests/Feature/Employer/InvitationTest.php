@@ -107,4 +107,44 @@ class InvitationTest extends TestCase
         $this->assertStringNotContainsString('Nowakowska', $payload);
         $this->assertStringNotContainsString($pendingCandidate->user->email, $payload);
     }
+
+    public function test_candidates_without_a_match_for_the_offer_cannot_be_invited_or_decided_on()
+    {
+        $employer = $this->employer();
+        $skill = $this->skill('Rekrutacja IT');
+        $offer = $this->publishedOffer($employer->company, [$skill]);
+        $withoutSharedSkill = $this->candidate([$this->skill('Księgowość')]);
+        $availableTooLate = $this->candidate([$skill], ['available_from' => '2028-06-01']);
+
+        foreach ([$withoutSharedSkill, $availableTooLate] as $candidate) {
+            $this->actingAs($employer)
+                ->post(route('employer.offers.candidates.invitation', [$offer, $candidate]), ['message' => 'Zapraszamy na rozmowę.'])
+                ->assertNotFound();
+            $this->actingAs($employer)
+                ->post(route('employer.offers.candidates.decision', [$offer, $candidate]), ['decision' => CandidateDecisionType::Saved->value])
+                ->assertNotFound();
+        }
+
+        $this->assertSame(0, Invitation::count());
+        $this->assertSame(0, CandidateDecision::count());
+    }
+
+    public function test_unanswered_invitations_of_candidates_who_hid_their_profile_are_not_listed()
+    {
+        $employer = $this->employer();
+        $skill = Skill::factory()->create();
+        $offer = $this->publishedOffer($employer->company, [$skill]);
+        $hiddenAttributes = ['hidden_from_company_id' => $employer->company_id];
+        Invitation::factory()->for($offer)->for($this->candidate([$skill], $hiddenAttributes, 'Anna Nowak'))->create(['status' => InvitationStatus::Pending]);
+        Invitation::factory()->for($offer)->for($this->candidate([$skill], $hiddenAttributes, 'Ewa Lis'))->create(['status' => InvitationStatus::Declined]);
+        $accepted = Invitation::factory()->for($offer)->for($this->candidate([$skill], $hiddenAttributes, 'Marta Kowalska'))->create(['status' => InvitationStatus::Pending]);
+        $accepted->accept();
+        $visible = Invitation::factory()->for($offer)->for($this->candidate([$skill], name: 'Ola Mazur'))->create(['status' => InvitationStatus::Pending]);
+
+        $this->actingAs($employer)
+            ->get(route('employer.invitations.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('invitations', 2)
+                ->where('invitations', fn ($invitations): bool => collect($invitations)->pluck('id')->sort()->values()->all() === collect([$accepted->id, $visible->id])->sort()->values()->all()));
+    }
 }

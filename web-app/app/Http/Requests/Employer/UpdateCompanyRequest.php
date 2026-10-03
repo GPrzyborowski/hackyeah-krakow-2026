@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Employer;
 
+use App\Services\Ai\MessageModerator;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class UpdateCompanyRequest extends FormRequest
 {
@@ -32,6 +34,28 @@ class UpdateCompanyRequest extends FormRequest
     {
         return [
             'nip.regex' => 'NIP musi składać się z 10 cyfr.',
+        ];
+    }
+
+    /**
+     * @return array<int, callable(Validator): void>
+     */
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                $description = $this->input('description');
+
+                if (! is_string($description) || trim($description) === '' || $validator->errors()->has('description')) {
+                    return;
+                }
+
+                $result = app(MessageModerator::class)->check($description);
+
+                if (! $result->allowed) {
+                    $validator->errors()->add('description', trim($result->reason.' '.$result->suggestion));
+                }
+            },
         ];
     }
 
