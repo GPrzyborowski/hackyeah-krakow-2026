@@ -21,17 +21,48 @@ import {
 import { computed } from 'vue';
 import type { NavItem } from '@/types';
 
-const candidateItems: NavItem[] = [
-    { title: 'Start', href: '/candidate', icon: Home },
-    { title: 'Oferty', href: '/candidate/offers', icon: Briefcase },
-    { title: 'Zaproszenia', href: '/candidate/invitations', icon: Mail },
-    { title: 'Job sharing', href: '/job-sharing', icon: UsersRound },
-    { title: 'Czaty', href: '/conversations', icon: MessageCircle },
-    { title: 'Opinie', href: '/reviews', icon: Star },
-    { title: 'Asystent', href: '/assistant', icon: Sparkles },
-    { title: 'Blog', href: '/blog', icon: BookOpen },
-    { title: 'Profil', href: '/candidate/profile', icon: User },
+export type NavSection = {
+    title: string;
+    items: NavItem[];
+};
+
+/**
+ * Candidate navigation grouped into sections for the sidebar.
+ */
+export const candidateNavSections: NavSection[] = [
+    {
+        title: 'Szukam pracy',
+        items: [
+            { title: 'Start', href: '/candidate', icon: Home },
+            { title: 'Oferty', href: '/candidate/offers', icon: Briefcase },
+            {
+                title: 'Zaproszenia',
+                href: '/candidate/invitations',
+                icon: Mail,
+            },
+            { title: 'Job sharing', href: '/job-sharing', icon: UsersRound },
+        ],
+    },
+    {
+        title: 'Rozmowy',
+        items: [
+            { title: 'Czaty', href: '/conversations', icon: MessageCircle },
+            { title: 'Opinie o firmach', href: '/reviews', icon: Star },
+        ],
+    },
+    {
+        title: 'Dla mnie',
+        items: [
+            { title: 'Asystent', href: '/assistant', icon: Sparkles },
+            { title: 'Blog', href: '/blog', icon: BookOpen },
+            { title: 'Mój profil', href: '/candidate/profile', icon: User },
+        ],
+    },
 ];
+
+const candidateItems: NavItem[] = candidateNavSections.flatMap(
+    (section) => section.items,
+);
 
 const employerItems: NavItem[] = [
     { title: 'Start', href: '/employer', icon: Home },
