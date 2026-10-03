@@ -41,6 +41,19 @@ class JobOfferFactory extends Factory
     }
 
     /**
+     * Indicate that the offer is one position shared by two people splitting the workday.
+     */
+    public function jobShare(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_job_share' => true,
+            'employment_fraction' => EmploymentFraction::Half,
+            'workday_starts_at' => '08:00',
+            'workday_ends_at' => '16:00',
+        ]);
+    }
+
+    /**
      * Indicate that the offer is published.
      */
     public function published(): static
