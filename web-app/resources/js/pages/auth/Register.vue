@@ -15,7 +15,12 @@ defineProps<{
     passwordRules: string;
 }>();
 
-const role = ref<'candidate' | 'employer'>('candidate');
+const role = ref<'candidate' | 'employer'>(
+    typeof window !== 'undefined' &&
+        new URLSearchParams(window.location.search).get('role') === 'employer'
+        ? 'employer'
+        : 'candidate',
+);
 
 defineOptions({
     layout: {
@@ -132,7 +137,7 @@ defineOptions({
 
             <Button
                 type="submit"
-                class="mt-2 w-full"
+                class="mt-2 h-11 w-full rounded-full"
                 tabindex="5"
                 :disabled="processing"
                 data-test="register-user-button"
