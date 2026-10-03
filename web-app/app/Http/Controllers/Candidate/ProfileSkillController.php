@@ -15,7 +15,7 @@ class ProfileSkillController extends Controller
     use ResolvesCandidateProfile;
 
     /**
-     * Add a tag typed by the candidate (existing dictionary skill or a new one).
+     * Add a tag typed by the candidate (existing dictionary skill or a new one); she typed it herself, so it is confirmed at once.
      */
     public function store(StoreProfileSkillRequest $request): RedirectResponse
     {
@@ -23,7 +23,7 @@ class ProfileSkillController extends Controller
         $skill = Skill::findOrCreateByName($request->validated('name'));
 
         if (! $profile->skills()->whereKey($skill->id)->exists()) {
-            $profile->skills()->attach($skill->id, ['source' => SkillSource::Manual->value, 'confirmed_at' => null]);
+            $profile->skills()->attach($skill->id, ['source' => SkillSource::Manual->value, 'confirmed_at' => now()]);
         }
 
         return back();

@@ -142,6 +142,7 @@ class OnboardingTest extends TestCase
 
         $skill = Skill::query()->where('name', 'Employer branding')->firstOrFail();
         $this->assertSame(SkillSource::Manual->value, $this->profile->skills()->first()->pivot->source);
+        $this->assertSame(1, $this->profile->confirmedSkills()->count());
 
         $this->actingAs($this->candidate)
             ->delete(route('candidate.skills.destroy', $skill))
