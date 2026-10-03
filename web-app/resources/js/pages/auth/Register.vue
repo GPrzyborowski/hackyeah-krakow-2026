@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -14,16 +15,18 @@ defineProps<{
     passwordRules: string;
 }>();
 
+const role = ref<'candidate' | 'employer'>('candidate');
+
 defineOptions({
     layout: {
-        title: 'Create an account',
-        description: 'Enter your details below to create your account',
+        title: 'Załóż konto',
+        description: 'Profil tworzysz raz. Firmy znajdą Cię same.',
     },
 });
 </script>
 
 <template>
-    <Head title="Register" />
+    <Head title="Rejestracja" />
 
     <Form
         v-bind="store.form()"
@@ -33,7 +36,45 @@ defineOptions({
     >
         <div class="grid gap-6">
             <div class="grid gap-2">
-                <Label for="name">Name</Label>
+                <Label>Kim jesteś?</Label>
+                <input type="hidden" name="role" :value="role" />
+                <div class="grid grid-cols-2 gap-2">
+                    <button
+                        v-for="option in [
+                            { value: 'candidate', label: 'Szukam pracy' },
+                            { value: 'employer', label: 'Jestem pracodawcą' },
+                        ] as const"
+                        :key="option.value"
+                        type="button"
+                        class="rounded-full border px-4 py-2 text-sm font-medium transition"
+                        :class="
+                            role === option.value
+                                ? 'border-primary bg-primary text-primary-foreground'
+                                : 'border-input hover:bg-accent'
+                        "
+                        :data-test="`role-${option.value}`"
+                        @click="role = option.value"
+                    >
+                        {{ option.label }}
+                    </button>
+                </div>
+                <InputError :message="errors.role" />
+            </div>
+
+            <div v-if="role === 'employer'" class="grid gap-2">
+                <Label for="company_name">Nazwa firmy</Label>
+                <Input
+                    id="company_name"
+                    type="text"
+                    required
+                    name="company_name"
+                    placeholder="np. Zielone Biuro"
+                />
+                <InputError :message="errors.company_name" />
+            </div>
+
+            <div class="grid gap-2">
+                <Label for="name">Imię i nazwisko</Label>
                 <Input
                     id="name"
                     type="text"
@@ -42,13 +83,13 @@ defineOptions({
                     :tabindex="1"
                     autocomplete="name"
                     name="name"
-                    placeholder="Full name"
+                    placeholder="Imię i nazwisko"
                 />
                 <InputError :message="errors.name" />
             </div>
 
             <div class="grid gap-2">
-                <Label for="email">Email address</Label>
+                <Label for="email">E-mail</Label>
                 <Input
                     id="email"
                     type="email"
@@ -56,34 +97,34 @@ defineOptions({
                     :tabindex="2"
                     autocomplete="email"
                     name="email"
-                    placeholder="email@example.com"
+                    placeholder="ty@example.com"
                 />
                 <InputError :message="errors.email" />
             </div>
 
             <div class="grid gap-2">
-                <Label for="password">Password</Label>
+                <Label for="password">Hasło</Label>
                 <PasswordInput
                     id="password"
                     required
                     :tabindex="3"
                     autocomplete="new-password"
                     name="password"
-                    placeholder="Password"
+                    placeholder="Hasło"
                     :passwordrules="passwordRules"
                 />
                 <InputError :message="errors.password" />
             </div>
 
             <div class="grid gap-2">
-                <Label for="password_confirmation">Confirm password</Label>
+                <Label for="password_confirmation">Powtórz hasło</Label>
                 <PasswordInput
                     id="password_confirmation"
                     required
                     :tabindex="4"
                     autocomplete="new-password"
                     name="password_confirmation"
-                    placeholder="Confirm password"
+                    placeholder="Powtórz hasło"
                     :passwordrules="passwordRules"
                 />
                 <InputError :message="errors.password_confirmation" />
@@ -97,17 +138,17 @@ defineOptions({
                 data-test="register-user-button"
             >
                 <Spinner v-if="processing" />
-                Create account
+                Załóż konto
             </Button>
         </div>
 
         <div class="text-center text-sm text-muted-foreground">
-            Already have an account?
+            Masz już konto?
             <TextLink
                 :href="login()"
                 class="underline underline-offset-4"
                 :tabindex="6"
-                >Log in</TextLink
+                >Zaloguj się</TextLink
             >
         </div>
     </Form>
