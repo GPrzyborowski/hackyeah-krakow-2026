@@ -17,6 +17,9 @@ class MainActivity : ComponentActivity() {
         val candidateViewModel: CandidateViewModel by viewModels {
             CandidateViewModelFactory(app.repository)
         }
+        val authViewModel: AuthViewModel by viewModels {
+            AuthViewModelFactory(app.authRepository)
+        }
         val jobViewModel: JobViewModel by viewModels {
             JobViewModelFactory(app.repository)
         }
@@ -35,6 +38,7 @@ class MainActivity : ComponentActivity() {
             WracamTheme {
                 MainScreen(
                     candidateViewModel = candidateViewModel,
+                    authViewModel = authViewModel,
                     jobViewModel = jobViewModel,
                     reviewViewModel = reviewViewModel,
                     aiAssistantViewModel = aiAssistantViewModel,

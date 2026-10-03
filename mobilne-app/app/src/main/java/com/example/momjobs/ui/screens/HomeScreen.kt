@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.example.momjobs.R
 import com.example.momjobs.data.local.entities.JobAd
 import com.example.momjobs.ui.theme.*
+import com.example.momjobs.ui.viewmodels.AuthViewModel
 import com.example.momjobs.ui.viewmodels.CandidateViewModel
 import com.example.momjobs.ui.viewmodels.InvitationViewModel
 import com.example.momjobs.ui.viewmodels.JobViewModel
@@ -28,9 +29,11 @@ import com.example.momjobs.ui.viewmodels.JobViewModel
 @Composable
 fun HomeScreen(
     candidateViewModel: CandidateViewModel,
+    authViewModel: AuthViewModel,
     jobViewModel: JobViewModel,
     invitationViewModel: InvitationViewModel,
     onNavigateToRegistration: () -> Unit,
+    onNavigateToLogin: () -> Unit,
     onNavigateToPostJob: () -> Unit,
     onNavigateToSwipe: () -> Unit,
     onNavigateToListings: () -> Unit,
@@ -39,11 +42,14 @@ fun HomeScreen(
     onNavigateToProfile: () -> Unit
 ) {
     val profile by candidateViewModel.candidateProfile.collectAsState()
+    val authUser by authViewModel.currentUser.collectAsState()
     val jobs by jobViewModel.allJobAds.collectAsState()
     val newInvitationsCount by invitationViewModel.newInvitationsCount.collectAsState()
     val invitations by invitationViewModel.allInvitations.collectAsState()
     
-    val userName = profile?.name?.split(" ")?.firstOrNull() ?: "Marta"
+    val displayName = authUser?.name ?: profile?.name ?: "Marta"
+    val userName = displayName.split(" ").firstOrNull() ?: displayName
+    
     val invitationCompanies = if (invitations.isNotEmpty()) {
         invitations.take(2).joinToString(", ") { it.companyName }
     } else {
@@ -68,7 +74,9 @@ fun HomeScreen(
     ) {
         HomeTopBar(
             initial = userName.take(1),
-            onProfileClick = onNavigateToProfile
+            isLoggedIn = authUser != null,
+            onProfileClick = onNavigateToProfile,
+            onLoginClick = onNavigateToLogin
         )
         LazyColumn(
             modifier = Modifier
@@ -77,7 +85,33 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             item { Spacer(modifier = Modifier.height(12.dp)) }
-            
+
+            if (authUser == null && profile == null) {
+                item {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = Secondary),
+                        shape = MaterialTheme.shapes.large,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Dołącz do nas!", fontWeight = FontWeight.Bold, color = DarkTeal)
+                                Text("Zaloguj się lub zarejestruj, aby korzystać z pełnej oferty.", fontSize = 13.sp, color = DarkTeal.copy(alpha = 0.8f))
+                            }
+                            Row {
+                                TextButton(onClick = onNavigateToLogin) {
+                                    Text("Zaloguj", fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             item {
                 Text(
                     text = greetingText,
@@ -117,7 +151,12 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeTopBar(initial: String, onProfileClick: () -> Unit) {
+fun HomeTopBar(
+    initial: String,
+    isLoggedIn: Boolean,
+    onProfileClick: () -> Unit,
+    onLoginClick: () -> Unit
+) {
     CenterAlignedTopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {

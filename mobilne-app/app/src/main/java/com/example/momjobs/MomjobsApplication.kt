@@ -3,10 +3,14 @@ package com.example.momjobs
 import android.app.Application
 import androidx.room.Room
 import com.example.momjobs.data.local.AppDatabase
+import com.example.momjobs.data.local.TokenManager
 import com.example.momjobs.data.local.entities.JobAd
 import com.example.momjobs.data.local.entities.Review
 import com.example.momjobs.data.local.entities.Invitation
+import com.example.momjobs.data.remote.ApiClient
+import com.example.momjobs.data.remote.AuthInterceptor
 import com.example.momjobs.data.remote.GeminiApi
+import com.example.momjobs.data.repository.AuthRepository
 import com.example.momjobs.data.repository.MomjobsRepository
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -21,6 +25,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 class MomjobsApplication : Application() {
     lateinit var database: AppDatabase
     lateinit var repository: MomjobsRepository
+    lateinit var tokenManager: TokenManager
+    lateinit var authRepository: AuthRepository
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onCreate() {
@@ -32,6 +38,14 @@ class MomjobsApplication : Application() {
         )
         .fallbackToDestructiveMigration()
         .build()
+
+        tokenManager = TokenManager(this)
+        val authInterceptor = AuthInterceptor(tokenManager)
+        val authApi = ApiClient.createAuthApi(tokenManager, authInterceptor)
+        authRepository = AuthRepository(authApi, tokenManager)
+        authInterceptor.setOnUnauthorizedListener {
+            authRepository.onUnauthorized()
+        }
 
         val moshi = Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
@@ -53,6 +67,8 @@ class MomjobsApplication : Application() {
         )
 
         applicationScope.launch(Dispatchers.IO) {
+            authRepository.restoreSession()
+
             val jobs = repository.getAllJobAds().first()
             if (jobs.isEmpty()) {
                 val sampleJobs = listOf(

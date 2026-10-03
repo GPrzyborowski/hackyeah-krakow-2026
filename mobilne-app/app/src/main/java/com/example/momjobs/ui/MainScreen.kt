@@ -26,6 +26,7 @@ import com.example.momjobs.ui.viewmodels.*
 @Composable
 fun MainScreen(
     candidateViewModel: CandidateViewModel,
+    authViewModel: AuthViewModel,
     jobViewModel: JobViewModel,
     reviewViewModel: ReviewViewModel,
     aiAssistantViewModel: AiAssistantViewModel,
@@ -89,6 +90,7 @@ fun MainScreen(
         MomjobsNavGraph(
             navController = navController,
             candidateViewModel = candidateViewModel,
+            authViewModel = authViewModel,
             jobViewModel = jobViewModel,
             reviewViewModel = reviewViewModel,
             aiAssistantViewModel = aiAssistantViewModel,

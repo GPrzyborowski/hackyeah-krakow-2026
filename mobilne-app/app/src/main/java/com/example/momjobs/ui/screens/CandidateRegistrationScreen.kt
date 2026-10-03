@@ -7,18 +7,25 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.momjobs.R
+import com.example.momjobs.data.repository.AuthState
+import com.example.momjobs.ui.viewmodels.AuthViewModel
 import com.example.momjobs.ui.viewmodels.CandidateViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,15 +34,24 @@ import java.util.*
 @Composable
 fun CandidateRegistrationScreen(
     viewModel: CandidateViewModel,
-    onRegistrationSuccess: () -> Unit
+    authViewModel: AuthViewModel,
+    onRegistrationSuccess: () -> Unit,
+    onBack: (() -> Unit)? = null
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordConfirmation by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
     var bio by remember { mutableStateOf("") }
     var availability by remember { mutableStateOf("") }
     var returnToWorkDate by remember { mutableStateOf(System.currentTimeMillis()) }
     var cvUri by remember { mutableStateOf<Uri?>(null) }
-    
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val authState by authViewModel.authState.collectAsState()
+    val isLoading = authState is AuthState.Loading
+
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = returnToWorkDate)
 
@@ -49,6 +65,13 @@ fun CandidateRegistrationScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.candidate_reg_title)) },
+                navigationIcon = {
+                    if (onBack != null) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Wstecz")
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -73,24 +96,89 @@ fun CandidateRegistrationScreen(
                 )
             }
 
+            if (errorMessage != null || authState is AuthState.Error) {
+                item {
+                    val message = errorMessage ?: (authState as? AuthState.Error)?.message ?: "Wystąpił błąd podczas rejestracji"
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = message,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+            }
+
             item {
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = {
+                        name = it
+                        errorMessage = null
+                    },
                     label = { Text(stringResource(R.string.full_name)) },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoading
                 )
             }
 
             item {
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = {
+                        email = it
+                        errorMessage = null
+                    },
                     label = { Text(stringResource(R.string.email_address)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoading
+                )
+            }
+
+            item {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        errorMessage = null
+                    },
+                    label = { Text("Hasło") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = if (passwordVisible) "Ukryj hasło" else "Pokaż hasło"
+                            )
+                        }
+                    },
+                    singleLine = true,
+                    enabled = !isLoading
+                )
+            }
+
+            item {
+                OutlinedTextField(
+                    value = passwordConfirmation,
+                    onValueChange = {
+                        passwordConfirmation = it
+                        errorMessage = null
+                    },
+                    label = { Text("Potwierdź hasło") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    singleLine = true,
+                    enabled = !isLoading
                 )
             }
 
@@ -100,7 +188,8 @@ fun CandidateRegistrationScreen(
                     onValueChange = { bio = it },
                     label = { Text(stringResource(R.string.bio_experience)) },
                     modifier = Modifier.fillMaxWidth(),
-                    minLines = 3
+                    minLines = 3,
+                    enabled = !isLoading
                 )
             }
 
@@ -110,7 +199,8 @@ fun CandidateRegistrationScreen(
                     onValueChange = { availability = it },
                     label = { Text(stringResource(R.string.availability_hint)) },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoading
                 )
             }
 
@@ -121,8 +211,9 @@ fun CandidateRegistrationScreen(
                     label = { Text(stringResource(R.string.return_to_work_date)) },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
+                    enabled = !isLoading,
                     trailingIcon = {
-                        IconButton(onClick = { showDatePicker = true }) {
+                        IconButton(onClick = { showDatePicker = true }, enabled = !isLoading) {
                             Icon(Icons.Default.CalendarMonth, contentDescription = null)
                         }
                     }
@@ -148,7 +239,8 @@ fun CandidateRegistrationScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
                             onClick = { launcher.launch("application/pdf") },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !isLoading
                         ) {
                             Icon(Icons.Default.CloudUpload, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
@@ -161,22 +253,49 @@ fun CandidateRegistrationScreen(
             item {
                 Button(
                     onClick = {
-                        viewModel.registerCandidate(
+                        errorMessage = null
+                        if (name.isBlank() || email.isBlank() || password.isBlank()) {
+                            errorMessage = "Uzupełnij imię, adres e-mail oraz hasło."
+                            return@Button
+                        }
+                        if (password != passwordConfirmation) {
+                            errorMessage = "Podane hasła nie są identyczne."
+                            return@Button
+                        }
+                        authViewModel.register(
                             name = name,
                             email = email,
-                            bio = bio,
-                            availability = availability,
-                            returnToWorkDate = returnToWorkDate,
-                            cvUri = cvUri?.toString()
+                            password = password,
+                            passwordConfirmation = passwordConfirmation,
+                            onSuccess = {
+                                viewModel.registerCandidate(
+                                    name = name,
+                                    email = email,
+                                    bio = bio,
+                                    availability = availability,
+                                    returnToWorkDate = returnToWorkDate,
+                                    cvUri = cvUri?.toString()
+                                )
+                                onRegistrationSuccess()
+                            },
+                            onError = { errorMessage = it }
                         )
-                        onRegistrationSuccess()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    shape = MaterialTheme.shapes.extraLarge
+                    shape = MaterialTheme.shapes.extraLarge,
+                    enabled = !isLoading
                 ) {
-                    Text(stringResource(R.string.complete_registration), style = MaterialTheme.typography.titleMedium)
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(stringResource(R.string.complete_registration), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }

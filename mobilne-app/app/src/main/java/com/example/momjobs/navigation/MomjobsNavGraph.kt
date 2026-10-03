@@ -14,6 +14,7 @@ import com.example.momjobs.ui.viewmodels.*
 fun MomjobsNavGraph(
     navController: NavHostController,
     candidateViewModel: CandidateViewModel,
+    authViewModel: AuthViewModel,
     jobViewModel: JobViewModel,
     reviewViewModel: ReviewViewModel,
     aiAssistantViewModel: AiAssistantViewModel,
@@ -28,15 +29,29 @@ fun MomjobsNavGraph(
         composable(Screen.Home.route) {
             HomeScreen(
                 candidateViewModel = candidateViewModel,
+                authViewModel = authViewModel,
                 jobViewModel = jobViewModel,
                 invitationViewModel = invitationViewModel,
                 onNavigateToRegistration = { navController.navigate(Screen.CandidateRegistration.route) },
+                onNavigateToLogin = { navController.navigate(Screen.Login.route) },
                 onNavigateToPostJob = { navController.navigate(Screen.PostJobAd.route) },
                 onNavigateToSwipe = { navController.navigate(Screen.Swipe.route) },
                 onNavigateToListings = { navController.navigate(Screen.JobListings.route) },
                 onNavigateToBlog = { navController.navigate(Screen.Blog.route) },
                 onNavigateToAiAssistant = { navController.navigate(Screen.AiAssistant.route) },
                 onNavigateToProfile = { navController.navigate(Screen.Profile.route) }
+            )
+        }
+        composable(Screen.Login.route) {
+            LoginScreen(
+                viewModel = authViewModel,
+                onLoginSuccess = { navController.navigateUp() },
+                onNavigateToRegistration = {
+                    navController.navigate(Screen.CandidateRegistration.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+                onBack = { navController.navigateUp() }
             )
         }
         composable(Screen.Blog.route) {
@@ -61,6 +76,9 @@ fun MomjobsNavGraph(
         composable(Screen.Profile.route) {
             ProfileScreen(
                 viewModel = candidateViewModel,
+                authViewModel = authViewModel,
+                onNavigateToLogin = { navController.navigate(Screen.Login.route) },
+                onNavigateToRegistration = { navController.navigate(Screen.CandidateRegistration.route) },
                 onBack = { navController.navigateUp() }
             )
         }
@@ -75,7 +93,9 @@ fun MomjobsNavGraph(
         composable(Screen.CandidateRegistration.route) {
             CandidateRegistrationScreen(
                 viewModel = candidateViewModel,
-                onRegistrationSuccess = { navController.navigateUp() }
+                authViewModel = authViewModel,
+                onRegistrationSuccess = { navController.navigateUp() },
+                onBack = { navController.navigateUp() }
             )
         }
         composable(Screen.PostJobAd.route) {
