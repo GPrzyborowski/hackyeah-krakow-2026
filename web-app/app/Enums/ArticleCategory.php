@@ -9,6 +9,7 @@ enum ArticleCategory: string
     case Return = 'return';
     case Rights = 'rights';
     case CvAndInterviews = 'cv_and_interviews';
+    case Postpartum = 'postpartum';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum ArticleCategory: string
             self::Return => 'Powrót do pracy',
             self::Rights => 'Prawa',
             self::CvAndInterviews => 'CV i rozmowy',
+            self::Postpartum => 'Po porodzie',
         };
     }
 }

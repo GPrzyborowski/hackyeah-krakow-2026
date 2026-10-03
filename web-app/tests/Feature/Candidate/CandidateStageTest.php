@@ -113,13 +113,14 @@ class CandidateStageTest extends TestCase
                 ->where('recommendedArticles', fn ($articles): bool => collect($articles)->pluck('id')->all() === [$pregnancy->id, $rights->id, $interviews->id]));
     }
 
-    public function test_home_for_a_candidate_after_leave_shows_return_articles(): void
+    public function test_home_for_a_candidate_after_leave_shows_return_and_postpartum_articles(): void
     {
         $profile = CandidateProfile::factory()->published()->afterLeave()->create();
         Article::factory()->create(['category' => ArticleCategory::Pregnancy]);
         $return = Article::factory()->create(['category' => ArticleCategory::Return]);
+        $postpartum = Article::factory()->create(['category' => ArticleCategory::Postpartum]);
         $leave = Article::factory()->create(['category' => ArticleCategory::Leave]);
-        $rights = Article::factory()->create(['category' => ArticleCategory::Rights]);
+        Article::factory()->create(['category' => ArticleCategory::Rights]);
 
         $this->actingAs($profile->user)
             ->get(route('candidate.home'))
@@ -128,7 +129,7 @@ class CandidateStageTest extends TestCase
                 ->where('stageMessage', CandidateStage::AfterLeave->homeMessage())
                 ->where('calendar.stage', 'after_leave')
                 ->where('calendar.phases', ['leave', 'return', 'ready'])
-                ->where('recommendedArticles', fn ($articles): bool => collect($articles)->pluck('id')->all() === [$return->id, $leave->id, $rights->id]));
+                ->where('recommendedArticles', fn ($articles): bool => collect($articles)->pluck('id')->all() === [$return->id, $postpartum->id, $leave->id]));
     }
 
     public function test_home_without_a_stage_has_no_stage_message_and_falls_back_to_ready(): void

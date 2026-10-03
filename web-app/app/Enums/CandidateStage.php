@@ -39,7 +39,7 @@ enum CandidateStage: string
     {
         return match ($this) {
             self::Pregnant => [ArticleCategory::Pregnancy, ArticleCategory::Rights, ArticleCategory::CvAndInterviews],
-            self::AfterLeave => [ArticleCategory::Return, ArticleCategory::Leave, ArticleCategory::Rights],
+            self::AfterLeave => [ArticleCategory::Return, ArticleCategory::Postpartum, ArticleCategory::Leave, ArticleCategory::Rights],
         };
     }
 
