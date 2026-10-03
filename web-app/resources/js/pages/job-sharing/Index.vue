@@ -31,6 +31,14 @@ type PairItem = {
     } | null;
 };
 
+type ActivePairState = 'pair' | 'invite_sent' | 'invite_received';
+
+const activePairLabels: Record<ActivePairState, string> = {
+    pair: 'Twoja para',
+    invite_sent: 'Zaproszenie wysłane',
+    invite_received: 'Zaproszenie do pary',
+};
+
 defineProps<{
     isOpenToJobSharing: boolean;
     invitations: PairItem[];
@@ -44,6 +52,7 @@ defineProps<{
         score: number;
         job_share: JobShareSummary;
         active_pair_id: number | null;
+        active_pair_state: ActivePairState | null;
     }[];
 }>();
 
@@ -226,8 +235,9 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
                     v-if="offer.active_pair_id"
                     :href="PairController.show(offer.active_pair_id)"
                     class="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border border-brand-green px-4 py-2 text-sm font-semibold text-brand-green hover:bg-brand-cream"
+                    data-test="active-pair-link"
                 >
-                    Twoja para
+                    {{ activePairLabels[offer.active_pair_state ?? 'pair'] }}
                 </Link>
                 <Link
                     v-else

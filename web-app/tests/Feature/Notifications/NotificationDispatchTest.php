@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\Conversation;
 use App\Models\Invitation;
 use App\Models\JobOffer;
+use App\Models\JobSharePair;
 use App\Models\User;
 use App\Notifications\InvitationAccepted;
 use App\Notifications\InvitationDeclined;
@@ -91,6 +92,45 @@ class NotificationDispatchTest extends TestCase
             },
         );
         Notification::assertNotSentTo($this->profile->user, InvitationAccepted::class);
+    }
+
+    public function test_accepting_seeds_the_chat_with_the_invitation_message_without_a_new_message_notice(): void
+    {
+        $sentAt = now()->subDays(2)->startOfSecond();
+        $invitation = Invitation::factory()->for($this->offer)->create([
+            'candidate_profile_id' => $this->profile->id,
+            'sent_by_user_id' => $this->recruiter->id,
+            'message' => 'Dzień dobry, zapraszamy na rozmowę o stanowisku Księgowa.',
+            'created_at' => $sentAt,
+        ]);
+        Notification::fake();
+
+        $this->actingAs($this->profile->user)->post(route('candidate.invitations.accept', $invitation));
+        $invitation->refresh()->accept();
+
+        $message = $invitation->conversation->messages()->sole();
+        $this->assertSame($this->recruiter->id, $message->user_id);
+        $this->assertSame('Dzień dobry, zapraszamy na rozmowę o stanowisku Księgowa.', $message->body);
+        $this->assertTrue($message->created_at->equalTo($sentAt));
+        $this->assertNotNull($message->read_at);
+        Notification::assertNotSentTo([$this->profile->user, $this->recruiter, $this->colleague], NewMessage::class);
+    }
+
+    public function test_pair_invitation_is_worded_for_the_pair(): void
+    {
+        Notification::fake();
+
+        $invitation = Invitation::factory()->for($this->offer)->create([
+            'candidate_profile_id' => $this->profile->id,
+            'job_share_pair_id' => JobSharePair::factory()->for($this->offer)->create()->id,
+        ]);
+
+        Notification::assertSentTo(
+            $this->profile->user,
+            InvitationReceived::class,
+            fn (InvitationReceived $notification): bool => $notification->invitation->is($invitation)
+                && $notification->toArray($this->profile->user)['title'] === 'Firma Zielone Biuro zaprasza Waszą parę job-sharing do rozmowy o stanowisku Księgowa',
+        );
     }
 
     public function test_company_members_get_an_anonymous_in_app_notice_when_the_candidate_declines(): void

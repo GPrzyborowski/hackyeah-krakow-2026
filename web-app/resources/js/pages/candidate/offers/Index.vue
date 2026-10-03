@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Search, SlidersHorizontal, Sparkles } from '@lucide/vue';
+import { Bookmark, Search, SlidersHorizontal, Sparkles } from '@lucide/vue';
 import { reactive, ref } from 'vue';
 import OfferCard from '@/components/candidate/OfferCard.vue';
 import type { CandidateOffer, Option } from '@/components/candidate/types';
@@ -16,6 +16,7 @@ type Filters = {
     childcare_subsidy: boolean;
     with_reviews: boolean;
     job_share: boolean;
+    saved: boolean;
     start_from: string | null;
     sort: 'match' | 'newest';
 };
@@ -51,6 +52,7 @@ function apply() {
             childcare_subsidy: form.childcare_subsidy ? 1 : undefined,
             with_reviews: form.with_reviews ? 1 : undefined,
             job_share: form.job_share ? 1 : undefined,
+            saved: form.saved ? 1 : undefined,
             start_from: form.start_from ?? '',
             sort: form.sort === 'match' ? undefined : form.sort,
         },
@@ -243,10 +245,34 @@ const parentFilters: {
                     </Link>
                 </div>
 
-                <div class="flex items-center justify-between gap-2">
-                    <p class="text-sm font-semibold text-brand-green">
-                        Pasujące oferty ({{ offers.length }})
-                    </p>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <p class="text-sm font-semibold text-brand-green">
+                            {{
+                                form.saved
+                                    ? 'Zapisane oferty'
+                                    : 'Pasujące oferty'
+                            }}
+                            ({{ offers.length }})
+                        </p>
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors"
+                            :class="
+                                form.saved
+                                    ? 'border-brand-green bg-brand-green text-white'
+                                    : 'border-brand-mint-soft bg-white text-brand-green hover:bg-brand-cream'
+                            "
+                            :aria-pressed="form.saved"
+                            data-test="saved-filter"
+                            @click="
+                                form.saved = !form.saved;
+                                apply();
+                            "
+                        >
+                            <Bookmark class="size-4" /> Zapisane
+                        </button>
+                    </div>
                     <label
                         class="flex items-center gap-2 text-sm text-brand-green/70"
                     >

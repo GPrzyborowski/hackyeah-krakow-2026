@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Candidate\Concerns;
 
+use App\Models\CandidateProfile;
 use App\Models\CompanyReview;
 use App\Models\JobOffer;
 use App\Services\JobSharing\Workday;
@@ -13,9 +14,10 @@ trait PresentsOffers
      * Offer card data for the candidate views.
      *
      * @param  list<int>  $interestedOfferIds
+     * @param  list<int>  $savedOfferIds
      * @return array<string, mixed>
      */
-    protected function presentOffer(JobOffer $offer, MatchResult $match, array $interestedOfferIds = []): array
+    protected function presentOffer(JobOffer $offer, MatchResult $match, array $interestedOfferIds = [], array $savedOfferIds = []): array
     {
         $offer->loadMissing('company.approvedReviews');
 
@@ -40,6 +42,7 @@ trait PresentsOffers
             'published_at' => $offer->published_at?->toIso8601String(),
             'is_parent_friendly' => $offer->isParentFriendly(),
             'is_interested' => in_array($offer->id, $interestedOfferIds, true),
+            'is_saved' => in_array($offer->id, $savedOfferIds, true),
             'match' => $match->toArray(),
             'company' => [
                 'id' => $offer->company->id,
@@ -53,5 +56,19 @@ trait PresentsOffers
                 ] : null,
             ],
         ];
+    }
+
+    /**
+     * Ids of the offers the candidate saved, optionally narrowed to a single offer.
+     *
+     * @return list<int>
+     */
+    protected function savedOfferIds(CandidateProfile $profile, ?JobOffer $offer = null): array
+    {
+        return array_values($profile->savedOffers()
+            ->when($offer, fn ($query, JobOffer $offer) => $query->whereKey($offer->id))
+            ->pluck('job_offers.id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all());
     }
 }

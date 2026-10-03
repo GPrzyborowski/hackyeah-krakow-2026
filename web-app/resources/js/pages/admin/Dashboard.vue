@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowRight } from '@lucide/vue';
+import { ArrowRight, FileText, Scale, Star } from '@lucide/vue';
 import { computed } from 'vue';
 import { dashboard } from '@/routes/admin';
+import { index as articlesIndex } from '@/routes/admin/articles';
+import { index as legalSourcesIndex } from '@/routes/admin/legal-sources';
 import { index as reviewsIndex } from '@/routes/admin/reviews';
 
 const props = defineProps<{
@@ -14,6 +16,9 @@ const props = defineProps<{
         pending_reviews: number;
         accepted_invitations: number;
         job_share_pairs: number;
+        articles: number;
+        legal_sources: number;
+        newsletter_subscribers: number;
     };
 }>();
 
@@ -42,6 +47,38 @@ const tiles = computed(() => [
         value: props.stats.job_share_pairs,
     },
     { key: 'admins', label: 'Administratorzy', value: props.stats.admins },
+    {
+        key: 'newsletter_subscribers',
+        label: 'Subskrybenci newslettera',
+        value: props.stats.newsletter_subscribers,
+    },
+]);
+
+const sections = computed(() => [
+    {
+        key: 'reviews',
+        label: 'Opinie do moderacji',
+        value: props.stats.pending_reviews,
+        href: reviewsIndex(),
+        icon: Star,
+        highlight: props.stats.pending_reviews > 0,
+    },
+    {
+        key: 'articles',
+        label: 'Artykuły',
+        value: props.stats.articles,
+        href: articlesIndex(),
+        icon: FileText,
+        highlight: false,
+    },
+    {
+        key: 'legal_sources',
+        label: 'Źródła prawne',
+        value: props.stats.legal_sources,
+        href: legalSourcesIndex(),
+        icon: Scale,
+        highlight: false,
+    },
 ]);
 </script>
 
@@ -55,23 +92,35 @@ const tiles = computed(() => [
             Panel administratora
         </h1>
 
-        <Link
-            :href="reviewsIndex()"
-            class="flex items-center justify-between gap-4 rounded-3xl bg-brand-yellow p-6 text-brand-green transition hover:shadow-md"
-            data-test="pending-reviews-tile"
-        >
-            <div>
-                <p class="text-sm font-semibold">Opinie do moderacji</p>
-                <p class="mt-1 text-4xl font-semibold">
-                    {{ stats.pending_reviews }}
-                </p>
-            </div>
-            <span
-                class="inline-flex items-center gap-1 rounded-full bg-brand-green px-4 py-2 text-sm font-semibold text-white"
+        <div class="grid gap-4 md:grid-cols-3">
+            <Link
+                v-for="section in sections"
+                :key="section.key"
+                :href="section.href"
+                class="flex flex-col justify-between gap-4 rounded-3xl p-6 text-brand-green transition hover:shadow-md"
+                :class="
+                    section.highlight ? 'bg-brand-yellow' : 'bg-white shadow-sm'
+                "
+                :data-test="`${section.key}-tile`"
             >
-                Przejdź <ArrowRight class="size-4" />
-            </span>
-        </Link>
+                <div>
+                    <p
+                        class="inline-flex items-center gap-2 text-sm font-semibold"
+                    >
+                        <component :is="section.icon" class="size-4" />
+                        {{ section.label }}
+                    </p>
+                    <p class="mt-1 text-4xl font-semibold">
+                        {{ section.value }}
+                    </p>
+                </div>
+                <span
+                    class="inline-flex items-center gap-1 self-start rounded-full bg-brand-green px-4 py-2 text-sm font-semibold text-white"
+                >
+                    Przejdź <ArrowRight class="size-4" />
+                </span>
+            </Link>
+        </div>
 
         <dl class="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div

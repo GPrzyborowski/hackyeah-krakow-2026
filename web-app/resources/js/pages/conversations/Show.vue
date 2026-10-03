@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form, Head, Link, usePoll } from '@inertiajs/vue3';
-import { ArrowLeft, Mail, SendHorizontal, Star } from '@lucide/vue';
+import { ArrowLeft, Mail, SendHorizontal, Star, UsersRound } from '@lucide/vue';
 import { nextTick, onMounted, ref, watch } from 'vue';
 import ChatBubble from '@/components/chat/ChatBubble.vue';
 import { formatBubbleTime } from '@/components/chat/format';
@@ -18,6 +18,7 @@ const props = defineProps<{
         id: number;
         offer_title: string;
         counterpart: ConversationCounterpart;
+        pair_partner_name: string | null;
     };
     viewerRole: UserRole;
     messages: ConversationMessage[];
@@ -73,6 +74,17 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 <p class="truncate text-sm text-brand-green/70">
                     {{ conversation.offer_title }}
                 </p>
+                <span
+                    v-if="conversation.pair_partner_name"
+                    class="mt-1.5 inline-flex max-w-full items-center gap-1.5 rounded-full bg-brand-peach/60 px-3 py-1 text-xs font-semibold text-brand-green"
+                    data-test="pair-chip"
+                >
+                    <UsersRound class="size-3.5 shrink-0" />
+                    <span class="truncate"
+                        >Para job-sharing z
+                        {{ conversation.pair_partner_name }}</span
+                    >
+                </span>
             </div>
             <a
                 v-if="conversation.counterpart.type === 'candidate'"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowRight, Lock } from '@lucide/vue';
+import { ArrowRight, Bookmark, Lock } from '@lucide/vue';
 import { computed } from 'vue';
 import PairController from '@/actions/App/Http/Controllers/JobSharing/PairController';
 import { formatShortDate, pluralize } from '@/components/candidate/format';
@@ -27,6 +27,7 @@ const props = defineProps<{
     };
     invitations: { pending_count: number; company_names: string[] };
     pairInvitationsCount?: number;
+    savedOffersCount: number;
     topOffers: {
         id: number;
         title: string;
@@ -213,6 +214,20 @@ const hasPrivateDates = computed(
                 {{ pairInvitationsCount }}
                 {{ pluralize(pairInvitationsCount, 'nowe', 'nowe', 'nowych') }}
             </span>
+        </Link>
+
+        <Link
+            :href="offersIndex({ query: { saved: 1 } })"
+            class="flex items-center justify-between gap-4 rounded-3xl bg-white px-6 py-4 shadow-sm transition hover:shadow-md"
+            data-test="saved-offers-card"
+        >
+            <span
+                class="inline-flex items-center gap-2 font-semibold text-brand-green"
+            >
+                <Bookmark class="size-4" />
+                Zapisane oferty ({{ savedOffersCount }})
+            </span>
+            <ArrowRight class="size-4 text-brand-green" />
         </Link>
 
         <section class="rounded-3xl bg-white p-6 shadow-sm">

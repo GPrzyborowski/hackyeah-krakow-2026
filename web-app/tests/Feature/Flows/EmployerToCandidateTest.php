@@ -156,7 +156,7 @@ class EmployerToCandidateTest extends TestCase
         $this->actingAs($recruiter)
             ->post(route('conversations.messages.store', $conversation), ['body' => 'Czy planuje Pani zajść w ciążę w najbliższym roku?'])
             ->assertSessionHasErrors('body');
-        $this->assertSame(0, $conversation->messages()->count());
+        $this->assertSame(1, $conversation->messages()->count(), 'Only the invitation message seeded on acceptance.');
 
         $this->actingAs($recruiter)
             ->post(route('conversations.messages.store', $conversation), ['body' => 'Dziękujemy! Czy pasuje Pani rozmowa we wtorek o 10:00?'])
@@ -178,12 +178,13 @@ class EmployerToCandidateTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->where('conversation.counterpart.type', 'company')
                 ->where('conversation.counterpart.name', 'Zielone Biuro')
-                ->has('messages', 2)
-                ->where('messages.0.body', 'Dziękujemy! Czy pasuje Pani rozmowa we wtorek o 10:00?')
-                ->where('messages.0.is_mine', false)
-                ->where('messages.1.body', 'Dzień dobry, wtorek o 10:00 mi pasuje.')
-                ->where('messages.1.is_mine', true));
-        $this->assertNotNull($conversation->messages()->where('user_id', $recruiter->id)->sole()->read_at);
+                ->has('messages', 3)
+                ->where('messages.0.body', 'Dzień dobry, zapraszamy na rozmowę o roli rekruterki IT. Pracujemy hybrydowo w Krakowie.')
+                ->where('messages.1.body', 'Dziękujemy! Czy pasuje Pani rozmowa we wtorek o 10:00?')
+                ->where('messages.1.is_mine', false)
+                ->where('messages.2.body', 'Dzień dobry, wtorek o 10:00 mi pasuje.')
+                ->where('messages.2.is_mine', true));
+        $this->assertSame(0, $conversation->messages()->where('user_id', $recruiter->id)->whereNull('read_at')->count());
     }
 
     /**

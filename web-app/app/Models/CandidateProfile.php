@@ -96,6 +96,16 @@ class CandidateProfile extends Model
     }
 
     /**
+     * Offers the candidate bookmarked with "Zapisz".
+     *
+     * @return BelongsToMany<JobOffer, $this>
+     */
+    public function savedOffers(): BelongsToMany
+    {
+        return $this->belongsToMany(JobOffer::class, 'saved_offers')->withTimestamps();
+    }
+
+    /**
      * @return BelongsToMany<JobSharePair, $this>
      */
     public function jobSharePairs(): BelongsToMany

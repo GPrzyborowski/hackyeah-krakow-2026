@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { Bell, CircleCheck, CircleX, MessageCircle } from '@lucide/vue';
+import {
+    Bell,
+    CircleCheck,
+    CircleX,
+    MessageCircle,
+    UsersRound,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import type { AppNotification } from '@/components/notifications/types';
 import { read } from '@/routes/notifications';
@@ -14,7 +20,10 @@ const icon = computed(() => {
         case 'new_message':
             return MessageCircle;
         case 'invitation_accepted':
+        case 'pair_invitation_accepted':
             return CircleCheck;
+        case 'pair_invitation_received':
+            return UsersRound;
         case 'invitation_declined':
             return CircleX;
         default:

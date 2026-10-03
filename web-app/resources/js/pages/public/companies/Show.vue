@@ -10,6 +10,7 @@ import type {
     RatingCategories,
     RatingSummary,
 } from '@/components/brand/types';
+import { reviewCountLabel } from '@/lib/plural';
 import { index as offersIndex } from '@/routes/public/offers';
 
 type Review = {
@@ -37,21 +38,6 @@ defineProps<{
 const categories = Object.keys(ratingCategoryLabels) as Array<
     keyof RatingCategories
 >;
-
-function reviewCountLabel(count: number): string {
-    if (count === 1) {
-        return '1 opinia';
-    }
-
-    const lastDigit = count % 10;
-    const lastTwoDigits = count % 100;
-
-    return lastDigit >= 2 &&
-        lastDigit <= 4 &&
-        (lastTwoDigits < 12 || lastTwoDigits > 14)
-        ? `${count} opinie`
-        : `${count} opinii`;
-}
 </script>
 
 <template>

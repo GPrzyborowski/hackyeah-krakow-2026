@@ -56,6 +56,7 @@ class OfferController extends Controller
             ->when($request->boolean('childcare_subsidy'), fn (Builder $query) => $query->where('childcare_subsidy', true))
             ->when($request->boolean('with_reviews'), fn (Builder $query) => $query->whereHas('company.approvedReviews'))
             ->when($request->boolean('job_share'), fn (Builder $query) => $query->where('is_job_share', true))
+            ->when($request->boolean('saved'), fn (Builder $query) => $query->whereIn('id', $profile->savedOffers()->select('job_offers.id')))
             ->when($startFrom, fn (Builder $query, string $date) => $query->whereDate(
                 'start_date',
                 '>=',
@@ -69,9 +70,10 @@ class OfferController extends Controller
         }
 
         $interestedOfferIds = array_values($profile->interests()->get(['job_offer_id'])->map(fn (OfferInterest $interest): int => $interest->job_offer_id)->all());
+        $savedOfferIds = $this->savedOfferIds($profile);
 
         return Inertia::render('candidate/offers/Index', [
-            'offers' => $ranked->map(fn (array $row): array => $this->presentOffer($row['offer'], $row['match'], $interestedOfferIds)),
+            'offers' => $ranked->map(fn (array $row): array => $this->presentOffer($row['offer'], $row['match'], $interestedOfferIds, $savedOfferIds)),
             'filters' => [
                 'q' => $filters['q'] ?? '',
                 'location' => $filters['location'] ?? '',
@@ -81,6 +83,7 @@ class OfferController extends Controller
                 'childcare_subsidy' => $request->boolean('childcare_subsidy'),
                 'with_reviews' => $request->boolean('with_reviews'),
                 'job_share' => $request->boolean('job_share'),
+                'saved' => $request->boolean('saved'),
                 'start_from' => $startFrom,
                 'sort' => $sort,
             ],
@@ -101,10 +104,11 @@ class OfferController extends Controller
         $offer->load(['skills', 'company.approvedReviews']);
         $interestedOfferIds = array_values($profile->interests()->where('job_offer_id', $offer->id)->get(['job_offer_id'])
             ->map(fn (OfferInterest $interest): int => $interest->job_offer_id)->all());
+        $savedOfferIds = $this->savedOfferIds($profile, $offer);
 
         return Inertia::render('candidate/offers/Show', [
             'offer' => [
-                ...$this->presentOffer($offer, $matchScorer->score($profile, $offer), $interestedOfferIds),
+                ...$this->presentOffer($offer, $matchScorer->score($profile, $offer), $interestedOfferIds, $savedOfferIds),
                 'description' => $offer->description,
                 'company_description' => $offer->company->description,
             ],

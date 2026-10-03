@@ -9,6 +9,7 @@ import {
 } from '@/components/candidate/format';
 import InterestButton from '@/components/candidate/InterestButton.vue';
 import MatchPill from '@/components/candidate/MatchPill.vue';
+import SaveOfferButton from '@/components/candidate/SaveOfferButton.vue';
 import type { CandidateOffer } from '@/components/candidate/types';
 import JobShareChip from '@/components/job-sharing/JobShareChip.vue';
 import { show } from '@/routes/candidate/offers';
@@ -90,13 +91,17 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
                     Firma nie ma jeszcze opinii rodziców.
                 </template>
             </p>
-            <div class="flex shrink-0 items-center gap-2">
+            <div class="flex shrink-0 flex-wrap items-center gap-2">
                 <Link
                     :href="show(offer.id)"
                     class="rounded-full border border-brand-green px-4 py-2 text-sm font-semibold text-brand-green hover:bg-brand-cream"
                 >
                     Szczegóły
                 </Link>
+                <SaveOfferButton
+                    :offer-id="offer.id"
+                    :is-saved="offer.is_saved"
+                />
                 <InterestButton
                     :offer-id="offer.id"
                     :is-interested="offer.is_interested"

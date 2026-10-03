@@ -53,6 +53,7 @@ class HomeController extends Controller
                 ->where('status', JobSharePairStatus::Forming)
                 ->wherePivotNull('accepted_at')
                 ->count(),
+            'savedOffersCount' => $profile->savedOffers()->published()->count(),
             'topOffers' => $matchScorer->rankOffersFor($profile)
                 ->take(3)
                 ->map(fn (array $row): array => $this->presentTopOffer($row['offer'], $row['match'])),

@@ -3,11 +3,8 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { MessageCircle, ShieldCheck, Star } from '@lucide/vue';
 import { ref } from 'vue';
 import Chip from '@/components/candidate/Chip.vue';
-import {
-    formatLongDate,
-    formatRating,
-    pluralize,
-} from '@/components/candidate/format';
+import { formatLongDate, formatRating } from '@/components/candidate/format';
+import { parentReviewCountLabel } from '@/lib/plural';
 import { accept, decline, index } from '@/routes/candidate/invitations';
 import { show as conversationShow } from '@/routes/conversations';
 import { show as offerShow } from '@/routes/candidate/offers';
@@ -129,16 +126,9 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                         class="size-3.5 fill-brand-yellow text-brand-yellow"
                     />
                     {{ formatRating(invitation.company.average_rating) }} z 5 ·
-                    {{ invitation.company.reviews_count }}
                     {{
-                        pluralize(
-                            invitation.company.reviews_count,
-                            'opinia',
-                            'opinie',
-                            'opinii',
-                        )
+                        parentReviewCountLabel(invitation.company.reviews_count)
                     }}
-                    rodziców
                 </template>
                 <template v-else
                     >Firma nie ma jeszcze opinii rodziców.</template

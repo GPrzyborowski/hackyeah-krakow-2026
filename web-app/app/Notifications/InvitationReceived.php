@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Tells the candidate a company wants to talk; carries only the company name and offer title.
+ * Tells the candidate a company wants to talk (to her alone or to her job-sharing pair); carries only the company name and offer title.
  */
 class InvitationReceived extends Notification
 {
@@ -27,7 +27,7 @@ class InvitationReceived extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Nowe zaproszenie do rozmowy')
+            ->subject($this->invitation->job_share_pair_id !== null ? 'Zaproszenie do rozmowy dla Waszej pary job-sharing' : 'Nowe zaproszenie do rozmowy')
             ->greeting('Dzień dobry!')
             ->line($this->title())
             ->line('Zaproszenie możesz przyjąć albo odrzucić. Dopiero po akceptacji firma zobaczy Twoje imię, nazwisko i e-mail.')
@@ -52,6 +52,10 @@ class InvitationReceived extends Notification
     private function title(): string
     {
         $offer = $this->invitation->jobOffer;
+
+        if ($this->invitation->job_share_pair_id !== null) {
+            return "Firma {$offer->company->name} zaprasza Waszą parę job-sharing do rozmowy o stanowisku {$offer->title}";
+        }
 
         return "Firma {$offer->company->name} zaprasza Cię do rozmowy o stanowisku {$offer->title}";
     }

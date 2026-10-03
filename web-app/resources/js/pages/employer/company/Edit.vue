@@ -3,6 +3,7 @@ import { Form, Head } from '@inertiajs/vue3';
 import { Quote, Star } from '@lucide/vue';
 import CompanyController from '@/actions/App/Http/Controllers/Employer/CompanyController';
 import InputError from '@/components/InputError.vue';
+import { reviewCountLabel } from '@/lib/plural';
 
 type Company = {
     id: number;
@@ -53,21 +54,6 @@ const categories: {
 
 function formatRating(value: number | null): string {
     return value === null ? '—' : value.toFixed(1).replace('.', ',');
-}
-
-function reviewCount(count: number): string {
-    if (count === 1) {
-        return '1 opinia';
-    }
-
-    const lastDigit = count % 10;
-    const lastTwoDigits = count % 100;
-    const isFew =
-        lastDigit >= 2 &&
-        lastDigit <= 4 &&
-        (lastTwoDigits < 12 || lastTwoDigits > 14);
-
-    return `${count} ${isFew ? 'opinie' : 'opinii'}`;
 }
 
 const fieldClass =
@@ -163,7 +149,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
                         }}</span>
                         <span class="text-sm text-white/80"
                             >średnia ocena ·
-                            {{ reviewCount(ratings.count) }}</span
+                            {{ reviewCountLabel(ratings.count) }}</span
                         >
                     </div>
                     <ul class="mt-5 space-y-3 text-sm">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Conversations;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Models\CandidateProfile;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
@@ -62,7 +63,7 @@ class ConversationController extends Controller
         Gate::authorize('view', $conversation);
 
         $user = $request->user();
-        $conversation->load(['invitation.jobOffer.company', 'invitation.candidateProfile.user']);
+        $conversation->load(['invitation.jobOffer.company', 'invitation.candidateProfile.user', 'invitation.jobSharePair.members.user']);
         $candidateUserId = $conversation->invitation->candidateProfile->user_id;
 
         $conversation->messages()
@@ -77,6 +78,7 @@ class ConversationController extends Controller
                 'id' => $conversation->id,
                 'offer_title' => $conversation->invitation->jobOffer->title,
                 'counterpart' => $this->counterpart($conversation, $user),
+                'pair_partner_name' => $this->pairPartnerName($conversation),
             ],
             'viewerRole' => $user->role,
             'messages' => $messages->map(fn (Message $message): array => [
@@ -130,6 +132,18 @@ class ConversationController extends Controller
         return $user->isCandidate()
             ? $conversation->invitation->jobOffer->company->name
             : $conversation->invitation->candidateProfile->user->name;
+    }
+
+    /**
+     * For a job-sharing pair invitation: the candidate's partner, named anonymously (first name + surname initial).
+     */
+    private function pairPartnerName(Conversation $conversation): ?string
+    {
+        $invitation = $conversation->invitation;
+
+        return $invitation->jobSharePair?->members
+            ->first(fn (CandidateProfile $member): bool => $member->id !== $invitation->candidate_profile_id)
+            ?->anonymousName();
     }
 
     /**

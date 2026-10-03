@@ -17,6 +17,7 @@ import {
 } from '@/components/candidate/format';
 import InterestButton from '@/components/candidate/InterestButton.vue';
 import MatchPill from '@/components/candidate/MatchPill.vue';
+import SaveOfferButton from '@/components/candidate/SaveOfferButton.vue';
 import type { CandidateOffer } from '@/components/candidate/types';
 import JobShareChip from '@/components/job-sharing/JobShareChip.vue';
 import OfferJobSharePanel from '@/components/job-sharing/OfferJobSharePanel.vue';
@@ -122,10 +123,14 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                         {{ formatSalary(offer.salary_min, offer.salary_max) }}
                     </p>
 
-                    <div class="mt-6">
+                    <div class="mt-6 flex flex-wrap items-center gap-2">
                         <InterestButton
                             :offer-id="offer.id"
                             :is-interested="offer.is_interested"
+                        />
+                        <SaveOfferButton
+                            :offer-id="offer.id"
+                            :is-saved="offer.is_saved"
                         />
                     </div>
                 </section>

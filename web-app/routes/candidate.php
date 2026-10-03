@@ -6,6 +6,7 @@ use App\Http\Controllers\Candidate\OfferController;
 use App\Http\Controllers\Candidate\OfferInterestController;
 use App\Http\Controllers\Candidate\OnboardingController;
 use App\Http\Controllers\Candidate\ProfileSkillController;
+use App\Http\Controllers\Candidate\SavedOfferController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
@@ -29,6 +30,8 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     Route::get('offers/{offer}', [OfferController::class, 'show'])->name('offers.show');
     Route::post('offers/{offer}/interest', [OfferInterestController::class, 'store'])->name('offers.interest.store');
     Route::delete('offers/{offer}/interest', [OfferInterestController::class, 'destroy'])->name('offers.interest.destroy');
+    Route::post('offers/{offer}/save', [SavedOfferController::class, 'store'])->name('offers.save');
+    Route::delete('offers/{offer}/save', [SavedOfferController::class, 'destroy'])->name('offers.unsave');
 
     Route::get('invitations', [InvitationController::class, 'index'])->name('invitations.index');
     Route::post('invitations/{invitation}/accept', [InvitationController::class, 'accept'])->name('invitations.accept');

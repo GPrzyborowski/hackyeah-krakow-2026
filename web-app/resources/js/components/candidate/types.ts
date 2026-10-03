@@ -28,6 +28,7 @@ export type CandidateOffer = {
     published_at: string | null;
     is_parent_friendly: boolean;
     is_interested: boolean;
+    is_saved: boolean;
     job_share?: JobShareSummary;
     match: MatchBreakdown;
     company: {

@@ -3,10 +3,13 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\ReviewStatus;
+use App\Models\Article;
 use App\Models\Company;
 use App\Models\CompanyReview;
 use App\Models\Invitation;
 use App\Models\JobOffer;
+use App\Models\LegalSource;
+use App\Models\NewsletterSubscriber;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -48,6 +51,23 @@ class AdminPanelTest extends TestCase
                 ->where('stats.job_share_pairs', 0)
                 ->has('stats.candidates')
                 ->has('stats.employers'));
+    }
+
+    public function test_dashboard_shows_content_and_newsletter_counts(): void
+    {
+        Article::factory()->count(2)->create();
+        LegalSource::factory()->count(3)->create();
+        NewsletterSubscriber::factory()->confirmed()->count(2)->create();
+        NewsletterSubscriber::factory()->create();
+        NewsletterSubscriber::factory()->unsubscribed()->create();
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('stats.articles', Article::query()->count())
+                ->where('stats.legal_sources', LegalSource::query()->count())
+                ->where('stats.newsletter_subscribers', 2));
     }
 
     public function test_non_admins_cannot_access_the_admin_panel(): void
