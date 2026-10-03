@@ -1,27 +1,19 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ inverted?: boolean }>(), { inverted: false });
+import type { HTMLAttributes } from 'vue';
+import { cn } from '@/lib/utils';
+
+const props = withDefaults(
+    defineProps<{ inverted?: boolean; class?: HTMLAttributes['class'] }>(),
+    { inverted: false, class: undefined },
+);
 </script>
 
 <template>
-    <span class="inline-flex items-center gap-2">
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 32 32"
-            class="size-7 shrink-0"
-            aria-hidden="true"
-        >
-            <circle
-                cx="15"
-                cy="17"
-                r="13"
-                :class="inverted ? 'fill-white' : 'fill-brand-green'"
-            />
-            <circle cx="25.5" cy="6.5" r="5.5" class="fill-brand-peach" />
-        </svg>
-        <span
-            class="text-xl font-semibold tracking-tight"
-            :class="inverted ? 'text-white' : 'text-brand-green'"
-            >MomJobs</span
-        >
-    </span>
+    <img
+        :src="props.inverted ? '/images/logo-white.png' : '/images/logo.png'"
+        alt="mumjobs"
+        width="366"
+        height="120"
+        :class="cn('block h-10 w-auto shrink-0', props.class)"
+    />
 </template>

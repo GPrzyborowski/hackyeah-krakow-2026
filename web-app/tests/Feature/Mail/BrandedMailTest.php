@@ -64,7 +64,7 @@ class BrandedMailTest extends TestCase
         $this->assertStringContainsString('Pozdrawiamy,', $html);
         $this->assertStringContainsString('zespół MomJobs', $html);
         $this->assertStringContainsString('praca dla przyszłych i obecnych mam', $html);
-        $this->assertStringContainsString(config('app.url').'/icon-192.png', $html);
+        $this->assertStringContainsString(config('app.url').'/images/logo.png', $html);
         $this->assertStringContainsString('#143f3b', $html);
         $this->assertStringContainsString('skopiuj poniższy adres URL', $html);
         $this->assertStringNotContainsString('Laravel', $html);

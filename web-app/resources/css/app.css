@@ -58,6 +58,8 @@
     --color-brand-peach: #ffb59a;
     --color-brand-yellow: #ffd35e;
     --color-brand-cream: #eaf0ee;
+    /* Logo mark colour (purple) – used only for the logo, not part of the UI palette. */
+    --color-brand-logo: #4c406f;
     /* Neutral field/control outline: >= 3:1 on white (WCAG 1.4.11), softer than brand-green/60. */
     --color-brand-line: #7d9893;
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import BrandLogo from '@/components/brand/BrandLogo.vue';
 import { home } from '@/routes';
 
 defineProps<{
@@ -17,13 +17,10 @@ defineProps<{
             <div class="flex justify-center">
                 <Link
                     :href="home()"
-                    class="inline-flex items-center gap-2"
+                    class="inline-flex items-center"
                     aria-label="MomJobs – strona główna"
                 >
-                    <AppLogoIcon class="size-8" />
-                    <span class="text-2xl font-semibold tracking-tight"
-                        >MomJobs</span
-                    >
+                    <BrandLogo class="h-12" />
                 </Link>
             </div>
 

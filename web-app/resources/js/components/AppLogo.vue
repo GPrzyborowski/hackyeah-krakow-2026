@@ -4,12 +4,15 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
 
 <template>
     <div class="flex aspect-square size-8 items-center justify-center">
-        <AppLogoIcon class="size-7" />
+        <AppLogoIcon class="size-8" aria-hidden="true" />
     </div>
-    <div class="ml-1 grid flex-1 text-left">
-        <span
-            class="truncate text-lg leading-tight font-semibold tracking-tight text-brand-green dark:text-white"
-            >MomJobs</span
-        >
+    <div class="flex min-w-0 flex-1 items-center">
+        <img
+            src="/images/logo-wordmark.png"
+            alt="mumjobs"
+            width="257"
+            height="120"
+            class="h-8 w-auto"
+        />
     </div>
 </template>

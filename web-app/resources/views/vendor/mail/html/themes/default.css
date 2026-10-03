@@ -122,26 +122,6 @@ img {
     text-decoration: none;
 }
 
-.brand-table {
-    margin: 0 auto;
-}
-
-.brand-logo-cell {
-    padding-right: 10px;
-    vertical-align: middle;
-}
-
-.brand-name-cell {
-    vertical-align: middle;
-}
-
-.brand-name {
-    color: #143f3b;
-    font-size: 26px;
-    font-weight: bold;
-    letter-spacing: -0.5px;
-}
-
 .brand-tagline {
     color: #4f6b66;
     font-size: 13px;
@@ -152,11 +132,12 @@ img {
 /* Logo */
 
 .logo {
-    border-radius: 12px;
+    border: 0;
     display: block;
-    height: 48px;
-    max-height: 48px;
-    width: 48px;
+    height: 56px;
+    margin: 0 auto;
+    max-height: 56px;
+    width: 171px;
 }
 
 /* Body */
