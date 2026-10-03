@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -22,6 +22,29 @@ const role = ref<'candidate' | 'employer'>(
         : 'candidate',
 );
 
+const roleOptions = [
+    { value: 'candidate', label: 'Szukam pracy' },
+    { value: 'employer', label: 'Jestem pracodawcą' },
+] as const;
+
+function switchRoleWithKeyboard(event: KeyboardEvent): void {
+    if (
+        !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
+    ) {
+        return;
+    }
+
+    event.preventDefault();
+    role.value = role.value === 'candidate' ? 'employer' : 'candidate';
+
+    const group = (event.currentTarget as HTMLElement).parentElement;
+    void nextTick(() => {
+        group
+            ?.querySelector<HTMLElement>(`[data-test="role-${role.value}"]`)
+            ?.focus();
+    });
+}
+
 defineOptions({
     layout: {
         title: 'Załóż konto',
@@ -41,16 +64,21 @@ defineOptions({
     >
         <div class="grid gap-6">
             <div class="grid gap-2">
-                <Label>Kim jesteś?</Label>
+                <Label id="role-label">Kim jesteś?</Label>
                 <input type="hidden" name="role" :value="role" />
-                <div class="grid grid-cols-2 gap-2">
+                <div
+                    class="grid grid-cols-2 gap-2"
+                    role="radiogroup"
+                    aria-labelledby="role-label"
+                    aria-describedby="role-error"
+                >
                     <button
-                        v-for="option in [
-                            { value: 'candidate', label: 'Szukam pracy' },
-                            { value: 'employer', label: 'Jestem pracodawcą' },
-                        ] as const"
+                        v-for="option in roleOptions"
                         :key="option.value"
                         type="button"
+                        role="radio"
+                        :aria-checked="role === option.value"
+                        :tabindex="role === option.value ? 0 : -1"
                         class="rounded-full border px-4 py-2 text-sm font-medium transition"
                         :class="
                             role === option.value
@@ -59,99 +87,119 @@ defineOptions({
                         "
                         :data-test="`role-${option.value}`"
                         @click="role = option.value"
+                        @keydown="switchRoleWithKeyboard"
                     >
                         {{ option.label }}
                     </button>
                 </div>
-                <InputError :message="errors.role" />
+                <InputError id="role-error" :message="errors.role" />
             </div>
 
             <div v-if="role === 'employer'" class="grid gap-2">
                 <Label for="company_name">Nazwa firmy</Label>
                 <Input
                     id="company_name"
+                    :aria-invalid="errors.company_name ? true : undefined"
+                    aria-describedby="company_name-error"
                     type="text"
                     required
                     name="company_name"
+                    autocomplete="organization"
                     placeholder="np. Zielone Biuro"
                 />
-                <InputError :message="errors.company_name" />
+                <InputError
+                    id="company_name-error"
+                    :message="errors.company_name"
+                />
             </div>
 
             <div v-if="role === 'employer'" class="grid gap-2">
                 <Label for="company_nip">NIP firmy</Label>
                 <Input
                     id="company_nip"
+                    :aria-invalid="errors.company_nip ? true : undefined"
+                    aria-describedby="company_nip-error"
                     type="text"
                     inputmode="numeric"
                     required
                     name="company_nip"
                     placeholder="np. 526-025-09-95"
                 />
-                <InputError :message="errors.company_nip" />
+                <InputError
+                    id="company_nip-error"
+                    :message="errors.company_nip"
+                />
             </div>
 
             <div class="grid gap-2">
                 <Label for="name">Imię i nazwisko</Label>
                 <Input
                     id="name"
+                    :aria-invalid="errors.name ? true : undefined"
+                    aria-describedby="name-error"
                     type="text"
                     required
                     v-focus
-                    :tabindex="1"
                     autocomplete="name"
                     name="name"
                     placeholder="Imię i nazwisko"
                 />
-                <InputError :message="errors.name" />
+                <InputError id="name-error" :message="errors.name" />
             </div>
 
             <div class="grid gap-2">
                 <Label for="email">E-mail</Label>
                 <Input
                     id="email"
+                    :aria-invalid="errors.email ? true : undefined"
+                    aria-describedby="email-error"
                     type="email"
                     required
-                    :tabindex="2"
                     autocomplete="email"
                     name="email"
                     placeholder="ty@example.com"
                 />
-                <InputError :message="errors.email" />
+                <InputError id="email-error" :message="errors.email" />
             </div>
 
             <div class="grid gap-2">
                 <Label for="password">Hasło</Label>
                 <PasswordInput
                     id="password"
+                    :aria-invalid="errors.password ? true : undefined"
+                    aria-describedby="password-error"
                     required
-                    :tabindex="3"
                     autocomplete="new-password"
                     name="password"
                     placeholder="Hasło"
                     :passwordrules="passwordRules"
                 />
-                <InputError :message="errors.password" />
+                <InputError id="password-error" :message="errors.password" />
             </div>
 
             <div class="grid gap-2">
                 <Label for="password_confirmation">Powtórz hasło</Label>
                 <PasswordInput
                     id="password_confirmation"
+                    :aria-invalid="
+                        errors.password_confirmation ? true : undefined
+                    "
+                    aria-describedby="password_confirmation-error"
                     required
-                    :tabindex="4"
                     autocomplete="new-password"
                     name="password_confirmation"
                     placeholder="Powtórz hasło"
                     :passwordrules="passwordRules"
                 />
-                <InputError :message="errors.password_confirmation" />
+                <InputError
+                    id="password_confirmation-error"
+                    :message="errors.password_confirmation"
+                />
             </div>
 
             <Button
                 type="submit"
                 class="mt-2 h-11 w-full rounded-full"
-                tabindex="5"
                 :disabled="processing"
                 data-test="register-user-button"
             >
@@ -162,10 +210,7 @@ defineOptions({
 
         <div class="text-center text-sm text-muted-foreground">
             Masz już konto?
-            <TextLink
-                :href="login()"
-                class="underline underline-offset-4"
-                :tabindex="6"
+            <TextLink :href="login()" class="underline underline-offset-4"
                 >Zaloguj się</TextLink
             >
         </div>

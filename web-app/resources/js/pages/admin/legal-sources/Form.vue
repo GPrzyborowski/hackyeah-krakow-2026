@@ -62,9 +62,9 @@ function submit(): void {
 }
 
 const fieldClass =
-    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/20 bg-white px-4 text-sm font-normal text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-mint/50';
+    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/60 bg-white px-4 text-sm font-normal text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 const labelClass = 'block text-xs font-semibold text-brand-green';
-const hintClass = 'mt-1 block font-normal text-brand-green/60';
+const hintClass = 'mt-1 block font-normal text-brand-green/80';
 </script>
 
 <template>
@@ -73,7 +73,7 @@ const hintClass = 'mt-1 block font-normal text-brand-green/60';
     <div class="mx-auto w-full max-w-3xl p-4 md:p-8">
         <Link
             :href="index()"
-            class="inline-flex items-center gap-1 text-sm text-brand-green/70 hover:text-brand-green"
+            class="inline-flex items-center gap-1 text-sm text-brand-green/80 hover:text-brand-green"
         >
             <ArrowLeft class="size-4" /> Wszystkie źródła
         </Link>

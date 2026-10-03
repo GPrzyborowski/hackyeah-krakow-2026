@@ -172,7 +172,16 @@
 
 @layer base {
     * {
-        @apply border-border outline-ring/50;
+        @apply border-border outline-ring;
+    }
+    :focus-visible {
+        outline: 2px solid var(--color-brand-green);
+        outline-offset: 2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto !important;
+        }
     }
     body {
         @apply bg-background text-foreground;

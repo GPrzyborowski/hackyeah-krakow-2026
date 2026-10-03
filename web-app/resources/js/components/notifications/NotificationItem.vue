@@ -39,8 +39,8 @@ function open(): void {
 <template>
     <button
         type="button"
-        class="flex w-full items-start gap-3 rounded-2xl p-3 text-left transition hover:bg-brand-mint-soft/60"
-        :class="notification.read ? 'opacity-70' : 'bg-brand-cream/70'"
+        class="flex w-full items-start gap-3 rounded-2xl p-3 text-left transition outline-none hover:bg-brand-mint-soft/60 focus-visible:ring-2 focus-visible:ring-brand-green data-[highlighted]:bg-brand-mint-soft/60 data-[highlighted]:ring-2 data-[highlighted]:ring-brand-green"
+        :class="notification.read ? 'bg-white' : 'bg-brand-cream/70'"
         data-test="notification-item"
         @click="open"
     >
@@ -52,7 +52,7 @@ function open(): void {
                     : 'bg-brand-yellow text-brand-green'
             "
         >
-            <component :is="icon" class="size-4" />
+            <component :is="icon" class="size-4" aria-hidden="true" />
         </span>
         <span class="flex min-w-0 flex-1 flex-col gap-0.5">
             <span
@@ -63,13 +63,13 @@ function open(): void {
             </span>
             <span
                 v-if="notification.body"
-                class="truncate text-xs text-brand-green/70"
+                class="truncate text-xs text-brand-green/80"
             >
                 {{ notification.body }}
             </span>
             <span
                 v-if="notification.created_at_diff"
-                class="text-xs text-brand-green/50"
+                class="text-xs text-brand-green/80"
             >
                 {{ notification.created_at_diff }}
             </span>
@@ -77,7 +77,8 @@ function open(): void {
         <span
             v-if="!notification.read"
             class="mt-1.5 size-2 shrink-0 rounded-full bg-brand-peach"
-            aria-label="Nieprzeczytane"
+            aria-hidden="true"
         />
+        <span v-if="!notification.read" class="sr-only">(nieprzeczytane)</span>
     </button>
 </template>

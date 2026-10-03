@@ -77,7 +77,7 @@ defineOptions({
                             </p>
                             <p
                                 v-if="company.city"
-                                class="text-xs text-brand-green/60"
+                                class="text-xs text-brand-green/80"
                             >
                                 {{ company.city }}
                             </p>

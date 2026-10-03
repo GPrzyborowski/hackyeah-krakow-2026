@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Candidate\CvAnalysisController;
 use App\Http\Controllers\Candidate\HomeController;
 use App\Http\Controllers\Candidate\InvitationController;
 use App\Http\Controllers\Candidate\OfferController;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
     Route::get('/', HomeController::class)->name('home');
+    Route::get('cv-analysis', CvAnalysisController::class)->name('cv-analysis');
 
     Route::get('onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
     Route::post('onboarding/cv', [OnboardingController::class, 'analyzeCv'])

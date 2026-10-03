@@ -29,7 +29,7 @@ const relatedColors = ['bg-brand-mint', 'bg-brand-yellow', 'bg-brand-peach'];
     <article class="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-6 lg:px-8">
         <Link
             :href="index()"
-            class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-green/70 hover:text-brand-green"
+            class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-green/80 hover:text-brand-green"
         >
             <ArrowLeft class="size-4" /> Wszystkie teksty
         </Link>
@@ -41,7 +41,7 @@ const relatedColors = ['bg-brand-mint', 'bg-brand-yellow', 'bg-brand-peach'];
             >
                 {{ article.category_label }}
             </Link>
-            <span class="text-xs text-brand-green/60">
+            <span class="text-xs text-brand-green/80">
                 {{ article.reading_minutes }} min czytania
             </span>
         </div>

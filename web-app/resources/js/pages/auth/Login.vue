@@ -53,15 +53,16 @@ defineProps<{
                 <Label for="email">E-mail</Label>
                 <Input
                     id="email"
+                    :aria-invalid="errors.email ? true : undefined"
+                    aria-describedby="email-error"
                     type="email"
                     name="email"
                     required
                     v-focus
-                    :tabindex="1"
                     autocomplete="email"
                     placeholder="ty@example.com"
                 />
-                <InputError :message="errors.email" />
+                <InputError id="email-error" :message="errors.email" />
             </div>
 
             <div class="grid gap-2">
@@ -71,20 +72,20 @@ defineProps<{
                         v-if="canResetPassword"
                         :href="request()"
                         class="text-sm"
-                        :tabindex="5"
                     >
                         Nie pamiętasz hasła?
                     </TextLink>
                 </div>
                 <PasswordInput
                     id="password"
+                    :aria-invalid="errors.password ? true : undefined"
+                    aria-describedby="password-error"
                     name="password"
                     required
-                    :tabindex="2"
                     autocomplete="current-password"
                     placeholder="Hasło"
                 />
-                <InputError :message="errors.password" />
+                <InputError id="password-error" :message="errors.password" />
             </div>
 
             <div class="flex items-center justify-between">
@@ -97,7 +98,6 @@ defineProps<{
             <Button
                 type="submit"
                 class="mt-4 h-11 w-full rounded-full"
-                :tabindex="4"
                 :disabled="processing"
                 data-test="login-button"
             >

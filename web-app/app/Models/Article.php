@@ -28,6 +28,14 @@ class Article extends Model
     use HasFactory;
 
     /**
+     * CommonMark options for rendering article bodies: raw HTML stripped, unsafe links disabled.
+     */
+    public const array MARKDOWN_OPTIONS = [
+        'html_input' => 'strip',
+        'allow_unsafe_links' => false,
+    ];
+
+    /**
      * @param  Builder<Article>  $query
      */
     public function scopePublished(Builder $query): void

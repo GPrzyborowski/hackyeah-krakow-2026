@@ -105,18 +105,21 @@ function closeOffer(offer: OfferRow): void {
             </Link>
         </div>
 
-        <div class="mt-6 flex flex-wrap gap-2" role="tablist">
+        <div
+            class="mt-6 flex flex-wrap gap-2"
+            role="group"
+            aria-label="Filtruj ogłoszenia"
+        >
             <button
                 v-for="tab in tabs"
                 :key="tab.value"
                 type="button"
-                role="tab"
-                :aria-selected="activeTab === tab.value"
+                :aria-pressed="activeTab === tab.value"
                 class="rounded-full px-4 py-1.5 text-sm font-medium transition"
                 :class="
                     activeTab === tab.value
                         ? 'bg-brand-green text-white'
-                        : 'border border-brand-green/20 bg-white text-brand-green hover:bg-brand-mint-soft'
+                        : 'border border-brand-green/60 bg-white text-brand-green hover:bg-brand-mint-soft'
                 "
                 @click="activeTab = tab.value"
             >
@@ -131,7 +134,7 @@ function closeOffer(offer: OfferRow): void {
             <p class="text-lg font-semibold text-brand-green">
                 Nie masz tu jeszcze ogłoszeń
             </p>
-            <p class="mt-1 text-sm text-brand-green/70">
+            <p class="mt-1 text-sm text-brand-green/80">
                 Dodaj ofertę, a pokażemy Ci pasujące kandydatki.
             </p>
         </div>
@@ -148,7 +151,7 @@ function closeOffer(offer: OfferRow): void {
                             {{ offer.title }}
                         </h2>
                         <p
-                            class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-brand-green/70"
+                            class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-brand-green/80"
                         >
                             <span
                                 v-if="offer.city"
@@ -200,7 +203,7 @@ function closeOffer(offer: OfferRow): void {
 
                 <dl class="mt-4 grid grid-cols-3 gap-2 text-center">
                     <div class="rounded-2xl bg-brand-cream p-3">
-                        <dt class="text-[11px] text-brand-green/70">
+                        <dt class="text-[11px] text-brand-green/80">
                             Pasujące
                         </dt>
                         <dd class="text-xl font-bold text-brand-green">
@@ -208,7 +211,7 @@ function closeOffer(offer: OfferRow): void {
                         </dd>
                     </div>
                     <div class="rounded-2xl bg-brand-cream p-3">
-                        <dt class="text-[11px] text-brand-green/70">
+                        <dt class="text-[11px] text-brand-green/80">
                             Do przejrzenia
                         </dt>
                         <dd class="text-xl font-bold text-brand-green">
@@ -216,13 +219,13 @@ function closeOffer(offer: OfferRow): void {
                         </dd>
                     </div>
                     <div class="rounded-2xl bg-brand-cream p-3">
-                        <dt class="text-[11px] text-brand-green/70">
+                        <dt class="text-[11px] text-brand-green/80">
                             Zaproszone
                         </dt>
                         <dd class="text-xl font-bold text-brand-green">
                             {{ offer.statistics.invited_count }}
                         </dd>
-                        <dd class="text-[11px] text-brand-green/70">
+                        <dd class="text-[11px] text-brand-green/80">
                             {{ offer.statistics.accepted_count }} przyjęło
                         </dd>
                     </div>
@@ -268,7 +271,7 @@ function closeOffer(offer: OfferRow): void {
                         <button
                             v-if="closingOfferId !== offer.id"
                             type="button"
-                            class="inline-flex h-9 items-center rounded-full px-3 text-sm text-brand-green/70 hover:text-brand-green"
+                            class="inline-flex h-9 items-center rounded-full px-3 text-sm text-brand-green/80 hover:text-brand-green"
                             @click="closingOfferId = offer.id"
                         >
                             Zamknij
@@ -287,7 +290,7 @@ function closeOffer(offer: OfferRow): void {
                             </button>
                             <button
                                 type="button"
-                                class="rounded-full px-2 py-1 text-brand-green/70"
+                                class="rounded-full px-2 py-1 text-brand-green/80"
                                 @click="closingOfferId = null"
                             >
                                 Nie

@@ -43,7 +43,7 @@ function experienceLabel(years: number | null): string | null {
                 <h2 class="text-2xl font-bold text-brand-green">
                     {{ candidate.anonymous_name }}
                 </h2>
-                <p class="text-sm text-brand-green/70">
+                <p class="text-sm text-brand-green/80">
                     {{
                         [
                             candidate.headline,
@@ -101,26 +101,26 @@ function experienceLabel(years: number | null): string | null {
 
         <dl class="mt-5 grid gap-2 sm:grid-cols-3">
             <div class="rounded-2xl border border-brand-green/15 p-3">
-                <dt class="text-[11px] text-brand-green/60">Dostępna od</dt>
+                <dt class="text-[11px] text-brand-green/80">Dostępna od</dt>
                 <dd class="text-sm font-bold text-brand-green">
                     {{ formatShortDate(candidate.available_from) }}
                 </dd>
             </div>
             <div class="rounded-2xl border border-brand-green/15 p-3">
-                <dt class="text-[11px] text-brand-green/60">Wymiar</dt>
+                <dt class="text-[11px] text-brand-green/80">Wymiar</dt>
                 <dd class="text-sm font-bold text-brand-green">
                     {{ candidate.employment_fractions.join(', ') || '—' }}
                 </dd>
             </div>
             <div class="rounded-2xl border border-brand-green/15 p-3">
-                <dt class="text-[11px] text-brand-green/60">Tryb</dt>
+                <dt class="text-[11px] text-brand-green/80">Tryb</dt>
                 <dd class="text-sm font-bold text-brand-green">
                     {{ candidate.work_modes.join(', ') || '—' }}
                 </dd>
             </div>
         </dl>
 
-        <p class="mt-5 text-xs text-brand-green/70">
+        <p class="mt-5 text-xs text-brand-green/80">
             Zdjęcie, nazwisko i dane kontaktowe zobaczysz po jej akceptacji
             zaproszenia.
         </p>

@@ -85,7 +85,7 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                             >
                                 {{ offer.title }}
                             </h1>
-                            <p class="mt-1 text-brand-green/70">
+                            <p class="mt-1 text-brand-green/80">
                                 {{ offer.company.name }}
                                 <template v-if="offer.city">
                                     · {{ offer.city }}</template
@@ -179,14 +179,24 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                         >
                             <Check
                                 v-if="condition.on"
-                                class="size-4 text-brand-mint"
+                                class="size-4 text-brand-green-soft"
+                                aria-hidden="true"
                             />
-                            <X v-else class="size-4 text-brand-green/30" />
+                            <X
+                                v-else
+                                class="size-4 text-brand-green/60"
+                                aria-hidden="true"
+                            />
                             <span
                                 :class="{
-                                    'text-brand-green/50': !condition.on,
+                                    'text-brand-green/80': !condition.on,
                                 }"
                             >
+                                <span class="sr-only">{{
+                                    condition.on
+                                        ? 'Spełnione:'
+                                        : 'Niespełnione:'
+                                }}</span>
                                 {{ condition.label }}
                             </span>
                         </li>
@@ -212,14 +222,14 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                     </div>
                     <p
                         v-if="offer.company_description"
-                        class="mt-2 text-sm text-brand-green/70"
+                        class="mt-2 text-sm text-brand-green/80"
                     >
                         {{ offer.company_description }}
                     </p>
 
                     <p
                         v-if="reviews.length === 0"
-                        class="mt-4 text-sm text-brand-green/70"
+                        class="mt-4 text-sm text-brand-green/80"
                     >
                         Firma nie ma jeszcze opinii rodziców.
                     </p>
@@ -232,7 +242,7 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                             <p v-if="review.quote" class="text-brand-green">
                                 {{ review.quote }}
                             </p>
-                            <p class="mt-2 text-xs text-brand-green/60">
+                            <p class="mt-2 text-xs text-brand-green/80">
                                 {{ review.author_label || 'Anonimowo' }} ·
                                 {{ formatRating(review.rating) }} z 5
                             </p>
@@ -283,7 +293,7 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                                         !offer.match.matched_required.length &&
                                         !offer.match.missing_required.length
                                     "
-                                    class="text-white/60"
+                                    class="text-white/80"
                                     >Brak wymagań</span
                                 >
                             </div>
@@ -313,7 +323,7 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                                             .length &&
                                         !offer.match.missing_nice_to_have.length
                                     "
-                                    class="text-white/60"
+                                    class="text-white/80"
                                     >—</span
                                 >
                             </div>

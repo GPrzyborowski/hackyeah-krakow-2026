@@ -201,7 +201,7 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
 }
 
 const inputClass =
-    'mt-1 h-10 w-full rounded-2xl border border-brand-green/20 bg-white px-3 text-sm text-brand-green outline-none focus:border-brand-green disabled:opacity-60';
+    'mt-1 h-10 w-full rounded-2xl border border-brand-green/60 bg-white px-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40 disabled:opacity-60';
 </script>
 
 <template>
@@ -224,7 +224,7 @@ const inputClass =
                 >
                     {{ title }}
                 </h1>
-                <p class="mt-1 text-sm text-brand-green/70">
+                <p class="mt-1 text-sm text-brand-green/80">
                     <Link
                         v-if="offer.is_published"
                         :href="offerShow(offer.id)"
@@ -307,17 +307,22 @@ const inputClass =
                 <div
                     ref="thread"
                     class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-3xl bg-brand-cream/60 p-4"
+                    role="log"
+                    aria-live="polite"
+                    aria-relevant="additions"
+                    aria-label="Wiadomości"
+                    tabindex="0"
                     data-test="pair-thread"
                 >
                     <p
                         v-if="!can.chat"
-                        class="m-auto max-w-sm text-center text-sm text-brand-green/60"
+                        class="m-auto max-w-sm text-center text-sm text-brand-green/80"
                     >
                         Czat pary otworzy się, gdy dołączysz do pary.
                     </p>
                     <p
                         v-else-if="messages.length === 0"
-                        class="m-auto max-w-sm text-center text-sm text-brand-green/60"
+                        class="m-auto max-w-sm text-center text-sm text-brand-green/80"
                     >
                         Napiszcie, które godziny Wam pasują. Pracodawca nie
                         widzi tego czatu.
@@ -327,6 +332,7 @@ const inputClass =
                         :key="message.id"
                         :mine="message.is_mine"
                         :tone="messageTone(message.is_mine)"
+                        :speaker="message.is_mine ? 'Ty' : message.author_name"
                         :meta="`${message.author_name} · ${formatBubbleTime(message.created_at)}`"
                     >
                         {{ message.body }}
@@ -341,17 +347,20 @@ const inputClass =
                     class="flex flex-col gap-2"
                     #default="{ errors, processing, submit }"
                 >
-                    <InputError :message="errors.body" />
+                    <InputError id="pair-body-error" :message="errors.body" />
                     <div
-                        class="flex items-end gap-2 rounded-3xl border border-brand-cream bg-white p-2"
+                        class="flex items-end gap-2 rounded-3xl border border-brand-green/60 bg-white p-2 has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-brand-green"
                     >
                         <textarea
                             name="body"
+                            aria-label="Treść wiadomości"
+                            :aria-invalid="errors.body ? true : undefined"
+                            aria-describedby="pair-body-error"
                             rows="1"
                             required
                             maxlength="2000"
                             placeholder="Napisz do partnerki…"
-                            class="max-h-40 min-h-11 flex-1 resize-none rounded-2xl bg-transparent px-3 py-2.5 text-sm text-brand-green outline-none placeholder:text-brand-green/40"
+                            class="max-h-40 min-h-11 flex-1 resize-none rounded-2xl bg-transparent px-3 py-2.5 text-sm text-brand-green outline-none placeholder:text-brand-green/70"
                             @keydown="submitOnEnter($event, submit)"
                         />
                         <button
@@ -360,7 +369,7 @@ const inputClass =
                             class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-green text-white transition hover:bg-brand-green-soft disabled:opacity-50"
                             aria-label="Wyślij"
                         >
-                            <SendHorizontal class="size-5" />
+                            <SendHorizontal class="size-5" aria-hidden="true" />
                         </button>
                     </div>
                 </Form>
@@ -371,7 +380,7 @@ const inputClass =
                     <h2 class="text-lg font-bold text-brand-green">
                         Podział dnia
                     </h2>
-                    <p class="mt-1 text-xs text-brand-green/70">
+                    <p class="mt-1 text-xs text-brand-green/80">
                         Dzień pracy:
                         {{ formatHour(offer.workday_starts_at) }}–{{
                             formatHour(offer.workday_ends_at)
@@ -391,7 +400,7 @@ const inputClass =
                             Podział: {{ summary }}
                         </p>
                     </div>
-                    <p v-else class="mt-4 text-sm text-brand-green/60">
+                    <p v-else class="mt-4 text-sm text-brand-green/80">
                         Podział ustalicie, gdy partnerka dołączy do pary.
                     </p>
 
@@ -419,7 +428,7 @@ const inputClass =
                                 />
                                 {{ memberName(block.candidate_profile_id) }}
                             </p>
-                            <label class="text-[11px] text-brand-green/70">
+                            <label class="text-[11px] text-brand-green/80">
                                 Od
                                 <input
                                     v-model="block.starts_at"
@@ -431,7 +440,7 @@ const inputClass =
                                     required
                                 />
                             </label>
-                            <label class="text-[11px] text-brand-green/70">
+                            <label class="text-[11px] text-brand-green/80">
                                 Do
                                 <input
                                     v-model="block.ends_at"
@@ -518,7 +527,7 @@ const inputClass =
                         </button>
                         <p
                             v-if="!bothConfirmed"
-                            class="text-center text-[11px] text-brand-green/60"
+                            class="text-center text-[11px] text-brand-green/80"
                         >
                             Wyślecie parę, gdy obie zaakceptujecie podział.
                         </p>
@@ -551,7 +560,7 @@ const inputClass =
                 <button
                     v-if="can.cancel"
                     type="button"
-                    class="self-center text-xs text-brand-green/60 underline underline-offset-2 hover:text-brand-green"
+                    class="self-center text-xs text-brand-green/80 underline underline-offset-2 hover:text-brand-green"
                     :disabled="isSending"
                     @click="post(PairController.cancel.url(pair.id))"
                 >

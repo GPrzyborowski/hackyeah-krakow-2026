@@ -98,7 +98,7 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                     <p v-else class="text-xl font-bold text-brand-green">
                         {{ invitation.offer.title }}
                     </p>
-                    <p class="mt-1 text-sm text-brand-green/70">
+                    <p class="mt-1 text-sm text-brand-green/80">
                         {{ invitation.company.name }}
                         <template v-if="invitation.offer.city">
                             · {{ invitation.offer.city }}</template
@@ -155,7 +155,7 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
             <div
                 class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
             >
-                <p class="text-xs text-brand-green/60">
+                <p class="text-xs text-brand-green/80">
                     Otrzymane {{ formatLongDate(invitation.created_at) }}
                     <template v-if="invitation.responded_at">
                         · odpowiedź
@@ -196,7 +196,7 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
             class="rounded-3xl bg-white p-8 text-center text-brand-green"
         >
             <p class="font-semibold">Nie masz jeszcze zaproszeń.</p>
-            <p class="mt-1 text-sm text-brand-green/70">
+            <p class="mt-1 text-sm text-brand-green/80">
                 Gdy firma uzna, że pasujesz do oferty, zaproszenie pojawi się
                 tutaj.
             </p>

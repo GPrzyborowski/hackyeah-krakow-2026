@@ -27,7 +27,10 @@ function scrollToBottom(): void {
     void nextTick(() => {
         thread.value?.scrollTo({
             top: thread.value.scrollHeight,
-            behavior: 'smooth',
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)')
+                .matches
+                ? 'auto'
+                : 'smooth',
         });
     });
 }
@@ -69,7 +72,7 @@ function ask(question?: string): void {
             >
                 Asystent
             </h1>
-            <p class="mt-1 text-sm text-brand-green/70">
+            <p class="mt-1 text-sm text-brand-green/80">
                 Zna Kodeks pracy, przepisy o urlopach i artykuły z bloga. Przy
                 każdej odpowiedzi pokazuje, skąd ją wziął.
             </p>
@@ -78,6 +81,10 @@ function ask(question?: string): void {
         <div
             ref="thread"
             class="flex flex-1 flex-col gap-4 overflow-y-auto rounded-3xl bg-brand-cream/60 p-4"
+            role="log"
+            aria-live="polite"
+            aria-label="Rozmowa z asystentem"
+            tabindex="0"
             data-test="assistant-thread"
         >
             <div
@@ -87,10 +94,10 @@ function ask(question?: string): void {
                 <div
                     class="flex size-12 items-center justify-center rounded-full bg-brand-yellow"
                 >
-                    <Sparkles class="size-6" />
+                    <Sparkles class="size-6" aria-hidden="true" />
                 </div>
                 <p class="font-semibold">Zapytaj o swoje prawa.</p>
-                <p class="text-sm text-brand-green/70">
+                <p class="text-sm text-brand-green/80">
                     Np. czy musisz mówić o ciąży na rozmowie, ile trwa urlop
                     rodzicielski albo jak wrócić na część etatu.
                 </p>
@@ -104,9 +111,12 @@ function ask(question?: string): void {
                     v-else
                     class="flex max-w-[92%] flex-col gap-3 rounded-3xl rounded-bl-lg bg-white p-4 text-sm leading-relaxed text-brand-green shadow-sm md:max-w-[80%]"
                 >
-                    <p class="whitespace-pre-line">{{ message.content }}</p>
+                    <p class="whitespace-pre-line">
+                        <span class="sr-only">Asystent:</span>
+                        {{ message.content }}
+                    </p>
                     <CitationPills :citations="message.citations" />
-                    <p class="text-xs text-brand-green/50">{{ disclaimer }}</p>
+                    <p class="text-xs text-brand-green/80">{{ disclaimer }}</p>
                 </div>
             </template>
 
@@ -114,12 +124,14 @@ function ask(question?: string): void {
                 <ChatBubble :mine="true">{{ pendingQuestion }}</ChatBubble>
                 <div
                     class="flex w-24 items-center justify-center gap-1 rounded-3xl rounded-bl-lg bg-white p-4 shadow-sm"
-                    aria-label="Asystent pisze odpowiedź"
+                    role="status"
                 >
+                    <span class="sr-only">Asystent pisze odpowiedź…</span>
                     <span
                         v-for="dot in 3"
                         :key="dot"
-                        class="size-2 animate-pulse rounded-full bg-brand-mint"
+                        aria-hidden="true"
+                        class="size-2 animate-pulse rounded-full bg-brand-mint motion-reduce:animate-none"
                         :style="{ animationDelay: `${dot * 150}ms` }"
                     />
                 </div>
@@ -133,7 +145,7 @@ function ask(question?: string): void {
                     :key="suggestion"
                     type="button"
                     :disabled="form.processing"
-                    class="shrink-0 rounded-full border border-brand-green/20 bg-white px-4 py-2 text-xs font-medium text-brand-green transition hover:bg-brand-mint-soft disabled:opacity-50"
+                    class="shrink-0 rounded-full border border-brand-green/60 bg-white px-4 py-2 text-xs font-medium text-brand-green transition hover:bg-brand-mint-soft disabled:opacity-50"
                     @click="ask(suggestion)"
                 >
                     {{ suggestion }}
@@ -142,22 +154,25 @@ function ask(question?: string): void {
 
             <p
                 v-if="form.errors.question"
-                class="px-2 text-sm text-destructive"
+                class="px-2 text-sm text-red-700"
+                role="alert"
             >
                 {{ form.errors.question }}
             </p>
 
             <form
-                class="flex items-center gap-2 rounded-full bg-white p-2 shadow-sm"
+                class="flex items-center gap-2 rounded-full bg-white p-2 shadow-sm has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-brand-green"
                 @submit.prevent="ask()"
             >
                 <input
                     v-model="form.question"
                     type="text"
                     name="question"
+                    aria-label="Twoje pytanie"
+                    :aria-invalid="form.errors.question ? true : undefined"
                     maxlength="1000"
                     placeholder="Napisz pytanie…"
-                    class="h-11 flex-1 bg-transparent px-4 text-sm text-brand-green outline-none placeholder:text-brand-green/40"
+                    class="h-11 flex-1 bg-transparent px-4 text-sm text-brand-green outline-none placeholder:text-brand-green/70"
                 />
                 <button
                     type="submit"
@@ -165,7 +180,7 @@ function ask(question?: string): void {
                     class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-green text-white transition hover:bg-brand-green-soft disabled:opacity-50"
                     aria-label="Zapytaj"
                 >
-                    <ArrowRight class="size-5" />
+                    <ArrowRight class="size-5" aria-hidden="true" />
                 </button>
             </form>
         </div>

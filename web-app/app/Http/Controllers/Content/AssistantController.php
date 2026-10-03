@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Content;
 
-use App\Enums\AssistantRole;
+use App\Actions\Content\AskLegalAssistant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Content\AskAssistantRequest;
 use App\Models\AssistantMessage;
@@ -15,16 +15,6 @@ use Inertia\Response;
 class AssistantController extends Controller
 {
     private const int HISTORY_LIMIT = 50;
-
-    /**
-     * @var list<string>
-     */
-    private const array SUGGESTIONS = [
-        'Zasiłek macierzyński',
-        'Urlop rodzicielski',
-        'Powrót na część etatu',
-        'Czy muszę mówić o ciąży na rozmowie?',
-    ];
 
     /**
      * The signed-in user's conversation with the legal assistant.
@@ -44,7 +34,7 @@ class AssistantController extends Controller
                 'content' => $message->content,
                 'citations' => $message->citations ?? [],
             ])->values(),
-            'suggestions' => self::SUGGESTIONS,
+            'suggestions' => LegalAssistant::SUGGESTIONS,
             'disclaimer' => LegalAssistant::DISCLAIMER,
         ]);
     }
@@ -52,23 +42,9 @@ class AssistantController extends Controller
     /**
      * Store the question and the answer grounded in legal sources and blog articles.
      */
-    public function store(AskAssistantRequest $request, LegalAssistant $assistant): RedirectResponse
+    public function store(AskAssistantRequest $request, AskLegalAssistant $askLegalAssistant): RedirectResponse
     {
-        $question = trim($request->validated('question'));
-        $user = $request->user();
-
-        $user->assistantMessages()->create([
-            'role' => AssistantRole::User,
-            'content' => $question,
-        ]);
-
-        $answer = $assistant->answer($question);
-
-        $user->assistantMessages()->create([
-            'role' => AssistantRole::Assistant,
-            'content' => $answer->content,
-            'citations' => $answer->citations,
-        ]);
+        $askLegalAssistant->handle($request->user(), $request->validated('question'));
 
         return to_route('assistant.index');
     }

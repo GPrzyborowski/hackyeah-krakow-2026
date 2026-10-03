@@ -28,11 +28,10 @@ class InvitationAccepted extends Notification
     {
         return (new MailMessage)
             ->subject('Kandydatka przyjęła zaproszenie')
-            ->greeting('Dzień dobry!')
+            ->greeting('Cześć!')
             ->line($this->title())
             ->line('Możecie teraz porozmawiać w aplikacji.')
-            ->action('Przejdź do rozmowy', route('conversations.show', $this->conversation))
-            ->salutation('Zespół MomJobs');
+            ->action('Przejdź do rozmowy', route('conversations.show', $this->conversation));
     }
 
     /**

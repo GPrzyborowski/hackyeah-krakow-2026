@@ -40,7 +40,7 @@ defineProps<{
                     id="email"
                     type="email"
                     name="email"
-                    autocomplete="off"
+                    autocomplete="email"
                     v-focus
                     placeholder="ty@example.com"
                 />

@@ -10,17 +10,14 @@ use App\Models\CandidateProfile;
 use App\Models\JobOffer;
 use App\Models\JobShareMessage;
 use App\Models\JobSharePair;
-use App\Notifications\PairInvitationAccepted;
-use App\Notifications\PairInvitationReceived;
+use App\Services\JobSharing\PairLifecycle;
 use App\Services\JobSharing\PairPresenter;
 use App\Services\JobSharing\PartnerFinder;
 use App\Services\JobSharing\Workday;
 use App\Services\Matching\MatchScorer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -61,7 +58,7 @@ class PairController extends Controller
                     'score' => $row['match']->score,
                     'job_share' => Workday::presentOffer($offer),
                     'active_pair_id' => $activePair?->id,
-                    'active_pair_state' => $activePair ? $this->viewerPairState($activePair) : null,
+                    'active_pair_state' => $activePair ? $this->presenter->viewerState($activePair) : null,
                 ];
             });
 
@@ -139,38 +136,11 @@ class PairController extends Controller
     /**
      * Invite another candidate to apply together for a job-sharing offer.
      */
-    public function store(StorePairRequest $request, JobOffer $offer, PartnerFinder $finder): RedirectResponse
+    public function store(StorePairRequest $request, JobOffer $offer, PairLifecycle $lifecycle): RedirectResponse
     {
         abort_unless($offer->is_job_share && $offer->isPublished(), 404);
 
-        $profile = $this->candidateProfile($request);
-
-        if (! $profile->isPublished()) {
-            throw ValidationException::withMessages(['partner_id' => 'Najpierw opublikuj swój profil, aby zaprosić kogoś do pary.']);
-        }
-
-        if ($finder->activePairFor($profile, $offer) !== null) {
-            throw ValidationException::withMessages(['partner_id' => 'Masz już parę do tej oferty.']);
-        }
-
-        $partner = CandidateProfile::query()->findOrFail($request->integer('partner_id'));
-
-        if (! $finder->isPossiblePartner($profile, $offer, $partner)) {
-            throw ValidationException::withMessages(['partner_id' => 'Ta osoba nie może już dołączyć do pary w tej ofercie.']);
-        }
-
-        $pair = DB::transaction(function () use ($offer, $profile, $partner): JobSharePair {
-            $pair = $offer->jobSharePairs()->create(['status' => JobSharePairStatus::Forming]);
-
-            $pair->members()->attach([
-                $profile->id => ['is_initiator' => true, 'accepted_at' => now()],
-                $partner->id => ['is_initiator' => false, 'accepted_at' => null],
-            ]);
-
-            return $pair;
-        });
-
-        $partner->user->notify(new PairInvitationReceived($pair, $profile));
+        $pair = $lifecycle->invite($this->candidateProfile($request), $offer, $request->integer('partner_id'));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Zaproszenie do pary wysłane. Możecie już pisać na czacie pary.']);
 
@@ -180,32 +150,11 @@ class PairController extends Controller
     /**
      * The invited partner joins the pair.
      */
-    public function accept(Request $request, JobSharePair $pair): RedirectResponse
+    public function accept(Request $request, JobSharePair $pair, PairLifecycle $lifecycle): RedirectResponse
     {
         Gate::authorize('respond', $pair);
 
-        $profile = $this->candidateProfile($request);
-
-        $hasOtherPair = $profile->jobSharePairs()
-            ->where('job_offer_id', $pair->job_offer_id)
-            ->whereIn('status', PartnerFinder::ACTIVE_STATUSES)
-            ->whereKeyNot($pair->id)
-            ->wherePivotNotNull('accepted_at')
-            ->exists();
-
-        if ($hasOtherPair || $pair->acceptedMembers()->count() >= JobSharePair::MAX_MEMBERS) {
-            throw ValidationException::withMessages(['pair' => 'Masz już parę do tej oferty albo para jest pełna.']);
-        }
-
-        DB::transaction(function () use ($pair, $profile): void {
-            $pair->members()->updateExistingPivot($profile->id, ['accepted_at' => now()]);
-            $pair->update(['status' => JobSharePairStatus::Formed]);
-        });
-
-        $this->presenter->members($pair)
-            ->first(fn (CandidateProfile $member): bool => $this->presenter->isInitiator($member))
-            ?->user
-            ->notify(new PairInvitationAccepted($pair, $profile));
+        $lifecycle->accept($this->candidateProfile($request), $pair);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Jesteście parą! Ustalcie podział dnia.']);
 
@@ -259,20 +208,6 @@ class PairController extends Controller
                 'preferred_day_part_label' => $partner->preferred_day_part?->label(),
             ] : null,
         ];
-    }
-
-    /**
-     * How the signed-in candidate relates to her active pair, loaded through her own pairs relation (pivot = her membership).
-     *
-     * @return 'pair'|'invite_sent'|'invite_received'
-     */
-    private function viewerPairState(JobSharePair $pair): string
-    {
-        if ($pair->status !== JobSharePairStatus::Forming) {
-            return 'pair';
-        }
-
-        return $pair->getRelationValue('pivot')?->getAttribute('accepted_at') !== null ? 'invite_sent' : 'invite_received';
     }
 
     private function isAcceptedMember(JobSharePair $pair, CandidateProfile $profile): bool

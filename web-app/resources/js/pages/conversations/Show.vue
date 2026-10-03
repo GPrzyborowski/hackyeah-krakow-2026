@@ -65,13 +65,13 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 class="rounded-full p-2 text-brand-green transition hover:bg-brand-mint-soft"
                 aria-label="Wróć do listy czatów"
             >
-                <ArrowLeft class="size-5" />
+                <ArrowLeft class="size-5" aria-hidden="true" />
             </Link>
             <div class="min-w-0 flex-1">
-                <p class="truncate text-lg font-bold text-brand-green">
+                <h1 class="truncate text-lg font-bold text-brand-green">
                     {{ conversation.counterpart.name }}
-                </p>
-                <p class="truncate text-sm text-brand-green/70">
+                </h1>
+                <p class="truncate text-sm text-brand-green/80">
                     {{ conversation.offer_title }}
                 </p>
                 <span
@@ -109,11 +109,16 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
         <div
             ref="thread"
             class="flex flex-1 flex-col gap-3 overflow-y-auto rounded-3xl bg-brand-cream/60 p-4"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+            aria-label="Wiadomości"
+            tabindex="0"
             data-test="message-thread"
         >
             <p
                 v-if="messages.length === 0"
-                class="m-auto max-w-sm text-center text-sm text-brand-green/60"
+                class="m-auto max-w-sm text-center text-sm text-brand-green/80"
             >
                 <template v-if="viewerRole === 'employer'">
                     Kandydatka przyjęła zaproszenie. Zaproponuj termin rozmowy i
@@ -128,6 +133,9 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 v-for="message in messages"
                 :key="message.id"
                 :mine="message.is_mine"
+                :speaker="
+                    message.is_mine ? 'Ty' : conversation.counterpart.name
+                "
                 :meta="formatBubbleTime(message.created_at)"
             >
                 {{ message.body }}
@@ -146,19 +154,24 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 :reason="errors.body"
                 :suggestion="errors.body_suggestion"
             />
-            <p v-else-if="errors.body" class="px-2 text-sm text-destructive">
+            <p
+                v-else-if="errors.body"
+                class="px-2 text-sm text-red-700"
+                role="alert"
+            >
                 {{ errors.body }}
             </p>
             <div
-                class="flex items-end gap-2 rounded-3xl bg-white p-2 shadow-sm"
+                class="flex items-end gap-2 rounded-3xl bg-white p-2 shadow-sm has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-brand-green"
             >
                 <textarea
                     name="body"
+                    aria-label="Treść wiadomości"
                     rows="1"
                     required
                     maxlength="2000"
                     placeholder="Napisz wiadomość…"
-                    class="max-h-40 min-h-11 flex-1 resize-none rounded-2xl bg-transparent px-3 py-2.5 text-sm text-brand-green outline-none placeholder:text-brand-green/40"
+                    class="max-h-40 min-h-11 flex-1 resize-none rounded-2xl bg-transparent px-3 py-2.5 text-sm text-brand-green outline-none placeholder:text-brand-green/70"
                     @keydown="submitOnEnter($event, submit)"
                 />
                 <button
@@ -167,7 +180,7 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                     class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-green text-white transition hover:bg-brand-green-soft disabled:opacity-50"
                     aria-label="Wyślij"
                 >
-                    <SendHorizontal class="size-5" />
+                    <SendHorizontal class="size-5" aria-hidden="true" />
                 </button>
             </div>
         </Form>

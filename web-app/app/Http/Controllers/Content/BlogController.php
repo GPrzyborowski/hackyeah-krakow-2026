@@ -60,10 +60,7 @@ class BlogController extends Controller
         return Inertia::render('public/blog/Show', [
             'article' => [
                 ...$this->presentCard($article),
-                'html' => Str::markdown($article->body, [
-                    'html_input' => 'strip',
-                    'allow_unsafe_links' => false,
-                ]),
+                'html' => Str::markdown($article->body, Article::MARKDOWN_OPTIONS),
             ],
             'related' => $related->map(fn (Article $related): array => $this->presentCard($related))->values(),
         ]);

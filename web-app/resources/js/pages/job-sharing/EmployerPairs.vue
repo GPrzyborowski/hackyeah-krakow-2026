@@ -130,7 +130,7 @@ const pendingCount = props.pairs.filter(
     <div class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
         <Link
             :href="CandidateController.index({ query: { offer: offer.id } })"
-            class="inline-flex items-center gap-1 text-sm text-brand-green/70 hover:text-brand-green"
+            class="inline-flex items-center gap-1 text-sm text-brand-green/80 hover:text-brand-green"
         >
             <ArrowLeft class="size-4" /> Kandydatki do oferty
         </Link>
@@ -156,7 +156,7 @@ const pendingCount = props.pairs.filter(
             <p class="mt-3 text-lg font-semibold text-brand-green">
                 Żadna para jeszcze się nie zgłosiła
             </p>
-            <p class="mt-1 text-sm text-brand-green/70">
+            <p class="mt-1 text-sm text-brand-green/80">
                 Gdy dwie kandydatki ustalą podział dnia i wyślą go Tobie,
                 zobaczysz je tutaj.
             </p>
@@ -211,7 +211,7 @@ const pendingCount = props.pairs.filter(
                                 <p class="font-semibold text-brand-green">
                                     {{ member.anonymous_name }}
                                 </p>
-                                <p class="text-sm text-brand-green/70">
+                                <p class="text-sm text-brand-green/80">
                                     {{ member.headline ?? '—' }}
                                     <template v-if="member.years_of_experience">
                                         ·
@@ -219,7 +219,7 @@ const pendingCount = props.pairs.filter(
                                         doświadczenia</template
                                     >
                                 </p>
-                                <p class="text-xs text-brand-green/60">
+                                <p class="text-xs text-brand-green/80">
                                     Dostępna od
                                     {{ formatShortDate(member.available_from) }}
                                 </p>
@@ -264,7 +264,7 @@ const pendingCount = props.pairs.filter(
                                 :blocks="barBlocks(pair)"
                             />
                         </div>
-                        <p class="mt-2 text-xs text-brand-green/70">
+                        <p class="mt-2 text-xs text-brand-green/80">
                             {{ scheduleSummary(pair) }}
                         </p>
                     </div>
@@ -279,15 +279,21 @@ const pendingCount = props.pairs.filter(
                                 :key="skill"
                                 class="flex items-center gap-1.5"
                             >
-                                <Check class="size-3.5 text-brand-mint" />
+                                <Check
+                                    class="size-3.5 text-brand-green-soft"
+                                    aria-hidden="true"
+                                />
+                                <span class="sr-only">Pokryte:</span>
                                 {{ skill }}
                             </li>
                             <li
                                 v-for="skill in pair.coverage.missing"
                                 :key="skill"
-                                class="flex items-center gap-1.5 text-brand-green/50"
+                                class="flex items-center gap-1.5 text-brand-green/80"
                             >
-                                <X class="size-3.5" /> {{ skill }}
+                                <X class="size-3.5" aria-hidden="true" />
+                                <span class="sr-only">Brak:</span>
+                                {{ skill }}
                             </li>
                         </ul>
                     </div>
@@ -319,7 +325,7 @@ const pendingCount = props.pairs.filter(
                         </button>
                         <button
                             type="button"
-                            class="rounded-full px-2 py-1 text-brand-green/70"
+                            class="rounded-full px-2 py-1 text-brand-green/80"
                             @click="rejectingId = null"
                         >
                             Nie

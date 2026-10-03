@@ -57,7 +57,7 @@ function formatRating(value: number | null): string {
 }
 
 const fieldClass =
-    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/20 bg-white px-4 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-mint/50';
+    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/60 bg-white px-4 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 const labelClass = 'block text-xs font-semibold text-brand-green';
 </script>
 
@@ -86,46 +86,58 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
                         Nazwa firmy
                         <input
                             name="name"
+                            autocomplete="organization"
+                            :aria-invalid="errors.name ? true : undefined"
+                            aria-describedby="name-error"
                             type="text"
                             :class="fieldClass"
                             :value="props.company.name"
                             required
                         />
-                        <InputError :message="errors.name" />
+                        <InputError id="name-error" :message="errors.name" />
                     </label>
                     <label :class="labelClass">
                         NIP (opcjonalnie)
                         <input
                             name="nip"
+                            :aria-invalid="errors.nip ? true : undefined"
+                            aria-describedby="nip-error"
                             type="text"
                             inputmode="numeric"
                             :class="fieldClass"
                             :value="props.company.nip ?? ''"
                             placeholder="10 cyfr"
                         />
-                        <InputError :message="errors.nip" />
+                        <InputError id="nip-error" :message="errors.nip" />
                     </label>
                 </div>
                 <label :class="labelClass">
                     Miasto
                     <input
                         name="city"
+                        :aria-invalid="errors.city ? true : undefined"
+                        aria-describedby="city-error"
                         type="text"
                         :class="fieldClass"
                         :value="props.company.city ?? ''"
                     />
-                    <InputError :message="errors.city" />
+                    <InputError id="city-error" :message="errors.city" />
                 </label>
                 <label :class="labelClass">
                     Opis firmy
                     <textarea
                         name="description"
+                        :aria-invalid="errors.description ? true : undefined"
+                        aria-describedby="description-error"
                         rows="5"
                         :class="[fieldClass, 'h-auto py-3']"
                         :value="props.company.description ?? ''"
                         placeholder="Jak wspieracie rodziców w pracy?"
                     />
-                    <InputError :message="errors.description" />
+                    <InputError
+                        id="description-error"
+                        :message="errors.description"
+                    />
                 </label>
                 <div class="flex justify-end">
                     <button
@@ -182,7 +194,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
             </h2>
             <p
                 v-if="reviews.length === 0"
-                class="mt-3 rounded-3xl bg-white p-6 text-sm text-brand-green/70 shadow-sm"
+                class="mt-3 rounded-3xl bg-white p-6 text-sm text-brand-green/80 shadow-sm"
             >
                 Nie ma jeszcze zatwierdzonych opinii. Pierwsza opinia rodzica
                 jest jednym z warunków odznaki „przyjazna rodzicom”.
@@ -200,7 +212,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
                             <Star class="size-3.5" />
                             {{ formatRating(review.overall) }}
                         </span>
-                        <span class="text-xs text-brand-green/60">{{
+                        <span class="text-xs text-brand-green/80">{{
                             review.author_label
                         }}</span>
                     </div>
@@ -215,7 +227,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
                         class="mt-4 grid grid-cols-3 gap-2 text-center text-[11px]"
                     >
                         <div class="rounded-2xl bg-brand-cream p-2">
-                            <dt class="text-brand-green/70">
+                            <dt class="text-brand-green/80">
                                 Powrót po urlopie
                             </dt>
                             <dd class="font-bold text-brand-green">
@@ -223,7 +235,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
                             </dd>
                         </div>
                         <div class="rounded-2xl bg-brand-cream p-2">
-                            <dt class="text-brand-green/70">
+                            <dt class="text-brand-green/80">
                                 Elastyczne godziny
                             </dt>
                             <dd class="font-bold text-brand-green">
@@ -231,7 +243,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
                             </dd>
                         </div>
                         <div class="rounded-2xl bg-brand-cream p-2">
-                            <dt class="text-brand-green/70">
+                            <dt class="text-brand-green/80">
                                 Bez pytań o ciążę
                             </dt>
                             <dd class="font-bold text-brand-green">

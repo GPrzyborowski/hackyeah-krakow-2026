@@ -77,7 +77,7 @@ const middle = midpoint(startsAt, endsAt);
                     Twoja para:
                     {{ jobSharing.pair.partner_name ?? 'partnerka' }}
                 </p>
-                <p class="text-sm text-brand-green/70">
+                <p class="text-sm text-brand-green/80">
                     {{
                         jobSharing.pair.awaiting_my_answer
                             ? 'Zaprasza Cię do pary – odpowiedz na zaproszenie.'
@@ -103,7 +103,7 @@ const middle = midpoint(startsAt, endsAt);
             </Link>
             <p
                 v-if="!jobSharing.is_open_to_job_sharing"
-                class="text-xs text-brand-green/70"
+                class="text-xs text-brand-green/80"
             >
                 Włącz „Jestem otwarta na job sharing” w
                 <Link

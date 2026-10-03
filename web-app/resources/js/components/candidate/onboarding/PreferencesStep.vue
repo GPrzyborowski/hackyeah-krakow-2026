@@ -80,7 +80,7 @@ const dayParts: Option[] = [
 ];
 
 const inputClass =
-    'mt-1 w-full rounded-2xl border border-brand-mint-soft bg-white px-3 py-2 text-sm text-brand-green outline-none focus:border-brand-mint';
+    'mt-1 w-full rounded-2xl border border-brand-green/60 bg-white px-3 py-2 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 </script>
 
 <template>
@@ -91,7 +91,7 @@ const inputClass =
         <h2 class="text-3xl font-extrabold tracking-tight text-brand-green">
             Preferencje pracy
         </h2>
-        <p class="mt-2 text-sm text-brand-green/70">
+        <p class="mt-2 text-sm text-brand-green/80">
             Na tej podstawie dopasujemy oferty i pokażemy Cię właściwym firmom.
         </p>
 
@@ -104,12 +104,17 @@ const inputClass =
                 >
                 <input
                     id="headline"
+                    :aria-invalid="form.errors.headline ? true : undefined"
+                    aria-describedby="headline-error"
                     v-model="form.headline"
                     type="text"
                     placeholder="np. Specjalistka ds. rekrutacji"
                     :class="inputClass"
                 />
-                <InputError :message="form.errors.headline" />
+                <InputError
+                    id="headline-error"
+                    :message="form.errors.headline"
+                />
             </div>
             <div>
                 <label
@@ -119,13 +124,20 @@ const inputClass =
                 >
                 <input
                     id="years_of_experience"
+                    :aria-invalid="
+                        form.errors.years_of_experience ? true : undefined
+                    "
+                    aria-describedby="years_of_experience-error"
                     v-model="form.years_of_experience"
                     type="number"
                     min="0"
                     max="50"
                     :class="inputClass"
                 />
-                <InputError :message="form.errors.years_of_experience" />
+                <InputError
+                    id="years_of_experience-error"
+                    :message="form.errors.years_of_experience"
+                />
             </div>
             <div>
                 <label for="city" class="text-sm font-semibold text-brand-green"
@@ -133,12 +145,14 @@ const inputClass =
                 >
                 <input
                     id="city"
+                    :aria-invalid="form.errors.city ? true : undefined"
+                    aria-describedby="city-error"
                     v-model="form.city"
                     type="text"
                     placeholder="np. Poznań"
                     :class="inputClass"
                 />
-                <InputError :message="form.errors.city" />
+                <InputError id="city-error" :message="form.errors.city" />
             </div>
         </div>
 
@@ -209,6 +223,10 @@ const inputClass =
                 >
                 <select
                     id="preferred_day_part"
+                    :aria-invalid="
+                        form.errors.preferred_day_part ? true : undefined
+                    "
+                    aria-describedby="preferred_day_part-error"
                     v-model="form.preferred_day_part"
                     :class="inputClass"
                 >
@@ -220,10 +238,13 @@ const inputClass =
                         {{ dayPart.label }}
                     </option>
                 </select>
-                <p class="mt-1 text-xs text-brand-green/70">
+                <p class="mt-1 text-xs text-brand-green/80">
                     Pomożemy dobrać partnerkę, która woli drugą połowę dnia.
                 </p>
-                <InputError :message="form.errors.preferred_day_part" />
+                <InputError
+                    id="preferred_day_part-error"
+                    :message="form.errors.preferred_day_part"
+                />
             </div>
         </div>
 
@@ -235,25 +256,30 @@ const inputClass =
             >
             <input
                 id="available_from"
+                :aria-invalid="form.errors.available_from ? true : undefined"
+                aria-describedby="available_from-error"
                 v-model="form.available_from"
                 type="date"
                 required
                 :class="inputClass"
             />
-            <p class="mt-1 text-xs text-brand-green/70">
+            <p class="mt-1 text-xs text-brand-green/80">
                 Pracodawcy zobaczą tylko tę datę – „Dostępna od”.
             </p>
-            <InputError :message="form.errors.available_from" />
+            <InputError
+                id="available_from-error"
+                :message="form.errors.available_from"
+            />
         </div>
 
         <div class="mt-4 rounded-2xl border border-brand-mint-soft p-4">
             <h3 class="flex items-center gap-2 font-bold text-brand-green">
                 <Lock class="size-4" /> Twój kalendarz powrotu
-                <span class="text-xs font-normal text-brand-green/60"
+                <span class="text-xs font-normal text-brand-green/80"
                     >(opcjonalnie)</span
                 >
             </h3>
-            <p class="mt-1 text-xs text-brand-green/70">
+            <p class="mt-1 text-xs text-brand-green/80">
                 Te daty są prywatne. Nigdy nie pokazujemy ich pracodawcom –
                 służą tylko Twojemu kalendarzowi i przypomnieniom.
             </p>
@@ -266,11 +292,16 @@ const inputClass =
                     >
                     <input
                         id="due_date"
+                        :aria-invalid="form.errors.due_date ? true : undefined"
+                        aria-describedby="due_date-error"
                         v-model="form.due_date"
                         type="date"
                         :class="inputClass"
                     />
-                    <InputError :message="form.errors.due_date" />
+                    <InputError
+                        id="due_date-error"
+                        :message="form.errors.due_date"
+                    />
                 </div>
                 <div>
                     <label
@@ -280,11 +311,18 @@ const inputClass =
                     >
                     <input
                         id="leave_starts_on"
+                        :aria-invalid="
+                            form.errors.leave_starts_on ? true : undefined
+                        "
+                        aria-describedby="leave_starts_on-error"
                         v-model="form.leave_starts_on"
                         type="date"
                         :class="inputClass"
                     />
-                    <InputError :message="form.errors.leave_starts_on" />
+                    <InputError
+                        id="leave_starts_on-error"
+                        :message="form.errors.leave_starts_on"
+                    />
                 </div>
             </div>
         </div>

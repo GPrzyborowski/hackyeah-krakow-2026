@@ -38,6 +38,7 @@ class EmployerJobOfferResource extends JsonResource
             'flexible_hours' => $this->resource->flexible_hours,
             'fixed_meeting_hours' => $this->resource->fixed_meeting_hours,
             'childcare_subsidy' => $this->resource->childcare_subsidy,
+            'nursery_distance_km' => $this->resource->nursery_distance_km,
             ...Workday::presentOffer($this->resource),
             'status' => $this->resource->status->value,
             'published_at' => $this->resource->published_at?->toIso8601String(),

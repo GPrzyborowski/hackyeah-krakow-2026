@@ -50,7 +50,7 @@ const chips = computed(() =>
                 <h3 class="text-xl font-semibold text-brand-green">
                     {{ offer.title }}
                 </h3>
-                <p class="mt-1 text-sm text-brand-green/70">
+                <p class="mt-1 text-sm text-brand-green/80">
                     <Link
                         v-if="offer.company"
                         :href="companyShow(offer.company.id)"
@@ -108,7 +108,7 @@ const chips = computed(() =>
                     >
                 </span>
             </p>
-            <p v-else-if="offer.company" class="text-xs text-brand-green/60">
+            <p v-else-if="offer.company" class="text-xs text-brand-green/80">
                 Firma nie ma jeszcze opinii rodziców
             </p>
 

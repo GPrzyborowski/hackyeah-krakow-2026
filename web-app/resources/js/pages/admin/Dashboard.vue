@@ -128,7 +128,7 @@ const sections = computed(() => [
                 :key="tile.key"
                 class="rounded-3xl bg-white p-5 shadow-sm"
             >
-                <dt class="text-xs font-medium text-brand-green/70">
+                <dt class="text-xs font-medium text-brand-green/80">
                     {{ tile.label }}
                 </dt>
                 <dd class="mt-1 text-3xl font-semibold text-brand-green">

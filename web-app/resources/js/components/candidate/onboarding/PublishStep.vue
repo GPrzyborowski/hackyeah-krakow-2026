@@ -61,7 +61,7 @@ function submit(action: 'publish' | 'visibility') {
                         : 'Prywatność i publikacja'
                 }}
             </h2>
-            <p class="mt-2 text-sm text-brand-green/70">
+            <p class="mt-2 text-sm text-brand-green/80">
                 Firmy zobaczą Twoje imię z inicjałem nazwiska, stanowisko,
                 zatwierdzone umiejętności i datę dostępności. Nazwisko i e-mail
                 poznają dopiero po przyjęciu zaproszenia.
@@ -81,16 +81,25 @@ function submit(action: 'publish' | 'visibility') {
                                 : 'bg-brand-peach text-brand-green'
                         "
                     >
-                        <Check v-if="item.done" class="size-3.5" />
-                        <X v-else class="size-3.5" />
+                        <Check
+                            v-if="item.done"
+                            class="size-3.5"
+                            aria-hidden="true"
+                        />
+                        <X v-else class="size-3.5" aria-hidden="true" />
                     </span>
-                    <span class="flex-1">{{ item.label }}</span>
+                    <span class="flex-1"
+                        ><span class="sr-only">{{
+                            item.done ? 'Gotowe:' : 'Do uzupełnienia:'
+                        }}</span>
+                        {{ item.label }}</span
+                    >
                     <Link
                         v-if="!item.done"
                         :href="show({ query: { step: item.step } })"
                         class="text-xs font-semibold underline underline-offset-4"
                     >
-                        Uzupełnij
+                        Uzupełnij<span class="sr-only">: {{ item.label }}</span>
                     </Link>
                 </li>
             </ul>

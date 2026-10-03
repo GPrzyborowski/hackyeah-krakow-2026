@@ -36,7 +36,7 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
                         <HeartHandshake class="size-3.5" /> Przyjazna rodzicom
                     </Chip>
                 </div>
-                <p class="mt-1 text-sm text-brand-green/70">
+                <p class="mt-1 text-sm text-brand-green/80">
                     {{ offer.company.name }} ·
                     {{ location || offer.work_mode_label.toLowerCase() }}
                 </p>
@@ -81,7 +81,7 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
                         · {{ offer.company.first_review.quote }}
                         <span
                             v-if="offer.company.first_review.author_label"
-                            class="text-brand-green/60"
+                            class="text-brand-green/80"
                         >
                             {{ offer.company.first_review.author_label }}
                         </span>

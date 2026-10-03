@@ -60,7 +60,7 @@ const categories = Object.keys(ratingCategoryLabels) as Array<
                 </h1>
                 <p
                     v-if="company.city"
-                    class="mt-2 inline-flex items-center gap-1 text-sm text-brand-green/70"
+                    class="mt-2 inline-flex items-center gap-1 text-sm text-brand-green/80"
                 >
                     <MapPin class="size-4" /> {{ company.city }}
                 </p>
@@ -126,12 +126,12 @@ const categories = Object.keys(ratingCategoryLabels) as Array<
                     </blockquote>
                     <figcaption
                         v-if="review.author_label"
-                        class="mt-3 text-xs text-brand-green/60"
+                        class="mt-3 text-xs text-brand-green/80"
                     >
                         {{ review.author_label }}
                     </figcaption>
                     <dl
-                        class="mt-4 grid grid-cols-3 gap-2 border-t border-brand-cream pt-3 text-[11px] text-brand-green/70"
+                        class="mt-4 grid grid-cols-3 gap-2 border-t border-brand-cream pt-3 text-[11px] text-brand-green/80"
                     >
                         <div>
                             <dt>Powrót</dt>

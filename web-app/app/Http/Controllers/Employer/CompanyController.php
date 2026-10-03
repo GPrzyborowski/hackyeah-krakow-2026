@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Employer\Concerns\InteractsWithEmployerCompany;
 use App\Http\Requests\Employer\UpdateCompanyRequest;
 use App\Models\CompanyReview;
+use App\Services\Employer\CompanyRatingSummary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,22 +19,14 @@ class CompanyController extends Controller
     /**
      * Company profile form with approved parent reviews.
      */
-    public function edit(Request $request): Response
+    public function edit(Request $request, CompanyRatingSummary $ratingSummary): Response
     {
         $company = $this->currentCompany($request);
-        $reviews = $company->approvedReviews()->latest()->get();
-
-        $averageOf = fn (string $column): ?float => $reviews->isEmpty() ? null : round((float) $reviews->avg($column), 1);
+        $reviews = $ratingSummary->reviews($company);
 
         return Inertia::render('employer/company/Edit', [
             'company' => $company->only(['id', 'name', 'nip', 'city', 'description']),
-            'ratings' => [
-                'count' => $reviews->count(),
-                'overall' => $company->averageRating(),
-                'return' => $averageOf('rating_return'),
-                'flexibility' => $averageOf('rating_flexibility'),
-                'no_pregnancy_questions' => $averageOf('rating_no_pregnancy_questions'),
-            ],
+            'ratings' => $ratingSummary->ratings($company, $reviews),
             'reviews' => $reviews->map(fn (CompanyReview $review): array => [
                 'id' => $review->id,
                 'quote' => $review->quote,

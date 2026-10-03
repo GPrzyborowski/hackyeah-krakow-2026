@@ -2,7 +2,7 @@
 import { useHttp } from '@inertiajs/vue3';
 import { Plus, X } from '@lucide/vue';
 import { useDebounceFn } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { computed, ref, useId } from 'vue';
 import SkillSearchController from '@/actions/App/Http/Controllers/Employer/SkillSearchController';
 
 type SkillSuggestion = { id: number; name: string };
@@ -24,6 +24,21 @@ const isOpen = ref(false);
 const highlighted = ref(0);
 const suggestions = ref<SkillSuggestion[]>([]);
 const inputElement = ref<HTMLInputElement | null>(null);
+const announcement = ref('');
+
+const baseId = useId();
+const labelId = `${baseId}-label`;
+const listboxId = `${baseId}-listbox`;
+
+function optionId(index: number): string {
+    return `${baseId}-option-${index}`;
+}
+
+const activeDescendant = computed(() =>
+    isOpen.value && visibleSuggestions.value[highlighted.value]
+        ? optionId(highlighted.value)
+        : undefined,
+);
 
 const search = useHttp<{ q: string }, { data: SkillSuggestion[] }>({ q: '' });
 
@@ -59,6 +74,7 @@ function addTag(name: string): void {
 
     if (trimmed !== '' && !taken.value.includes(trimmed.toLowerCase())) {
         tags.value = [...tags.value, trimmed];
+        announcement.value = `Dodano ${trimmed}`;
     }
 
     input.value = '';
@@ -67,6 +83,7 @@ function addTag(name: string): void {
 
 function removeTag(name: string): void {
     tags.value = tags.value.filter((tag) => tag !== name);
+    announcement.value = `Usunięto ${name}`;
 }
 
 function onEnter(): void {
@@ -110,7 +127,12 @@ function onBackspace(): void {
 
 <template>
     <div>
-        <p class="mb-2 font-semibold text-brand-green">{{ label }}</p>
+        <p :id="labelId" class="mb-2 font-semibold text-brand-green">
+            {{ label }}
+        </p>
+        <p class="sr-only" aria-live="polite" role="status">
+            {{ announcement }}
+        </p>
         <div class="flex flex-wrap items-center gap-2">
             <span
                 v-for="tag in tags"
@@ -125,11 +147,11 @@ function onBackspace(): void {
                 {{ tag }}
                 <button
                     type="button"
-                    class="rounded-full opacity-70 hover:opacity-100"
+                    class="rounded-full opacity-80 hover:opacity-100"
                     :aria-label="`Usuń ${tag}`"
                     @click="removeTag(tag)"
                 >
-                    <X class="size-3" />
+                    <X class="size-3" aria-hidden="true" />
                 </button>
             </span>
 
@@ -137,19 +159,24 @@ function onBackspace(): void {
                 <button
                     v-if="!isEditing"
                     type="button"
-                    class="inline-flex items-center gap-1 rounded-full border border-brand-green/30 bg-white px-3 py-1 text-xs font-medium text-brand-green hover:bg-brand-mint-soft"
+                    class="inline-flex items-center gap-1 rounded-full border border-brand-green/60 bg-white px-3 py-1 text-xs font-medium text-brand-green hover:bg-brand-mint-soft"
+                    :aria-label="`Dodaj tag: ${label}`"
                     @click="startEditing"
                 >
-                    <Plus class="size-3" /> Dodaj tag
+                    <Plus class="size-3" aria-hidden="true" /> Dodaj tag
                 </button>
                 <input
                     v-else
                     ref="inputElement"
                     v-model="input"
                     type="text"
-                    class="w-48 rounded-full border border-brand-green/40 bg-white px-3 py-1 text-xs text-brand-green outline-none focus:ring-2 focus:ring-brand-mint"
+                    class="w-48 rounded-full border border-brand-green/60 bg-white px-3 py-1 text-xs text-brand-green outline-none focus:ring-2 focus:ring-brand-green"
                     placeholder="Wpisz umiejętność…"
                     role="combobox"
+                    :aria-labelledby="labelId"
+                    aria-autocomplete="list"
+                    :aria-controls="listboxId"
+                    :aria-activedescendant="activeDescendant"
                     :aria-expanded="isOpen"
                     @input="onInput"
                     @keydown.enter.prevent="onEnter"
@@ -166,10 +193,13 @@ function onBackspace(): void {
                         (visibleSuggestions.length > 0 || input.trim() !== '')
                     "
                     class="absolute top-full left-0 z-20 mt-1 max-h-60 w-60 overflow-auto rounded-2xl border border-brand-green/10 bg-white p-1 text-sm shadow-lg"
+                    :id="listboxId"
                     role="listbox"
+                    :aria-labelledby="labelId"
                 >
                     <li
                         v-for="(skill, index) in visibleSuggestions"
+                        :id="optionId(index)"
                         :key="skill.id"
                         role="option"
                         :aria-selected="index === highlighted"
@@ -190,6 +220,8 @@ function onBackspace(): void {
                                     input.trim().toLowerCase(),
                             )
                         "
+                        role="option"
+                        :aria-selected="false"
                         class="cursor-pointer rounded-xl px-3 py-1.5 text-brand-green/80 hover:bg-brand-mint-soft"
                         @mousedown.prevent="addTag(input)"
                     >

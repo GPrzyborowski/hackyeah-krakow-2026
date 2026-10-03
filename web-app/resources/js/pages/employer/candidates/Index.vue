@@ -8,7 +8,7 @@ import {
     UsersRound,
     X,
 } from '@lucide/vue';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import CandidateController from '@/actions/App/Http/Controllers/Employer/CandidateController';
 import CandidateDecisionController from '@/actions/App/Http/Controllers/Employer/CandidateDecisionController';
 import InvitationController from '@/actions/App/Http/Controllers/Employer/InvitationController';
@@ -78,15 +78,47 @@ function invite(): void {
     }
 }
 
+const SHORTCUTS_STORAGE_KEY = 'momjobs.candidate-shortcuts';
+const areShortcutsEnabled = ref(true);
+
+const INTERACTIVE_TARGET_SELECTOR = [
+    'input',
+    'textarea',
+    'select',
+    '[contenteditable]:not([contenteditable="false"])',
+    'a',
+    'button',
+    '[role="menu"]',
+    '[role="dialog"]',
+    '[role="listbox"]',
+    '[role="combobox"]',
+].join(', ');
+
+function toggleShortcuts(): void {
+    areShortcutsEnabled.value = !areShortcutsEnabled.value;
+
+    try {
+        window.localStorage.setItem(
+            SHORTCUTS_STORAGE_KEY,
+            areShortcutsEnabled.value ? 'on' : 'off',
+        );
+    } catch {
+        // Storage can be unavailable (private mode) – the toggle still works for this visit.
+    }
+}
+
 function onKeydown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement | null;
 
     if (
+        !areShortcutsEnabled.value ||
         isInviteOpen.value ||
+        event.defaultPrevented ||
+        event.shiftKey ||
         event.metaKey ||
         event.ctrlKey ||
         event.altKey ||
-        target?.closest('input, textarea, select, [contenteditable="true"]')
+        target?.closest(INTERACTIVE_TARGET_SELECTOR)
     ) {
         return;
     }
@@ -97,12 +129,43 @@ function onKeydown(event: KeyboardEvent): void {
     } else if (event.key === 'ArrowRight') {
         event.preventDefault();
         invite();
-    } else if (event.key.toLowerCase() === 'b') {
+    } else if (event.key === 'b') {
         event.preventDefault();
         decide('saved');
     }
 }
 
+const candidateAnnouncement = ref('');
+
+const currentCandidateSummary = computed(() =>
+    props.candidate
+        ? [props.candidate.anonymous_name, props.candidate.headline]
+              .filter(Boolean)
+              .join(', ')
+        : '',
+);
+
+watch(
+    () => props.candidate?.id,
+    (candidateId, previousId) => {
+        if (candidateId === previousId) {
+            return;
+        }
+
+        candidateAnnouncement.value = props.candidate
+            ? `Teraz oglądasz: ${currentCandidateSummary.value}.`
+            : 'Wszystkie kandydatki przejrzane.';
+    },
+);
+
+onMounted(() => {
+    try {
+        areShortcutsEnabled.value =
+            window.localStorage.getItem(SHORTCUTS_STORAGE_KEY) !== 'off';
+    } catch {
+        areShortcutsEnabled.value = true;
+    }
+});
 onMounted(() => window.addEventListener('keydown', onKeydown));
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 </script>
@@ -122,7 +185,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
             <p class="text-lg font-semibold text-brand-green">
                 Nie masz opublikowanych ofert
             </p>
-            <p class="mt-1 text-sm text-brand-green/70">
+            <p class="mt-1 text-sm text-brand-green/80">
                 Opublikuj ogłoszenie, a pokażemy Ci kandydatki, które pasują i
                 mogą zacząć w Twoim terminie.
             </p>
@@ -152,7 +215,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                     :class="
                         offer.id === currentOffer?.id
                             ? 'bg-brand-green text-white'
-                            : 'border border-brand-green/20 bg-white text-brand-green hover:bg-brand-mint-soft'
+                            : 'border border-brand-green/60 bg-white text-brand-green hover:bg-brand-mint-soft'
                     "
                     :aria-current="
                         offer.id === currentOffer?.id ? 'page' : undefined
@@ -182,7 +245,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                 data-test="job-share-pairs-banner"
             >
                 <span class="flex items-center gap-2 text-sm">
-                    <UsersRound class="size-5 shrink-0" />
+                    <UsersRound class="size-5 shrink-0" aria-hidden="true" />
                     <span
                         ><strong>Oferta job sharing.</strong> Kandydatki mogą
                         zgłaszać się parami z gotowym podziałem dnia.</span
@@ -204,7 +267,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                         </h2>
                         <p
                             v-if="saved.length === 0"
-                            class="mt-3 text-sm text-brand-green/60"
+                            class="mt-3 text-sm text-brand-green/80"
                         >
                             Naciśnij „Na później”, aby wrócić do kandydatki
                             później.
@@ -238,7 +301,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                                             >{{ item.anonymous_name }}</span
                                         >
                                         <span
-                                            class="block text-[11px] text-brand-green/60"
+                                            class="block text-[11px] text-brand-green/80"
                                             >od
                                             {{
                                                 formatShortDate(
@@ -278,11 +341,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                     </section>
                 </aside>
 
-                <main class="order-1 min-w-0 lg:order-2">
+                <section
+                    class="order-1 min-w-0 lg:order-2"
+                    aria-label="Bieżąca kandydatka"
+                >
+                    <p class="sr-only" role="status" aria-live="polite">
+                        {{ candidateAnnouncement }}
+                    </p>
                     <template v-if="candidate && currentOffer">
                         <p
                             v-if="isSavedCandidate"
-                            class="mb-2 text-xs font-medium text-brand-green/70"
+                            class="mb-2 text-xs font-medium text-brand-green/80"
                         >
                             Kandydatka z listy „Zapisane na później”
                         </p>
@@ -292,13 +361,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                             <div class="flex flex-col items-center gap-2">
                                 <button
                                     type="button"
-                                    class="flex size-16 items-center justify-center rounded-full border-2 border-brand-green/20 bg-white text-brand-green shadow-sm transition hover:scale-105 disabled:opacity-50"
+                                    class="flex size-16 items-center justify-center rounded-full border-2 border-brand-green/60 bg-white text-brand-green shadow-sm transition disabled:opacity-50 motion-safe:hover:scale-105"
                                     :disabled="isSubmitting"
                                     aria-label="Pomiń"
                                     data-test="skip-button"
                                     @click="decide('skipped')"
                                 >
-                                    <X class="size-6" />
+                                    <X class="size-6" aria-hidden="true" />
                                 </button>
                                 <span class="text-xs text-brand-green"
                                     >Pomiń</span
@@ -307,12 +376,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                             <div class="flex flex-col items-center gap-2">
                                 <button
                                     type="button"
-                                    class="flex size-16 items-center justify-center rounded-full bg-brand-yellow text-brand-green shadow-sm transition hover:scale-105 disabled:opacity-50"
+                                    class="flex size-16 items-center justify-center rounded-full bg-brand-yellow text-brand-green shadow-sm transition disabled:opacity-50 motion-safe:hover:scale-105"
                                     :disabled="isSubmitting"
                                     aria-label="Na później"
                                     @click="decide('saved')"
                                 >
-                                    <Bookmark class="size-6" />
+                                    <Bookmark
+                                        class="size-6"
+                                        aria-hidden="true"
+                                    />
                                 </button>
                                 <span class="text-xs text-brand-green"
                                     >Na później</span
@@ -321,12 +393,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                             <div class="flex flex-col items-center gap-2">
                                 <button
                                     type="button"
-                                    class="flex size-20 items-center justify-center rounded-full bg-brand-green text-brand-peach shadow-md transition hover:scale-105"
+                                    class="flex size-20 items-center justify-center rounded-full bg-brand-green text-brand-peach shadow-md transition motion-safe:hover:scale-105"
                                     aria-label="Zaproś"
                                     @click="invite"
                                 >
                                     <MessageSquare
                                         class="size-7 fill-brand-peach"
+                                        aria-hidden="true"
                                     />
                                 </button>
                                 <span
@@ -335,13 +408,29 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                                 >
                             </div>
                         </div>
-                        <p
-                            class="mt-6 hidden text-center text-xs text-brand-green/60 sm:block"
+                        <div
+                            class="mt-6 hidden flex-col items-center gap-2 text-center text-xs text-brand-green/80 sm:flex"
                         >
-                            Skróty: strzałka w lewo pomija, strzałka w prawo
-                            zaprasza, B zapisuje na później.
-                        </p>
-                        <p class="mt-2 text-center text-xs text-brand-green/60">
+                            <button
+                                type="button"
+                                class="rounded-full border border-brand-green/60 px-3 py-1 font-medium text-brand-green hover:bg-brand-mint-soft"
+                                :aria-pressed="areShortcutsEnabled"
+                                data-test="shortcuts-toggle"
+                                @click="toggleShortcuts"
+                            >
+                                Skróty klawiszowe:
+                                {{
+                                    areShortcutsEnabled
+                                        ? 'włączone'
+                                        : 'wyłączone'
+                                }}
+                            </button>
+                            <p v-if="areShortcutsEnabled">
+                                Strzałka w lewo pomija, strzałka w prawo
+                                zaprasza, B zapisuje na później.
+                            </p>
+                        </div>
+                        <p class="mt-2 text-center text-xs text-brand-green/80">
                             W kolejce: {{ remainingCount }}
                             {{ pluralizeCandidates(remainingCount) }}
                         </p>
@@ -357,11 +446,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                         class="flex flex-col items-center rounded-3xl bg-white p-10 text-center shadow-sm"
                         data-test="empty-state"
                     >
-                        <PartyPopper class="size-10 text-brand-mint" />
+                        <PartyPopper
+                            class="size-10 text-brand-mint"
+                            aria-hidden="true"
+                        />
                         <p class="mt-3 text-lg font-semibold text-brand-green">
                             Wszystkie kandydatki przejrzane
                         </p>
-                        <p class="mt-1 max-w-sm text-sm text-brand-green/70">
+                        <p class="mt-1 max-w-sm text-sm text-brand-green/80">
                             Nowe osoby pojawią się tu, gdy ich profil będzie
                             pasował do oferty. Możesz też wrócić do zapisanych
                             na później albo poszerzyć tagi w ogłoszeniu.
@@ -374,7 +466,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                             Edytuj ogłoszenie
                         </Link>
                     </div>
-                </main>
+                </section>
 
                 <aside class="order-2 space-y-5 lg:order-3">
                     <MatchPanel

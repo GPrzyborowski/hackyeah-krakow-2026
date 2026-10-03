@@ -175,7 +175,7 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
                     <p class="font-bold text-brand-green">
                         {{ pair.offer.title }} · {{ pair.offer.company }}
                     </p>
-                    <p class="text-sm text-brand-green/70">
+                    <p class="text-sm text-brand-green/80">
                         Para z {{ pair.partner?.display_name ?? '—' }}
                     </p>
                 </div>
@@ -195,7 +195,7 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
             </Link>
             <p
                 v-if="pairs.length === 0"
-                class="rounded-3xl bg-white p-6 text-sm text-brand-green/70"
+                class="rounded-3xl bg-white p-6 text-sm text-brand-green/80"
             >
                 Nie masz jeszcze pary. Wybierz ofertę poniżej i znajdź
                 partnerkę.
@@ -217,7 +217,7 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
                         class="text-lg font-bold text-brand-green hover:underline"
                         >{{ offer.title }}</Link
                     >
-                    <p class="text-sm text-brand-green/70">
+                    <p class="text-sm text-brand-green/80">
                         {{ offer.company }}
                         <template v-if="offer.city">
                             · {{ offer.city }}</template
@@ -249,7 +249,7 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
             </article>
             <p
                 v-if="offers.length === 0"
-                class="rounded-3xl bg-white p-6 text-sm text-brand-green/70"
+                class="rounded-3xl bg-white p-6 text-sm text-brand-green/80"
             >
                 Na razie nie ma ofert dla dwóch osób.
             </p>

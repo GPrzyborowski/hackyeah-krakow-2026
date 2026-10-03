@@ -162,7 +162,7 @@ watch(
                             >
                                 <div
                                     v-if="!qrCodeSvg"
-                                    class="absolute inset-0 z-10 flex aspect-square h-auto w-full animate-pulse items-center justify-center bg-background"
+                                    class="absolute inset-0 z-10 flex aspect-square h-auto w-full items-center justify-center bg-background motion-safe:animate-pulse"
                                 >
                                     <Spinner class="size-6" />
                                 </div>
@@ -217,18 +217,30 @@ watch(
                                     <input
                                         type="text"
                                         readonly
+                                        aria-label="Klucz konfiguracyjny"
                                         :value="manualSetupKey"
                                         class="h-full w-full bg-background p-3 text-foreground"
                                     />
                                     <button
+                                        type="button"
+                                        :aria-label="
+                                            copied
+                                                ? 'Skopiowano klucz'
+                                                : 'Kopiuj klucz'
+                                        "
                                         @click="copy(manualSetupKey || '')"
                                         class="relative block h-auto border-l border-border px-3 hover:bg-muted"
                                     >
                                         <Check
                                             v-if="copied"
-                                            class="w-4 text-green-500"
+                                            class="w-4 text-green-700"
+                                            aria-hidden="true"
                                         />
-                                        <Copy v-else class="w-4" />
+                                        <Copy
+                                            v-else
+                                            class="w-4"
+                                            aria-hidden="true"
+                                        />
                                     </button>
                                 </template>
                             </div>

@@ -105,7 +105,7 @@ const dateFormatter = new Intl.DateTimeFormat('pl-PL', {
                         {{ article.title }}
                     </h2>
                     <p
-                        class="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-brand-green/70"
+                        class="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-brand-green/80"
                     >
                         <span>/blog/{{ article.slug }}</span>
                         <span class="inline-flex items-center gap-1">

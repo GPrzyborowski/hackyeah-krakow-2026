@@ -144,7 +144,7 @@ function confirmAndContinue() {
         <h2 class="text-3xl font-extrabold tracking-tight text-brand-green">
             {{ skills.length ? 'Przeczytaliśmy Twoje CV' : 'Dodaj CV' }}
         </h2>
-        <p class="mt-2 text-sm text-brand-green/70">
+        <p class="mt-2 text-sm text-brand-green/80">
             Asystent przeczyta plik, zaproponuje tagi i stanowiska. Nic nie
             trafi do pracodawców, dopóki tego nie zatwierdzisz.
         </p>
@@ -159,7 +159,7 @@ function confirmAndContinue() {
                     <p class="truncate font-semibold text-brand-green">
                         {{ profile.cv_original_name }}
                     </p>
-                    <p class="text-xs text-brand-green/60">
+                    <p class="text-xs text-brand-green/80">
                         <template v-if="profile.cv_size"
                             >{{ formatFileSize(profile.cv_size) }} ·
                         </template>
@@ -177,18 +177,19 @@ function confirmAndContinue() {
 
             <label
                 v-else
-                class="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-brand-mint p-6 text-center text-sm text-brand-green hover:bg-brand-cream"
+                class="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-brand-mint p-6 text-center text-sm text-brand-green hover:bg-brand-cream has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-green has-[:focus-visible]:ring-offset-2"
             >
-                <Upload class="size-6" />
+                <Upload class="size-6" aria-hidden="true" />
                 <span class="font-semibold">
                     {{ form.cv ? form.cv.name : 'Wybierz plik PDF z CV' }}
                 </span>
-                <span class="text-xs text-brand-green/60">maks. 5 MB</span>
+                <span class="text-xs text-brand-green/80">maks. 5 MB</span>
                 <input
                     ref="fileInput"
                     type="file"
                     accept="application/pdf,.pdf"
                     class="sr-only"
+                    aria-describedby="cv-error"
                     @change="pickFile"
                 />
             </label>
@@ -200,7 +201,7 @@ function confirmAndContinue() {
                 class="sr-only"
                 @change="pickFile"
             />
-            <InputError :message="form.errors.cv" />
+            <InputError id="cv-error" :message="form.errors.cv" />
 
             <button
                 v-if="!showTextarea"
@@ -219,11 +220,13 @@ function confirmAndContinue() {
                 <textarea
                     id="cv_text"
                     v-model="form.cv_text"
+                    :aria-invalid="form.errors.cv_text ? true : undefined"
+                    aria-describedby="cv_text-error"
                     rows="5"
                     placeholder="Doświadczenie, obowiązki, narzędzia…"
-                    class="mt-1 w-full rounded-2xl border border-brand-mint-soft p-3 text-sm text-brand-green outline-none focus:border-brand-mint"
+                    class="mt-1 w-full rounded-2xl border border-brand-green/60 p-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
                 />
-                <InputError :message="form.errors.cv_text" />
+                <InputError id="cv_text-error" :message="form.errors.cv_text" />
             </div>
 
             <button
@@ -264,6 +267,9 @@ function confirmAndContinue() {
                     class="size-3 text-brand-yellow"
                 />
                 {{ skill.name }}
+                <span v-if="!skill.confirmed" class="sr-only"
+                    >(do zatwierdzenia)</span
+                >
                 <button
                     type="button"
                     class="rounded-full p-0.5 hover:bg-white/20"
@@ -285,7 +291,7 @@ function confirmAndContinue() {
                     list="skill-suggestions"
                     placeholder="np. Excel"
                     aria-label="Nowa umiejętność"
-                    class="w-40 rounded-full border border-brand-green/30 px-3 py-1 text-xs text-brand-green outline-none focus:border-brand-green"
+                    class="w-40 rounded-full border border-brand-green/60 px-3 py-1 text-xs text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
                     @keydown.esc="isAddingTag = false"
                 />
                 <datalist id="skill-suggestions">
@@ -311,7 +317,7 @@ function confirmAndContinue() {
                 <Plus class="size-3" /> Dodaj tag
             </button>
         </div>
-        <p v-if="skills.length === 0" class="mt-2 text-xs text-brand-green/60">
+        <p v-if="skills.length === 0" class="mt-2 text-xs text-brand-green/80">
             Jeszcze nic tu nie ma. Przeanalizuj CV albo dodaj tagi ręcznie.
         </p>
         <InputError class="mt-2" :message="skillsError" />
@@ -320,21 +326,26 @@ function confirmAndContinue() {
             <label for="ai_summary" class="text-lg font-bold text-brand-green"
                 >To zobaczą pracodawcy</label
             >
-            <p class="mt-1 text-xs text-brand-green/60">
+            <p class="mt-1 text-xs text-brand-green/80">
                 Krótki opis na Twoim anonimowym profilu. Popraw go po swojemu –
                 bez e-maila, telefonu i informacji o rodzinie.
             </p>
             <textarea
                 id="ai_summary"
                 v-model="summaryForm.ai_summary"
+                :aria-invalid="summaryForm.errors.ai_summary ? true : undefined"
+                aria-describedby="ai_summary-error"
                 rows="3"
                 :maxlength="SUMMARY_MAX_LENGTH"
                 placeholder="Np. Od 6 lat prowadzę rekrutacje IT i onboarding nowych osób."
-                class="mt-2 w-full rounded-2xl border border-brand-mint-soft p-3 text-sm text-brand-green outline-none focus:border-brand-mint"
+                class="mt-2 w-full rounded-2xl border border-brand-green/60 p-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
             />
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <InputError :message="summaryForm.errors.ai_summary" />
-                <span class="ml-auto text-xs text-brand-green/60"
+                <InputError
+                    id="ai_summary-error"
+                    :message="summaryForm.errors.ai_summary"
+                />
+                <span class="ml-auto text-xs text-brand-green/80"
                     >{{ summaryForm.ai_summary.length }}/{{
                         SUMMARY_MAX_LENGTH
                     }}</span
@@ -372,7 +383,7 @@ function confirmAndContinue() {
                 <p class="text-xs">pasuje w {{ position.score }}%</p>
             </div>
         </div>
-        <p v-else class="mt-2 text-sm text-brand-green/60">
+        <p v-else class="mt-2 text-sm text-brand-green/80">
             Propozycje stanowisk pojawią się, gdy asystent AI przeanalizuje
             Twoje CV.
         </p>

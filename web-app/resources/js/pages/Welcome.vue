@@ -101,7 +101,7 @@ const pairChat = [
                             Przeglądaj oferty
                         </Link>
                     </div>
-                    <p class="mt-6 text-xs text-brand-green/70">
+                    <p class="mt-6 text-xs text-brand-green/80">
                         Dla pracodawców:
                         <Link
                             :href="register({ query: { role: 'employer' } })"
@@ -137,15 +137,15 @@ const pairChat = [
                     >
                         <div>
                             <p class="font-semibold">Ciąża</p>
-                            <p class="text-white/60">od 14 tyg.</p>
+                            <p class="text-white/80">od 14 tyg.</p>
                         </div>
                         <div>
                             <p class="font-semibold">Urlop macierzyński</p>
-                            <p class="text-white/60">do 14 lut 2027</p>
+                            <p class="text-white/80">do 14 lut 2027</p>
                         </div>
                         <div>
                             <p class="font-semibold">Gotowa</p>
-                            <p class="text-white/60">od 1 wrz 2027</p>
+                            <p class="text-white/80">od 1 wrz 2027</p>
                         </div>
                     </div>
 
@@ -163,7 +163,7 @@ const pairChat = [
                                     {{ item.title }}
                                 </p>
                                 <p
-                                    class="truncate text-[11px] text-brand-green/60"
+                                    class="truncate text-[11px] text-brand-green/80"
                                 >
                                     {{ item.meta }}
                                 </p>
@@ -232,7 +232,7 @@ const pairChat = [
 
                     <div class="mt-6 rounded-3xl bg-white p-5">
                         <div
-                            class="flex justify-between text-[11px] font-semibold text-brand-green/70"
+                            class="flex justify-between text-[11px] font-semibold text-brand-green/80"
                         >
                             <span>8:00</span><span>12:00</span
                             ><span>16:00</span>
@@ -251,7 +251,7 @@ const pairChat = [
                                 Ewa
                             </div>
                         </div>
-                        <p class="mt-3 text-xs text-brand-green/70">
+                        <p class="mt-3 text-xs text-brand-green/80">
                             Jedno stanowisko, jedno wynagrodzenie na osobę, dwie
                             kandydatki, które same ustalają podział dnia.
                         </p>
@@ -293,7 +293,7 @@ const pairChat = [
                             <p class="text-sm font-semibold text-brand-green">
                                 Czat pary: Marta i Ewa
                             </p>
-                            <p class="text-[11px] text-brand-green/60">
+                            <p class="text-[11px] text-brand-green/80">
                                 Specjalistka ds. rekrutacji · Zielone Biuro
                             </p>
                         </div>
@@ -381,7 +381,7 @@ const pairChat = [
                     </div>
                     <Link
                         href="/assistant"
-                        class="mt-5 flex items-center justify-between gap-3 rounded-full border border-brand-green/20 py-1.5 pr-1.5 pl-4 text-sm text-brand-green/50 transition hover:border-brand-green/50"
+                        class="mt-5 flex items-center justify-between gap-3 rounded-full border border-brand-green/20 py-1.5 pr-1.5 pl-4 text-sm text-brand-green/80 transition hover:border-brand-green/50"
                     >
                         <span>Napisz pytanie…</span>
                         <span

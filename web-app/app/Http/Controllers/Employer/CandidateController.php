@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers\Employer;
 
-use App\Enums\CandidateDecisionType;
 use App\Enums\JobSharePairStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Employer\Concerns\InteractsWithEmployerCompany;
 use App\Http\Resources\AnonymousCandidateResource;
-use App\Models\CandidateProfile;
-use App\Models\Company;
 use App\Models\JobOffer;
-use App\Models\OfferInterest;
-use App\Services\Matching\MatchResult;
+use App\Services\Employer\CandidateReviewQueue;
 use App\Services\Matching\MatchScorer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -26,7 +22,7 @@ class CandidateController extends Controller
     /**
      * Swipe view: one anonymous candidate at a time for the selected published offer.
      */
-    public function index(Request $request, MatchScorer $scorer): Response
+    public function index(Request $request, MatchScorer $scorer, CandidateReviewQueue $reviewQueue): Response
     {
         $company = $this->currentCompany($request);
 
@@ -45,9 +41,9 @@ class CandidateController extends Controller
             ]);
         }
 
-        $interestedIds = array_values($offer->interests()->get(['candidate_profile_id'])->map(fn (OfferInterest $interest): int => $interest->candidate_profile_id)->all());
-        $queue = $this->reviewQueue($offer, $scorer, $interestedIds);
-        $savedCandidates = $this->savedCandidates($offer, $company, $scorer);
+        $interestedIds = $reviewQueue->interestedCandidateIds($offer);
+        $queue = $reviewQueue->pending($offer, $this->reviewedCandidateIds($offer), $interestedIds);
+        $savedCandidates = $reviewQueue->saved($offer, $company);
 
         $broughtBack = $savedCandidates->firstWhere('candidate.id', $request->integer('candidate'));
         $current = $broughtBack ?? $queue->first();
@@ -110,36 +106,5 @@ class CandidateController extends Controller
         }
 
         return $offer;
-    }
-
-    /**
-     * Undecided matching candidates; those who expressed interest in the offer come first.
-     *
-     * @param  list<int>  $interestedIds
-     * @return Collection<int, array{candidate: CandidateProfile, match: MatchResult}>
-     */
-    private function reviewQueue(JobOffer $offer, MatchScorer $scorer, array $interestedIds): Collection
-    {
-        [$interested, $others] = $scorer->rankCandidatesFor($offer, $this->reviewedCandidateIds($offer))
-            ->partition(fn (array $row): bool => in_array($row['candidate']->id, $interestedIds, true));
-
-        return $interested->concat($others)->values();
-    }
-
-    /**
-     * @return Collection<int, array{candidate: CandidateProfile, match: MatchResult}>
-     */
-    private function savedCandidates(JobOffer $offer, Company $company, MatchScorer $scorer): Collection
-    {
-        $savedIds = $offer->decisions()->where('decision', CandidateDecisionType::Saved)->pluck('candidate_profile_id');
-
-        return CandidateProfile::query()
-            ->visibleTo($company)
-            ->whereKey($savedIds)
-            ->with(['user', 'confirmedSkills'])
-            ->get()
-            ->map(fn (CandidateProfile $candidate): array => ['candidate' => $candidate, 'match' => $scorer->score($candidate, $offer)])
-            ->sortByDesc(fn (array $row): int => $row['match']->score)
-            ->values();
     }
 }

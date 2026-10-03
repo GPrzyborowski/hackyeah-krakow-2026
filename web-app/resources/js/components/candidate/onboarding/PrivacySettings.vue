@@ -72,7 +72,7 @@ function onHideToggle(value: boolean) {
                             {{ company.name }}
                         </option>
                     </select>
-                    <p class="mt-1 text-xs text-brand-green/60">
+                    <p class="mt-1 text-xs text-brand-green/80">
                         Ta firma w ogóle nie zobaczy Twojego profilu.
                     </p>
                 </div>

@@ -44,6 +44,7 @@ class SaveJobOfferRequest extends FormRequest
             'flexible_hours' => ['boolean'],
             'fixed_meeting_hours' => ['boolean'],
             'childcare_subsidy' => ['boolean'],
+            'nursery_distance_km' => ['nullable', 'integer', 'min:0', 'max:50'],
             'is_job_share' => ['boolean'],
             'workday_starts_at' => ['nullable', 'required_if_accepted:is_job_share', 'date_format:H:i'],
             'workday_ends_at' => ['nullable', 'required_if_accepted:is_job_share', 'date_format:H:i', ...($this->filled('workday_starts_at') ? ['after:workday_starts_at'] : [])],
@@ -83,6 +84,7 @@ class SaveJobOfferRequest extends FormRequest
             'employment_fraction' => 'wymiar etatu',
             'salary_min' => 'wynagrodzenie od',
             'salary_max' => 'wynagrodzenie do',
+            'nursery_distance_km' => 'odległość do żłobka lub przedszkola',
             'workday_starts_at' => 'początek dnia pracy',
             'workday_ends_at' => 'koniec dnia pracy',
         ];

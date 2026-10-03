@@ -74,7 +74,7 @@ defineOptions({
                         <p class="font-semibold text-brand-green">
                             art. {{ source.article }} · {{ source.title }}
                         </p>
-                        <p class="mt-1 text-sm text-brand-green/70">
+                        <p class="mt-1 text-sm text-brand-green/80">
                             {{ source.excerpt }}
                         </p>
                         <div

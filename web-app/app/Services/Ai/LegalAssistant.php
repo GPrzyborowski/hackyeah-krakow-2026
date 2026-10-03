@@ -16,6 +16,18 @@ class LegalAssistant
 {
     public const string DISCLAIMER = 'To informacja ogólna, a nie porada prawna. Przy sporze skontaktuj się z prawnikiem.';
 
+    /**
+     * Example questions offered as one-tap chips.
+     *
+     * @var list<string>
+     */
+    public const array SUGGESTIONS = [
+        'Zasiłek macierzyński',
+        'Urlop rodzicielski',
+        'Powrót na część etatu',
+        'Czy muszę mówić o ciąży na rozmowie?',
+    ];
+
     private const string SYSTEM_PROMPT = <<<'PROMPT'
         Jesteś asystentem MomJobs - serwisu pracy dla kobiet w ciąży i mam wracających do pracy.
         Odpowiadasz po polsku, krótko (2-5 zdań), ciepło i konkretnie, zwracając się do użytkowniczki na "Ty".

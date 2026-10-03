@@ -24,6 +24,7 @@ class OfferFilterRequest extends FormRequest
             'employment_fractions.*' => [Rule::enum(EmploymentFraction::class)],
             'flexible_hours' => ['nullable', 'boolean'],
             'childcare_subsidy' => ['nullable', 'boolean'],
+            'nursery_nearby' => ['nullable', 'boolean'],
             'with_reviews' => ['nullable', 'boolean'],
             'job_share' => ['nullable', 'boolean'],
             'saved' => ['nullable', 'boolean'],

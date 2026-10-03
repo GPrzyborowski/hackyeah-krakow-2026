@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Candidate;
 
-use App\Enums\CvStatus;
 use App\Enums\EmploymentFraction;
-use App\Enums\SkillSource;
 use App\Enums\WorkMode;
 use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
 use App\Http\Controllers\Controller;
@@ -15,23 +13,17 @@ use App\Http\Requests\Candidate\UpdateSummaryRequest;
 use App\Models\CandidateProfile;
 use App\Models\Company;
 use App\Models\Skill;
-use App\Services\Ai\CvAnalysis;
-use App\Services\Ai\CvAnalyzer;
+use App\Services\Candidate\ProfileOnboarding;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-use Throwable;
 
 class OnboardingController extends Controller
 {
     use ResolvesCandidateProfile;
-
-    private const int LAST_STEP = 4;
 
     /**
      * Show the 4-step profile wizard (also used as the profile editor once published).
@@ -64,43 +56,19 @@ class OnboardingController extends Controller
      *
      * @throws ValidationException
      */
-    public function analyzeCv(AnalyzeCvRequest $request, CvAnalyzer $analyzer): RedirectResponse
+    public function analyzeCv(AnalyzeCvRequest $request, ProfileOnboarding $onboarding): RedirectResponse
     {
-        $profile = $this->candidateProfile($request);
+        $analysis = $onboarding->analyzeCv(
+            $this->candidateProfile($request),
+            $request->hasFile('cv') ? $request->file('cv') : null,
+            $request->input('cv_text'),
+        );
 
-        if ($request->hasFile('cv')) {
-            $storedPath = $request->file('cv')->store('cvs', 'local');
-
-            if ($storedPath === false) {
-                throw ValidationException::withMessages(['cv' => 'Nie udało się zapisać pliku CV. Spróbuj ponownie.']);
-            }
-
-            if ($profile->cv_path) {
-                Storage::disk('local')->delete($profile->cv_path);
-            }
-
-            $profile->cv_path = $storedPath;
-            $profile->cv_original_name = $request->file('cv')->getClientOriginalName();
-        }
-
-        if ($request->filled('cv_text')) {
-            $profile->cv_text = $request->string('cv_text')->trim()->toString();
-        }
-
-        $profile->cv_status = CvStatus::Parsing;
-        $profile->save();
-
-        try {
-            $analysis = $analyzer->analyze($profile);
-        } catch (Throwable $exception) {
-            report($exception);
-            $profile->update(['cv_status' => CvStatus::Failed]);
+        if ($analysis === null) {
             Inertia::flash('toast', ['type' => 'error', 'message' => 'Nie udało się przeanalizować CV. Dodaj umiejętności ręcznie.']);
 
             return to_route('candidate.onboarding.show', ['step' => 2]);
         }
-
-        $this->applyAnalysis($profile, $analysis);
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -114,22 +82,12 @@ class OnboardingController extends Controller
 
     /**
      * Step 2 done: every remaining tag becomes confirmed and visible to employers.
+     *
+     * @throws ValidationException
      */
-    public function confirmSkills(Request $request): RedirectResponse
+    public function confirmSkills(Request $request, ProfileOnboarding $onboarding): RedirectResponse
     {
-        $profile = $this->candidateProfile($request);
-
-        if (! $profile->skills()->exists()) {
-            throw ValidationException::withMessages(['skills' => 'Dodaj przynajmniej jedną umiejętność.']);
-        }
-
-        $unconfirmedSkillIds = $profile->skills()->wherePivotNull('confirmed_at')->pluck('skills.id')->all();
-
-        if ($unconfirmedSkillIds !== []) {
-            $profile->skills()->updateExistingPivot($unconfirmedSkillIds, ['confirmed_at' => now()]);
-        }
-
-        $this->advanceTo($profile, 2);
+        $onboarding->confirmSkills($this->candidateProfile($request));
 
         return to_route('candidate.onboarding.show', ['step' => 3]);
     }
@@ -137,11 +95,9 @@ class OnboardingController extends Controller
     /**
      * Step 2: the candidate reviews and edits the summary that employers see on her anonymous profile.
      */
-    public function updateSummary(UpdateSummaryRequest $request): RedirectResponse
+    public function updateSummary(UpdateSummaryRequest $request, ProfileOnboarding $onboarding): RedirectResponse
     {
-        $summary = $request->string('ai_summary')->trim()->toString();
-
-        $this->candidateProfile($request)->update(['ai_summary' => $summary === '' ? null : $summary]);
+        $onboarding->updateSummary($this->candidateProfile($request), $request->input('ai_summary'));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Opis dla pracodawców zapisany.']);
 
@@ -151,16 +107,11 @@ class OnboardingController extends Controller
     /**
      * Step 3: work preferences and the private return calendar.
      */
-    public function updatePreferences(UpdatePreferencesRequest $request): RedirectResponse
+    public function updatePreferences(UpdatePreferencesRequest $request, ProfileOnboarding $onboarding): RedirectResponse
     {
         $profile = $this->candidateProfile($request);
 
-        $profile->fill([
-            ...$request->validated(),
-            'work_modes' => $request->validated('work_modes', []),
-            'employment_fractions' => $request->validated('employment_fractions', []),
-        ]);
-        $this->advanceTo($profile, 3);
+        $onboarding->updatePreferences($profile, $request->validated());
 
         if ($profile->isPublished()) {
             Inertia::flash('toast', ['type' => 'success', 'message' => 'Preferencje zapisane.']);
@@ -183,16 +134,12 @@ class OnboardingController extends Controller
 
     /**
      * Step 4: make the profile visible to employers.
+     *
+     * @throws ValidationException
      */
-    public function publish(UpdatePrivacyRequest $request): RedirectResponse
+    public function publish(UpdatePrivacyRequest $request, ProfileOnboarding $onboarding): RedirectResponse
     {
-        $profile = $this->candidateProfile($request);
-        $profile->fill($request->validated());
-
-        $this->ensurePublishable($profile);
-
-        $profile->published_at ??= now();
-        $this->advanceTo($profile, self::LAST_STEP);
+        $onboarding->publish($this->candidateProfile($request), $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Profil opublikowany. Firmy mogą Cię teraz zaprosić.']);
 
@@ -201,84 +148,26 @@ class OnboardingController extends Controller
 
     /**
      * Hide a published profile from employers, or show it again.
+     *
+     * @throws ValidationException
      */
-    public function toggleVisibility(Request $request): RedirectResponse
+    public function toggleVisibility(Request $request, ProfileOnboarding $onboarding): RedirectResponse
     {
         $profile = $this->candidateProfile($request);
+        $wasPublished = $profile->isPublished();
 
-        if ($profile->isPublished()) {
-            $profile->update(['published_at' => null]);
-            Inertia::flash('toast', ['type' => 'info', 'message' => 'Profil ukryty. Pracodawcy go nie widzą.']);
-        } else {
-            $this->ensurePublishable($profile);
-            $profile->update(['published_at' => now(), 'onboarding_step' => self::LAST_STEP]);
-            Inertia::flash('toast', ['type' => 'success', 'message' => 'Profil znowu jest widoczny dla pracodawców.']);
-        }
+        $onboarding->setVisibility($profile, ! $wasPublished);
+
+        Inertia::flash('toast', $wasPublished
+            ? ['type' => 'info', 'message' => 'Profil ukryty. Pracodawcy go nie widzą.']
+            : ['type' => 'success', 'message' => 'Profil znowu jest widoczny dla pracodawców.']);
 
         return back();
     }
 
-    private function applyAnalysis(CandidateProfile $profile, CvAnalysis $analysis): void
-    {
-        DB::transaction(function () use ($profile, $analysis): void {
-            $attachedSkillIds = $profile->skills()->pluck('skills.id');
-
-            foreach ($analysis->skills as $skillName) {
-                if (blank($skillName)) {
-                    continue;
-                }
-
-                $skill = Skill::findOrCreateByName($skillName);
-
-                if (! $attachedSkillIds->contains($skill->id)) {
-                    $profile->skills()->attach($skill->id, ['source' => SkillSource::Ai->value, 'confirmed_at' => null]);
-                    $attachedSkillIds->push($skill->id);
-                }
-            }
-
-            $profile->suggested_positions = $analysis->positions;
-            $profile->ai_summary = $analysis->summary !== null ? Str::limit($analysis->summary, UpdateSummaryRequest::MAX_LENGTH - 1, '…') : $profile->ai_summary;
-            $profile->headline = filled($profile->headline) ? $profile->headline : $analysis->headline;
-            $profile->years_of_experience ??= $analysis->yearsOfExperience;
-
-            if (filled($analysis->extractedText) && blank($profile->cv_text)) {
-                $profile->cv_text = $analysis->extractedText;
-            }
-
-            $profile->cv_status = CvStatus::Parsed;
-            $profile->save();
-        });
-    }
-
-    /**
-     * @throws ValidationException
-     */
-    private function ensurePublishable(CandidateProfile $profile): void
-    {
-        $errors = [];
-
-        if ($profile->available_from === null) {
-            $errors['available_from'] = 'Uzupełnij datę „Od kiedy możesz zacząć?” w kroku 3.';
-        }
-
-        if (! $profile->confirmedSkills()->exists()) {
-            $errors['skills'] = 'Zatwierdź przynajmniej jedną umiejętność w kroku 2.';
-        }
-
-        if ($errors !== []) {
-            throw ValidationException::withMessages($errors);
-        }
-    }
-
-    private function advanceTo(CandidateProfile $profile, int $completedStep): void
-    {
-        $profile->onboarding_step = max($profile->onboarding_step, $completedStep);
-        $profile->save();
-    }
-
     private function resolveStep(CandidateProfile $profile, int $requestedStep): int
     {
-        $furthestReachable = $profile->isPublished() ? self::LAST_STEP : min($profile->onboarding_step + 1, self::LAST_STEP);
+        $furthestReachable = $profile->isPublished() ? ProfileOnboarding::LAST_STEP : min($profile->onboarding_step + 1, ProfileOnboarding::LAST_STEP);
 
         if ($requestedStep === 0) {
             return $profile->isPublished() ? 2 : $furthestReachable;

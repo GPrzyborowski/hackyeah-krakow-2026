@@ -30,7 +30,6 @@ class NewsletterConfirmation extends Notification
             ->greeting('Cześć!')
             ->line('Dziękujemy za zapis. Jeden nowy tekst w tygodniu, bez reklam i bez spamu.')
             ->action('Potwierdzam zapis', URL::temporarySignedRoute('newsletter.confirm', now()->addDays(7), ['token' => $notifiable->token]))
-            ->line('Jeśli to nie Ty, zignoruj tę wiadomość – bez potwierdzenia nic nie wyślemy.')
-            ->salutation('Zespół MomJobs');
+            ->line('Jeśli to nie Ty, zignoruj tę wiadomość – bez potwierdzenia nic nie wyślemy.');
     }
 }

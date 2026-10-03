@@ -48,7 +48,17 @@ const ticks = computed(() => {
 
 <template>
     <div class="w-full" data-test="schedule-bar">
-        <div class="relative h-4 text-[11px] font-semibold text-brand-green/70">
+        <ul class="sr-only">
+            <li v-for="segment in segments" :key="segment.key">
+                {{ segment.label }}: {{ formatHour(segment.starts_at) }}–{{
+                    formatHour(segment.ends_at)
+                }}
+            </li>
+        </ul>
+        <div
+            class="relative h-4 text-[11px] font-semibold text-brand-green/80"
+            aria-hidden="true"
+        >
             <span
                 v-for="tick in ticks"
                 :key="tick.time"
@@ -59,6 +69,7 @@ const ticks = computed(() => {
         </div>
         <div
             class="relative mt-2 h-9 overflow-hidden rounded-full bg-brand-cream text-xs font-medium text-brand-green"
+            aria-hidden="true"
         >
             <div
                 v-for="segment in segments"
@@ -69,6 +80,7 @@ const ticks = computed(() => {
                         ? 'bg-brand-peach'
                         : 'bg-brand-yellow'
                 "
+                :title="`${segment.label}: ${formatHour(segment.starts_at)}–${formatHour(segment.ends_at)}`"
                 :style="{
                     left: `${segment.left}%`,
                     width: `${segment.width}%`,

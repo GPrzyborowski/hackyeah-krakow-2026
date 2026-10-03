@@ -49,7 +49,7 @@ function remove(keyword: string): void {
 
 <template>
     <div
-        class="mt-1.5 flex min-h-11 flex-wrap items-center gap-2 rounded-2xl border border-brand-green/20 bg-white px-3 py-2 focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-mint/50"
+        class="mt-1.5 flex min-h-11 flex-wrap items-center gap-2 rounded-2xl border border-brand-green/60 bg-white px-3 py-2 focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-green/40"
     >
         <span
             v-for="keyword in keywords"

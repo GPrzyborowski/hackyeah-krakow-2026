@@ -41,7 +41,7 @@ const emptyStateText = computed(() =>
         >
             <MessageCircle class="size-8 text-brand-mint" />
             <p class="font-semibold">Nie masz jeszcze rozmów.</p>
-            <p class="text-sm text-brand-green/70">{{ emptyStateText }}</p>
+            <p class="text-sm text-brand-green/80">{{ emptyStateText }}</p>
         </div>
 
         <ul v-else class="flex flex-col gap-3">
@@ -66,7 +66,7 @@ const emptyStateText = computed(() =>
                             >
                                 {{ conversation.counterpart_name }}
                             </p>
-                            <span class="shrink-0 text-xs text-brand-green/50">
+                            <span class="shrink-0 text-xs text-brand-green/80">
                                 {{
                                     formatMessageTime(
                                         conversation.last_message_at,
@@ -75,7 +75,7 @@ const emptyStateText = computed(() =>
                             </span>
                         </div>
                         <p
-                            class="truncate text-xs font-medium text-brand-green/70"
+                            class="truncate text-xs font-medium text-brand-green/80"
                         >
                             {{ conversation.offer_title }}
                         </p>
@@ -84,7 +84,7 @@ const emptyStateText = computed(() =>
                             :class="
                                 conversation.has_unread
                                     ? 'font-semibold text-brand-green'
-                                    : 'text-brand-green/60'
+                                    : 'text-brand-green/80'
                             "
                         >
                             {{

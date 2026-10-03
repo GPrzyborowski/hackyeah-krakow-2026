@@ -108,7 +108,7 @@ function chipClass(isActive: boolean): string {
                 <p class="text-sm text-brand-green/80">
                     {{ featured.excerpt }}
                 </p>
-                <p class="text-xs text-brand-green/60">
+                <p class="text-xs text-brand-green/80">
                     {{ featured.reading_minutes }} min czytania
                 </p>
             </div>
@@ -140,7 +140,7 @@ function chipClass(isActive: boolean): string {
                 >
                     {{ article.title }}
                 </h3>
-                <p class="mt-2 text-xs text-brand-green/60">
+                <p class="mt-2 text-xs text-brand-green/80">
                     {{ article.reading_minutes }} min czytania
                 </p>
             </Link>
@@ -148,7 +148,7 @@ function chipClass(isActive: boolean): string {
 
         <p
             v-else-if="!featured"
-            class="mt-10 rounded-3xl bg-white p-10 text-center text-sm text-brand-green/70"
+            class="mt-10 rounded-3xl bg-white p-10 text-center text-sm text-brand-green/80"
         >
             W tej kategorii nie ma jeszcze artykułów.
         </p>

@@ -35,7 +35,7 @@ const subtitle = computed(() =>
                 </span>
                 <div class="min-w-0">
                     <p class="text-lg font-bold">{{ anonymousName }}</p>
-                    <p class="truncate text-xs text-brand-green/70">
+                    <p class="truncate text-xs text-brand-green/80">
                         {{ subtitle || 'Uzupełnij stanowisko i staż' }}
                     </p>
                 </div>
@@ -56,13 +56,13 @@ const subtitle = computed(() =>
                 </span>
                 <span
                     v-if="skills.length > 6"
-                    class="rounded-full px-2 py-1 text-xs text-brand-green/60"
+                    class="rounded-full px-2 py-1 text-xs text-brand-green/80"
                 >
                     +{{ skills.length - 6 }}
                 </span>
                 <span
                     v-if="skills.length === 0"
-                    class="text-xs text-brand-green/50"
+                    class="text-xs text-brand-green/80"
                 >
                     Tu pojawią się Twoje umiejętności
                 </span>

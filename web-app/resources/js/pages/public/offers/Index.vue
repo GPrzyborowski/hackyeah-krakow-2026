@@ -127,7 +127,7 @@ const offerCountLabel = computed(() => {
                 type="search"
                 name="q"
                 placeholder="Stanowisko, firma lub umiejętność"
-                class="min-w-0 flex-1 rounded-full bg-transparent px-4 py-2.5 text-sm text-brand-green placeholder:text-brand-green/50 focus:outline-none"
+                class="min-w-0 flex-1 rounded-full bg-transparent px-4 py-2.5 text-sm text-brand-green placeholder:text-brand-green/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green"
             />
             <span class="hidden h-6 w-px bg-brand-green/15 sm:block" />
             <label class="sr-only" for="offer-location"
@@ -139,7 +139,7 @@ const offerCountLabel = computed(() => {
                 type="search"
                 name="location"
                 placeholder="Miasto lub „zdalnie”"
-                class="min-w-0 flex-1 rounded-full bg-transparent px-4 py-2.5 text-sm text-brand-green placeholder:text-brand-green/50 focus:outline-none"
+                class="min-w-0 flex-1 rounded-full bg-transparent px-4 py-2.5 text-sm text-brand-green placeholder:text-brand-green/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green"
             />
             <button
                 type="submit"

@@ -82,16 +82,21 @@ const filters: { value: InvitationStatus | 'all'; label: string }[] = [
             zaproszenie.
         </p>
 
-        <div class="mt-5 flex flex-wrap gap-2">
+        <div
+            class="mt-5 flex flex-wrap gap-2"
+            role="group"
+            aria-label="Filtruj zaproszenia"
+        >
             <button
                 v-for="item in filters"
                 :key="item.value"
                 type="button"
+                :aria-pressed="filter === item.value"
                 class="rounded-full px-4 py-1.5 text-sm font-medium"
                 :class="
                     filter === item.value
                         ? 'bg-brand-green text-white'
-                        : 'border border-brand-green/20 bg-white text-brand-green hover:bg-brand-mint-soft'
+                        : 'border border-brand-green/60 bg-white text-brand-green hover:bg-brand-mint-soft'
                 "
                 @click="filter = item.value"
             >
@@ -101,7 +106,7 @@ const filters: { value: InvitationStatus | 'all'; label: string }[] = [
 
         <p
             v-if="visibleInvitations.length === 0"
-            class="mt-6 rounded-3xl bg-white p-8 text-center text-sm text-brand-green/70 shadow-sm"
+            class="mt-6 rounded-3xl bg-white p-8 text-center text-sm text-brand-green/80 shadow-sm"
         >
             Brak zaproszeń.
             <Link
@@ -129,7 +134,7 @@ const filters: { value: InvitationStatus | 'all'; label: string }[] = [
                             invitation.candidate.anonymous_name
                         }}
                     </p>
-                    <p class="text-xs text-brand-green/70">
+                    <p class="text-xs text-brand-green/80">
                         {{ invitation.offer.title }} · wysłane
                         {{ formatShortDate(invitation.created_at) }}
                     </p>

@@ -27,7 +27,12 @@ const toggleRecoveryCodesVisibility = async () => {
 
     if (isRecoveryCodesVisible.value) {
         await nextTick();
-        recoveryCodeSectionRef.value?.scrollIntoView({ behavior: 'smooth' });
+        recoveryCodeSectionRef.value?.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)')
+                .matches
+                ? 'auto'
+                : 'smooth',
+        });
     }
 };
 
@@ -102,7 +107,7 @@ onMounted(async () => {
                             <div
                                 v-for="n in 8"
                                 :key="n"
-                                class="h-4 animate-pulse rounded bg-muted-foreground/20"
+                                class="h-4 rounded bg-muted-foreground/20 motion-safe:animate-pulse"
                             ></div>
                         </div>
                         <div

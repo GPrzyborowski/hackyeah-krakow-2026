@@ -2,23 +2,19 @@
 
 namespace App\Http\Controllers\Employer;
 
-use App\Enums\CandidateDecisionType;
+use App\Actions\Employer\InviteCandidate;
 use App\Enums\InvitationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Employer\Concerns\InteractsWithEmployerCompany;
 use App\Http\Requests\Employer\StoreInvitationRequest;
 use App\Http\Resources\RevealedCandidateResource;
-use App\Models\CandidateDecision;
 use App\Models\CandidateProfile;
 use App\Models\Invitation;
 use App\Models\JobOffer;
-use App\Services\Matching\MatchScorer;
-use Illuminate\Database\Eloquent\Builder;
+use App\Services\Employer\CompanyInvitations;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -30,18 +26,11 @@ class InvitationController extends Controller
      * Invitations sent by the company; contact data is revealed only for accepted ones.
      * Unanswered and declined invitations disappear once the candidate hides her profile from the company.
      */
-    public function index(Request $request): Response
+    public function index(Request $request, CompanyInvitations $companyInvitations): Response
     {
         $company = $this->currentCompany($request);
 
-        $invitations = Invitation::query()
-            ->whereRelation('jobOffer', 'company_id', $company->id)
-            ->where(fn (Builder $query) => $query
-                ->where('status', InvitationStatus::Accepted)
-                ->orWhereHas('candidateProfile', fn (Builder $candidate) => $candidate->where(fn (Builder $candidate) => $candidate
-                    ->whereNull('hidden_from_company_id')
-                    ->orWhere('hidden_from_company_id', '!=', $company->id))))
-            ->with(['jobOffer', 'candidateProfile.user', 'conversation'])
+        $invitations = $companyInvitations->query($company)
             ->latest()
             ->get()
             ->map(fn (Invitation $invitation): array => [
@@ -67,29 +56,11 @@ class InvitationController extends Controller
     /**
      * Invite a candidate to an offer; the message is moderated by the form request.
      */
-    public function store(StoreInvitationRequest $request, JobOffer $offer, CandidateProfile $candidate, MatchScorer $scorer): RedirectResponse
+    public function store(StoreInvitationRequest $request, JobOffer $offer, CandidateProfile $candidate, InviteCandidate $inviteCandidate): RedirectResponse
     {
         Gate::authorize('reviewCandidates', $offer);
 
-        abort_unless($scorer->matchingCandidates($offer)->whereKey($candidate->id)->exists(), 404);
-
-        if ($offer->invitations()->where('candidate_profile_id', $candidate->id)->exists()) {
-            throw ValidationException::withMessages(['message' => 'Ta kandydatka ma już zaproszenie do tej oferty.']);
-        }
-
-        DB::transaction(function () use ($request, $offer, $candidate): void {
-            $offer->invitations()->create([
-                'candidate_profile_id' => $candidate->id,
-                'sent_by_user_id' => $request->user()->id,
-                'message' => $request->validated('message'),
-                'status' => InvitationStatus::Pending,
-            ]);
-
-            CandidateDecision::query()->updateOrCreate(
-                ['job_offer_id' => $offer->id, 'candidate_profile_id' => $candidate->id],
-                ['decision' => CandidateDecisionType::Invited],
-            );
-        });
+        $inviteCandidate->handle($offer, $candidate, $request->user(), $request->validated('message'));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Zaproszenie wysłane. Dane kontaktowe zobaczysz po jego akceptacji.']);
 

@@ -49,7 +49,7 @@ const rows = computed(() => [
                 <Circle v-else class="size-3.5 shrink-0 text-white/70" />
                 <span :class="{ 'text-white/75': !row.matched }">
                     {{ row.name }}<span v-if="!row.matched">, brak w CV</span>
-                    <span v-if="!row.required" class="text-white/50">
+                    <span v-if="!row.required" class="text-white/80">
                         (mile widziane)</span
                     >
                 </span>

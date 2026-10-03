@@ -4,6 +4,7 @@ import { Bookmark, Search, SlidersHorizontal, Sparkles } from '@lucide/vue';
 import { reactive, ref } from 'vue';
 import OfferCard from '@/components/candidate/OfferCard.vue';
 import type { CandidateOffer, Option } from '@/components/candidate/types';
+import { cvAnalysis } from '@/routes/candidate';
 import { index } from '@/routes/candidate/offers';
 import { show as onboarding } from '@/routes/candidate/onboarding';
 
@@ -83,26 +84,31 @@ const parentFilters: {
 
         <form
             class="flex flex-col gap-2 rounded-3xl bg-white p-2 shadow-sm md:flex-row md:items-center md:rounded-full"
+            role="search"
             @submit.prevent="apply"
         >
-            <label class="flex flex-1 items-center gap-2 px-4">
-                <Search class="size-4 text-brand-green/50" />
+            <label
+                class="flex flex-1 items-center gap-2 rounded-full px-4 focus-within:ring-2 focus-within:ring-brand-green"
+            >
+                <Search class="size-4 text-brand-green/80" aria-hidden="true" />
                 <input
                     v-model="form.q"
                     type="search"
                     placeholder="Stanowisko lub umiejętność"
                     aria-label="Stanowisko lub umiejętność"
-                    class="w-full bg-transparent py-2 text-sm text-brand-green outline-none placeholder:text-brand-green/40"
+                    class="w-full bg-transparent py-2 text-sm text-brand-green outline-none placeholder:text-brand-green/70"
                 />
             </label>
             <div class="hidden h-6 w-px bg-brand-cream md:block" />
-            <label class="flex flex-1 items-center gap-2 px-4">
+            <label
+                class="flex flex-1 items-center gap-2 rounded-full px-4 focus-within:ring-2 focus-within:ring-brand-green"
+            >
                 <input
                     v-model="form.location"
                     type="search"
                     placeholder="Miasto lub zdalnie"
                     aria-label="Miasto lub zdalnie"
-                    class="w-full bg-transparent py-2 text-sm text-brand-green outline-none placeholder:text-brand-green/40"
+                    class="w-full bg-transparent py-2 text-sm text-brand-green outline-none placeholder:text-brand-green/70"
                 />
             </label>
             <button
@@ -211,7 +217,7 @@ const parentFilters: {
                             class="w-full rounded-2xl border border-brand-mint-soft px-3 py-2 text-sm text-brand-green"
                             @change="apply"
                         />
-                        <p class="text-xs text-brand-green/60">
+                        <p class="text-xs text-brand-green/80">
                             Pokazujemy oferty, do których zdążysz (do 30 dni po
                             starcie).
                         </p>
@@ -234,7 +240,12 @@ const parentFilters: {
                         </p>
                     </div>
                     <Link
-                        :href="onboarding({ query: { step: 2 } })"
+                        :href="
+                            hasConfirmedSkills
+                                ? cvAnalysis()
+                                : onboarding({ query: { step: 2 } })
+                        "
+                        data-test="cv-analysis-link"
                         class="self-start rounded-full bg-brand-peach px-5 py-2 text-sm font-semibold text-brand-green md:self-auto"
                     >
                         {{
@@ -274,7 +285,7 @@ const parentFilters: {
                         </button>
                     </div>
                     <label
-                        class="flex items-center gap-2 text-sm text-brand-green/70"
+                        class="flex items-center gap-2 text-sm text-brand-green/80"
                     >
                         Sortuj
                         <select
@@ -301,7 +312,7 @@ const parentFilters: {
                     <p class="font-semibold">
                         Brak ofert dla wybranych filtrów.
                     </p>
-                    <p class="mt-1 text-sm text-brand-green/70">
+                    <p class="mt-1 text-sm text-brand-green/80">
                         Spróbuj zmienić datę startu albo usuń część filtrów.
                     </p>
                 </div>

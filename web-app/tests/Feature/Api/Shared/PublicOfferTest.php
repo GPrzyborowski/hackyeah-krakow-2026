@@ -1,0 +1,54 @@
+<?php
+
+namespace Tests\Feature\Api\Shared;
+
+use App\Enums\OfferStatus;
+use App\Enums\WorkMode;
+use App\Models\Company;
+use App\Models\CompanyReview;
+use App\Models\JobOffer;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\Employer\InteractsWithEmployerFixtures;
+use Tests\TestCase;
+
+class PublicOfferTest extends TestCase
+{
+    use InteractsWithEmployerFixtures, RefreshDatabase;
+
+    public function test_guest_lists_published_offers_with_web_filters_and_no_match_score(): void
+    {
+        $company = Company::factory()->create(['name' => 'Zielone Biuro']);
+        CompanyReview::factory()->for($company)->create(['quote' => 'Elastyczne godziny po powrocie.']);
+        $remote = JobOffer::factory()->published()->for($company)->create(['title' => 'Księgowa', 'work_mode' => WorkMode::Remote]);
+        JobOffer::factory()->published()->for($company)->create(['title' => 'Kadrowa', 'work_mode' => WorkMode::Onsite]);
+        JobOffer::factory()->for($company)->create(['title' => 'Szkic', 'status' => OfferStatus::Draft, 'work_mode' => WorkMode::Remote]);
+
+        $this->getJson('/api/v1/public/offers?work_mode[]=remote&work_mode[]=bogus')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $remote->id)
+            ->assertJsonPath('data.0.company.featured_quote.quote', 'Elastyczne godziny po powrocie.')
+            ->assertJsonPath('meta.filters.work_mode', ['remote'])
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonMissingPath('data.0.score');
+    }
+
+    public function test_guest_sees_published_offer_detail_with_skills(): void
+    {
+        $offer = $this->publishedOffer(Company::factory()->create(), [$this->skill('Excel')], [$this->skill('SAP')]);
+
+        $this->getJson("/api/v1/public/offers/{$offer->id}")
+            ->assertOk()
+            ->assertJsonPath('data.id', $offer->id)
+            ->assertJsonPath('data.required_skills', ['Excel'])
+            ->assertJsonPath('data.nice_to_have_skills', ['SAP'])
+            ->assertJsonPath('data.company.rating.count', 0);
+    }
+
+    public function test_unpublished_offer_is_404(): void
+    {
+        $draft = JobOffer::factory()->create(['status' => OfferStatus::Draft]);
+
+        $this->getJson("/api/v1/public/offers/{$draft->id}")->assertNotFound();
+    }
+}

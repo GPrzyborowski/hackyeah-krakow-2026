@@ -28,11 +28,10 @@ class InvitationReceived extends Notification
     {
         return (new MailMessage)
             ->subject($this->invitation->job_share_pair_id !== null ? 'Zaproszenie do rozmowy dla Waszej pary job-sharing' : 'Nowe zaproszenie do rozmowy')
-            ->greeting('Dzień dobry!')
+            ->greeting('Cześć!')
             ->line($this->title())
             ->line('Zaproszenie możesz przyjąć albo odrzucić. Dopiero po akceptacji firma zobaczy Twoje imię, nazwisko i e-mail.')
-            ->action('Zobacz zaproszenie', route('candidate.invitations.index'))
-            ->salutation('Zespół MomJobs');
+            ->action('Zobacz zaproszenie', route('candidate.invitations.index'));
     }
 
     /**

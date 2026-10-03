@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Http\Resources\Api\V1;
+
+use App\Models\Conversation;
+use App\Services\Conversations\ConversationInbox;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+/**
+ * Conversation header: the company for a candidate; the revealed candidate (name + e-mail, invitation accepted)
+ * for the employer; plus the anonymous job-sharing partner when the invitation was for a pair.
+ *
+ * @property Conversation $resource
+ */
+class ConversationDetailResource extends JsonResource
+{
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        $conversation = $this->resource;
+        $inbox = app(ConversationInbox::class);
+        $user = $request->user();
+        $offer = $conversation->invitation->jobOffer;
+
+        return [
+            'id' => $conversation->id,
+            'offer' => ['id' => $offer->id, 'title' => $offer->title],
+            'counterpart' => $inbox->counterpart($conversation, $user),
+            'pair_partner_name' => $inbox->pairPartnerName($conversation),
+            'viewer_role' => $user->role->value,
+            'last_message_at' => $conversation->last_message_at?->toIso8601String(),
+        ];
+    }
+}

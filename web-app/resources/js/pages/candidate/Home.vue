@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowRight, Bookmark, Lock } from '@lucide/vue';
+import { ArrowRight, Bookmark, Lock, Sparkles } from '@lucide/vue';
 import { computed } from 'vue';
 import PairController from '@/actions/App/Http/Controllers/JobSharing/PairController';
 import { formatShortDate, pluralize } from '@/components/candidate/format';
 import MatchPill from '@/components/candidate/MatchPill.vue';
 import { index as assistantIndex } from '@/routes/assistant';
-import { home } from '@/routes/candidate';
+import { cvAnalysis, home } from '@/routes/candidate';
 import { index as invitationsIndex } from '@/routes/candidate/invitations';
 import {
     index as offersIndex,
@@ -115,7 +115,7 @@ const hasPrivateDates = computed(
             <div class="flex items-center justify-between gap-2">
                 <h2 class="text-lg font-bold">Twój kalendarz powrotu</h2>
                 <span
-                    class="inline-flex items-center gap-1 text-xs text-white/60"
+                    class="inline-flex items-center gap-1 text-xs text-white/80"
                 >
                     <Lock class="size-3" /> widzisz tylko Ty
                 </span>
@@ -166,7 +166,7 @@ const hasPrivateDates = computed(
                 <h2 class="text-lg font-bold text-brand-green">
                     Zaproszenia od firm
                 </h2>
-                <p class="truncate text-brand-green/70">
+                <p class="truncate text-brand-green/80">
                     {{
                         invitations.company_names.length
                             ? invitations.company_names.join(', ')
@@ -204,7 +204,7 @@ const hasPrivateDates = computed(
                 <h2 class="text-lg font-bold text-brand-green">
                     Zaproszenia do pary
                 </h2>
-                <p class="text-brand-green/70">
+                <p class="text-brand-green/80">
                     Ktoś chce dzielić z Tobą stanowisko w job sharingu.
                 </p>
             </div>
@@ -230,6 +230,31 @@ const hasPrivateDates = computed(
             <ArrowRight class="size-4 text-brand-green" />
         </Link>
 
+        <Link
+            :href="cvAnalysis()"
+            class="flex items-center justify-between gap-4 rounded-3xl bg-brand-green p-6 text-white transition hover:bg-brand-green-soft"
+            data-test="cv-analysis-card"
+        >
+            <div class="min-w-0">
+                <h2 class="flex items-center gap-2 text-lg font-bold">
+                    <Sparkles
+                        class="size-5 shrink-0 text-brand-yellow"
+                        aria-hidden="true"
+                    />
+                    Analiza CV
+                </h2>
+                <p class="text-sm text-white/85">
+                    Zobacz swoje mocne strony i czego brakuje do lepszego
+                    dopasowania.
+                </p>
+            </div>
+            <span
+                class="shrink-0 rounded-full bg-brand-yellow px-4 py-1.5 text-sm font-semibold text-brand-green"
+            >
+                Zobacz analizę CV
+            </span>
+        </Link>
+
         <section class="rounded-3xl bg-white p-6 shadow-sm">
             <div class="flex items-center justify-between gap-2">
                 <h2 class="text-lg font-bold text-brand-green">
@@ -253,7 +278,7 @@ const hasPrivateDates = computed(
                                 >{{ offer.title }} ·
                                 {{ offer.work_mode_label.toLowerCase() }}</span
                             >
-                            <span class="block text-xs text-brand-green/60">{{
+                            <span class="block text-xs text-brand-green/80">{{
                                 offer.company
                             }}</span>
                         </span>
@@ -262,7 +287,7 @@ const hasPrivateDates = computed(
                 </li>
                 <li
                     v-if="topOffers.length === 0"
-                    class="py-3 text-sm text-brand-green/70"
+                    class="py-3 text-sm text-brand-green/80"
                 >
                     Jeszcze nie ma opublikowanych ofert.
                 </li>

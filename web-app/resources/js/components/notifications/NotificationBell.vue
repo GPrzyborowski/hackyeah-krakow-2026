@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { Bell } from '@lucide/vue';
+import { DropdownMenuItem as MenuItem } from 'reka-ui';
 import { computed } from 'vue';
 import NotificationItem from '@/components/notifications/NotificationItem.vue';
 import type { NotificationsSummary } from '@/components/notifications/types';
@@ -52,42 +53,44 @@ function markAllRead(): void {
             align="end"
             class="w-[min(22rem,calc(100vw-2rem))] rounded-3xl p-2"
         >
-            <DropdownMenuLabel
-                class="flex items-center justify-between gap-2 px-2 py-1.5"
-            >
-                <span class="font-semibold text-brand-green"
-                    >Powiadomienia</span
-                >
-                <button
-                    v-if="unreadCount > 0"
-                    type="button"
-                    class="text-xs font-medium text-brand-green/70 underline-offset-2 hover:underline"
-                    @click="markAllRead"
-                >
-                    Oznacz wszystkie jako przeczytane
-                </button>
-            </DropdownMenuLabel>
+            <div class="flex items-center justify-between gap-2 px-2 py-1.5">
+                <DropdownMenuLabel class="p-0 font-semibold text-brand-green">
+                    Powiadomienia
+                </DropdownMenuLabel>
+                <MenuItem v-if="unreadCount > 0" as-child @select="markAllRead">
+                    <button
+                        type="button"
+                        class="rounded-full px-2 py-1 text-xs font-medium text-brand-green/80 underline-offset-2 outline-none hover:underline focus:underline data-[highlighted]:bg-brand-mint-soft"
+                    >
+                        Oznacz wszystkie jako przeczytane
+                    </button>
+                </MenuItem>
+            </div>
             <DropdownMenuSeparator />
             <div
                 v-if="summary.latest.length"
                 class="flex max-h-96 flex-col gap-1 overflow-y-auto"
             >
-                <NotificationItem
+                <MenuItem
                     v-for="notification in summary.latest"
                     :key="notification.id"
-                    :notification="notification"
-                />
+                    as-child
+                >
+                    <NotificationItem :notification="notification" />
+                </MenuItem>
             </div>
-            <p v-else class="px-3 py-6 text-center text-sm text-brand-green/60">
+            <p v-else class="px-3 py-6 text-center text-sm text-brand-green/80">
                 Nie masz jeszcze powiadomień.
             </p>
             <DropdownMenuSeparator />
-            <Link
-                :href="index()"
-                class="block rounded-full px-3 py-2 text-center text-sm font-semibold text-brand-green hover:bg-brand-mint-soft"
-            >
-                Zobacz wszystkie
-            </Link>
+            <MenuItem as-child>
+                <Link
+                    :href="index()"
+                    class="block rounded-full px-3 py-2 text-center text-sm font-semibold text-brand-green outline-none hover:bg-brand-mint-soft data-[highlighted]:bg-brand-mint-soft data-[highlighted]:ring-2 data-[highlighted]:ring-brand-green"
+                >
+                    Zobacz wszystkie
+                </Link>
+            </MenuItem>
         </DropdownMenuContent>
     </DropdownMenu>
 </template>

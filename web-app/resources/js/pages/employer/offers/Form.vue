@@ -39,6 +39,9 @@ const form = useForm({
     flexible_hours: props.offer?.flexible_hours ?? false,
     fixed_meeting_hours: props.offer?.fixed_meeting_hours ?? false,
     childcare_subsidy: props.offer?.childcare_subsidy ?? false,
+    nursery_distance_km: (props.offer?.nursery_distance_km ?? null) as
+        | number
+        | null,
     is_job_share:
         props.offer?.is_job_share ??
         (typeof window !== 'undefined' &&
@@ -70,7 +73,7 @@ function submit(action: 'draft' | 'publish'): void {
 }
 
 const fieldClass =
-    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/20 bg-white px-4 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-mint/50';
+    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/60 bg-white px-4 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 const labelClass = 'text-xs font-semibold text-brand-green';
 </script>
 
@@ -80,7 +83,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
     <div class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
         <Link
             :href="JobOfferController.index()"
-            class="inline-flex items-center gap-1 text-sm text-brand-green/70 hover:text-brand-green"
+            class="inline-flex items-center gap-1 text-sm text-brand-green/80 hover:text-brand-green"
         >
             <ArrowLeft class="size-4" /> Wszystkie ogłoszenia
         </Link>
@@ -106,22 +109,36 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             Nazwa stanowiska
                             <input
                                 v-model="form.title"
+                                :aria-invalid="
+                                    form.errors.title ? true : undefined
+                                "
+                                aria-describedby="title-error"
                                 type="text"
                                 :class="fieldClass"
                                 placeholder="np. Specjalistka ds. rekrutacji"
                                 required
                             />
-                            <InputError :message="form.errors.title" />
+                            <InputError
+                                id="title-error"
+                                :message="form.errors.title"
+                            />
                         </label>
                         <label :class="labelClass">
                             Miasto
                             <input
                                 v-model="form.city"
+                                :aria-invalid="
+                                    form.errors.city ? true : undefined
+                                "
+                                aria-describedby="city-error"
                                 type="text"
                                 :class="fieldClass"
                                 placeholder="np. Poznań"
                             />
-                            <InputError :message="form.errors.city" />
+                            <InputError
+                                id="city-error"
+                                :message="form.errors.city"
+                            />
                         </label>
                     </div>
                     <div class="mt-4 grid gap-4 sm:grid-cols-2">
@@ -129,6 +146,10 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             Tryb pracy
                             <select
                                 v-model="form.work_mode"
+                                :aria-invalid="
+                                    form.errors.work_mode ? true : undefined
+                                "
+                                aria-describedby="work_mode-error"
                                 :class="fieldClass"
                             >
                                 <option
@@ -139,28 +160,45 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                                     {{ mode.label }}
                                 </option>
                             </select>
-                            <InputError :message="form.errors.work_mode" />
+                            <InputError
+                                id="work_mode-error"
+                                :message="form.errors.work_mode"
+                            />
                         </label>
                         <label :class="labelClass">
                             Planowany start
                             <input
                                 v-model="form.start_date"
+                                :aria-invalid="
+                                    form.errors.start_date ? true : undefined
+                                "
+                                aria-describedby="start_date-error"
                                 type="date"
                                 :class="fieldClass"
                                 required
                             />
-                            <InputError :message="form.errors.start_date" />
+                            <InputError
+                                id="start_date-error"
+                                :message="form.errors.start_date"
+                            />
                         </label>
                     </div>
                     <label :class="[labelClass, 'mt-4 block']">
                         Opis stanowiska
                         <textarea
                             v-model="form.description"
+                            :aria-invalid="
+                                form.errors.description ? true : undefined
+                            "
+                            aria-describedby="description-error"
                             rows="4"
                             :class="[fieldClass, 'h-auto py-3']"
                             placeholder="Czym zajmuje się osoba na tym stanowisku?"
                         />
-                        <InputError :message="form.errors.description" />
+                        <InputError
+                            id="description-error"
+                            :message="form.errors.description"
+                        />
                     </label>
                 </section>
 
@@ -173,6 +211,12 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             Wymiar etatu
                             <select
                                 v-model="form.employment_fraction"
+                                :aria-invalid="
+                                    form.errors.employment_fraction
+                                        ? true
+                                        : undefined
+                                "
+                                aria-describedby="employment_fraction-error"
                                 :class="fieldClass"
                             >
                                 <option
@@ -184,6 +228,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                                 </option>
                             </select>
                             <InputError
+                                id="employment_fraction-error"
                                 :message="form.errors.employment_fraction"
                             />
                         </label>
@@ -191,25 +236,39 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             Wynagrodzenie od (zł brutto)
                             <input
                                 v-model.number="form.salary_min"
+                                :aria-invalid="
+                                    form.errors.salary_min ? true : undefined
+                                "
+                                aria-describedby="salary_min-error"
                                 type="number"
                                 min="0"
                                 step="100"
                                 :class="fieldClass"
                                 placeholder="8 500"
                             />
-                            <InputError :message="form.errors.salary_min" />
+                            <InputError
+                                id="salary_min-error"
+                                :message="form.errors.salary_min"
+                            />
                         </label>
                         <label :class="labelClass">
                             Wynagrodzenie do (zł brutto)
                             <input
                                 v-model.number="form.salary_max"
+                                :aria-invalid="
+                                    form.errors.salary_max ? true : undefined
+                                "
+                                aria-describedby="salary_max-error"
                                 type="number"
                                 min="0"
                                 step="100"
                                 :class="fieldClass"
                                 placeholder="11 000"
                             />
-                            <InputError :message="form.errors.salary_max" />
+                            <InputError
+                                id="salary_max-error"
+                                :message="form.errors.salary_max"
+                            />
                         </label>
                     </div>
                     <div class="mt-5 space-y-3 text-sm text-brand-green">
@@ -226,6 +285,40 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             Dofinansowanie żłobka lub przedszkola
                         </label>
                     </div>
+                    <label
+                        v-if="form.work_mode !== 'remote'"
+                        :class="[labelClass, 'mt-5 block sm:max-w-xs']"
+                    >
+                        Żłobek / przedszkole w pobliżu (km)
+                        <input
+                            v-model.number="form.nursery_distance_km"
+                            :aria-invalid="
+                                form.errors.nursery_distance_km
+                                    ? true
+                                    : undefined
+                            "
+                            aria-describedby="nursery_distance_km-hint nursery_distance_km-error"
+                            type="number"
+                            min="0"
+                            max="50"
+                            step="1"
+                            inputmode="numeric"
+                            :class="fieldClass"
+                            placeholder="2"
+                            data-test="nursery-distance"
+                        />
+                        <span
+                            id="nursery_distance_km-hint"
+                            class="mt-1 block text-xs font-normal text-brand-green/80"
+                        >
+                            Podaj odległość od miejsca pracy – kandydatki mogą
+                            filtrować oferty po tej informacji
+                        </span>
+                        <InputError
+                            id="nursery_distance_km-error"
+                            :message="form.errors.nursery_distance_km"
+                        />
+                    </label>
                     <div
                         class="mt-5 rounded-2xl bg-brand-mint-soft/60 p-4 text-sm text-brand-green"
                     >
@@ -236,7 +329,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             />
                             Oferta dla dwóch osób (job sharing)
                         </label>
-                        <p class="mt-1 text-xs text-brand-green/70">
+                        <p class="mt-1 text-xs text-brand-green/80">
                             Jedno stanowisko, dwie osoby dzielące dzień pracy.
                             Kandydatki same dobiorą się w pary i zaproponują
                             podział godzin.
@@ -249,11 +342,18 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                                 Dzień pracy od
                                 <input
                                     v-model="form.workday_starts_at"
+                                    :aria-invalid="
+                                        form.errors.workday_starts_at
+                                            ? true
+                                            : undefined
+                                    "
+                                    aria-describedby="workday_starts_at-error"
                                     type="time"
                                     step="1800"
                                     :class="fieldClass"
                                 />
                                 <InputError
+                                    id="workday_starts_at-error"
                                     :message="form.errors.workday_starts_at"
                                 />
                             </label>
@@ -261,11 +361,18 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                                 Dzień pracy do
                                 <input
                                     v-model="form.workday_ends_at"
+                                    :aria-invalid="
+                                        form.errors.workday_ends_at
+                                            ? true
+                                            : undefined
+                                    "
+                                    aria-describedby="workday_ends_at-error"
                                     type="time"
                                     step="1800"
                                     :class="fieldClass"
                                 />
                                 <InputError
+                                    id="workday_ends_at-error"
                                     :message="form.errors.workday_ends_at"
                                 />
                             </label>
@@ -277,7 +384,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                     <h2 class="text-xl font-semibold text-brand-green">
                         Czego szukasz
                     </h2>
-                    <p class="mt-1 text-sm text-brand-green/70">
+                    <p class="mt-1 text-sm text-brand-green/80">
                         Tagi decydują, które kandydatki zobaczysz. Wybierz te,
                         bez których nie da się zacząć, i te, których możesz
                         nauczyć.
@@ -291,6 +398,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                                 :excluded="form.nice_to_have_skills"
                             />
                             <InputError
+                                id="required_skills-error"
                                 :message="form.errors.required_skills"
                             />
                         </div>
@@ -302,6 +410,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                                 :excluded="form.required_skills"
                             />
                             <InputError
+                                id="nice_to_have_skills-error"
                                 :message="form.errors.nice_to_have_skills"
                             />
                         </div>

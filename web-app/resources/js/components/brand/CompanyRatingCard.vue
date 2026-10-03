@@ -21,7 +21,7 @@ const categories = Object.keys(ratingCategoryLabels) as Array<
 <template>
     <Link
         :href="companyShow(company.id)"
-        class="flex h-full flex-col rounded-3xl bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+        class="flex h-full flex-col rounded-3xl bg-white p-6 transition hover:shadow-lg motion-safe:hover:-translate-y-0.5"
         data-test="company-rating-card"
     >
         <div class="flex items-start justify-between gap-4">
@@ -29,7 +29,7 @@ const categories = Object.keys(ratingCategoryLabels) as Array<
                 <h3 class="text-lg font-semibold text-brand-green">
                     {{ company.name }}
                 </h3>
-                <p v-if="company.city" class="text-xs text-brand-green/60">
+                <p v-if="company.city" class="text-xs text-brand-green/80">
                     {{ company.city }}
                 </p>
             </div>
@@ -53,7 +53,7 @@ const categories = Object.keys(ratingCategoryLabels) as Array<
             </blockquote>
             <figcaption
                 v-if="company.featured_quote.author_label"
-                class="mt-3 text-xs text-brand-green/60"
+                class="mt-3 text-xs text-brand-green/80"
             >
                 {{ company.featured_quote.author_label }}
             </figcaption>

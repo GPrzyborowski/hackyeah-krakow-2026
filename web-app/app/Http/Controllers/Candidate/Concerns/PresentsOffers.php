@@ -38,6 +38,7 @@ trait PresentsOffers
             'flexible_hours' => $offer->flexible_hours,
             'fixed_meeting_hours' => $offer->fixed_meeting_hours,
             'childcare_subsidy' => $offer->childcare_subsidy,
+            'nursery_distance_km' => $offer->nursery_distance_km,
             'job_share' => Workday::presentOffer($offer),
             'published_at' => $offer->published_at?->toIso8601String(),
             'is_parent_friendly' => $offer->isParentFriendly(),
@@ -56,6 +57,20 @@ trait PresentsOffers
                 ] : null,
             ],
         ];
+    }
+
+    /**
+     * Ids of the offers the candidate showed interest in, optionally narrowed to a single offer.
+     *
+     * @return list<int>
+     */
+    protected function interestedOfferIds(CandidateProfile $profile, ?JobOffer $offer = null): array
+    {
+        return array_values($profile->interests()
+            ->when($offer, fn ($query, JobOffer $offer) => $query->where('job_offer_id', $offer->id))
+            ->pluck('job_offer_id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all());
     }
 
     /**

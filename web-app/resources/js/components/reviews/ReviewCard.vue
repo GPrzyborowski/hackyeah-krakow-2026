@@ -20,7 +20,7 @@ defineProps<{
                 <h3 class="text-lg font-semibold text-brand-green">
                     {{ title }}
                 </h3>
-                <p v-if="subtitle" class="text-xs text-brand-green/60">
+                <p v-if="subtitle" class="text-xs text-brand-green/80">
                     {{ subtitle }}
                 </p>
             </div>
@@ -44,7 +44,7 @@ defineProps<{
             </blockquote>
             <figcaption
                 v-if="authorLabel"
-                class="mt-3 text-xs text-brand-green/60"
+                class="mt-3 text-xs text-brand-green/80"
             >
                 {{ authorLabel }}
             </figcaption>

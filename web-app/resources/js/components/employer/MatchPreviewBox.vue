@@ -65,11 +65,15 @@ const niceRatio = computed(() => {
 </script>
 
 <template>
-    <section
-        class="rounded-3xl bg-brand-green p-6 text-white shadow-sm"
-        aria-live="polite"
-    >
+    <section class="rounded-3xl bg-brand-green p-6 text-white shadow-sm">
         <h2 class="text-lg font-semibold">Pasujące kandydatki</h2>
+        <p class="sr-only" role="status" aria-live="polite">
+            <template v-if="counts && !preview.processing">
+                Pasujące kandydatki: {{ counts.with_required }} z tagami
+                wymaganymi, {{ counts.with_nice_to_have }} z tagami mile
+                widzianymi.
+            </template>
+        </p>
 
         <template v-if="counts">
             <div class="mt-3 flex items-center gap-3">
@@ -95,7 +99,7 @@ const niceRatio = computed(() => {
                     </div>
                     <div class="mt-1.5 h-1.5 rounded-full bg-white/10">
                         <div
-                            class="h-full rounded-full bg-brand-peach transition-all"
+                            class="h-full rounded-full bg-brand-peach transition-all motion-reduce:transition-none"
                             :style="{
                                 width: counts.with_required > 0 ? '100%' : '0%',
                             }"
@@ -113,7 +117,7 @@ const niceRatio = computed(() => {
                     </div>
                     <div class="mt-1.5 h-1.5 rounded-full bg-white/10">
                         <div
-                            class="h-full rounded-full bg-brand-peach transition-all"
+                            class="h-full rounded-full bg-brand-peach transition-all motion-reduce:transition-none"
                             :style="{ width: `${niceRatio}%` }"
                         />
                     </div>
@@ -123,15 +127,15 @@ const niceRatio = computed(() => {
         <div v-else class="mt-4 space-y-2">
             <div
                 v-if="preview.processing"
-                class="h-10 w-20 animate-pulse rounded-lg bg-white/10"
+                class="h-10 w-20 rounded-lg bg-white/10 motion-safe:animate-pulse"
             />
-            <p class="text-sm text-white/70">
+            <p class="text-sm text-white/80">
                 Ustaw planowany start i dodaj tagi, a policzymy pasujące
                 kandydatki.
             </p>
         </div>
 
-        <p class="mt-4 text-xs text-white/60">
+        <p class="mt-4 text-xs text-white/80">
             Liczby zmieniają się na żywo, gdy dodajesz lub usuwasz tagi.
         </p>
     </section>

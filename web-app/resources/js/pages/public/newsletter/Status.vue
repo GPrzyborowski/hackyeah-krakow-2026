@@ -38,7 +38,7 @@ defineProps<{
                 <Link
                     v-if="unsubscribeToken"
                     :href="unsubscribe(unsubscribeToken)"
-                    class="text-xs text-brand-green/60 underline underline-offset-2"
+                    class="text-xs text-brand-green/80 underline underline-offset-2"
                 >
                     Rozmyśliłam się – wypisz mnie
                 </Link>

@@ -115,7 +115,7 @@ function send(): void {
                     <textarea
                         v-model="form.message"
                         rows="10"
-                        class="mt-1.5 w-full rounded-2xl border border-brand-green/20 bg-white px-4 py-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-mint/50"
+                        class="mt-1.5 w-full rounded-2xl border border-brand-green/60 bg-white px-4 py-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
                         :aria-invalid="Boolean(form.errors.message)"
                     />
                 </label>

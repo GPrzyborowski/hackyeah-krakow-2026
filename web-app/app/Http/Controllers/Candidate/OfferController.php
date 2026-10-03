@@ -10,13 +10,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Candidate\OfferFilterRequest;
 use App\Models\CompanyReview;
 use App\Models\JobOffer;
-use App\Models\OfferInterest;
+use App\Services\Candidate\OfferSearch;
 use App\Services\JobSharing\OfferJobSharePanel;
 use App\Services\Matching\MatchScorer;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -27,66 +24,17 @@ class OfferController extends Controller
     /**
      * Published offers with search, filters and match ranking.
      */
-    public function index(OfferFilterRequest $request, MatchScorer $matchScorer): Response
+    public function index(OfferFilterRequest $request, OfferSearch $offerSearch): Response
     {
         $profile = $this->candidateProfile($request);
-        $filters = $request->validated();
-        $startFrom = $request->has('start_from')
-            ? ($filters['start_from'] ?? null)
-            : $profile->available_from?->toDateString();
-        $sort = $filters['sort'] ?? 'match';
-
-        $query = JobOffer::query()
-            ->when($filters['q'] ?? null, function (Builder $query, string $term): void {
-                $query->where(function (Builder $query) use ($term): void {
-                    $query->where('title', 'like', "%{$term}%")
-                        ->orWhereHas('skills', fn (Builder $query) => $query->where('name', 'like', "%{$term}%"));
-                });
-            })
-            ->when($filters['location'] ?? null, function (Builder $query, string $location): void {
-                if (Str::contains(Str::lower($location), 'zdaln')) {
-                    $query->where('work_mode', WorkMode::Remote);
-                } else {
-                    $query->where('city', 'like', "%{$location}%");
-                }
-            })
-            ->when($filters['work_modes'] ?? [], fn (Builder $query, array $modes) => $query->whereIn('work_mode', $modes))
-            ->when($filters['employment_fractions'] ?? [], fn (Builder $query, array $fractions) => $query->whereIn('employment_fraction', $fractions))
-            ->when($request->boolean('flexible_hours'), fn (Builder $query) => $query->where('flexible_hours', true))
-            ->when($request->boolean('childcare_subsidy'), fn (Builder $query) => $query->where('childcare_subsidy', true))
-            ->when($request->boolean('with_reviews'), fn (Builder $query) => $query->whereHas('company.approvedReviews'))
-            ->when($request->boolean('job_share'), fn (Builder $query) => $query->where('is_job_share', true))
-            ->when($request->boolean('saved'), fn (Builder $query) => $query->whereIn('id', $profile->savedOffers()->select('job_offers.id')))
-            ->when($startFrom, fn (Builder $query, string $date) => $query->whereDate(
-                'start_date',
-                '>=',
-                Carbon::parse($date)->subDays(MatchScorer::START_DATE_TOLERANCE_DAYS)->toDateString(),
-            ));
-
-        $ranked = $matchScorer->rankOffersFor($profile, $query);
-
-        if ($sort === 'newest') {
-            $ranked = $ranked->sortByDesc(fn (array $row): int => $row['offer']->published_at?->getTimestamp() ?? 0)->values();
-        }
-
-        $interestedOfferIds = array_values($profile->interests()->get(['job_offer_id'])->map(fn (OfferInterest $interest): int => $interest->job_offer_id)->all());
+        $filters = $offerSearch->filtersFrom($request, $profile);
+        $ranked = $offerSearch->rank($profile, $filters);
+        $interestedOfferIds = $this->interestedOfferIds($profile);
         $savedOfferIds = $this->savedOfferIds($profile);
 
         return Inertia::render('candidate/offers/Index', [
             'offers' => $ranked->map(fn (array $row): array => $this->presentOffer($row['offer'], $row['match'], $interestedOfferIds, $savedOfferIds)),
-            'filters' => [
-                'q' => $filters['q'] ?? '',
-                'location' => $filters['location'] ?? '',
-                'work_modes' => $filters['work_modes'] ?? [],
-                'employment_fractions' => $filters['employment_fractions'] ?? [],
-                'flexible_hours' => $request->boolean('flexible_hours'),
-                'childcare_subsidy' => $request->boolean('childcare_subsidy'),
-                'with_reviews' => $request->boolean('with_reviews'),
-                'job_share' => $request->boolean('job_share'),
-                'saved' => $request->boolean('saved'),
-                'start_from' => $startFrom,
-                'sort' => $sort,
-            ],
+            'filters' => $filters,
             'workModes' => collect(WorkMode::cases())->map(fn (WorkMode $mode): array => ['value' => $mode->value, 'label' => $mode->label()]),
             'employmentFractions' => collect(EmploymentFraction::cases())->map(fn (EmploymentFraction $fraction): array => ['value' => $fraction->value, 'label' => $fraction->label()]),
             'hasConfirmedSkills' => $profile->confirmedSkills()->exists(),
@@ -102,8 +50,7 @@ class OfferController extends Controller
 
         $profile = $this->candidateProfile($request);
         $offer->load(['skills', 'company.approvedReviews']);
-        $interestedOfferIds = array_values($profile->interests()->where('job_offer_id', $offer->id)->get(['job_offer_id'])
-            ->map(fn (OfferInterest $interest): int => $interest->job_offer_id)->all());
+        $interestedOfferIds = $this->interestedOfferIds($profile, $offer);
         $savedOfferIds = $this->savedOfferIds($profile, $offer);
 
         return Inertia::render('candidate/offers/Show', [

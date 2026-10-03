@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Employer;
 
+use App\Actions\Employer\CloseJobOffer;
+use App\Actions\Employer\SaveJobOffer;
 use App\Enums\EmploymentFraction;
-use App\Enums\InvitationStatus;
-use App\Enums\JobSharePairStatus;
-use App\Enums\OfferStatus;
-use App\Enums\SkillImportance;
 use App\Enums\WorkMode;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Employer\Concerns\InteractsWithEmployerCompany;
@@ -14,11 +12,10 @@ use App\Http\Requests\Employer\SaveJobOfferRequest;
 use App\Http\Resources\EmployerJobOfferResource;
 use App\Models\Company;
 use App\Models\JobOffer;
-use App\Models\Skill;
+use App\Services\Employer\CompanyOffers;
 use App\Services\Matching\MatchScorer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -30,24 +27,20 @@ class JobOfferController extends Controller
     /**
      * The company's offers with candidate funnel counters.
      */
-    public function index(Request $request, MatchScorer $scorer): Response
+    public function index(Request $request, MatchScorer $scorer, CompanyOffers $companyOffers): Response
     {
         Gate::authorize('viewAny', JobOffer::class);
 
         $company = $this->currentCompany($request);
         $hasApprovedReview = $company->approvedReviews()->exists();
 
-        $offers = $company->jobOffers()
-            ->with(['skills', 'invitations', 'decisions:id,job_offer_id,candidate_profile_id', 'company'])
-            ->withCount(['jobSharePairs as submitted_pairs_count' => fn ($query) => $query->where('status', JobSharePairStatus::Submitted)->visibleToCompany($company)])
-            ->orderByRaw('case status when ? then 0 when ? then 1 else 2 end', [OfferStatus::Published->value, OfferStatus::Draft->value])
-            ->latest()
+        $offers = $companyOffers->listing($company)
             ->get()
             ->map(fn (JobOffer $offer): array => [
                 ...(new EmployerJobOfferResource($offer))->resolve($request),
                 'statistics' => $this->offerStatistics($offer, $scorer),
                 'submitted_pairs_count' => (int) $offer->getAttribute('submitted_pairs_count'),
-                'is_parent_friendly' => $offer->salary_min !== null && $offer->salary_max !== null && $offer->flexible_hours && $hasApprovedReview,
+                'is_parent_friendly' => $companyOffers->isParentFriendly($offer, $hasApprovedReview),
             ]);
 
         return Inertia::render('employer/offers/Index', [
@@ -62,13 +55,13 @@ class JobOfferController extends Controller
         return $this->renderForm($this->currentCompany($request), null);
     }
 
-    public function store(SaveJobOfferRequest $request): RedirectResponse
+    public function store(SaveJobOfferRequest $request, SaveJobOffer $saveJobOffer): RedirectResponse
     {
         Gate::authorize('create', JobOffer::class);
 
         $offer = $this->currentCompany($request)->jobOffers()->make();
 
-        $this->persist($offer, $request);
+        $saveJobOffer->handle($offer, $request);
 
         return $this->redirectAfterSave($offer, $request);
     }
@@ -80,11 +73,11 @@ class JobOfferController extends Controller
         return $this->renderForm($this->currentCompany($request), $offer->load('skills'));
     }
 
-    public function update(SaveJobOfferRequest $request, JobOffer $offer): RedirectResponse
+    public function update(SaveJobOfferRequest $request, JobOffer $offer, SaveJobOffer $saveJobOffer): RedirectResponse
     {
         Gate::authorize('update', $offer);
 
-        $this->persist($offer, $request);
+        $saveJobOffer->handle($offer, $request);
 
         return $this->redirectAfterSave($offer, $request);
     }
@@ -92,14 +85,11 @@ class JobOfferController extends Controller
     /**
      * Close the offer and withdraw invitations nobody answered yet.
      */
-    public function close(JobOffer $offer): RedirectResponse
+    public function close(JobOffer $offer, CloseJobOffer $closeJobOffer): RedirectResponse
     {
         Gate::authorize('close', $offer);
 
-        DB::transaction(function () use ($offer): void {
-            $offer->update(['status' => OfferStatus::Closed]);
-            $offer->invitations()->where('status', InvitationStatus::Pending)->update(['status' => InvitationStatus::Withdrawn]);
-        });
+        $closeJobOffer->handle($offer);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Oferta została zamknięta.']);
 
@@ -114,40 +104,6 @@ class JobOfferController extends Controller
             'workModes' => collect(WorkMode::cases())->map(fn (WorkMode $mode): array => ['value' => $mode->value, 'label' => $mode->label()]),
             'employmentFractions' => collect(EmploymentFraction::cases())->map(fn (EmploymentFraction $fraction): array => ['value' => $fraction->value, 'label' => $fraction->label()]),
         ]);
-    }
-
-    private function persist(JobOffer $offer, SaveJobOfferRequest $request): void
-    {
-        DB::transaction(function () use ($offer, $request): void {
-            $offer->fill([
-                ...$request->safe()->only(['title', 'city', 'work_mode', 'start_date', 'description', 'employment_fraction', 'salary_min', 'salary_max']),
-                'flexible_hours' => $request->boolean('flexible_hours'),
-                'fixed_meeting_hours' => $request->boolean('fixed_meeting_hours'),
-                'childcare_subsidy' => $request->boolean('childcare_subsidy'),
-                'is_job_share' => $request->boolean('is_job_share'),
-                'workday_starts_at' => $request->boolean('is_job_share') ? $request->validated('workday_starts_at') : null,
-                'workday_ends_at' => $request->boolean('is_job_share') ? $request->validated('workday_ends_at') : null,
-                'status' => $request->isPublishing() ? OfferStatus::Published : OfferStatus::Draft,
-            ]);
-
-            if ($request->isPublishing() && $offer->published_at === null) {
-                $offer->published_at = now();
-            }
-
-            $offer->save();
-
-            $skills = [];
-
-            foreach ($request->niceToHaveSkillNames() as $name) {
-                $skills[Skill::findOrCreateByName($name)->id] = ['importance' => SkillImportance::NiceToHave->value];
-            }
-
-            foreach ($request->requiredSkillNames() as $name) {
-                $skills[Skill::findOrCreateByName($name)->id] = ['importance' => SkillImportance::Required->value];
-            }
-
-            $offer->skills()->sync($skills);
-        });
     }
 
     private function redirectAfterSave(JobOffer $offer, SaveJobOfferRequest $request): RedirectResponse

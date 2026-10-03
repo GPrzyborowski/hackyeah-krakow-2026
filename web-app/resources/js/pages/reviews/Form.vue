@@ -36,7 +36,7 @@ const formAction = props.review
     : CompanyReviewController.store.form(props.company.id);
 
 const fieldClass =
-    'mt-1.5 w-full rounded-2xl border border-brand-green/20 bg-white px-4 py-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-mint/50';
+    'mt-1.5 w-full rounded-2xl border border-brand-green/60 bg-white px-4 py-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 </script>
 
 <template>
@@ -82,6 +82,8 @@ const fieldClass =
                 <textarea
                     v-model="quote"
                     name="quote"
+                    :aria-invalid="errors.quote ? true : undefined"
+                    aria-describedby="quote-error"
                     rows="4"
                     maxlength="300"
                     required
@@ -89,18 +91,20 @@ const fieldClass =
                     placeholder="Np. Po powrocie dostałam miesiąc na wdrożenie i elastyczny grafik."
                 />
                 <span
-                    class="mt-1 flex justify-between text-xs font-normal text-brand-green/60"
+                    class="mt-1 flex justify-between text-xs font-normal text-brand-green/80"
                 >
                     <span>Nie podawaj e-maili, telefonów ani nazwisk.</span>
                     <span>{{ quote.length }}/300</span>
                 </span>
-                <InputError :message="errors.quote" />
+                <InputError id="quote-error" :message="errors.quote" />
             </label>
 
             <label class="block text-sm font-semibold text-brand-green">
                 Podpis (opcjonalnie)
                 <input
                     name="author_label"
+                    :aria-invalid="errors.author_label ? true : undefined"
+                    aria-describedby="author_label-error"
                     type="text"
                     maxlength="80"
                     :value="review?.author_label ?? ''"
@@ -108,12 +112,15 @@ const fieldClass =
                     placeholder="np. Mama dwójki, księgowość"
                 />
                 <span
-                    class="mt-1 block text-xs font-normal text-brand-green/60"
+                    class="mt-1 block text-xs font-normal text-brand-green/80"
                 >
                     Bez imienia i nazwiska – wystarczy, kim jesteś i czym się
                     zajmujesz.
                 </span>
-                <InputError :message="errors.author_label" />
+                <InputError
+                    id="author_label-error"
+                    :message="errors.author_label"
+                />
             </label>
 
             <div class="flex justify-end">

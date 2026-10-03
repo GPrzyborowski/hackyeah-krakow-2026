@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
+import SkipLink from '@/components/SkipLink.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
 import MobileTabBar from '@/components/mobile/MobileTabBar.vue';
@@ -21,15 +22,21 @@ const { hasTabs } = useMobileTabs();
 
 const contentClass = computed(() =>
     hasTabs.value
-        ? 'min-w-0 overflow-x-clip max-md:pb-[calc(5rem+env(safe-area-inset-bottom))]'
-        : 'min-w-0 overflow-x-clip',
+        ? 'min-w-0 overflow-x-clip focus:outline-none max-md:pb-[calc(5rem+env(safe-area-inset-bottom))]'
+        : 'min-w-0 overflow-x-clip focus:outline-none',
 );
 </script>
 
 <template>
     <AppShell variant="sidebar">
+        <SkipLink />
         <AppSidebar />
-        <AppContent variant="sidebar" :class="contentClass">
+        <AppContent
+            id="main"
+            tabindex="-1"
+            variant="sidebar"
+            :class="contentClass"
+        >
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             <slot />
         </AppContent>

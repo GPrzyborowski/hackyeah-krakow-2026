@@ -35,7 +35,7 @@ const coverColors: Record<string, string> = {
         >
             {{ article.title }}
         </h3>
-        <p class="mt-2 text-xs text-brand-green/60">
+        <p class="mt-2 text-xs text-brand-green/80">
             {{ article.reading_minutes }} min czytania
         </p>
     </Link>

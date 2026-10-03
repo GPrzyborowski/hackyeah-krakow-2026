@@ -43,7 +43,7 @@ function markAllRead(): void {
                 >
                     Powiadomienia
                 </h1>
-                <p class="mt-1 text-sm text-brand-green/70">
+                <p class="mt-1 text-sm text-brand-green/80">
                     Zaproszenia, odpowiedzi i nowe wiadomości w jednym miejscu.
                 </p>
             </div>
@@ -79,7 +79,7 @@ function markAllRead(): void {
                 <BellOff class="size-6" />
             </span>
             <p class="font-semibold">Na razie cisza.</p>
-            <p class="text-sm text-brand-green/70">
+            <p class="text-sm text-brand-green/80">
                 Damy znać, gdy pojawi się zaproszenie albo nowa wiadomość.
             </p>
         </div>
@@ -96,7 +96,7 @@ function markAllRead(): void {
                 Nowsze
             </Link>
             <span v-else />
-            <span class="text-brand-green/60">
+            <span class="text-brand-green/80">
                 Strona {{ items.current_page }} z
                 {{ items.last_page }}
             </span>

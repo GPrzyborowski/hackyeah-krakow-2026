@@ -35,7 +35,7 @@ import { store } from '@/routes/newsletter';
                     required
                     autocomplete="email"
                     placeholder="Twój e-mail"
-                    class="h-11 min-w-0 flex-1 rounded-full border-0 bg-white px-5 text-sm text-brand-green placeholder:text-brand-green/50 focus-visible:ring-2 focus-visible:ring-brand-yellow focus-visible:outline-none"
+                    class="h-11 min-w-0 flex-1 rounded-full border-0 bg-white px-5 text-sm text-brand-green placeholder:text-brand-green/70 focus-visible:ring-2 focus-visible:ring-brand-yellow focus-visible:outline-none"
                 />
                 <button
                     type="submit"

@@ -39,7 +39,7 @@ defineExpose({
                 )
             "
             :aria-label="showPassword ? 'Ukryj hasło' : 'Pokaż hasło'"
-            :tabindex="-1"
+            :aria-pressed="showPassword"
         >
             <EyeOff v-if="showPassword" class="size-4" />
             <Eye v-else class="size-4" />

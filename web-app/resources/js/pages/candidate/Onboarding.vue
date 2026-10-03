@@ -73,6 +73,7 @@ function toggleVisibility() {
                     <component
                         :is="profile.is_published ? Eye : EyeOff"
                         class="size-4"
+                        aria-hidden="true"
                     />
                     {{
                         profile.is_published
@@ -90,7 +91,7 @@ function toggleVisibility() {
             </div>
         </aside>
 
-        <main class="min-w-0">
+        <section class="min-w-0" aria-label="Bieżący krok">
             <CvStep
                 v-if="step === 2"
                 :profile="profile"
@@ -110,7 +111,7 @@ function toggleVisibility() {
                 :skills="skills"
                 :companies="companies"
             />
-        </main>
+        </section>
 
         <aside class="flex flex-col gap-4">
             <ProfilePreviewCard

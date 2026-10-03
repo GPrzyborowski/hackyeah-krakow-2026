@@ -4,6 +4,7 @@ import { Menu, X } from '@lucide/vue';
 import { computed, onUnmounted, ref } from 'vue';
 import BrandLogo from '@/components/brand/BrandLogo.vue';
 import MobileTabBar from '@/components/mobile/MobileTabBar.vue';
+import SkipLink from '@/components/SkipLink.vue';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { useMobileTabs } from '@/composables/useMobileTabs';
 import { dashboard, home, login, register } from '@/routes';
@@ -50,6 +51,7 @@ onUnmounted(stopListening);
 
 <template>
     <div class="flex min-h-svh flex-col bg-brand-cream text-brand-green">
+        <SkipLink />
         <header class="relative z-30">
             <div
                 class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8"
@@ -104,7 +106,7 @@ onUnmounted(stopListening);
 
                 <button
                     type="button"
-                    class="inline-flex size-10 items-center justify-center rounded-full border border-brand-green/20 bg-white md:hidden"
+                    class="inline-flex size-10 items-center justify-center rounded-full border border-brand-green/60 bg-white md:hidden"
                     :aria-expanded="isMenuOpen"
                     aria-controls="public-mobile-menu"
                     :aria-label="isMenuOpen ? 'Zamknij menu' : 'Otwórz menu'"
@@ -156,7 +158,7 @@ onUnmounted(stopListening);
             </div>
         </header>
 
-        <main class="flex-1">
+        <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
             <slot />
         </main>
 
@@ -170,7 +172,7 @@ onUnmounted(stopListening);
             <div
                 class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
             >
-                <p class="text-brand-green/70">
+                <p class="text-brand-green/80">
                     MomJobs · praca dla przyszłych i obecnych mam
                 </p>
                 <nav class="flex gap-5 font-medium" aria-label="Stopka">

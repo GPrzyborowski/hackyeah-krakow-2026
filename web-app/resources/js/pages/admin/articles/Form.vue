@@ -147,7 +147,7 @@ function submit(): void {
 }
 
 const fieldClass =
-    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/20 bg-white px-4 text-sm font-normal text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-mint/50';
+    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/60 bg-white px-4 text-sm font-normal text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 const labelClass = 'block text-xs font-semibold text-brand-green';
 const tabClass = (isActive: boolean): string =>
     `rounded-full px-4 py-1.5 text-sm font-semibold transition ${isActive ? 'bg-brand-green text-white' : 'bg-brand-cream text-brand-green hover:bg-brand-mint-soft'}`;
@@ -159,7 +159,7 @@ const tabClass = (isActive: boolean): string =>
     <div class="mx-auto w-full max-w-6xl p-4 md:p-8">
         <Link
             :href="index()"
-            class="inline-flex items-center gap-1 text-sm text-brand-green/70 hover:text-brand-green"
+            class="inline-flex items-center gap-1 text-sm text-brand-green/80 hover:text-brand-green"
         >
             <ArrowLeft class="size-4" /> Wszystkie artykuły
         </Link>
@@ -188,10 +188,10 @@ const tabClass = (isActive: boolean): string =>
                     <label :class="labelClass">
                         Adres (slug)
                         <span
-                            class="mt-1.5 flex items-center rounded-2xl border border-brand-green/20 bg-white pl-4 focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-mint/50"
+                            class="mt-1.5 flex items-center rounded-2xl border border-brand-green/60 bg-white pl-4 focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-green/40"
                         >
                             <span
-                                class="text-sm font-normal text-brand-green/60"
+                                class="text-sm font-normal text-brand-green/80"
                                 >/blog/</span
                             >
                             <input
@@ -201,7 +201,7 @@ const tabClass = (isActive: boolean): string =>
                                 @input="isSlugTouched = true"
                             />
                         </span>
-                        <span class="mt-1 block font-normal text-brand-green/60"
+                        <span class="mt-1 block font-normal text-brand-green/80"
                             >Tworzony automatycznie z tytułu. Możesz go
                             zmienić.</span
                         >
@@ -226,11 +226,14 @@ const tabClass = (isActive: boolean): string =>
                         <h2 class="text-xl font-semibold text-brand-green">
                             Treść
                         </h2>
-                        <div class="flex gap-2" role="tablist">
+                        <div
+                            class="flex gap-2"
+                            role="group"
+                            aria-label="Tryb edytora"
+                        >
                             <button
                                 type="button"
-                                role="tab"
-                                :aria-selected="activeTab === 'write'"
+                                :aria-pressed="activeTab === 'write'"
                                 :class="tabClass(activeTab === 'write')"
                                 @click="activeTab = 'write'"
                             >
@@ -238,8 +241,7 @@ const tabClass = (isActive: boolean): string =>
                             </button>
                             <button
                                 type="button"
-                                role="tab"
-                                :aria-selected="activeTab === 'preview'"
+                                :aria-pressed="activeTab === 'preview'"
                                 :class="tabClass(activeTab === 'preview')"
                                 data-test="preview-tab"
                                 @click="showPreview"
@@ -257,7 +259,7 @@ const tabClass = (isActive: boolean): string =>
                             aria-label="Treść w Markdown"
                             required
                         />
-                        <p class="mt-1 text-xs text-brand-green/60">
+                        <p class="mt-1 text-xs text-brand-green/80">
                             Markdown: ## nagłówek, **pogrubienie**, - lista,
                             &gt; cytat, [link](https://…).
                         </p>
@@ -274,7 +276,7 @@ const tabClass = (isActive: boolean): string =>
                         />
                         <p
                             v-else-if="!previewRequest.processing"
-                            class="text-sm text-brand-green/60"
+                            class="text-sm text-brand-green/80"
                         >
                             Brak treści do podglądu.
                         </p>
@@ -308,7 +310,7 @@ const tabClass = (isActive: boolean): string =>
                             :class="fieldClass"
                             :placeholder="`Automatycznie: ${estimatedMinutes}`"
                         />
-                        <span class="mt-1 block font-normal text-brand-green/60"
+                        <span class="mt-1 block font-normal text-brand-green/80"
                             >Zostaw puste, aby liczyć z treści (ok.
                             {{ wordsPerMinute }} słów na minutę).</span
                         >
@@ -323,7 +325,7 @@ const tabClass = (isActive: boolean): string =>
                             :class="fieldClass"
                         />
                         <span
-                            class="mt-1 block font-normal text-brand-green/60"
+                            class="mt-1 block font-normal text-brand-green/80"
                         >
                             {{ publicationHint }}
                         </span>
@@ -353,7 +355,7 @@ const tabClass = (isActive: boolean): string =>
                         <Checkbox v-model="form.is_featured" class="mt-0.5" />
                         <span>
                             <span class="font-semibold">Wyróżniony</span>
-                            <span class="block text-xs text-brand-green/70"
+                            <span class="block text-xs text-brand-green/80"
                                 >Pokazywany jako główny artykuł bloga. Zastąpi
                                 obecne wyróżnienie.</span
                             >

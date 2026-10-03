@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $flexible_hours
  * @property bool $fixed_meeting_hours
  * @property bool $childcare_subsidy
+ * @property int|null $nursery_distance_km
  * @property bool $is_job_share
  * @property string|null $workday_starts_at
  * @property string|null $workday_ends_at
@@ -38,7 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Fillable([
     'title', 'city', 'work_mode', 'employment_fraction', 'salary_min', 'salary_max', 'start_date', 'description',
-    'flexible_hours', 'fixed_meeting_hours', 'childcare_subsidy', 'is_job_share', 'workday_starts_at', 'workday_ends_at',
+    'flexible_hours', 'fixed_meeting_hours', 'childcare_subsidy', 'nursery_distance_km', 'is_job_share', 'workday_starts_at', 'workday_ends_at',
     'status', 'published_at',
 ])]
 class JobOffer extends Model
@@ -118,6 +119,21 @@ class JobOffer extends Model
         $query->where('status', OfferStatus::Published);
     }
 
+    /**
+     * Max distance (km) from the workplace to a nursery/kindergarten for the "nearby" filter.
+     */
+    public const int NURSERY_NEARBY_MAX_KM = 3;
+
+    /**
+     * Offers with a nursery or kindergarten within NURSERY_NEARBY_MAX_KM of the workplace.
+     *
+     * @param  Builder<JobOffer>  $query
+     */
+    public function scopeWithNurseryNearby(Builder $query): void
+    {
+        $query->whereNotNull('nursery_distance_km')->where('nursery_distance_km', '<=', self::NURSERY_NEARBY_MAX_KM);
+    }
+
     public function isPublished(): bool
     {
         return $this->status === OfferStatus::Published;
@@ -160,6 +176,7 @@ class JobOffer extends Model
             'flexible_hours' => 'boolean',
             'fixed_meeting_hours' => 'boolean',
             'childcare_subsidy' => 'boolean',
+            'nursery_distance_km' => 'integer',
             'is_job_share' => 'boolean',
             'status' => OfferStatus::class,
             'published_at' => 'datetime',

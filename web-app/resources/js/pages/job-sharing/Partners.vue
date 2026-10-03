@@ -95,7 +95,7 @@ function dayPartText(partner: Partner): string | null {
             >
                 Znajdź partnerkę do pary
             </h1>
-            <p class="mt-1 text-brand-green/70">
+            <p class="mt-1 text-brand-green/80">
                 {{ offer.title }} · {{ offer.company }}
                 <template v-if="offer.city"> · {{ offer.city }}</template>
             </p>
@@ -172,7 +172,7 @@ function dayPartText(partner: Partner): string | null {
                                 tą ofertą
                             </Chip>
                         </div>
-                        <p class="mt-0.5 text-sm text-brand-green/70">
+                        <p class="mt-0.5 text-sm text-brand-green/80">
                             {{ partner.headline ?? 'Bez podanego stanowiska' }}
                             <template v-if="partner.years_of_experience">
                                 · {{ partner.years_of_experience }}
@@ -244,7 +244,7 @@ function dayPartText(partner: Partner): string | null {
                 <p class="font-semibold">
                     Nie ma jeszcze nikogo, kto pasowałby do pary.
                 </p>
-                <p class="mt-1 text-sm text-brand-green/70">
+                <p class="mt-1 text-sm text-brand-green/80">
                     Gdy pojawią się osoby otwarte na job sharing z podobnymi
                     umiejętnościami, zobaczysz je tutaj.
                 </p>

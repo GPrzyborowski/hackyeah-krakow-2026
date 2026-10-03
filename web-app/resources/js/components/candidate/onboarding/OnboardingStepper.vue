@@ -34,10 +34,14 @@ function isReachable(number: number): boolean {
     <div>
         <!-- Mobile: "Krok 2 z 4" + progress bars -->
         <div class="lg:hidden">
+            <h1 class="sr-only">
+                {{ isPublished ? 'Twój profil' : 'Stwórz profil w 4 krokach' }}
+            </h1>
             <p class="text-center text-sm font-semibold text-brand-green">
                 Krok {{ step }} z 4
+                <span class="sr-only">: {{ steps[step - 1]?.label }}</span>
             </p>
-            <div class="mt-3 grid grid-cols-4 gap-1.5">
+            <div class="mt-3 grid grid-cols-4 gap-1.5" aria-hidden="true">
                 <span
                     v-for="item in steps"
                     :key="item.number"
@@ -72,9 +76,12 @@ function isReachable(number: number): boolean {
                                 : {}
                         "
                         class="flex items-center gap-3 text-sm text-brand-green"
+                        :aria-current="
+                            item.number === step ? 'step' : undefined
+                        "
                         :class="{
                             'font-semibold': item.number === step,
-                            'opacity-60':
+                            'opacity-80':
                                 !isReachable(item.number) &&
                                 !isDone(item.number),
                         }"
@@ -86,7 +93,7 @@ function isReachable(number: number): boolean {
                                     ? 'bg-brand-peach text-brand-green'
                                     : isDone(item.number)
                                       ? 'bg-brand-green text-white'
-                                      : 'border border-brand-green/30 bg-white text-brand-green'
+                                      : 'border border-brand-green/60 bg-white text-brand-green'
                             "
                         >
                             <Check
@@ -94,14 +101,20 @@ function isReachable(number: number): boolean {
                                     isDone(item.number) && item.number !== step
                                 "
                                 class="size-4"
+                                aria-hidden="true"
                             />
                             <template v-else>{{ item.number }}</template>
                         </span>
                         {{ item.label }}
+                        <span
+                            v-if="isDone(item.number) && item.number !== step"
+                            class="sr-only"
+                            >(ukończony)</span
+                        >
                     </component>
                 </li>
             </ol>
-            <p class="mt-6 text-xs leading-relaxed text-brand-green/60">
+            <p class="mt-6 text-xs leading-relaxed text-brand-green/80">
                 Możesz przerwać w dowolnym momencie. Profil zapisuje się sam po
                 każdym kroku.
             </p>

@@ -54,8 +54,8 @@ trait InteractsWithEmployerCompany
         $decisions = $offer->relationLoaded('decisions') ? $offer->decisions : $offer->decisions()->get(['candidate_profile_id']);
         $invitations = $offer->relationLoaded('invitations') ? $offer->invitations : $offer->invitations()->get(['candidate_profile_id']);
 
-        $decidedIds = $decisions->map(fn (CandidateDecision $decision): int => $decision->candidate_profile_id);
-        $invitedIds = $invitations->map(fn (Invitation $invitation): int => $invitation->candidate_profile_id);
+        $decidedIds = $decisions->toBase()->map(fn (CandidateDecision $decision): int => $decision->candidate_profile_id);
+        $invitedIds = $invitations->toBase()->map(fn (Invitation $invitation): int => $invitation->candidate_profile_id);
 
         return array_values($decidedIds->merge($invitedIds)->unique()->all());
     }

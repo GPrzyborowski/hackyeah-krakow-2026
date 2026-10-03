@@ -3,6 +3,7 @@
 namespace App\Services\JobSharing;
 
 use App\Enums\DayPart;
+use App\Enums\JobSharePairStatus;
 use App\Models\CandidateProfile;
 use App\Models\JobSharePair;
 use Illuminate\Database\Eloquent\Collection;
@@ -76,6 +77,20 @@ class PairPresenter
             ['candidate_profile_id' => $first->id, 'starts_at' => Workday::format($workday->startsAt), 'ends_at' => Workday::format($workday->midpoint())],
             ['candidate_profile_id' => $second->id, 'starts_at' => Workday::format($workday->midpoint()), 'ends_at' => Workday::format($workday->endsAt)],
         ];
+    }
+
+    /**
+     * How a candidate relates to her active pair, loaded through her own pairs relation (pivot = her membership).
+     *
+     * @return 'pair'|'invite_sent'|'invite_received'
+     */
+    public function viewerState(JobSharePair $pair): string
+    {
+        if ($pair->status !== JobSharePairStatus::Forming) {
+            return 'pair';
+        }
+
+        return $pair->getRelationValue('pivot')?->getAttribute('accepted_at') !== null ? 'invite_sent' : 'invite_received';
     }
 
     private function pivot(CandidateProfile $member, string $key): mixed

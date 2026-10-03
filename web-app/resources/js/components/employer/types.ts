@@ -20,6 +20,7 @@ export type EmployerOffer = {
     flexible_hours: boolean;
     fixed_meeting_hours: boolean;
     childcare_subsidy: boolean;
+    nursery_distance_km: number | null;
     is_job_share: boolean;
     workday_starts_at: string | null;
     workday_ends_at: string | null;
