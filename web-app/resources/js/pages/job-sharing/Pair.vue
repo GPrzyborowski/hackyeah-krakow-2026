@@ -23,6 +23,7 @@ import type {
     ScheduleBarBlock,
     ScheduleBlock,
 } from '@/components/job-sharing/types';
+import { index as invitationsIndex } from '@/routes/candidate/invitations';
 import { show as offerShow } from '@/routes/candidate/offers';
 
 type Member = {
@@ -98,6 +99,12 @@ function toneOf(memberId: number): ScheduleBarBlock['tone'] {
     const index = props.members.findIndex((member) => member.id === memberId);
 
     return tones[Math.max(0, index)] ?? 'peach';
+}
+
+function messageTone(isMine: boolean): ScheduleBarBlock['tone'] {
+    const author = props.members.find((member) => member.is_me === isMine);
+
+    return author ? toneOf(author.id) : 'peach';
 }
 
 function cloneSchedule(): ScheduleBlock[] {
@@ -249,7 +256,10 @@ const inputClass =
                     </span>
                 </div>
             </div>
-            <Chip :tone="pair.status === 'submitted' ? 'dark' : 'soft'">
+            <Chip
+                :tone="pair.status === 'submitted' ? 'dark' : 'soft'"
+                class="shrink-0 self-start"
+            >
                 {{ pairStatusLabels[pair.status] }}
             </Chip>
         </header>
@@ -316,6 +326,7 @@ const inputClass =
                         v-for="message in messages"
                         :key="message.id"
                         :mine="message.is_mine"
+                        :tone="messageTone(message.is_mine)"
                         :meta="`${message.author_name} · ${formatBubbleTime(message.created_at)}`"
                     >
                         {{ message.body }}
@@ -521,12 +532,19 @@ const inputClass =
                     class="flex items-start gap-3 rounded-3xl bg-brand-green p-5 text-sm text-white"
                 >
                     <ShieldCheck class="mt-0.5 size-5 shrink-0" />
-                    <p>
-                        {{
-                            pair.status === 'invited'
-                                ? 'Pracodawca zaprosił Waszą parę. Każda z Was odpowiada na swoje zaproszenie w zakładce „Zaproszenia”.'
-                                : 'Pracodawca widzi Was jako parę – anonimowo, z umiejętnościami i podziałem dnia. Dane kontaktowe zobaczy dopiero po Waszej akceptacji zaproszenia.'
-                        }}
+                    <p v-if="pair.status === 'invited'">
+                        Pracodawca zaprosił Waszą parę. Każda z Was odpowiada na
+                        swoje zaproszenie w zakładce
+                        <Link
+                            :href="invitationsIndex()"
+                            class="font-semibold underline underline-offset-2"
+                            >„Zaproszenia”</Link
+                        >.
+                    </p>
+                    <p v-else>
+                        Pracodawca widzi Was jako parę – anonimowo, z
+                        umiejętnościami i podziałem dnia. Dane kontaktowe
+                        zobaczy dopiero po Waszej akceptacji zaproszenia.
                     </p>
                 </section>
 

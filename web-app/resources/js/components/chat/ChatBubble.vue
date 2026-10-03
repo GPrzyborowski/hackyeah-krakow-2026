@@ -1,22 +1,35 @@
 <script setup lang="ts">
-withDefaults(
+import { computed } from 'vue';
+
+const props = withDefaults(
     defineProps<{
         mine: boolean;
         meta?: string | null;
+        tone?: 'default' | 'peach' | 'yellow';
     }>(),
-    { meta: null },
+    { meta: null, tone: 'default' },
 );
+
+const toneClass = computed(() => {
+    if (props.tone === 'peach') {
+        return 'bg-brand-peach text-brand-green';
+    }
+
+    if (props.tone === 'yellow') {
+        return 'bg-brand-yellow text-brand-green';
+    }
+
+    return props.mine
+        ? 'bg-brand-green text-white'
+        : 'bg-white text-brand-green shadow-sm';
+});
 </script>
 
 <template>
     <div class="flex flex-col" :class="mine ? 'items-end' : 'items-start'">
         <div
-            class="max-w-[85%] rounded-3xl px-4 py-3 text-sm leading-relaxed whitespace-pre-line md:max-w-[75%]"
-            :class="
-                mine
-                    ? 'rounded-br-lg bg-brand-green text-white'
-                    : 'rounded-bl-lg bg-white text-brand-green shadow-sm'
-            "
+            class="max-w-[85%] rounded-3xl px-4 py-3 text-sm leading-relaxed break-words whitespace-pre-line md:max-w-[75%]"
+            :class="[mine ? 'rounded-br-lg' : 'rounded-bl-lg', toneClass]"
         >
             <slot />
         </div>
