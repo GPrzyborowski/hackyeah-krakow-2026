@@ -19,14 +19,13 @@ class KeywordCvAnalyzer implements CvAnalyzer
             return new CvAnalysis(skills: []);
         }
 
-        $skills = Skill::query()->get()
+        $skills = array_values(Skill::query()->get()
             ->filter(function (Skill $skill) use ($text): bool {
                 return collect([$skill->name, ...($skill->synonyms ?? [])])
                     ->contains(fn (string $term): bool => Str::contains($text, Str::lower($term)));
             })
-            ->pluck('name')
-            ->values()
-            ->all();
+            ->map(fn (Skill $skill): string => $skill->name)
+            ->all());
 
         return new CvAnalysis(skills: $skills);
     }

@@ -75,7 +75,7 @@ class ClaudeClient
             throw new ClaudeException("Claude stopped with reason [{$stopReason}].");
         }
 
-        $text = collect($response->json('content', []))
+        $text = $response->collect('content')
             ->where('type', 'text')
             ->pluck('text')
             ->implode('');

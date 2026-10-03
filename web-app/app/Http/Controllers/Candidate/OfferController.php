@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Candidate\OfferFilterRequest;
 use App\Models\CompanyReview;
 use App\Models\JobOffer;
+use App\Models\OfferInterest;
 use App\Services\Matching\MatchScorer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -65,7 +66,7 @@ class OfferController extends Controller
             $ranked = $ranked->sortByDesc(fn (array $row): int => $row['offer']->published_at?->getTimestamp() ?? 0)->values();
         }
 
-        $interestedOfferIds = $profile->interests()->pluck('job_offer_id')->all();
+        $interestedOfferIds = array_values($profile->interests()->get(['job_offer_id'])->map(fn (OfferInterest $interest): int => $interest->job_offer_id)->all());
 
         return Inertia::render('candidate/offers/Index', [
             'offers' => $ranked->map(fn (array $row): array => $this->presentOffer($row['offer'], $row['match'], $interestedOfferIds)),
@@ -95,7 +96,8 @@ class OfferController extends Controller
 
         $profile = $this->candidateProfile($request);
         $offer->load(['skills', 'company.approvedReviews']);
-        $interestedOfferIds = $profile->interests()->where('job_offer_id', $offer->id)->pluck('job_offer_id')->all();
+        $interestedOfferIds = array_values($profile->interests()->where('job_offer_id', $offer->id)->get(['job_offer_id'])
+            ->map(fn (OfferInterest $interest): int => $interest->job_offer_id)->all());
 
         return Inertia::render('candidate/offers/Show', [
             'offer' => [

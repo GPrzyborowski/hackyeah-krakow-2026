@@ -9,6 +9,7 @@ use App\Http\Resources\AnonymousCandidateResource;
 use App\Models\CandidateProfile;
 use App\Models\Company;
 use App\Models\JobOffer;
+use App\Models\OfferInterest;
 use App\Services\Matching\MatchResult;
 use App\Services\Matching\MatchScorer;
 use Illuminate\Http\Request;
@@ -43,7 +44,7 @@ class CandidateController extends Controller
             ]);
         }
 
-        $interestedIds = $offer->interests()->pluck('candidate_profile_id')->all();
+        $interestedIds = array_values($offer->interests()->get(['candidate_profile_id'])->map(fn (OfferInterest $interest): int => $interest->candidate_profile_id)->all());
         $queue = $this->reviewQueue($offer, $scorer, $interestedIds);
         $savedCandidates = $this->savedCandidates($offer, $company, $scorer);
 

@@ -66,11 +66,10 @@ class OfferController extends Controller
      */
     private function filters(Request $request): array
     {
-        $values = fn (string $key, callable $isValid): array => collect((array) $request->query($key, []))
+        $values = fn (string $key, callable $isValid): array => array_values(collect((array) $request->query($key, []))
             ->filter(fn (mixed $value): bool => is_string($value) && $isValid($value))
             ->unique()
-            ->values()
-            ->all();
+            ->all());
 
         return [
             'q' => trim((string) $request->string('q')),

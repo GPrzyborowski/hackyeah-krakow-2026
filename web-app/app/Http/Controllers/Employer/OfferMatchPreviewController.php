@@ -41,6 +41,6 @@ class OfferMatchPreviewController extends Controller
         $slugs = collect($names)->map(fn (string $name): string => Str::slug($name))->filter()->unique();
         $known = Skill::query()->whereIn('slug', $slugs)->pluck('id', 'slug');
 
-        return $slugs->map(fn (string $slug): int => (int) ($known[$slug] ?? 0))->values()->all();
+        return array_values($slugs->map(fn (string $slug): int => (int) ($known[$slug] ?? 0))->all());
     }
 }

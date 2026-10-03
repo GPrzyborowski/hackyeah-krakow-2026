@@ -47,7 +47,7 @@ class ConversationController extends Controller
                     'counterpart_name' => $this->counterpartName($conversation, $user),
                     'offer_title' => $conversation->invitation->jobOffer->title,
                     'last_message' => $lastMessage ? Str::limit($lastMessage->body, 90) : null,
-                    'last_message_at' => ($lastMessage?->created_at ?? $conversation->last_message_at)?->toIso8601String(),
+                    'last_message_at' => ($lastMessage->created_at ?? $conversation->last_message_at)?->toIso8601String(),
                     'has_unread' => $conversation->unread_count > 0,
                 ];
             })->values(),

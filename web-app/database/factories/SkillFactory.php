@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Skill;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 /**
@@ -19,7 +20,7 @@ class SkillFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => Str::ucfirst(fake()->unique()->words(2, true)),
+            'name' => Str::ucfirst(Arr::join(Arr::wrap(fake()->unique()->words(2)), ' ')),
             'synonyms' => [],
         ];
     }

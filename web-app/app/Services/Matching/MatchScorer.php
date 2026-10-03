@@ -47,10 +47,10 @@ class MatchScorer
 
         return new MatchResult(
             score: $score,
-            matchedRequired: $matchedRequired->pluck('name')->values()->all(),
-            missingRequired: $missingRequired->pluck('name')->values()->all(),
-            matchedNiceToHave: $matchedNiceToHave->pluck('name')->values()->all(),
-            missingNiceToHave: $missingNiceToHave->pluck('name')->values()->all(),
+            matchedRequired: array_values($matchedRequired->map(fn (Skill $skill): string => $skill->name)->all()),
+            missingRequired: array_values($missingRequired->map(fn (Skill $skill): string => $skill->name)->all()),
+            matchedNiceToHave: array_values($matchedNiceToHave->map(fn (Skill $skill): string => $skill->name)->all()),
+            missingNiceToHave: array_values($missingNiceToHave->map(fn (Skill $skill): string => $skill->name)->all()),
             startDateCompatible: $this->canStartFor($candidate, $offer->start_date),
         );
     }

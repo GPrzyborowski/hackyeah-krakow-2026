@@ -88,12 +88,15 @@ class LegalAssistant
             throw new ClaudeException('Claude returned an empty answer.');
         }
 
-        $citations = collect($result['citations'] ?? [])
+        $citedIds = collect(is_array($result['citations'] ?? null) ? $result['citations'] : [])
             ->filter(fn (mixed $id): bool => is_string($id) && isset($sources[$id]))
-            ->unique()
-            ->map(fn (string $id): array => $sources[$id]['citation'])
-            ->values()
-            ->all();
+            ->unique();
+
+        $citations = [];
+
+        foreach ($citedIds as $id) {
+            $citations[] = $sources[$id]['citation'];
+        }
 
         return new AssistantAnswer($answer, $citations);
     }

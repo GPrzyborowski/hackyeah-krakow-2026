@@ -46,8 +46,8 @@ class OnboardingController extends Controller
                 ->map(fn (Skill $skill): array => [
                     'id' => $skill->id,
                     'name' => $skill->name,
-                    'source' => $skill->pivot->source,
-                    'confirmed' => $skill->pivot->confirmed_at !== null,
+                    'source' => $skill->getRelationValue('pivot')?->source,
+                    'confirmed' => $skill->getRelationValue('pivot')?->confirmed_at !== null,
                 ])
                 ->values(),
             'skillSuggestions' => Skill::query()->orderBy('name')->pluck('name'),
@@ -59,17 +59,25 @@ class OnboardingController extends Controller
 
     /**
      * Step 2: store the CV (file and/or pasted text) and let the analyzer propose skills and positions.
+     *
+     * @throws ValidationException
      */
     public function analyzeCv(AnalyzeCvRequest $request, CvAnalyzer $analyzer): RedirectResponse
     {
         $profile = $this->candidateProfile($request);
 
         if ($request->hasFile('cv')) {
+            $storedPath = $request->file('cv')->store('cvs', 'local');
+
+            if ($storedPath === false) {
+                throw ValidationException::withMessages(['cv' => 'Nie udało się zapisać pliku CV. Spróbuj ponownie.']);
+            }
+
             if ($profile->cv_path) {
                 Storage::disk('local')->delete($profile->cv_path);
             }
 
-            $profile->cv_path = $request->file('cv')->store('cvs', 'local');
+            $profile->cv_path = $storedPath;
             $profile->cv_original_name = $request->file('cv')->getClientOriginalName();
         }
 

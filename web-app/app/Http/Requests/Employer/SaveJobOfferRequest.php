@@ -128,11 +128,10 @@ class SaveJobOfferRequest extends FormRequest
      */
     private function skillNames(string $key): array
     {
-        return collect($this->validated($key, []))
+        return array_values($this->safe()->collect($key)
             ->map(fn (string $name): string => trim($name))
             ->filter()
             ->unique(fn (string $name): string => mb_strtolower($name))
-            ->values()
-            ->all();
+            ->all());
     }
 }

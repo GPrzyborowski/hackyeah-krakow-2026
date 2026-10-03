@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Employer\Concerns;
 
 use App\Enums\InvitationStatus;
+use App\Models\CandidateDecision;
 use App\Models\Company;
+use App\Models\Invitation;
 use App\Models\JobOffer;
 use App\Services\Matching\MatchScorer;
 use Illuminate\Http\Request;
@@ -49,10 +51,11 @@ trait InteractsWithEmployerCompany
      */
     protected function reviewedCandidateIds(JobOffer $offer): array
     {
-        return $offer->decisions()->pluck('candidate_profile_id')
-            ->merge($offer->invitations()->pluck('candidate_profile_id'))
-            ->unique()
-            ->values()
-            ->all();
+        $decidedIds = $offer->decisions()->get(['candidate_profile_id'])
+            ->map(fn (CandidateDecision $decision): int => $decision->candidate_profile_id);
+        $invitedIds = $offer->invitations()->get(['candidate_profile_id'])
+            ->map(fn (Invitation $invitation): int => $invitation->candidate_profile_id);
+
+        return array_values($decidedIds->merge($invitedIds)->unique()->all());
     }
 }

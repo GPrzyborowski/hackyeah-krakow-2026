@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $invitation_id
  * @property CarbonImmutable|null $last_message_at
+ * @property-read int|null $unread_count Counterpart messages not yet read, loaded via withCount().
  */
 #[Fillable(['invitation_id', 'last_message_at'])]
 class Conversation extends Model

@@ -50,10 +50,9 @@ class EmployerJobOfferResource extends JsonResource
      */
     private function skillNames(iterable $skills, SkillImportance $importance): array
     {
-        return collect($skills)
+        return array_values(collect($skills)
             ->filter(fn (Skill $skill): bool => $skill->getRelationValue('pivot')?->importance === $importance->value)
-            ->pluck('name')
-            ->values()
-            ->all();
+            ->map(fn (Skill $skill): string => $skill->name)
+            ->all());
     }
 }

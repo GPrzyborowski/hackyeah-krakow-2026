@@ -45,7 +45,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => UserRole::Employer,
-            'company_id' => $company?->id ?? Company::factory(),
+            'company_id' => $company->id ?? Company::factory(),
         ]);
     }
 

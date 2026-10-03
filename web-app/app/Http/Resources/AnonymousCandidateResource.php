@@ -15,6 +15,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * Never add surname, email, photo, CV, leave or due dates here.
  *
  * @mixin CandidateProfile
+ *
+ * @property CandidateProfile $resource
  */
 class AnonymousCandidateResource extends JsonResource
 {
@@ -38,22 +40,19 @@ class AnonymousCandidateResource extends JsonResource
             'headline' => $this->resource->headline,
             'years_of_experience' => $this->resource->years_of_experience,
             'ai_summary' => $this->resource->ai_summary,
-            'skills' => $this->resource->confirmedSkills
+            'skills' => array_values($this->resource->confirmedSkills
                 ->map(fn (Skill $skill): array => ['name' => $skill->name, 'matched' => in_array($skill->name, $matchedSkillNames, true)])
                 ->sortByDesc('matched')
-                ->values()
-                ->all(),
+                ->all()),
             'available_from' => $this->resource->available_from?->toDateString(),
-            'employment_fractions' => collect($this->resource->employment_fractions ?? [])
+            'employment_fractions' => array_values(collect($this->resource->employment_fractions ?? [])
                 ->map(fn (string $value): ?string => EmploymentFraction::tryFrom($value)?->label())
                 ->filter()
-                ->values()
-                ->all(),
-            'work_modes' => collect($this->resource->work_modes ?? [])
+                ->all()),
+            'work_modes' => array_values(collect($this->resource->work_modes ?? [])
                 ->map(fn (string $value): ?string => WorkMode::tryFrom($value)?->label())
                 ->filter()
-                ->values()
-                ->all(),
+                ->all()),
             'match' => $this->match?->toArray(),
             'is_interested' => $this->isInterested,
         ];

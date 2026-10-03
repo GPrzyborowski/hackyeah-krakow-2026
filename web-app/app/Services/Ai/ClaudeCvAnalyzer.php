@@ -105,15 +105,14 @@ class ClaudeCvAnalyzer implements CvAnalyzer
      */
     private function toAnalysis(array $data): CvAnalysis
     {
-        $skills = collect($data['skills'] ?? [])
+        $skills = array_values(collect(is_array($data['skills'] ?? null) ? $data['skills'] : [])
             ->filter(fn (mixed $skill): bool => is_string($skill) && trim($skill) !== '')
             ->map(fn (string $skill): string => Str::limit(trim($skill), 60, ''))
             ->unique(fn (string $skill): string => Str::lower($skill))
             ->take(self::MAX_SKILLS)
-            ->values()
-            ->all();
+            ->all());
 
-        $positions = collect($data['positions'] ?? [])
+        $positions = array_values(collect(is_array($data['positions'] ?? null) ? $data['positions'] : [])
             ->filter(fn (mixed $position): bool => is_array($position) && is_string($position['title'] ?? null))
             ->map(fn (array $position): array => [
                 'title' => Str::limit(trim($position['title']), 80, ''),
@@ -121,8 +120,7 @@ class ClaudeCvAnalyzer implements CvAnalyzer
             ])
             ->sortByDesc('score')
             ->take(self::MAX_POSITIONS)
-            ->values()
-            ->all();
+            ->all());
 
         $years = $data['years_of_experience'] ?? null;
 
