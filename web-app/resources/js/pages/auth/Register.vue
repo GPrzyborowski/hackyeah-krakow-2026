@@ -78,6 +78,19 @@ defineOptions({
                 <InputError :message="errors.company_name" />
             </div>
 
+            <div v-if="role === 'employer'" class="grid gap-2">
+                <Label for="company_nip">NIP firmy</Label>
+                <Input
+                    id="company_nip"
+                    type="text"
+                    inputmode="numeric"
+                    required
+                    name="company_nip"
+                    placeholder="np. 526-025-09-95"
+                />
+                <InputError :message="errors.company_nip" />
+            </div>
+
             <div class="grid gap-2">
                 <Label for="name">Imię i nazwisko</Label>
                 <Input

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -33,7 +34,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'role', 'company_id'])]
+#[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
@@ -46,6 +47,20 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     protected $attributes = [
         'role' => 'candidate',
     ];
+
+    /**
+     * Remove the stored CV file; the profile row itself goes with the database cascade.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user): void {
+            $cvPath = $user->candidateProfile?->cv_path;
+
+            if ($cvPath !== null) {
+                Storage::disk('local')->delete($cvPath);
+            }
+        });
+    }
 
     /**
      * @return HasOne<CandidateProfile, $this>
