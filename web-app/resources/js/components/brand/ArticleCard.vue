@@ -12,6 +12,7 @@ const coverColors: Record<string, string> = {
     return: 'bg-brand-green',
     rights: 'bg-brand-mint-soft',
     cv_and_interviews: 'bg-brand-mint',
+    postpartum: 'bg-brand-green-soft',
 };
 </script>
 

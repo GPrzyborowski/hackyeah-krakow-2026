@@ -478,6 +478,214 @@ class ContentSeeder extends Seeder
                     > To informacja ogólna. W razie wątpliwości zapytaj w kadrach lub w ZUS.
                     MD,
             ],
+            [
+                'title' => 'Depresja poporodowa: jak odróżnić ją od baby blues',
+                'category' => ArticleCategory::Postpartum,
+                'excerpt' => 'Kiedy płaczliwość po porodzie mija sama, a kiedy trzeba iść do lekarza. Gdzie szukać pomocy na NFZ i pod jakim numerem.',
+                'reading_minutes' => 7,
+                'is_featured' => false,
+                'body' => <<<'MD'
+                    W pierwszych dniach po porodzie większość mam przechodzi tzw. baby blues: płaczesz bez wyraźnego powodu, łatwo się irytujesz, masz huśtawki nastroju. Zwykle zaczyna się około 3.–5. doby i mija samo w ciągu dwóch tygodni. Pomaga sen, jedzenie i ktoś, kto przejmie dziecko na kilka godzin.
+
+                    ## Kiedy to może być depresja
+
+                    Depresja poporodowa trwa dłużej i jest cięższa. Może pojawić się w dowolnym momencie pierwszego roku po porodzie, także po kilku miesiącach, kiedy wydaje się, że najtrudniejsze minęło. Według szacunków dotyczy ok. 10–15% matek, a w łagodniejszej formie także części ojców.
+
+                    Zgłoś się do lekarza, jeśli przez ponad dwa tygodnie:
+
+                    - prawie codziennie czujesz smutek, pustkę albo odrętwienie,
+                    - nic Cię nie cieszy, także kontakt z dzieckiem,
+                    - nie możesz spać, nawet kiedy dziecko śpi,
+                    - masz poczucie, że jesteś złą matką albo że dziecku byłoby lepiej bez Ciebie,
+                    - pojawiają się natrętne, przerażające myśli o zrobieniu krzywdy sobie lub dziecku.
+
+                    Natrętne myśli nie znaczą, że jesteś niebezpieczna. Są częstym objawem i dobrze reagują na leczenie, ale trzeba o nich powiedzieć lekarzowi.
+
+                    ## Gdzie szukać pomocy
+
+                    Położna na wizytach patronażowych i lekarz rodzinny mogą przeprowadzić krótki test (Edynburska Skala Depresji Poporodowej) i skierować Cię dalej. Do psychiatry na NFZ nie potrzebujesz skierowania. W wielu miastach działają też centra zdrowia psychicznego, w których pierwszą konsultację dostajesz bez skierowania, zwykle w ciągu kilku dni.
+
+                    Wiele leków przeciwdepresyjnych można przyjmować w czasie karmienia piersią. Powiedz lekarzowi, że karmisz, a dobierze lek do tej sytuacji.
+
+                    ## Telefony
+
+                    - **116 123** – Kryzysowy Telefon Zaufania dla dorosłych,
+                    - **800 70 2222** – Centrum Wsparcia dla osób w kryzysie psychicznym, całodobowo i bezpłatnie,
+                    - **112** – jeśli Ty lub ktoś bliski jesteście w bezpośrednim zagrożeniu.
+
+                    ## Depresja a powrót do pracy
+
+                    Na czas leczenia depresji możesz dostać zwolnienie lekarskie, a pracodawca nie dowie się z niego, na co chorujesz. Jeśli wracasz do pracy w trakcie leczenia, możesz złożyć wniosek o elastyczną organizację pracy, np. o krótszy dzień albo pracę zdalną przez część tygodnia.
+
+                    > Ten tekst nie zastępuje porady lekarza. Jeśli myślisz o zrobieniu sobie krzywdy, zadzwoń pod 112 albo jedź na najbliższy SOR.
+                    MD,
+            ],
+            [
+                'title' => 'Rozstępy po ciąży: co działa, a co jest marketingiem',
+                'category' => ArticleCategory::Postpartum,
+                'excerpt' => 'Dlaczego powstają, czy krem w ciąży coś zmienia i jakie zabiegi ma sens rozważyć po zakończeniu karmienia.',
+                'reading_minutes' => 5,
+                'is_featured' => false,
+                'body' => <<<'MD'
+                    Rozstępy pojawiają się u większości kobiet w ciąży, najczęściej na brzuchu, biodrach, udach i piersiach. Skóra rozciąga się szybciej, niż nadąża się przebudować, a hormony ciążowe dodatkowo osłabiają włókna kolagenowe. Duże znaczenie mają geny: jeśli Twoja mama miała rozstępy, Ty też masz większą szansę.
+
+                    ## Czy krem w ciąży zapobiega rozstępom
+
+                    Badania nie potwierdzają, że jakikolwiek krem czy olejek skutecznie im zapobiega. Smarowanie zmniejsza swędzenie rozciąganej skóry, więc jeśli lubisz ten rytuał, nie ma powodu z niego rezygnować. Nie płać jednak więcej tylko dlatego, że na opakowaniu jest napis „przeciw rozstępom”.
+
+                    W ciąży i w czasie karmienia unikaj kremów z retinoidami (np. tretynoiną). Przed użyciem preparatu z apteki zapytaj lekarza lub farmaceutę.
+
+                    ## Co dzieje się z rozstępami po porodzie
+
+                    Świeże rozstępy są czerwone lub fioletowe. W ciągu kilku do kilkunastu miesięcy bledną do srebrzystych, jaśniejszych od skóry pasm i stają się mniej widoczne. Całkowicie nie znikają.
+
+                    ## Zabiegi po zakończeniu karmienia
+
+                    Najlepsze efekty daje się osiągnąć na świeżych, czerwonych rozstępach. Dermatolog może zaproponować:
+
+                    - laser frakcyjny lub laser barwnikowy,
+                    - mikronakłuwanie (mezoterapię mikroigłową),
+                    - kremy z retinoidami na receptę.
+
+                    Zabiegi są płatne, zwykle potrzeba kilku sesji, a efekt to spłycenie i rozjaśnienie śladów, a nie ich usunięcie. Przed zabiegiem zapytaj o cenę całej serii, a nie jednej wizyty.
+
+                    > Ten tekst ma charakter informacyjny. Wybór zabiegu skonsultuj z dermatologiem.
+                    MD,
+            ],
+            [
+                'title' => 'Rozejście mięśni brzucha i dno miednicy po porodzie',
+                'category' => ArticleCategory::Postpartum,
+                'excerpt' => 'Jak sprawdzić rozejście kresy białej, kiedy iść do fizjoterapeuty uroginekologicznego i dlaczego nie warto zaczynać od brzuszków.',
+                'reading_minutes' => 6,
+                'is_featured' => false,
+                'body' => <<<'MD'
+                    Pod koniec ciąży mięśnie proste brzucha rozsuwają się na boki, żeby zrobić miejsce dla dziecka. U wielu kobiet wracają na miejsce w ciągu kilku miesięcy po porodzie, ale u części szczelina zostaje. Mówi się wtedy o rozejściu mięśnia prostego brzucha albo kresy białej.
+
+                    ## Jak to sprawdzić w domu
+
+                    Połóż się na plecach z ugiętymi nogami. Połóż palce poziomo nad pępkiem i lekko unieś głowę. Jeśli między mięśniami czujesz szczelinę szerszą niż dwa palce albo brzuch „wypycha się” w szpic, warto pokazać to fizjoterapeucie.
+
+                    ## Dno miednicy
+
+                    Ciąża i poród obciążają też mięśnie dna miednicy. Popuszczanie moczu przy kaszlu, kichaniu czy podnoszeniu dziecka zdarza się po porodzie często, także po cesarskim cięciu. Większość tych problemów da się wyleczyć ćwiczeniami. Zgłoś się do lekarza, jeśli:
+
+                    - popuszczasz mocz lub gazy kilka tygodni po porodzie,
+                    - czujesz ciężar lub ucisk w pochwie, zwłaszcza pod koniec dnia,
+                    - współżycie boli dłużej niż przez pierwsze miesiące.
+
+                    ## Fizjoterapeuta uroginekologiczny
+
+                    Taki fizjoterapeuta oceni, jak pracują mięśnie brzucha i dna miednicy, i ułoży ćwiczenia pod Twoje ciało. Pierwszą wizytę warto umówić po wizycie kontrolnej u ginekologa, zwykle 6–8 tygodni po porodzie. Na NFZ potrzebujesz skierowania od lekarza, prywatnie możesz pójść bez niego.
+
+                    ## Z czym poczekać
+
+                    Klasyczne brzuszki i deski w pierwszych tygodniach mogą pogłębić rozejście. Zacznij od oddechu przeponowego, napinania dna miednicy i spacerów. Intensywny trening i bieganie zostaw na czas, gdy fizjoterapeuta da zielone światło.
+
+                    > Ten tekst nie zastępuje konsultacji z lekarzem ani fizjoterapeutą.
+                    MD,
+            ],
+            [
+                'title' => 'Wypadanie włosów po porodzie: kiedy minie',
+                'category' => ArticleCategory::Postpartum,
+                'excerpt' => 'Dlaczego włosy wypadają garściami kilka miesięcy po porodzie, ile to trwa i kiedy zrobić badania krwi.',
+                'reading_minutes' => 4,
+                'is_featured' => false,
+                'body' => <<<'MD'
+                    W ciąży wysoki poziom estrogenów sprawia, że włosy wypadają wolniej niż zwykle. Po porodzie hormony spadają i włosy, które „czekały”, wypadają naraz. Najczęściej zaczyna się 2–4 miesiące po porodzie i wygląda niepokojąco: włosy zostają na szczotce, poduszce i w odpływie prysznica.
+
+                    ## Ile to trwa
+
+                    U większości kobiet wypadanie słabnie po kilku miesiącach, a do pierwszych urodzin dziecka włosy wracają do dawnej gęstości. Przy linii czoła odrastają krótkie „baby hair”, które przez jakiś czas sterczą.
+
+                    ## Kiedy zrobić badania
+
+                    Poproś lekarza rodzinnego o badania, jeśli włosy wypadają mocno dłużej niż rok po porodzie albo dodatkowo czujesz duże zmęczenie, marzniesz lub tyjesz bez zmiany diety. Najczęściej sprawdza się:
+
+                    - morfologię i ferrytynę (zapasy żelaza),
+                    - TSH, bo po porodzie może pojawić się zapalenie tarczycy,
+                    - witaminę D.
+
+                    ## Co możesz zrobić teraz
+
+                    Suplementy „na włosy” nie przyspieszą odrastania, jeśli nie masz niedoborów. Pomaga delikatne rozczesywanie, rzadsze ciasne upięcia i krótsza fryzura, przy której ubytek mniej widać. Jeśli karmisz piersią, każdy suplement skonsultuj z lekarzem lub farmaceutą.
+
+                    > Ten tekst ma charakter informacyjny i nie zastępuje porady lekarza.
+                    MD,
+            ],
+            [
+                'title' => 'Połóg: co jest normalne w pierwszych 6 tygodniach',
+                'category' => ArticleCategory::Postpartum,
+                'excerpt' => 'Krwawienie, ból, gorączka, wizyty położnej i kontrola u ginekologa. Lista objawów, z którymi nie warto czekać.',
+                'reading_minutes' => 6,
+                'is_featured' => false,
+                'body' => <<<'MD'
+                    Połóg trwa około 6 tygodni od porodu. W tym czasie macica obkurcza się do dawnych rozmiarów, goją się rany po porodzie, a organizm wraca do stanu sprzed ciąży.
+
+                    ## Co jest normalne
+
+                    - Krwawienie z dróg rodnych (odchody połogowe): na początku obfite i czerwone, z czasem jaśniejsze i skąpe. Zwykle kończy się po 4–6 tygodniach.
+                    - Skurcze w dole brzucha, zwłaszcza podczas karmienia piersią.
+                    - Ból krocza po porodzie naturalnym albo rany po cesarskim cięciu.
+                    - Pocenie się w nocy i częste oddawanie moczu w pierwszych dniach.
+
+                    ## Kiedy dzwonić do lekarza lub jechać na SOR
+
+                    - gorączka powyżej 38°C,
+                    - krwawienie, przy którym w ciągu godziny przemaczasz podpaskę, albo duże skrzepy,
+                    - nieprzyjemny zapach odchodów,
+                    - zaczerwieniona, bolesna, sącząca się rana,
+                    - ból, obrzęk i zaczerwienienie łydki,
+                    - duszność albo ból w klatce piersiowej (wtedy dzwoń pod 112),
+                    - twardy, czerwony, bolesny fragment piersi z gorączką.
+
+                    ## Wizyty położnej
+
+                    Na NFZ przysługują Ci wizyty patronażowe położnej środowiskowej, zwykle od 4 do 6 wizyt w ciągu pierwszych tygodni. Położna sprawdza, jak się goisz, pomaga przy karmieniu i waży dziecko. Wybierasz ją sama, najlepiej jeszcze w ciąży, składając deklarację w przychodni.
+
+                    ## Kontrola po połogu
+
+                    Około 6 tygodni po porodzie umów się na wizytę u ginekologa. To dobry moment, żeby zapytać o antykoncepcję, nietrzymanie moczu, ból przy współżyciu i swoje samopoczucie. Jeśli od kilku tygodni jest Ci smutno i nic nie cieszy, powiedz o tym wprost.
+
+                    > Ten tekst ma charakter informacyjny i nie zastępuje porady lekarza ani położnej.
+                    MD,
+            ],
+            [
+                'title' => 'Karmienie piersią po powrocie do pracy',
+                'category' => ArticleCategory::Postpartum,
+                'excerpt' => 'Ile przerw na karmienie Ci przysługuje, jak je połączyć i jak przygotować się do odciągania pokarmu w biurze.',
+                'reading_minutes' => 5,
+                'is_featured' => false,
+                'body' => <<<'MD'
+                    Powrót do pracy nie musi oznaczać końca karmienia piersią. Kodeks pracy daje Ci prawo do płatnych przerw, a przy odrobinie przygotowania da się odciągać pokarm w biurze albo karmić dziecko w trakcie dnia.
+
+                    ## Ile przerw Ci przysługuje
+
+                    Według art. 187 Kodeksu pracy:
+
+                    - przy dniu pracy dłuższym niż 6 godzin masz dwie przerwy po 30 minut,
+                    - przy więcej niż jednym dziecku – dwie przerwy po 45 minut,
+                    - przy 4–6 godzinach pracy – jedną przerwę,
+                    - przy pracy krótszej niż 4 godziny przerwa nie przysługuje.
+
+                    Przerwy wlicza się do czasu pracy, więc nie tracisz wynagrodzenia. Na Twój wniosek pracodawca może połączyć je w jedną i pozwolić Ci wcześniej wyjść albo później zacząć dzień.
+
+                    ## Jak o nie poprosić
+
+                    Złóż pisemny wniosek. Zwykle wystarczy dołączyć oświadczenie, że karmisz piersią. Prawo do przerw nie ma ustawowej granicy wieku dziecka i trwa, dopóki karmisz.
+
+                    ## Odciąganie pokarmu w pracy
+
+                    - Zapytaj wcześniej, gdzie możesz spokojnie odciągać pokarm. Toaleta nie jest dobrym miejscem, a pusta sala spotkań z zamykanymi drzwiami w zupełności wystarczy.
+                    - Odciągnięte mleko może stać w temperaturze pokojowej do 4 godzin, a w lodówce do 3–4 dni. Przyda się mała torba termiczna z wkładem chłodzącym.
+                    - Zacznij odciągać i mrozić zapas 2–3 tygodnie przed powrotem, żeby oswoić się z laktatorem.
+
+                    ## Praca, której nie możesz wykonywać
+
+                    W czasie karmienia piersią obowiązuje część zakazów z czasu ciąży, np. praca z niektórymi substancjami chemicznymi czy przy dźwiganiu ciężarów. Jeśli Twoja praca jest na tej liście, pracodawca musi przenieść Cię na inne stanowisko z zachowaniem wynagrodzenia.
+
+                    > To informacja ogólna. W konkretnej sytuacji zapytaj w kadrach albo doradczynię laktacyjną.
+                    MD,
+            ],
         ];
     }
 }

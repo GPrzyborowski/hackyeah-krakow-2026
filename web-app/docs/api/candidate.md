@@ -200,7 +200,7 @@ Exactly what employers see before an invitation is accepted (anonymous allowlist
 ```
 
 The calendar depends on the private `stage`: pregnant – `phases` `pregnancy` → `leave` → `ready` (with `pregnancy_week`); after leave – `leave` → `return` → `ready` (`pregnancy_week` and `due_date` always `null`; `return` = start date within 60 days). `calendar.current_phase`: `pregnancy` | `leave` | `return` | `ready`; any date may be `null`. Without dates the phase follows the stage (`pregnancy` / `return`), and profiles without a stage fall back to `ready` – when `calendar.stage` is `null`, show a "Gdzie teraz jesteś?" card that leads to the preferences form.
-`greeting.stage_message` is a supporting line for her stage (`null` without one). `recommended_articles` are picked by stage – pregnant: "W ciąży", "Prawa", "CV i rozmowy"; after leave: "Powrót do pracy", "Urlop", "Prawa" (one per category first); newest articles without a stage.
+`greeting.stage_message` is a supporting line for her stage (`null` without one). `recommended_articles` are picked by stage – pregnant: "W ciąży", "Prawa", "CV i rozmowy"; after leave: "Powrót do pracy", "Po porodzie", "Urlop", "Prawa" (one per category first); newest articles without a stage.
 When `profile.published` is `false` the app should send the user to onboarding.
 
 ---
