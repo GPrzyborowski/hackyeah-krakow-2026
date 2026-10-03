@@ -20,7 +20,7 @@ class DashboardController extends Controller
                 ? redirect('/candidate')
                 : redirect('/candidate/onboarding'),
             UserRole::Employer => redirect('/employer/offers'),
-            UserRole::Admin => redirect('/'),
+            UserRole::Admin => redirect('/admin'),
         };
     }
 }
