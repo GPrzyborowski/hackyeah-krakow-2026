@@ -21,6 +21,16 @@ class Skill extends Model
     use HasFactory;
 
     /**
+     * Derive the slug from the name when none was given.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Skill $skill): void {
+            $skill->slug ??= Str::slug($skill->name);
+        });
+    }
+
+    /**
      * Find a skill by name or synonym, creating it when it does not exist yet.
      */
     public static function findOrCreateByName(string $name): self

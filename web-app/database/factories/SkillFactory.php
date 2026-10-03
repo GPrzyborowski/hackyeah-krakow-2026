@@ -18,11 +18,8 @@ class SkillFactory extends Factory
      */
     public function definition(): array
     {
-        $name = Str::ucfirst(fake()->unique()->words(2, true));
-
         return [
-            'name' => $name,
-            'slug' => Str::slug($name),
+            'name' => Str::ucfirst(fake()->unique()->words(2, true)),
             'synonyms' => [],
         ];
     }
