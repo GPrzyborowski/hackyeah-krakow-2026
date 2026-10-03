@@ -39,7 +39,7 @@ const faq: { question: string; answer: string }[] = [
 <template>
     <LegalPageShell
         title="Kontakt"
-        lead="Masz pytanie, problem albo pomysł? Napisz do nas – czytamy każdą wiadomość."
+        lead="Napisz do nas, jeśli masz pytanie albo coś w serwisie nie działa."
     >
         <h2>Napisz do nas</h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-3">

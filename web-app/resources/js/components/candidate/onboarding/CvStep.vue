@@ -247,7 +247,7 @@ function confirmAndContinue() {
             <Info class="mt-0.5 size-4 shrink-0" />
             <p>
                 Tagi to propozycje. Usuń te, które nie pasują, i dodaj własne
-                przyciskiem „+ Dodaj tag” – nie musisz czekać na analizę.
+                przyciskiem „+ Dodaj tag”. Nie musisz czekać na analizę.
             </p>
         </div>
 
@@ -327,7 +327,7 @@ function confirmAndContinue() {
                 >To zobaczą pracodawcy</label
             >
             <p class="mt-1 text-xs text-brand-green/80">
-                Krótki opis na Twoim anonimowym profilu. Popraw go po swojemu –
+                Krótki opis na Twoim anonimowym profilu. Popraw go po swojemu, ale
                 bez e-maila, telefonu i informacji o rodzinie.
             </p>
             <textarea

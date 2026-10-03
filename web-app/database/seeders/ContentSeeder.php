@@ -195,7 +195,7 @@ class ContentSeeder extends Seeder
                 'reading_minutes' => 9,
                 'is_featured' => true,
                 'body' => <<<'MD'
-                    Urlop rodzicielski to najbardziej elastyczna część czasu, który możesz spędzić z dzieckiem. Dobrze zaplanowany pozwala wrócić do pracy stopniowo, bez rzucania się na głęboką wodę.
+                    Urlop rodzicielski możesz dzielić na części, łączyć z pracą na część etatu i rozłożyć między rodziców. Jeśli zaplanujesz go wcześniej, wrócisz do pracy stopniowo.
 
                     ## Ile go jest i do kogo należy
 
@@ -209,7 +209,7 @@ class ContentSeeder extends Seeder
 
                     ## Urlop rodzicielski a część etatu
 
-                    W czasie urlopu rodzicielskiego możesz pracować u swojego pracodawcy w wymiarze **do połowy etatu**. To dobry sposób na łagodny powrót: zachowujesz kontakt z zespołem, a wymiar urlopu wydłuża się proporcjonalnie. Pracodawca może odmówić tylko wtedy, gdy organizacja lub rodzaj pracy na to nie pozwalają.
+                    W czasie urlopu rodzicielskiego możesz pracować u swojego pracodawcy w wymiarze **do połowy etatu**. Zachowujesz wtedy kontakt z zespołem, a urlop wydłuża się proporcjonalnie. Pracodawca może odmówić tylko wtedy, gdy organizacja lub rodzaj pracy na to nie pozwalają.
 
                     ## Rozmowa z pracodawcą – lista pytań
 
@@ -262,11 +262,11 @@ class ContentSeeder extends Seeder
             [
                 'title' => 'Jak opisać przerwę w CV i nie tłumaczyć się',
                 'category' => ArticleCategory::CvAndInterviews,
-                'excerpt' => 'Przerwa w zatrudnieniu to nie dziura do zasłonięcia. Pokaż, od kiedy jesteś dostępna i co umiesz.',
+                'excerpt' => 'Nie musisz ukrywać przerwy w zatrudnieniu. Napisz, od kiedy jesteś dostępna i co umiesz.',
                 'reading_minutes' => 5,
                 'is_featured' => false,
                 'body' => <<<'MD'
-                    Przerwa w CV stresuje wiele mam wracających do pracy. Tymczasem rekruterzy coraz częściej traktują ją jako zwykły element ścieżki zawodowej. Klucz to pokazać, co umiesz i od kiedy możesz zacząć – a nie tłumaczyć się z życia prywatnego.
+                    Przerwa w CV stresuje wiele mam wracających do pracy. Rekruterzy chcą jednak głównie wiedzieć, co umiesz i od kiedy możesz zacząć. Z życia prywatnego nie musisz się tłumaczyć.
 
                     ## Nie musisz podawać powodu
 
@@ -286,7 +286,7 @@ class ContentSeeder extends Seeder
 
                     ## Odśwież umiejętności przed wysyłką
 
-                    Przejrzyj kilka ogłoszeń na stanowisko, które Cię interesuje, i wypisz powtarzające się umiejętności. Jeśli któraś Ci umknęła, krótki kurs przed wysłaniem CV zrobi dużą różnicę – także dla Twojej pewności siebie.
+                    Przejrzyj kilka ogłoszeń na stanowisko, które Cię interesuje, i wypisz powtarzające się umiejętności. Jeśli któraś Ci umknęła, zrób krótki kurs, zanim wyślesz CV.
 
                     ## Na rozmowie
 
@@ -298,11 +298,11 @@ class ContentSeeder extends Seeder
             [
                 'title' => 'Plan powrotu do pracy na pierwsze 8 tygodni',
                 'category' => ArticleCategory::Return,
-                'excerpt' => 'Tydzień po tygodniu: od rozmowy z przełożoną po pierwsze sukcesy. Bez wyrzutów sumienia.',
+                'excerpt' => 'Tydzień po tygodniu: od rozmowy z przełożoną do podsumowania pierwszych dwóch miesięcy.',
                 'reading_minutes' => 8,
                 'is_featured' => false,
                 'body' => <<<'MD'
-                    Powrót po urlopie to proces, nie jeden dzień. Ten plan pomoże Ci rozłożyć zmiany na osiem tygodni – dla Ciebie, dziecka i zespołu.
+                    Powrót po urlopie łatwiej rozłożyć na kilka tygodni. Ten plan dzieli go na cztery etapy po dwa tygodnie.
 
                     ## Tydzień 1–2: zanim wrócisz
 
@@ -327,9 +327,9 @@ class ContentSeeder extends Seeder
 
                     Umów rozmowę podsumowującą okres powrotu. Co działa? Co trzeba zmienić? Jeśli godziny się nie sprawdzają, możesz poprosić o inny rozkład czasu pracy – rodzic dziecka do 8 lat ma prawo złożyć wniosek o elastyczną organizację pracy.
 
-                    ## Najważniejsze
+                    ## Na koniec
 
-                    Pierwsze tygodnie będą nierówne. To normalne. Plan ma Ci pomagać, a nie rozliczać – zmieniaj go, gdy życie tego wymaga.
+                    Pierwsze tygodnie zwykle są nierówne, więc zmieniaj plan, kiedy przestaje pasować do Twojej sytuacji.
                     MD,
             ],
             [
@@ -339,7 +339,7 @@ class ContentSeeder extends Seeder
                 'reading_minutes' => 7,
                 'is_featured' => false,
                 'body' => <<<'MD'
-                    Wiele kobiet boi się zmiany pracy w ciąży, bo „straci zasiłek”. Dobra wiadomość: zasiłek macierzyński działa inaczej niż chorobowy.
+                    Wiele kobiet boi się zmiany pracy w ciąży, bo „straci zasiłek”. Zasiłek macierzyński ma jednak inne zasady niż chorobowy.
 
                     ## Zasiłek macierzyński – bez okresu wyczekiwania
 
@@ -378,7 +378,7 @@ class ContentSeeder extends Seeder
                 'reading_minutes' => 4,
                 'is_featured' => false,
                 'body' => <<<'MD'
-                    „Praca zdalna” w ogłoszeniu brzmi świetnie, ale w praktyce bywa różnie. Te pięć pytań pomoże Ci sprawdzić, czy oferta naprawdę pasuje do rytmu dnia z przedszkolakiem.
+                    „Praca zdalna” w ogłoszeniu może oznaczać różne rzeczy. Te pięć pytań pomoże Ci sprawdzić, czy oferta naprawdę pasuje do rytmu dnia z przedszkolakiem.
 
                     ## 1. Czy są stałe godziny spotkań?
 
@@ -394,7 +394,7 @@ class ContentSeeder extends Seeder
 
                     ## 4. Co się dzieje, gdy dziecko zachoruje?
 
-                    Dobre pytanie o kulturę firmy. Każdy rodzic dziecka do 14 lat ma prawo do 2 dni (lub 16 godzin) płatnego zwolnienia w roku, a przy chorobie dziecka – do zasiłku opiekuńczego. Warto wiedzieć, jak zespół radzi sobie z zastępstwami.
+                    Odpowiedź dużo mówi o firmie. Każdy rodzic dziecka do 14 lat ma prawo do 2 dni (lub 16 godzin) płatnego zwolnienia w roku, a przy chorobie dziecka – do zasiłku opiekuńczego. Warto wiedzieć, jak zespół radzi sobie z zastępstwami.
 
                     ## 5. Czy firma ma doświadczenie z rodzicami?
 
@@ -408,11 +408,11 @@ class ContentSeeder extends Seeder
             [
                 'title' => 'Zwolnienie lekarskie w ciąży: co z pracą i wypłatą',
                 'category' => ArticleCategory::Pregnancy,
-                'excerpt' => 'L4 w ciąży to nie powód do wyrzutów sumienia. Wyjaśniamy, ile wynosi wypłata i czy możesz stracić pracę.',
+                'excerpt' => 'Ile wynosi wypłata na L4 w ciąży, kto ją płaci i czy pracodawca może Cię zwolnić.',
                 'reading_minutes' => 6,
                 'is_featured' => false,
                 'body' => <<<'MD'
-                    Ciąża bywa wymagająca, a zwolnienie lekarskie jest po to, żeby zadbać o siebie i dziecko. Oto, co warto wiedzieć.
+                    Jeśli lekarz wystawi Ci zwolnienie w ciąży, masz prawo z niego skorzystać. Poniżej zasady wypłaty i ochrony przed zwolnieniem z pracy.
 
                     ## Ile dostaniesz
 
@@ -442,11 +442,11 @@ class ContentSeeder extends Seeder
             [
                 'title' => 'Urlop macierzyński krok po kroku',
                 'category' => ArticleCategory::Leave,
-                'excerpt' => 'Ile trwa, kiedy możesz go zacząć i jakie dokumenty przygotować. Wszystko na jednej stronie.',
+                'excerpt' => 'Ile trwa, kiedy możesz go zacząć i jakie dokumenty przygotować.',
                 'reading_minutes' => 5,
                 'is_featured' => false,
                 'body' => <<<'MD'
-                    Urlop macierzyński to czas tylko dla Ciebie i dziecka. Przepisy są dość proste – wystarczy znać kilka liczb.
+                    Zasady urlopu macierzyńskiego sprowadzają się do kilku liczb i terminów.
 
                     ## Ile trwa
 

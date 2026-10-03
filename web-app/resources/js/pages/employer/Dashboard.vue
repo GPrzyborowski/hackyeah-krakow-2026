@@ -562,7 +562,7 @@ const activityIcons: Record<string, typeof Mail> = {
                     v-if="!todo.length"
                     class="mt-3 rounded-2xl bg-brand-cream p-4 text-sm text-brand-green/80"
                 >
-                    Wszystko ogarnięte. Brawo!
+                    Na razie nie masz nic do zrobienia.
                 </p>
                 <ul v-else class="mt-3 flex flex-col gap-2" data-test="todo">
                     <li

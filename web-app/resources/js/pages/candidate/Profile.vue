@@ -257,8 +257,8 @@ function toggleVisibility() {
                     Opis dla pracodawców
                 </label>
                 <p class="mt-1 text-xs text-brand-green/80">
-                    Krótki opis na Twoim anonimowym profilu – bez e-maila,
-                    telefonu i informacji o rodzinie.
+                    Krótki opis na Twoim anonimowym profilu. Nie wpisuj e-maila,
+                    telefonu ani informacji o rodzinie.
                 </p>
                 <textarea
                     id="profile_ai_summary"

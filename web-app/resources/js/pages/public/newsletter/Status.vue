@@ -32,8 +32,8 @@ defineProps<{
             <template v-if="status === 'confirmed'">
                 <h1 class="text-2xl font-semibold">Zapis potwierdzony</h1>
                 <p class="text-sm text-brand-green/80">
-                    Raz w tygodniu wyślemy Ci jeden nowy tekst. Bez reklam i bez
-                    spamu.
+                    Raz w tygodniu wyślemy Ci jeden nowy tekst z bloga, bez
+                    reklam.
                 </p>
                 <Link
                     v-if="unsubscribeToken"

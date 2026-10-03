@@ -49,7 +49,7 @@ function switchRoleWithKeyboard(event: KeyboardEvent): void {
 defineOptions({
     layout: {
         title: 'Załóż konto',
-        description: 'Profil tworzysz raz. Firmy znajdą Cię same.',
+        description: 'Wypełniasz profil raz, a firmy wysyłają Ci zaproszenia.',
     },
 });
 </script>

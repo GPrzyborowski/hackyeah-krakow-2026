@@ -38,7 +38,7 @@ class DemoPolishSeeder extends Seeder
             'Zamykała rocznie kilkadziesiąt rekrutacji technicznych, współpracując bezpośrednio z liderami zespołów. Odpowiadała też za program onboardingu dla działu IT.',
             'Specjalizuje się w rekrutacji developerów i testerów, sprawnie prowadzi rozmowy techniczne razem z zespołem. Zna prawo pracy na tyle, by samodzielnie przygotować dokumenty dla nowych osób.',
             'Budowała od podstaw dział rekrutacji w rosnącej firmie technologicznej. Wprowadziła ustrukturyzowany onboarding i standardy przygotowania umów zgodnych z kodeksem pracy.',
-            'Łączy rekrutację IT z dbałością o doświadczenie kandydatów – każdy proces kończy informacją zwrotną. Koordynowała wdrożenia kilkudziesięciu osób rocznie.',
+            'Prowadzi rekrutacje IT i każdemu kandydatowi wysyła informację zwrotną. Koordynowała wdrożenia kilkudziesięciu osób rocznie.',
             'Rekrutowała specjalistów IT na rynek polski i zagraniczny, korzystając z sourcingu i poleceń. Przygotowuje plany wdrożenia i pilnuje formalności wynikających z prawa pracy.',
             'Ma doświadczenie zarówno w agencji, jak i po stronie pracodawcy, głównie w rekrutacjach technicznych. Prowadziła onboarding hybrydowy dla zespołów rozproszonych w kilku miastach.',
         ],
@@ -47,7 +47,7 @@ class DemoPolishSeeder extends Seeder
             'Partnerka biznesowa dla działów sprzedaży i operacji, odpowiadała za politykę wynagrodzeń i ścieżki awansu. Zaprojektowała onboarding dla nowych liderów zespołów.',
             'Prowadziła projekty zmian organizacyjnych i restrukturyzacje zgodnie z prawem pracy. Wspiera menedżerów w trudnych rozmowach i budowaniu zespołów.',
             'Doświadczona HRBP w firmie produkcyjnej i w centrum usług wspólnych. Wdrożyła ustandaryzowany proces onboardingu oraz badanie zaangażowania pracowników.',
-            'Łączy perspektywę biznesu i ludzi – przygotowywała analizy rotacji i plany sukcesji. Konsultuje kwestie z zakresu prawa pracy dla kadry kierowniczej.',
+            'Przygotowywała analizy rotacji i plany sukcesji. Konsultuje kwestie z zakresu prawa pracy dla kadry kierowniczej.',
             'Odpowiadała za obszar HR dla kilku działów jednocześnie, w tym za przeglądy roczne i budżety szkoleniowe. Usprawniła wdrożenie nowych pracowników w modelu hybrydowym.',
             'Wspierała menedżerów w procesach zatrudnienia, ocen okresowych i rozwiązywaniu konfliktów. Zna prawo pracy w praktyce i potrafi przełożyć je na proste procedury.',
             'HR Business Partner z doświadczeniem w środowisku międzynarodowym. Prowadziła programy onboardingowe i rozwojowe dla zespołów liczących łącznie ponad 300 osób.',
@@ -57,10 +57,10 @@ class DemoPolishSeeder extends Seeder
             'Specjalistka ds. kadr i płac z doświadczeniem w biurze rachunkowym i dużej firmie usługowej. Przygotowuje zestawienia płacowe i kontroluje zgodność z przepisami prawa pracy.',
             'Prowadziła kadry i płace dla kilku spółek jednocześnie, w tym rozliczenia z ZUS i PIT. Automatyzuje raporty w Excelu, co skraca zamknięcie miesiąca.',
             'Odpowiadała za listy płac, urlopy i ewidencję czasu pracy w firmie z pracą zmianową. Na bieżąco śledzi zmiany w prawie pracy.',
-            'Przeprowadziła migrację danych kadrowych do nowego systemu i przygotowała procedury dla zespołu. Świetnie posługuje się Excelem przy uzgadnianiu list płac.',
+            'Przeprowadziła migrację danych kadrowych do nowego systemu i przygotowała procedury dla zespołu. Uzgadnia listy płac w Excelu.',
             'Ma doświadczenie w obsłudze umów o pracę i umów cywilnoprawnych oraz w kontaktach z ZUS. Konsultuje menedżerów w kwestiach czasu pracy zgodnie z kodeksem pracy.',
             'Naliczała wynagrodzenia z uwzględnieniem premii, nadgodzin i dodatków zmianowych. Przygotowuje analizy kosztów osobowych w Excelu dla działu finansów.',
-            'Prowadziła dokumentację kadrową od zatrudnienia po rozwiązanie umowy, w tym akta osobowe w wersji elektronicznej. Rzetelna i dokładna w terminowych rozliczeniach płac.',
+            'Prowadziła dokumentację kadrową od zatrudnienia po rozwiązanie umowy, w tym akta osobowe w wersji elektronicznej. Rozlicza płace w terminie.',
         ],
         'Koordynatorka projektów' => [
             'Koordynowała równolegle kilka projektów wdrożeniowych dla klientów biznesowych, pracując w Scrumie. Prowadzi backlog w Jirze i dba o przejrzystą komunikację z klientem.',
@@ -69,7 +69,7 @@ class DemoPolishSeeder extends Seeder
             'Prowadziła projekty od fazy ofertowania po odbiór, będąc głównym punktem kontaktu dla klienta. Wprowadziła w zespole praktyki Scrum i retrospektywy.',
             'Koordynatorka z doświadczeniem w agencji i software house, przyzwyczajona do pracy z wieloma klientami naraz. Raportuje postępy w Jirze i dba o jakość dokumentacji.',
             'Zarządzała portfelem projektów o łącznym budżecie kilku milionów złotych. Facylitowała ceremonie scrumowe i warsztaty z klientami.',
-            'Łączy podejście zwinne z dobrą organizacją pracy – planuje sprinty i kamienie milowe w Jirze. Potrafi spokojnie prowadzić trudne rozmowy z klientem o zakresie.',
+            'Planuje sprinty i kamienie milowe w Jirze. Potrafi spokojnie prowadzić trudne rozmowy z klientem o zakresie.',
             'Prowadziła projekty rozproszonych zespołów pracujących zdalnie w kilku strefach czasowych. Dba o przejrzyste zadania w Jirze i rytm pracy oparty na Scrumie.',
         ],
         'Konsultantka obsługi klienta' => [
@@ -78,7 +78,7 @@ class DemoPolishSeeder extends Seeder
             'Pracowała w zespole obsługi klienta sklepu internetowego, odpowiadała za reklamacje i zwroty. Swobodnie komunikuje się po angielsku w mowie i piśmie.',
             'Ma doświadczenie w helpdesku pierwszej linii i w obsłudze kluczowych klientów. Tworzyła bazę wiedzy i szablony odpowiedzi, które skróciły czas obsługi zgłoszeń.',
             'Obsługiwała klientów anglojęzycznych w centrum usług wspólnych, z naciskiem na jakość i terminowość. Potrafi tłumaczyć złożone kwestie prostym językiem.',
-            'Konsultantka z doświadczeniem w branży ubezpieczeniowej i telekomunikacyjnej. Buduje długofalowe relacje z klientami i dba o ich satysfakcję.',
+            'Konsultantka z doświadczeniem w branży ubezpieczeniowej i telekomunikacyjnej. Pracowała głównie ze stałymi klientami.',
             'Prowadziła obsługę klienta przez czat i media społecznościowe, w języku polskim i angielskim. Regularnie osiągała najlepsze wyniki NPS w zespole.',
             'Odpowiadała za wsparcie klientów biznesowych i eskalacje trudniejszych spraw. Dobrze odnajduje się w pracy zdalnej i komunikacji pisemnej.',
         ],
@@ -89,28 +89,28 @@ class DemoPolishSeeder extends Seeder
             'Ma doświadczenie w księgowości firm handlowych i usługowych, w tym w ewidencji środków trwałych. Terminowo przygotowuje JPK i rozliczenia VAT.',
             'Prowadziła księgi dla klientów biura rachunkowego od dokumentu źródłowego po sprawozdanie. Bardzo dobrze zna Comarch Optima i przepisy o VAT.',
             'Specjalizuje się w rozliczeniach VAT i uzgadnianiu sald z kontrahentami. Pracowała w Optimie przy obsłudze kilkudziesięciu klientów jednocześnie.',
-            'Księgowa z doświadczeniem w spółkach produkcyjnych, odpowiedzialna za rozrachunki i rozliczenia podatkowe. Dokładna, dobrze zorganizowana w okresie zamknięć.',
+            'Księgowa z doświadczeniem w spółkach produkcyjnych, odpowiedzialna za rozrachunki i rozliczenia podatkowe. Zamyka miesiąc i rok w terminie.',
             'Wspierała głównego księgowego przy bilansie i audycie, prowadząc ewidencję VAT. Automatyzuje powtarzalne księgowania w Optimie.',
         ],
         'Analityczka danych' => [
-            'Budowała raporty sprzedażowe i dashboardy w Power BI, a dane przygotowywała w SQL. Potrafi zamienić liczby w konkretne rekomendacje dla biznesu.',
+            'Budowała raporty sprzedażowe i dashboardy w Power BI, a dane przygotowywała w SQL. Na podstawie raportów przygotowuje rekomendacje dla działu sprzedaży.',
             'Analityczka danych z doświadczeniem w e-commerce, analizowała ścieżki klientów i wyniki kampanii. Swobodnie pisze zapytania SQL i modele w Excelu.',
             'Odpowiadała za raportowanie zarządcze w centrum usług wspólnych, automatyzując zestawienia w SQL. Prezentuje wyniki menedżerom w przystępnej formie.',
             'Prowadziła analizy danych produktowych i testy A/B we współpracy z zespołem produktu. Sprawnie łączy dane z wielu źródeł za pomocą SQL i Excela.',
             'Zbudowała od podstaw hurtownię raportów dla działu finansów, skracając czas przygotowania raportu miesięcznego o połowę. Dobrze zna SQL i zaawansowany Excel.',
             'Analizowała dane operacyjne i logistyczne, szukając oszczędności kosztowych. Tworzy czytelne wizualizacje i dokumentuje swoje analizy.',
             'Ma doświadczenie w analizie danych klientów w banku, w tym segmentacji i prognozowaniu odejść. Pisze wydajne zapytania SQL na dużych zbiorach danych.',
-            'Łączy analizę danych z dobrą komunikacją – regularnie prowadziła warsztaty z interpretacji raportów. Pracuje w SQL, Excelu i narzędziach BI.',
+            'Regularnie prowadziła warsztaty z interpretacji raportów. Pracuje w SQL, Excelu i narzędziach BI.',
         ],
         'Specjalistka ds. marketingu' => [
-            'Planowała i prowadziła kampanie marketingowe dla marek konsumenckich, od strategii po raport wyników. Tworzy treści do mediów społecznościowych, które realnie zwiększały zasięgi.',
+            'Planowała i prowadziła kampanie marketingowe dla marek konsumenckich, od strategii po raport wyników. Tworzy treści do mediów społecznościowych.',
             'Specjalistka ds. marketingu internetowego z doświadczeniem w e-commerce. Prowadziła profile marki w social mediach i pisała teksty na stronę oraz do newslettera.',
-            'Odpowiadała za komunikację marki w mediach społecznościowych i współpracę z twórcami. Świetnie pisze – od krótkich postów po artykuły eksperckie.',
+            'Odpowiadała za komunikację marki w mediach społecznościowych i współpracę z twórcami. Pisze posty i artykuły eksperckie.',
             'Prowadziła kampanie płatne i organiczne, samodzielnie przygotowując copy i harmonogram publikacji. Analizuje wyniki działań i optymalizuje budżet.',
             'Budowała strategię contentową dla firmy B2B i prowadziła bloga eksperckiego. Ma doświadczenie w social mediach i marketingu automation.',
             'Marketerka z doświadczeniem w agencji, obsługiwała kilka marek jednocześnie. Tworzy spójne komunikaty i kampanie w mediach społecznościowych.',
-            'Przygotowywała kampanie produktowe i premiery, koordynując pracę grafików i copywriterów. Pisze angażujące treści i dba o spójny ton marki.',
-            'Rozwinęła kanały social media marki od zera do kilkudziesięciu tysięcy obserwujących. Łączy kreatywne podejście z pracą na danych.',
+            'Przygotowywała kampanie produktowe i premiery, koordynując pracę grafików i copywriterów. Pisze teksty kampanii i pilnuje tonu marki.',
+            'Rozwinęła kanały social media marki od zera do kilkudziesięciu tysięcy obserwujących. Decyzje o treściach opiera na statystykach kanałów.',
         ],
     ];
 
@@ -256,13 +256,13 @@ class DemoPolishSeeder extends Seeder
         $skillNames = $profile->confirmedSkills->pluck('name')->map(fn (string $name): string => Str::lower($name))->values()->all();
 
         if ($skillNames === []) {
-            return "Doświadczona specjalistka na stanowisku: {$headline}. Pracuje samodzielnie, dobrze organizuje swój czas i współpracę w zespole.";
+            return "Doświadczona specjalistka na stanowisku: {$headline}. Pracuje samodzielnie i sama planuje swoje zadania.";
         }
 
         $lastSkill = array_pop($skillNames);
         $skillsSentence = $skillNames === [] ? $lastSkill : implode(', ', $skillNames).' oraz '.$lastSkill;
 
-        return "Ma kilkuletnie doświadczenie na stanowisku: {$headline}. Jej mocne strony to {$skillsSentence}, a w zespole ceniono ją za samodzielność i dobrą komunikację.";
+        return "Ma kilkuletnie doświadczenie na stanowisku: {$headline}. Jej mocne strony to {$skillsSentence}.";
     }
 
     /**
@@ -399,7 +399,7 @@ class DemoPolishSeeder extends Seeder
                 'nip_prefix' => '676259813',
                 'email' => 'hr@wawelskisoftware.test',
                 'recruiter' => 'Agata Nowicka',
-                'description' => 'Wawelski Software House tworzy aplikacje webowe i mobilne dla klientów z Europy, z biurem na krakowskim Zabłociu. Pracujemy w modelu hybrydowym z elastycznym startem dnia między 7:00 a 10:00. Spotkania zespołowe kończymy przed 15:00, a część etatu to u nas standard, nie wyjątek.',
+                'description' => 'Wawelski Software House tworzy aplikacje webowe i mobilne dla klientów z Europy, z biurem na krakowskim Zabłociu. Pracujemy w modelu hybrydowym z elastycznym startem dnia między 7:00 a 10:00. Spotkania zespołowe kończymy przed 15:00. Większość zespołu pracuje na część etatu.',
                 'reviews' => [
                     [5, 5, 5, '„Wróciłam na 3/4 etatu i nikt nie robił z tego problemu – zespół sam przesunął daily na 9:30.”', 'Mama jednego dziecka, IT'],
                     [4, 5, 5, '„Na rozmowie pytano wyłącznie o projekty i doświadczenie. Elastyczne godziny działają naprawdę.”', 'Mama dwójki, zarządzanie projektami'],

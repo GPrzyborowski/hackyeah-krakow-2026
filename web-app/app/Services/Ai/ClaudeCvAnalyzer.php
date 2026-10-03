@@ -27,6 +27,7 @@ class ClaudeCvAnalyzer implements CvAnalyzer
         children, maternity or parental leave, or the reason for any career gap.
         Write the summary, headline and position titles in Polish. The summary has exactly two sentences in the
         third person and focuses on experience, strengths and the kind of work the person does well.
+        Use plain, concrete Polish: name actual tasks and tools, and avoid CV clichés and filler adjectives.
         For skills, prefer the exact names from the provided skill dictionary; add a new skill name only when the CV
         clearly shows an important skill missing from the dictionary. Return at most 12 skills, most relevant first.
         Suggest at most 4 positions the person fits, each with a fit score from 0 to 100.

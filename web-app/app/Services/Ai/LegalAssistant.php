@@ -59,6 +59,7 @@ class LegalAssistant
         Nie udzielaj porad prawnych w konkretnym sporze - podawaj informację ogólną.
         W polu citations podaj identyfikatory (np. "L3", "A5") tylko tych źródeł, z których faktycznie korzystasz.
         Nie wstawiaj identyfikatorów źródeł do treści odpowiedzi.
+        Pisz prosto, bez ogólników, zwrotów w stylu „warto pamiętać” i podsumowań na końcu.
         PROMPT;
 
     public function __construct(

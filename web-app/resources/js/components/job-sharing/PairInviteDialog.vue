@@ -48,7 +48,7 @@ const template = computed(() => {
     return [
         'Dzień dobry,',
         '',
-        `Wasza para bardzo pasuje do stanowiska ${props.offer.title} w modelu job sharing (${props.offer.employment_fraction_label} dla każdej z Was, ${props.offer.work_mode_label.toLowerCase()}${props.offer.city ? `, ${props.offer.city}` : ''}).`,
+        `Wasza para pasuje do stanowiska ${props.offer.title} w modelu job sharing (${props.offer.employment_fraction_label} dla każdej z Was, ${props.offer.work_mode_label.toLowerCase()}${props.offer.city ? `, ${props.offer.city}` : ''}).`,
         `Dzień pracy ${formatHour(props.offer.workday_starts_at)}–${formatHour(props.offer.workday_ends_at)}, proponowany podział: ${props.scheduleSummary}.`,
         salary ? `Widełki wynagrodzenia: ${salary}.` : null,
         `Planowany start: ${formatLongDate(props.offer.start_date)}.`,

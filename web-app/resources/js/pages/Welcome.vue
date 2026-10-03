@@ -79,9 +79,9 @@ const pairChat = [
                         Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.
                     </h1>
                     <p class="mt-6 max-w-lg text-base text-brand-green/80">
-                        Stwórz profil raz. Firmy z elastycznymi ofertami wybiorą
-                        Cię po umiejętnościach i napiszą pierwsze. O ciąży
-                        powiesz wtedy, kiedy sama zdecydujesz.
+                        Wypełniasz profil, a firmy z elastycznymi ofertami
+                        wybierają Cię po umiejętnościach i piszą pierwsze. O
+                        ciąży mówisz wtedy, kiedy sama zdecydujesz.
                     </p>
                     <div class="mt-8 flex flex-wrap gap-3">
                         <Link
@@ -252,8 +252,8 @@ const pairChat = [
                             </div>
                         </div>
                         <p class="mt-3 text-xs text-brand-green/80">
-                            Jedno stanowisko, jedno wynagrodzenie na osobę, dwie
-                            kandydatki, które same ustalają podział dnia.
+                            Dwie kandydatki dzielą jedno stanowisko i same
+                            ustalają, kto pracuje rano, a kto po południu.
                         </p>
                     </div>
 
@@ -341,7 +341,7 @@ const pairChat = [
                     <h2
                         class="text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
                     >
-                        Zapytaj o swoje prawa. Odpowiedź przyjdzie ze źródłem.
+                        Zapytaj o swoje prawa i dostań odpowiedź ze źródłem
                     </h2>
                     <p class="mt-4 max-w-lg text-sm text-brand-green/80">
                         Asystent AI zna Kodeks pracy, przepisy o urlopach i
@@ -416,8 +416,7 @@ const pairChat = [
                     v-else
                     class="mt-8 rounded-3xl bg-white/70 p-6 text-sm text-brand-green"
                 >
-                    Pierwsze opinie mam o pracodawcach pojawią się tu już
-                    wkrótce.
+                    Nie ma tu jeszcze opinii mam o pracodawcach.
                 </p>
             </div>
         </section>
@@ -457,7 +456,7 @@ const pairChat = [
                 <h2
                     class="max-w-md text-3xl leading-tight font-semibold tracking-tight text-white"
                 >
-                    Zacznij od profilu. Oferty znajdą Cię same.
+                    Wypełnij profil raz, a firmy same wyślą Ci zaproszenia.
                 </h2>
                 <Link
                     :href="isSignedIn ? dashboard() : register()"

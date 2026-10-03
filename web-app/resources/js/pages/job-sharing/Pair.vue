@@ -564,7 +564,7 @@ const inputClass =
                 >
                     <ShieldCheck class="mt-0.5 size-5 shrink-0" />
                     <p v-if="pair.status === 'hired'">
-                        Gratulacje! Obie przyjęłyście zaproszenie – Wasza para
+                        Gratulacje! Obie przyjęłyście zaproszenie, więc Wasza para
                         została zatrudniona. Szczegóły ustalicie z firmą w
                         zakładce
                         <Link
@@ -588,7 +588,7 @@ const inputClass =
                         >.
                     </p>
                     <p v-else>
-                        Pracodawca widzi Was jako parę – anonimowo, z
+                        Pracodawca widzi Was jako parę: anonimowo, z
                         umiejętnościami i podziałem dnia. Dane kontaktowe
                         zobaczy dopiero po Waszej akceptacji zaproszenia.
                     </p>
