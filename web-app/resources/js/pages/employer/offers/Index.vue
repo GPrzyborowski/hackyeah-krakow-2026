@@ -115,8 +115,8 @@ function closeOffer(offer: OfferRow): void {
         >
             <Hourglass class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <p>
-                Twoja firma czeka na weryfikację NIP. Potem przy ofertach
-                pojawi się odznaka „Zweryfikowana firma”.
+                Twoja firma czeka na weryfikację NIP. Potem przy ofertach pojawi
+                się odznaka „Zweryfikowana firma”.
             </p>
         </div>
 

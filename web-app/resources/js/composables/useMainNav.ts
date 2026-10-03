@@ -23,10 +23,10 @@ import type { NavItem } from '@/types';
 
 const candidateItems: NavItem[] = [
     { title: 'Start', href: '/candidate', icon: Home },
-    { title: 'Oferty', href: '/candidate/offers', icon: Briefcase },
     { title: 'Zaproszenia', href: '/candidate/invitations', icon: Mail },
     { title: 'Job sharing', href: '/job-sharing', icon: UsersRound },
     { title: 'Czaty', href: '/conversations', icon: MessageCircle },
+    { title: 'Oferty', href: '/candidate/offers', icon: Briefcase },
     { title: 'Opinie', href: '/reviews', icon: Star },
     { title: 'Asystent', href: '/assistant', icon: Sparkles },
     { title: 'Blog', href: '/blog', icon: BookOpen },
@@ -35,10 +35,10 @@ const candidateItems: NavItem[] = [
 
 const employerItems: NavItem[] = [
     { title: 'Start', href: '/employer', icon: Home },
-    { title: 'Ogłoszenia', href: '/employer/offers', icon: Briefcase },
     { title: 'Kandydatki', href: '/employer/candidates', icon: Users },
     { title: 'Zaproszenia', href: '/employer/invitations', icon: Mail },
     { title: 'Czaty', href: '/conversations', icon: MessageCircle },
+    { title: 'Ogłoszenia', href: '/employer/offers', icon: Briefcase },
     { title: 'Konto firmy', href: '/employer/company', icon: Building2 },
     { title: 'Blog', href: '/blog', icon: BookOpen },
 ];

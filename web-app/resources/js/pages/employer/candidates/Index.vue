@@ -185,7 +185,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
     <div class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
         <h1 class="text-2xl font-bold text-brand-green sm:text-4xl">
-            Przeglądasz kandydatki do oferty
+            Zaproś kandydatki
         </h1>
 
         <div
@@ -193,17 +193,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
             class="mt-6 rounded-3xl bg-white p-10 text-center shadow-sm"
         >
             <p class="text-lg font-semibold text-brand-green">
-                Nie masz opublikowanych ofert
+                Opisz stanowisko, do którego chcesz zapraszać
             </p>
             <p class="mt-1 text-sm text-brand-green/80">
-                Opublikuj ogłoszenie, a pokażemy Ci kandydatki, które pasują i
-                mogą zacząć w Twoim terminie.
+                Podaj umiejętności, wymiar etatu i datę startu, a pokażemy Ci
+                anonimowe profile kandydatek, które pasują i mogą zacząć w Twoim
+                terminie.
             </p>
             <Link
                 :href="JobOfferController.create()"
                 class="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-brand-green px-5 text-sm font-semibold text-white hover:bg-brand-green-soft"
             >
-                <Plus class="size-4" /> Nowe ogłoszenie
+                <Plus class="size-4" /> Opisz stanowisko
             </Link>
         </div>
 

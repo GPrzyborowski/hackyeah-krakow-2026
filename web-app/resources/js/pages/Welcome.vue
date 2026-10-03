@@ -11,7 +11,6 @@ import type {
 import { dashboard, register } from '@/routes';
 import { index as candidateOffers } from '@/routes/candidate/offers';
 import { create as createOffer } from '@/routes/employer/offers';
-import { index as offersIndex } from '@/routes/public/offers';
 
 defineProps<{
     companies: PublicCompanySummary[];
@@ -94,22 +93,22 @@ const pairChat = [
                                     : 'Załóż profil'
                             }}
                         </Link>
-                        <Link
-                            :href="offersIndex()"
+                        <a
+                            href="#job-sharing"
                             class="rounded-full border border-brand-green px-6 py-3 text-sm font-medium text-brand-green transition hover:bg-white"
                         >
-                            Przeglądaj oferty
-                        </Link>
+                            Podziel etat w job sharingu
+                        </a>
                     </div>
                     <p class="mt-6 text-xs text-brand-green/80">
                         Dla pracodawców:
                         <Link
                             :href="register({ query: { role: 'employer' } })"
                             class="font-semibold underline underline-offset-2"
-                            >dodaj ogłoszenie</Link
+                            >zaproś kandydatki</Link
                         >
-                        – zobaczysz pasujące kandydatki, a ich dane dopiero po
-                        akceptacji zaproszenia.
+                        – przeglądasz anonimowe profile, a dane kandydatki
+                        widzisz dopiero po przyjęciu zaproszenia.
                     </p>
                 </div>
 
@@ -184,7 +183,7 @@ const pairChat = [
         </section>
 
         <!-- Reverse recruitment -->
-        <section class="bg-white">
+        <section id="jak-to-dziala" class="scroll-mt-4 bg-white">
             <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
                 <h2
                     class="max-w-2xl text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
@@ -213,7 +212,7 @@ const pairChat = [
         </section>
 
         <!-- Job sharing -->
-        <section class="bg-brand-mint-soft">
+        <section id="job-sharing" class="scroll-mt-4 bg-brand-mint-soft">
             <div
                 class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20"
             >
