@@ -30,12 +30,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $flexible_hours
  * @property bool $fixed_meeting_hours
  * @property bool $childcare_subsidy
+ * @property bool $is_job_share
+ * @property string|null $workday_starts_at
+ * @property string|null $workday_ends_at
  * @property OfferStatus $status
  * @property CarbonImmutable|null $published_at
  */
 #[Fillable([
     'title', 'city', 'work_mode', 'employment_fraction', 'salary_min', 'salary_max', 'start_date', 'description',
-    'flexible_hours', 'fixed_meeting_hours', 'childcare_subsidy', 'status', 'published_at',
+    'flexible_hours', 'fixed_meeting_hours', 'childcare_subsidy', 'is_job_share', 'workday_starts_at', 'workday_ends_at',
+    'status', 'published_at',
 ])]
 class JobOffer extends Model
 {
@@ -99,6 +103,14 @@ class JobOffer extends Model
     }
 
     /**
+     * @return HasMany<JobSharePair, $this>
+     */
+    public function jobSharePairs(): HasMany
+    {
+        return $this->hasMany(JobSharePair::class);
+    }
+
+    /**
      * @param  Builder<JobOffer>  $query
      */
     public function scopePublished(Builder $query): void
@@ -113,13 +125,27 @@ class JobOffer extends Model
 
     /**
      * Whether the offer meets the "przyjazna rodzicom" badge conditions.
+     *
+     * Reuses an eager-loaded `company.approvedReviews` relation or a `withExists('approvedReviews')`
+     * attribute on the company to avoid one query per offer in lists.
      */
     public function isParentFriendly(): bool
     {
-        return $this->salary_min !== null
-            && $this->salary_max !== null
-            && $this->flexible_hours
-            && $this->company->approvedReviews()->exists();
+        if ($this->salary_min === null || $this->salary_max === null || ! $this->flexible_hours) {
+            return false;
+        }
+
+        $company = $this->company;
+
+        if ($company->relationLoaded('approvedReviews')) {
+            return $company->approvedReviews->isNotEmpty();
+        }
+
+        if ($company->hasAttribute('approved_reviews_exists')) {
+            return (bool) $company->getAttribute('approved_reviews_exists');
+        }
+
+        return $company->approvedReviews()->exists();
     }
 
     /**
@@ -134,6 +160,7 @@ class JobOffer extends Model
             'flexible_hours' => 'boolean',
             'fixed_meeting_hours' => 'boolean',
             'childcare_subsidy' => 'boolean',
+            'is_job_share' => 'boolean',
             'status' => OfferStatus::class,
             'published_at' => 'datetime',
         ];

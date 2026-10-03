@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Company>
@@ -18,7 +19,7 @@ class CompanyFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->company(),
+            'name' => Str::ucfirst(fake()->unique()->word()).' Studio',
             'nip' => fake()->unique()->numerify('##########'),
             'city' => fake()->randomElement(['Kraków', 'Poznań', 'Warszawa', 'Wrocław', 'Gdańsk']),
             'description' => fake()->sentence(12),

@@ -32,7 +32,7 @@ trait InteractsWithEmployerCompany
     protected function offerStatistics(JobOffer $offer, MatchScorer $scorer): array
     {
         $decidedIds = collect($this->reviewedCandidateIds($offer));
-        $matchedIds = $scorer->rankCandidatesFor($offer)->pluck('candidate.id');
+        $matchedIds = $scorer->matchingCandidates($offer)->pluck('id');
         $invitations = $offer->relationLoaded('invitations') ? $offer->invitations : $offer->invitations()->get();
 
         return [
@@ -51,10 +51,11 @@ trait InteractsWithEmployerCompany
      */
     protected function reviewedCandidateIds(JobOffer $offer): array
     {
-        $decidedIds = $offer->decisions()->get(['candidate_profile_id'])
-            ->map(fn (CandidateDecision $decision): int => $decision->candidate_profile_id);
-        $invitedIds = $offer->invitations()->get(['candidate_profile_id'])
-            ->map(fn (Invitation $invitation): int => $invitation->candidate_profile_id);
+        $decisions = $offer->relationLoaded('decisions') ? $offer->decisions : $offer->decisions()->get(['candidate_profile_id']);
+        $invitations = $offer->relationLoaded('invitations') ? $offer->invitations : $offer->invitations()->get(['candidate_profile_id']);
+
+        $decidedIds = $decisions->map(fn (CandidateDecision $decision): int => $decision->candidate_profile_id);
+        $invitedIds = $invitations->map(fn (Invitation $invitation): int => $invitation->candidate_profile_id);
 
         return array_values($decidedIds->merge($invitedIds)->unique()->all());
     }

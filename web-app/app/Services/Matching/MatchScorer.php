@@ -27,7 +27,9 @@ class MatchScorer
 
     public function score(CandidateProfile $candidate, JobOffer $offer): MatchResult
     {
-        $candidateSkills = $candidate->confirmedSkills()->pluck('skills.name', 'skills.id');
+        $candidateSkills = $candidate->relationLoaded('confirmedSkills')
+            ? $candidate->confirmedSkills->pluck('name', 'id')
+            : $candidate->confirmedSkills()->pluck('skills.name', 'skills.id');
         $offerSkills = $offer->relationLoaded('skills') ? $offer->skills : $offer->skills()->get();
 
         $required = $offerSkills->filter(fn (Skill $skill): bool => $this->importanceOf($skill) === SkillImportance::Required);
@@ -102,6 +104,19 @@ class MatchScorer
     }
 
     /**
+     * Eligible candidates for an offer who share at least one of its skills (the "matched" pool).
+     *
+     * @return Builder<CandidateProfile>
+     */
+    public function matchingCandidates(JobOffer $offer): Builder
+    {
+        $offer->loadMissing('skills', 'company');
+
+        return $this->eligibleCandidates($offer->company, $offer->start_date)
+            ->whereHas('confirmedSkills', fn (Builder $query) => $query->whereKey($offer->skills->modelKeys()));
+    }
+
+    /**
      * Eligible candidates for an offer that share at least one of its skills, best match first.
      *
      * @param  list<int>  $excludedCandidateIds
@@ -109,11 +124,8 @@ class MatchScorer
      */
     public function rankCandidatesFor(JobOffer $offer, array $excludedCandidateIds = []): Collection
     {
-        $offer->loadMissing('skills', 'company');
-
-        return $this->eligibleCandidates($offer->company, $offer->start_date)
+        return $this->matchingCandidates($offer)
             ->whereNotIn('id', $excludedCandidateIds)
-            ->whereHas('confirmedSkills', fn (Builder $query) => $query->whereKey($offer->skills->modelKeys()))
             ->with(['user', 'confirmedSkills'])
             ->get()
             ->map(fn (CandidateProfile $candidate): array => ['candidate' => $candidate, 'match' => $this->score($candidate, $offer)])
@@ -129,6 +141,8 @@ class MatchScorer
      */
     public function rankOffersFor(CandidateProfile $candidate, ?Builder $offers = null): Collection
     {
+        $candidate->loadMissing('confirmedSkills');
+
         return ($offers ?? JobOffer::query())
             ->published()
             ->with(['skills', 'company.approvedReviews'])

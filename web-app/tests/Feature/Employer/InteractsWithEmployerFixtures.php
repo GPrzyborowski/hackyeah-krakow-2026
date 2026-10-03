@@ -28,7 +28,7 @@ trait InteractsWithEmployerFixtures
 
     protected function employer(?Company $company = null): User
     {
-        return User::factory()->employer($company ?? Company::factory()->create())->create();
+        return User::factory()->employer($company ?? Company::factory()->create())->create(['name' => 'Rekruterka Testowa']);
     }
 
     /**
