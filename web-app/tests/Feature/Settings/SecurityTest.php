@@ -98,6 +98,23 @@ class SecurityTest extends TestCase
         $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
     }
 
+    public function test_changing_the_password_revokes_all_api_tokens()
+    {
+        $user = User::factory()->create();
+        $user->createToken('iPhone');
+
+        $this->actingAs($user)
+            ->from(route('security.edit'))
+            ->put(route('user-password.update'), [
+                'current_password' => 'password',
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(0, $user->tokens()->count());
+    }
+
     public function test_correct_password_must_be_provided_to_update_password()
     {
         $user = User::factory()->create();

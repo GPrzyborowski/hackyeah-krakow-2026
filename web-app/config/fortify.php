@@ -101,7 +101,10 @@ return [
     |
     */
 
-    'middleware' => ['web'],
+    /*
+     * "throttle:register" limits only POST /register (see FortifyServiceProvider), other Fortify routes pass through.
+     */
+    'middleware' => ['web', 'throttle:register'],
 
     /*
     |--------------------------------------------------------------------------

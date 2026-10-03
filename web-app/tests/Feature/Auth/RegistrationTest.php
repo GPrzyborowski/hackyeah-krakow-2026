@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Company;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
@@ -31,9 +33,107 @@ class RegistrationTest extends TestCase
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'role' => 'candidate',
         ]);
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertNotNull(User::firstWhere('email', 'test@example.com')->candidateProfile);
+    }
+
+    public function test_employers_register_together_with_their_company()
+    {
+        $this->post(route('register.store'), [
+            'name' => 'Rekruterka',
+            'email' => 'hr@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'employer',
+            'company_name' => 'Zielone Biuro',
+            'company_nip' => '526-025-09-95',
+        ]);
+
+        $user = User::firstWhere('email', 'hr@example.com');
+
+        $this->assertTrue($user->isEmployer());
+        $this->assertSame('Zielone Biuro', $user->company->name);
+        $this->assertSame('5260250995', $user->company->nip);
+        $this->assertNull($user->candidateProfile);
+    }
+
+    public function test_employers_need_a_valid_nip()
+    {
+        $response = $this->post(route('register.store'), [
+            'name' => 'Rekruterka',
+            'email' => 'hr@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'employer',
+            'company_name' => 'Zielone Biuro',
+            'company_nip' => '1234567890',
+        ]);
+
+        $response->assertSessionHasErrors('company_nip');
+        $this->assertGuest();
+    }
+
+    public function test_employers_cannot_register_a_second_company_with_the_same_nip()
+    {
+        Company::factory()->create(['nip' => '5260250995']);
+
+        $response = $this->post(route('register.store'), [
+            'name' => 'Rekruterka',
+            'email' => 'hr@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'employer',
+            'company_name' => 'Zielone Biuro bis',
+            'company_nip' => '5260250995',
+        ]);
+
+        $response->assertSessionHasErrors('company_nip');
+        $this->assertSame(1, Company::count());
+    }
+
+    public function test_users_cannot_register_as_admin()
+    {
+        $response = $this->post(route('register.store'), [
+            'name' => 'Intruz',
+            'email' => 'admin@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'admin',
+        ]);
+
+        $response->assertSessionHasErrors('role');
+        $this->assertGuest();
+    }
+
+    public function test_freshly_registered_employer_must_verify_email_before_browsing_candidates()
+    {
+        $this->post(route('register.store'), [
+            'name' => 'Rekruterka',
+            'email' => 'hr@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'employer',
+            'company_name' => 'Zielone Biuro',
+            'company_nip' => '526-025-09-95',
+        ]);
+
+        $this->get(route('employer.candidates.index'))->assertRedirect(route('verification.notice'));
+        $this->get(route('verification.notice'))->assertOk();
+    }
+
+    public function test_registration_attempts_are_rate_limited_per_ip()
+    {
+        $invalidAttempt = ['name' => 'Bot', 'email' => 'not-an-email', 'role' => 'candidate'];
+
+        for ($attempt = 1; $attempt <= 10; $attempt++) {
+            $this->post(route('register.store'), $invalidAttempt)->assertSessionHasErrors('email');
+        }
+
+        $this->post(route('register.store'), $invalidAttempt)->assertTooManyRequests();
+        $this->get(route('login'))->assertOk();
     }
 }

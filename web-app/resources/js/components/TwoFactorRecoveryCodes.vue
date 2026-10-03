@@ -27,7 +27,12 @@ const toggleRecoveryCodesVisibility = async () => {
 
     if (isRecoveryCodesVisible.value) {
         await nextTick();
-        recoveryCodeSectionRef.value?.scrollIntoView({ behavior: 'smooth' });
+        recoveryCodeSectionRef.value?.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)')
+                .matches
+                ? 'auto'
+                : 'smooth',
+        });
     }
 };
 
@@ -42,11 +47,11 @@ onMounted(async () => {
     <Card class="w-full">
         <CardHeader>
             <CardTitle class="flex gap-3">
-                <LockKeyhole class="size-4" />2FA recovery codes
+                <LockKeyhole class="size-4" />Kody odzyskiwania
             </CardTitle>
             <CardDescription>
-                Recovery codes let you regain access if you lose your 2FA
-                device. Store them in a secure password manager.
+                Kody odzyskiwania pozwolą odzyskać dostęp, jeśli zgubisz
+                telefon. Przechowuj je w menedżerze haseł.
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -58,8 +63,11 @@ onMounted(async () => {
                         :is="isRecoveryCodesVisible ? EyeOff : Eye"
                         class="size-4"
                     />
-                    {{ isRecoveryCodesVisible ? 'Hide' : 'View' }} recovery
-                    codes
+                    {{
+                        isRecoveryCodesVisible
+                            ? 'Ukryj kody odzyskiwania'
+                            : 'Pokaż kody odzyskiwania'
+                    }}
                 </Button>
 
                 <Form
@@ -75,7 +83,7 @@ onMounted(async () => {
                         type="submit"
                         :disabled="processing"
                     >
-                        <RefreshCw /> Regenerate codes
+                        <RefreshCw /> Wygeneruj nowe kody
                     </Button>
                 </Form>
             </div>
@@ -99,7 +107,7 @@ onMounted(async () => {
                             <div
                                 v-for="n in 8"
                                 :key="n"
-                                class="h-4 animate-pulse rounded bg-muted-foreground/20"
+                                class="h-4 rounded bg-muted-foreground/20 motion-safe:animate-pulse"
                             ></div>
                         </div>
                         <div
@@ -111,10 +119,9 @@ onMounted(async () => {
                         </div>
                     </div>
                     <p class="text-xs text-muted-foreground select-none">
-                        Each recovery code can be used once to access your
-                        account and will be removed after use. If you need more,
-                        click
-                        <span class="font-bold">Regenerate codes</span> above.
+                        Każdy kod działa tylko raz i po użyciu jest usuwany.
+                        Jeśli potrzebujesz więcej, kliknij
+                        <span class="font-bold">Wygeneruj nowe kody</span>.
                     </p>
                 </div>
             </div>

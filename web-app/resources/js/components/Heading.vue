@@ -15,8 +15,8 @@ withDefaults(defineProps<Props>(), {
         <h2
             :class="
                 variant === 'small'
-                    ? 'mb-0.5 text-base font-medium'
-                    : 'text-xl font-semibold tracking-tight'
+                    ? 'mb-0.5 text-lg font-semibold text-brand-green'
+                    : 'text-3xl font-extrabold tracking-tight text-brand-green md:text-4xl'
             "
         >
             {{ title }}
