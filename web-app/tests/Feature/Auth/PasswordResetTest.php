@@ -79,6 +79,29 @@ class PasswordResetTest extends TestCase
         });
     }
 
+    public function test_resetting_the_password_revokes_all_api_tokens(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+        $user->createToken('iPhone');
+        $user->createToken('iPad');
+
+        $this->post(route('password.email'), ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            $this->post(route('password.update'), [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ])->assertSessionHasNoErrors();
+
+            return true;
+        });
+
+        $this->assertSame(0, $user->tokens()->count());
+    }
+
     public function test_password_cannot_be_reset_with_invalid_token(): void
     {
         $user = User::factory()->create();

@@ -10,8 +10,12 @@ export type User = {
     [key: string]: unknown;
 };
 
+export type UserRole = 'candidate' | 'employer' | 'admin';
+
 export type Auth = {
     user: User;
+    role: UserRole | null;
+    company: { id: number; name: string } | null;
 };
 
 export type Passkey = {

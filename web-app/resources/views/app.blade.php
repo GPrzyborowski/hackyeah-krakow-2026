@@ -1,38 +1,40 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <meta name="theme-color" content="#eaf0ee">
 
-        {{-- Inline script to detect system dark mode preference and apply it immediately --}}
-        <script>
-            (function() {
-                const appearance = '{{ $appearance ?? "system" }}';
-
-                if (appearance === 'system') {
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-                    if (prefersDark) {
-                        document.documentElement.classList.add('dark');
-                    }
-                }
-            })();
-        </script>
-
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- mumjobs uses a single light brand theme --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
-            }
-
-            html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #eaf0ee;
+                color-scheme: light;
             }
         </style>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/site.webmanifest">
+
+        @php($appUrl = rtrim(config('app.url'), '/'))
+        @php($appDescription = 'mumjobs – praca dla przyszłych i obecnych mam. Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.')
+        <meta name="description" content="{{ $appDescription }}">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="{{ config('app.name', 'mumjobs') }}">
+        <meta property="og:locale" content="pl_PL">
+        <meta property="og:title" content="{{ config('app.name', 'mumjobs') }} – Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.">
+        <meta property="og:description" content="{{ $appDescription }}">
+        <meta property="og:url" content="{{ $appUrl.request()->getPathInfo() }}">
+        <meta property="og:image" content="{{ $appUrl }}/og-image.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:image:alt" content="mumjobs – Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ config('app.name', 'mumjobs') }} – Pracodawcy szukają Ciebie. Ty wybierasz, kiedy wracasz.">
+        <meta name="twitter:description" content="{{ $appDescription }}">
+        <meta name="twitter:image" content="{{ $appUrl }}/og-image.png">
 
         @fonts
 

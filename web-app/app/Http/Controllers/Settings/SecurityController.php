@@ -51,13 +51,15 @@ class SecurityController extends Controller
     }
 
     /**
-     * Update the user's password.
+     * Update the user's password and sign out the mobile app everywhere (all API tokens revoked).
      */
     public function update(PasswordUpdateRequest $request): RedirectResponse
     {
         $request->user()->update([
             'password' => $request->password,
         ]);
+
+        $request->user()->tokens()->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
 

@@ -46,26 +46,26 @@ const pinInputContainerRef = useTemplateRef('pinInputContainerRef');
 const modalConfig = computed<TwoFactorConfigContent>(() => {
     if (props.twoFactorEnabled) {
         return {
-            title: 'Two-factor authentication enabled',
+            title: 'Weryfikacja dwuetapowa włączona',
             description:
-                'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.',
-            buttonText: 'Close',
+                'Weryfikacja dwuetapowa jest włączona. Zeskanuj kod QR albo wpisz klucz w aplikacji uwierzytelniającej.',
+            buttonText: 'Zamknij',
         };
     }
 
     if (showVerificationStep.value) {
         return {
-            title: 'Verify authentication code',
-            description: 'Enter the 6-digit code from your authenticator app',
-            buttonText: 'Continue',
+            title: 'Potwierdź kod',
+            description: 'Wpisz 6-cyfrowy kod z aplikacji uwierzytelniającej',
+            buttonText: 'Dalej',
         };
     }
 
     return {
-        title: 'Enable two-factor authentication',
+        title: 'Włącz weryfikację dwuetapową',
         description:
-            'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app',
-        buttonText: 'Continue',
+            'Aby dokończyć, zeskanuj kod QR albo wpisz klucz w aplikacji uwierzytelniającej',
+        buttonText: 'Dalej',
     };
 });
 
@@ -162,7 +162,7 @@ watch(
                             >
                                 <div
                                     v-if="!qrCodeSvg"
-                                    class="absolute inset-0 z-10 flex aspect-square h-auto w-full animate-pulse items-center justify-center bg-background"
+                                    class="absolute inset-0 z-10 flex aspect-square h-auto w-full items-center justify-center bg-background motion-safe:animate-pulse"
                                 >
                                     <Spinner class="size-6" />
                                 </div>
@@ -197,7 +197,7 @@ watch(
                                 class="absolute inset-0 top-1/2 h-px w-full bg-border"
                             />
                             <span class="relative bg-card px-2 py-1"
-                                >or, enter the code manually</span
+                                >albo wpisz kod ręcznie</span
                             >
                         </div>
 
@@ -217,18 +217,30 @@ watch(
                                     <input
                                         type="text"
                                         readonly
+                                        aria-label="Klucz konfiguracyjny"
                                         :value="manualSetupKey"
                                         class="h-full w-full bg-background p-3 text-foreground"
                                     />
                                     <button
+                                        type="button"
+                                        :aria-label="
+                                            copied
+                                                ? 'Skopiowano klucz'
+                                                : 'Kopiuj klucz'
+                                        "
                                         @click="copy(manualSetupKey || '')"
                                         class="relative block h-auto border-l border-border px-3 hover:bg-muted"
                                     >
                                         <Check
                                             v-if="copied"
-                                            class="w-4 text-green-500"
+                                            class="w-4 text-green-700"
+                                            aria-hidden="true"
                                         />
-                                        <Copy v-else class="w-4" />
+                                        <Copy
+                                            v-else
+                                            class="w-4"
+                                            aria-hidden="true"
+                                        />
                                     </button>
                                 </template>
                             </div>
@@ -279,14 +291,14 @@ watch(
                                     @click="showVerificationStep = false"
                                     :disabled="processing"
                                 >
-                                    Back
+                                    Wstecz
                                 </Button>
                                 <Button
                                     type="submit"
                                     class="w-auto flex-1"
                                     :disabled="processing || code.length < 6"
                                 >
-                                    Confirm
+                                    Potwierdź
                                 </Button>
                             </div>
                         </div>

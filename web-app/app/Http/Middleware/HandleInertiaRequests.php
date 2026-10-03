@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Notifications\NotificationPresenter;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -39,8 +40,15 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user()
+                    ? [...$request->user()->toArray(), 'avatar' => $request->user()->isCandidate() ? $request->user()->candidateProfile?->photoUrl() : null]
+                    : null,
+                'role' => $request->user()?->role,
+                'company' => $request->user()?->company?->only(['id', 'name']),
             ],
+            'notifications' => fn (): ?array => $request->user()
+                ? NotificationPresenter::summary($request->user())
+                : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

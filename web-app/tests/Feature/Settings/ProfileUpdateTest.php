@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Settings;
 
+use App\Models\CandidateProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProfileUpdateTest extends TestCase
@@ -77,6 +79,19 @@ class ProfileUpdateTest extends TestCase
 
         $this->assertGuest();
         $this->assertNull($user->fresh());
+    }
+
+    public function test_deleting_a_candidate_account_removes_the_stored_cv()
+    {
+        Storage::fake('local');
+        Storage::disk('local')->put('cvs/marta.pdf', 'cv');
+        $profile = CandidateProfile::factory()->create(['cv_path' => 'cvs/marta.pdf']);
+
+        $this->actingAs($profile->user)
+            ->delete(route('profile.destroy'), ['password' => 'password'])
+            ->assertRedirect(route('home'));
+
+        Storage::disk('local')->assertMissing('cvs/marta.pdf');
     }
 
     public function test_correct_password_must_be_provided_to_delete_account()
