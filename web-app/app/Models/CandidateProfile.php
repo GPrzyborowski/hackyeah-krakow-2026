@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $open_to_job_sharing
  * @property DayPart|null $preferred_day_part
  * @property bool $show_availability_instead_of_gap
+ * @property string|null $career_gap_note
  * @property int|null $hidden_from_company_id
  * @property bool $allow_direct_messages
  * @property bool $job_alerts_enabled
@@ -46,7 +47,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'headline', 'years_of_experience', 'city', 'ai_summary', 'available_from', 'leave_starts_on', 'due_date',
     'work_modes', 'employment_fractions', 'wants_flexible_hours', 'open_to_job_sharing', 'preferred_day_part',
-    'show_availability_instead_of_gap', 'hidden_from_company_id', 'allow_direct_messages', 'job_alerts_enabled', 'onboarding_step',
+    'show_availability_instead_of_gap', 'career_gap_note', 'hidden_from_company_id', 'allow_direct_messages', 'job_alerts_enabled', 'onboarding_step',
     'cv_path', 'cv_original_name', 'cv_status', 'cv_text', 'suggested_positions', 'published_at',
     'phone',
 ])]
@@ -62,7 +63,21 @@ class CandidateProfile extends Model
      */
     protected $attributes = [
         'job_alerts_enabled' => true,
+        'show_availability_instead_of_gap' => true,
     ];
+
+    /**
+     * The private career gap note, only when the candidate opted in to share it (toggle off) and wrote one.
+     * Meant solely for a company whose invitation she accepted – never for anonymous profiles.
+     */
+    public function careerGapNoteForEmployer(): ?string
+    {
+        if ($this->show_availability_instead_of_gap || blank($this->career_gap_note)) {
+            return null;
+        }
+
+        return $this->career_gap_note;
+    }
 
     /**
      * @return BelongsTo<User, $this>

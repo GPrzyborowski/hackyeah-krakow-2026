@@ -94,7 +94,8 @@ class Invitation extends Model
     /**
      * Accept the invitation and open the conversation; contact data becomes visible to the company.
      * A newly opened conversation starts with the invitation message, so the chat never opens empty.
-     * A job-sharing pair is hired once both of its members accepted their invitations.
+     * A job-sharing pair is hired once both of its members accepted their invitations. A pair member also joins the pair's
+     * team chat (opened by the first acceptance); her own 1:1 chat with the company stays for private matters.
      */
     public function accept(): Conversation
     {
@@ -109,8 +110,38 @@ class Invitation extends Model
                 $this->seedConversation($conversation);
             }
 
+            $this->joinPairTeamChat();
+
             return $conversation;
         });
+    }
+
+    /**
+     * Open the pair's team chat on the first acceptance (seeded with the invitation message) and let the member in.
+     * The invitation message she has already read is marked as read for her.
+     */
+    private function joinPairTeamChat(): void
+    {
+        if ($this->job_share_pair_id === null) {
+            return;
+        }
+
+        $teamChat = Conversation::query()->firstOrCreate(['job_share_pair_id' => $this->job_share_pair_id], ['last_message_at' => now()]);
+
+        if ($teamChat->wasRecentlyCreated) {
+            $this->seedConversation($teamChat);
+        }
+
+        $invitationMessageId = $teamChat->messages()
+            ->oldest('id')
+            ->where('user_id', $this->sent_by_user_id)
+            ->where('body', $this->message)
+            ->value('id');
+
+        $teamChat->reads()->firstOrCreate(
+            ['user_id' => $this->candidateProfile->user_id],
+            ['last_read_message_id' => $invitationMessageId ?? 0],
+        );
     }
 
     /**

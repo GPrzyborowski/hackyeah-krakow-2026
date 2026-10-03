@@ -1,41 +1,42 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import { nextTick, ref } from 'vue';
-import InputError from '@/components/InputError.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import { login } from '@/routes';
-import { store } from '@/routes/register';
+import { Form, Head } from "@inertiajs/vue3";
+import { nextTick, ref } from "vue";
+import InputError from "@/components/InputError.vue";
+import PasswordInput from "@/components/PasswordInput.vue";
+import TextLink from "@/components/TextLink.vue";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
+import { login } from "@/routes";
+import { privacy, terms } from "@/routes/public/legal";
+import { store } from "@/routes/register";
 
 defineProps<{
     passwordRules: string;
 }>();
 
-const role = ref<'candidate' | 'employer'>(
-    typeof window !== 'undefined' &&
-        new URLSearchParams(window.location.search).get('role') === 'employer'
-        ? 'employer'
-        : 'candidate',
+const role = ref<"candidate" | "employer">(
+    typeof window !== "undefined" &&
+        new URLSearchParams(window.location.search).get("role") === "employer"
+        ? "employer"
+        : "candidate",
 );
 
 const roleOptions = [
-    { value: 'candidate', label: 'Szukam pracy' },
-    { value: 'employer', label: 'Jestem pracodawcą' },
+    { value: "candidate", label: "Szukam pracy" },
+    { value: "employer", label: "Jestem pracodawcą" },
 ] as const;
 
 function switchRoleWithKeyboard(event: KeyboardEvent): void {
     if (
-        !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
+        !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)
     ) {
         return;
     }
 
     event.preventDefault();
-    role.value = role.value === 'candidate' ? 'employer' : 'candidate';
+    role.value = role.value === "candidate" ? "employer" : "candidate";
 
     const group = (event.currentTarget as HTMLElement).parentElement;
     void nextTick(() => {
@@ -47,8 +48,8 @@ function switchRoleWithKeyboard(event: KeyboardEvent): void {
 
 defineOptions({
     layout: {
-        title: 'Załóż konto',
-        description: 'Profil tworzysz raz. Firmy znajdą Cię same.',
+        title: "Załóż konto",
+        description: "Profil tworzysz raz. Firmy znajdą Cię same.",
     },
 });
 </script>
@@ -206,6 +207,18 @@ defineOptions({
                 <Spinner v-if="processing" />
                 Załóż konto
             </Button>
+
+            <p
+                class="text-center text-xs text-muted-foreground"
+                data-test="register-consent"
+            >
+                Zakładając konto akceptujesz
+                <TextLink :href="terms()" target="_blank">Regulamin</TextLink>
+                i
+                <TextLink :href="privacy()" target="_blank"
+                    >Politykę prywatności</TextLink
+                >.
+            </p>
         </div>
 
         <div class="text-center text-sm text-muted-foreground">

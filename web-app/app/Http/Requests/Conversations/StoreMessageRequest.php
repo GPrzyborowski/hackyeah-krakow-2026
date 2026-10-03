@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Conversations;
 
+use App\Enums\ModerationContext;
 use App\Models\Conversation;
 use App\Services\Ai\MessageModerator;
+use App\Services\Ai\ModerationRecorder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -44,6 +46,7 @@ class StoreMessageRequest extends FormRequest
                 $result = app(MessageModerator::class)->check((string) $this->input('body'));
 
                 if (! $result->allowed) {
+                    app(ModerationRecorder::class)->recordBlock(ModerationContext::ChatMessage, $result, (string) $this->input('body'), $this->user(), $this->route('conversation'));
                     $validator->errors()->add('body', (string) $result->reason);
                     $validator->errors()->add('body_suggestion', (string) $result->suggestion);
                 }

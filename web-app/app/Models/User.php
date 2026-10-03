@@ -26,6 +26,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $email
  * @property UserRole $role
  * @property int|null $company_id
+ * @property bool $push_enabled
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -47,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      */
     protected $attributes = [
         'role' => 'candidate',
+        'push_enabled' => true,
     ];
 
     /**
@@ -80,6 +82,14 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
+     * @return HasMany<DeviceToken, $this>
+     */
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
+    /**
      * @return HasMany<AssistantMessage, $this>
      */
     public function assistantMessages(): HasMany
@@ -109,6 +119,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'role' => UserRole::class,
+            'push_enabled' => 'boolean',
         ];
     }
 }

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
 import { HeartHandshake, Star } from '@lucide/vue';
+import { computed } from 'vue';
 import Chip from '@/components/candidate/Chip.vue';
 import {
     formatRating,
@@ -15,7 +17,13 @@ import VerifiedCompanyBadge from '@/components/brand/VerifiedCompanyBadge.vue';
 import JobShareChip from '@/components/job-sharing/JobShareChip.vue';
 import { show } from '@/routes/candidate/offers';
 
-const { offer } = defineProps<{ offer: CandidateOffer }>();
+const { offer, href } = defineProps<{
+    offer: CandidateOffer;
+    /** Detail link target; defaults to the candidate offer page with the match breakdown. */
+    href?: NonNullable<InertiaLinkProps['href']>;
+}>();
+
+const detailHref = computed(() => href ?? show(offer.id));
 
 const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
     .filter(Boolean)
@@ -28,7 +36,7 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
             <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-2">
                     <Link
-                        :href="show(offer.id)"
+                        :href="detailHref"
                         class="text-xl font-bold text-brand-green hover:underline"
                     >
                         {{ offer.title }}
@@ -69,7 +77,8 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
             <Chip>{{ offer.employment_fraction_label }}</Chip>
             <Chip>{{ offer.work_mode_label }}</Chip>
             <Chip v-if="offer.flexible_hours">Elastyczne godziny</Chip>
-            <Chip v-if="offer.childcare_subsidy">Dopłata do żłobka</Chip>
+            <Chip v-if="offer.fixed_meeting_hours">Spotkania przed 15:00</Chip>
+            <Chip v-if="offer.childcare_subsidy">Dofinansowanie żłobka</Chip>
             <Chip v-if="offer.nursery_distance_km !== null"
                 >Przedszkole {{ offer.nursery_distance_km }} km</Chip
             >
@@ -103,7 +112,7 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
             </p>
             <div class="flex shrink-0 flex-wrap items-center gap-2">
                 <Link
-                    :href="show(offer.id)"
+                    :href="detailHref"
                     class="rounded-full border border-brand-green px-4 py-2 text-sm font-semibold text-brand-green hover:bg-brand-cream"
                 >
                     Szczegóły

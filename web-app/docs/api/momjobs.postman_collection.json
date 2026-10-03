@@ -266,6 +266,44 @@
                     }
                 },
                 {
+                    "id": "updatePreferences",
+                    "name": "Update account preferences",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/me/preferences",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "me",
+                                "preferences"
+                            ]
+                        },
+                        "description": "Update account preferences\n\n`push_enabled: false` stops push notifications on all devices of the account (the devices stay registered).",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"push_enabled\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
                     "id": "logout",
                     "name": "Revoke the current token",
                     "request": {
@@ -3019,7 +3057,7 @@
         },
         {
             "name": "Devices",
-            "description": "Push notification device tokens (both roles). Stored for future push notifications; nothing is sent yet.",
+            "description": "Push notification device tokens (both roles). Pushes go through FCM to every device while `push_enabled` is true.",
             "item": [
                 {
                     "id": "deviceRegister",

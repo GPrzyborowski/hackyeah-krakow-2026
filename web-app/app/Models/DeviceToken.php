@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Push notification token of a mobile device (FCM on Android, APNs on iOS). Stored only; nothing is sent yet.
+ * FCM registration token of a mobile device (Android, or iOS through APNs in Firebase); pushes go out via {@see \App\Notifications\Channels\FcmChannel}.
  * Bound to the Sanctum token that registered it: revoking that API token deletes the row (FK cascade).
  *
  * @property int $id

@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\CandidateProfile;
 use App\Models\JobSharePair;
+use App\Notifications\Concerns\SendsPush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -12,7 +13,7 @@ use Illuminate\Notifications\Notification;
  */
 class PairHiredForCompany extends Notification
 {
-    use Queueable;
+    use Queueable, SendsPush;
 
     public function __construct(public JobSharePair $pair) {}
 
@@ -21,7 +22,7 @@ class PairHiredForCompany extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $this->withPush(['database'], $notifiable);
     }
 
     /**

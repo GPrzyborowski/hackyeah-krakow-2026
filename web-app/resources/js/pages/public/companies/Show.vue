@@ -12,7 +12,10 @@ import type {
     RatingSummary,
 } from '@/components/brand/types';
 import { reviewCountLabel } from '@/lib/plural';
-import { index as offersIndex } from '@/routes/public/offers';
+import {
+    index as offersIndex,
+    show as offerShow,
+} from '@/routes/public/offers';
 
 type Review = {
     id: number;
@@ -171,6 +174,7 @@ const categories = Object.keys(ratingCategoryLabels) as Array<
                     v-for="offer in offers"
                     :key="offer.id"
                     :offer="offer"
+                    :href="offerShow(offer.id)"
                 />
             </div>
             <p

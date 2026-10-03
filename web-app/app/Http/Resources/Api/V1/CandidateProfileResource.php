@@ -54,6 +54,7 @@ class CandidateProfileResource extends JsonResource
             'preferred_day_part_label' => $profile->preferred_day_part?->label(),
             'privacy' => [
                 'show_availability_instead_of_gap' => (bool) $profile->show_availability_instead_of_gap,
+                'career_gap_note' => $profile->career_gap_note,
                 'allow_direct_messages' => (bool) $profile->allow_direct_messages,
                 'job_alerts_enabled' => (bool) $profile->job_alerts_enabled,
                 'hidden_from_company' => $profile->hiddenFromCompany

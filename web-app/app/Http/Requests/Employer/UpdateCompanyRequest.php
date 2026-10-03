@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Employer;
 
+use App\Enums\ModerationContext;
 use App\Rules\ValidNip;
 use App\Services\Ai\MessageModerator;
+use App\Services\Ai\ModerationRecorder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -60,6 +62,7 @@ class UpdateCompanyRequest extends FormRequest
                 $result = app(MessageModerator::class)->check($description);
 
                 if (! $result->allowed) {
+                    app(ModerationRecorder::class)->recordBlock(ModerationContext::CompanyDescription, $result, $description, $this->user(), $this->user()->company);
                     $validator->errors()->add('description', trim($result->reason.' '.$result->suggestion));
                 }
             },

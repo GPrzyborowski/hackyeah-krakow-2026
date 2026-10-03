@@ -37,6 +37,17 @@ return [
         'refusal_fallback' => (bool) env('ANTHROPIC_REFUSAL_FALLBACK', true),
     ],
 
+    /*
+     * Firebase Cloud Messaging (push to Android and, through APNs, iOS). FCM_CREDENTIALS is the path to the
+     * service-account JSON key (or the JSON itself); FCM_PROJECT_ID defaults to the key's project_id.
+     * Without credentials pushes are skipped.
+     */
+    'fcm' => [
+        'project_id' => env('FCM_PROJECT_ID'),
+        'credentials' => env('FCM_CREDENTIALS'),
+        'timeout' => (int) env('FCM_TIMEOUT', 10),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

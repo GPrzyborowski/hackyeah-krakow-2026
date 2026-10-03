@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Employer;
 
+use App\Enums\ModerationContext;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
@@ -17,5 +18,10 @@ class StoreDirectMessageRequest extends StoreInvitationRequest
         return [
             'message' => ['required', 'string', 'max:1000'],
         ];
+    }
+
+    protected function moderationContext(): ModerationContext
+    {
+        return ModerationContext::DirectMessage;
     }
 }

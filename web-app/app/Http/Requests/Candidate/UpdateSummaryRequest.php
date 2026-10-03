@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Candidate;
 
+use App\Enums\ModerationContext;
 use App\Rules\NoContactDetails;
 use App\Services\Ai\MessageModerator;
+use App\Services\Ai\ModerationRecorder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -38,7 +40,10 @@ class UpdateSummaryRequest extends FormRequest
                     return;
                 }
 
-                if (! app(MessageModerator::class)->check($summary)->allowed) {
+                $result = app(MessageModerator::class)->check($summary);
+
+                if (! $result->allowed) {
+                    app(ModerationRecorder::class)->recordBlock(ModerationContext::CandidateSummary, $result, $summary, $this->user());
                     $validator->errors()->add('ai_summary', 'Nie wspominaj o ciąży, dzieciach ani planach rodzinnych – to informacje tylko dla Ciebie.');
                 }
             },

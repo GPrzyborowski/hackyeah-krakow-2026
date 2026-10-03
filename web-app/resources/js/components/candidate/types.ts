@@ -71,6 +71,8 @@ export type OnboardingProfile = {
     hidden_from_company_id: number | null;
     allow_direct_messages: boolean;
     job_alerts_enabled: boolean;
+    show_availability_instead_of_gap: boolean;
+    career_gap_note: string | null;
     onboarding_step: number;
     cv_original_name: string | null;
     cv_size: number | null;

@@ -6,6 +6,7 @@ use App\Http\Controllers\Candidate\InvitationController;
 use App\Http\Controllers\Candidate\OfferController;
 use App\Http\Controllers\Candidate\OfferInterestController;
 use App\Http\Controllers\Candidate\OnboardingController;
+use App\Http\Controllers\Candidate\ProfileController;
 use App\Http\Controllers\Candidate\ProfilePhotoController;
 use App\Http\Controllers\Candidate\ProfileSkillController;
 use App\Http\Controllers\Candidate\SavedOfferController;
@@ -29,6 +30,10 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
         ->name('onboarding.photo.store');
     Route::delete('onboarding/photo', [ProfilePhotoController::class, 'destroy'])->name('onboarding.photo.destroy');
     Route::post('onboarding/visibility', [OnboardingController::class, 'toggleVisibility'])->name('onboarding.visibility');
+
+    Route::get('profile', [ProfileController::class, 'show'])->name('profile');
+    Route::put('profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences');
+    Route::post('profile/skills/confirm', [ProfileController::class, 'confirmSkills'])->name('profile.skills.confirm');
 
     Route::post('skills', [ProfileSkillController::class, 'store'])->name('skills.store');
     Route::delete('skills/{skill}', [ProfileSkillController::class, 'destroy'])->name('skills.destroy');

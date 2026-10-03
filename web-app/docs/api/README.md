@@ -54,7 +54,9 @@ Locally (Sail): `http://localhost/api/v1`. All paths in the docs are relative to
 5. `POST /auth/logout` → `204`, revokes the current token. A push token registered with `POST /devices` using this
    API token is deleted automatically (device tokens are bound to the API token that registered them).
 6. `POST /auth/logout-all` → `204`, revokes every token of the user (all devices, with their push tokens).
-7. `POST /auth/email/verification-notification` (authenticated, 6/min) → `202 {message}` sends a new verification
+7. `PATCH /auth/me/preferences` (`{"push_enabled": false}`) → `200 {data: user}`. Turns push notifications off
+   (or on) for all devices of the account; registered devices are kept. `data.push_enabled` is also in `GET /auth/me`.
+8. `POST /auth/email/verification-notification` (authenticated, 6/min) → `202 {message}` sends a new verification
    link (`200` with "Adres e-mail jest już zweryfikowany." when nothing is needed). **The link opens in the browser**
    (web app) – after clicking it, call `GET /auth/me` again; `data.email_verified` becomes `true`.
 
@@ -67,6 +69,7 @@ Locally (Sail): `http://localhost/api/v1`. All paths in the docs are relative to
     "email": "marta@momjobs.test",
     "email_verified": true,
     "role": "candidate",
+    "push_enabled": true,
     "company": null,
     "candidate_profile": { "id": 1, "published": true, "onboarding_step": 4 }
   }
@@ -114,6 +117,25 @@ Endpoints that change often accept polling cursors:
 Suggested intervals: open chat thread 5 s, conversation list / notifications badge 30 s
 (`GET /notifications/unread-count`), nothing in the background. Lists are newest first; with a cursor you get only
 the new items (still paginated – read `meta.last_page`).
+
+## Push notifications
+
+Register the device's FCM registration token with `POST /devices` (iOS too – use the Firebase SDK, which maps the APNs
+token to an FCM token). The server sends a push for every in-app notification (new invitation, accepted/declined
+invitation, new message, job-sharing pair events, company verification) to all devices of the user when
+`push_enabled` is true. Payload:
+
+```json
+{
+  "notification": { "title": "Nowa wiadomość od: Zielone Biuro", "body": "Dzień dobry…" },
+  "data": { "kind": "new_message", "notification_id": "9b1c…", "conversation_id": "12", "url": "/conversations/12" }
+}
+```
+
+`data` values are always strings: `kind` (same as `GET /notifications`), `notification_id` (pass to
+`POST /notifications/{id}/read`), the target ids that the notification has (`conversation_id`, `invitation_id`,
+`job_share_pair_id`, `company_id`) and the web `url`. `body` may be missing. Tokens that FCM reports as unregistered
+or invalid are deleted on the server – register again on the next app start.
 
 ## Rate limits (per minute)
 

@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Message;
+use App\Notifications\Concerns\SendsPush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
  */
 class NewMessage extends Notification
 {
-    use Queueable;
+    use Queueable, SendsPush;
 
     public function __construct(public Message $message, public string $senderName) {}
 
@@ -21,7 +22,7 @@ class NewMessage extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $this->withPush(['database'], $notifiable);
     }
 
     /**

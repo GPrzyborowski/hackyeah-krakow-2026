@@ -574,7 +574,8 @@ Same body; only your own review while it is `pending` (403 otherwise). → `200 
 
 ## Push devices (auth, both roles)
 
-Tokens are stored for future push notifications; nothing is sent yet.
+Pushes are sent through Firebase Cloud Messaging to every registered device of the user while `push_enabled` is
+true (`PATCH /auth/me/preferences`). Payload: see [README.md](README.md#push-notifications).
 
 ### POST /devices
 

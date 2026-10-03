@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { Link, usePage } from '@inertiajs/vue3';
 import { Heart, Star } from '@lucide/vue';
 import { computed } from 'vue';
@@ -15,6 +16,8 @@ import { show as companyShow } from '@/routes/public/companies';
 
 const props = defineProps<{
     offer: PublicOffer;
+    /** Where the title and "Szczegóły" link to (e.g. the public offer page); no detail link when omitted. */
+    href?: NonNullable<InertiaLinkProps['href']>;
 }>();
 
 const page = usePage();
@@ -34,9 +37,9 @@ const chips = computed(() =>
         props.offer.work_mode_label,
         props.offer.flexible_hours ? 'Elastyczne godziny' : null,
         props.offer.fixed_meeting_hours
-            ? 'Spotkania w stałych godzinach'
+            ? 'Spotkania przed 15:00'
             : null,
-        props.offer.childcare_subsidy ? 'Dopłata do żłobka' : null,
+        props.offer.childcare_subsidy ? 'Dofinansowanie żłobka' : null,
         props.offer.nursery_distance_km != null
             ? `Przedszkole ${props.offer.nursery_distance_km} km`
             : null,
@@ -52,7 +55,14 @@ const chips = computed(() =>
         >
             <div class="min-w-0">
                 <h3 class="text-xl font-semibold text-brand-green">
-                    {{ offer.title }}
+                    <Link
+                        v-if="href"
+                        :href="href"
+                        class="hover:underline"
+                        data-test="offer-card-title-link"
+                        >{{ offer.title }}</Link
+                    >
+                    <template v-else>{{ offer.title }}</template>
                 </h3>
                 <p class="mt-1 text-sm text-brand-green/80">
                     <Link
@@ -123,7 +133,15 @@ const chips = computed(() =>
 
             <span v-else />
 
-            <div class="flex shrink-0 gap-2">
+            <div class="flex shrink-0 flex-wrap gap-2">
+                <Link
+                    v-if="href"
+                    :href="href"
+                    class="rounded-full border border-brand-green px-4 py-2 text-sm font-medium text-brand-green transition hover:bg-brand-cream"
+                    data-test="offer-card-details-link"
+                >
+                    Szczegóły<span class="sr-only">: {{ offer.title }}</span>
+                </Link>
                 <Link
                     v-if="offer.company"
                     :href="companyShow(offer.company.id)"

@@ -127,6 +127,10 @@ function toggleVisibility() {
                 :hidden-from-company-id="profile.hidden_from_company_id"
                 :allow-direct-messages="profile.allow_direct_messages"
                 :job-alerts-enabled="profile.job_alerts_enabled"
+                :show-availability-instead-of-gap="
+                    profile.show_availability_instead_of_gap
+                "
+                :career-gap-note="profile.career_gap_note"
                 :companies="companies"
             />
         </aside>

@@ -1,21 +1,53 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
-import { CalendarCheck } from '@lucide/vue';
+import { router, useForm } from '@inertiajs/vue3';
+import { Lock } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import BrandSwitch from '@/components/candidate/BrandSwitch.vue';
+import InputError from '@/components/InputError.vue';
 import { privacy } from '@/routes/candidate/onboarding';
 
 const props = defineProps<{
     hiddenFromCompanyId: number | null;
     allowDirectMessages: boolean;
     jobAlertsEnabled: boolean;
+    showAvailabilityInsteadOfGap: boolean;
+    careerGapNote: string | null;
     companies: { id: number; name: string }[];
 }>();
+
+const CAREER_GAP_NOTE_MAX_LENGTH = 300;
 
 const hideFromEmployer = ref(props.hiddenFromCompanyId !== null);
 const hiddenCompanyId = ref<number | null>(props.hiddenFromCompanyId);
 const allowDirectMessages = ref(props.allowDirectMessages);
 const jobAlertsEnabled = ref(props.jobAlertsEnabled);
+const showAvailabilityInsteadOfGap = ref(props.showAvailabilityInsteadOfGap);
+const gapNoteForm = useForm<{ career_gap_note: string }>({
+    career_gap_note: props.careerGapNote ?? '',
+});
+
+watch(
+    () => props.showAvailabilityInsteadOfGap,
+    (value) => (showAvailabilityInsteadOfGap.value = value),
+);
+
+watch(
+    () => props.careerGapNote,
+    (value) => {
+        if (!gapNoteForm.isDirty) {
+            gapNoteForm.defaults({ career_gap_note: value ?? '' });
+            gapNoteForm.reset();
+        }
+    },
+);
+
+function saveGapNote() {
+    gapNoteForm.patch(privacy.url(), {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => gapNoteForm.defaults(),
+    });
+}
 
 watch(
     () => props.allowDirectMessages,
@@ -54,11 +86,67 @@ function onHideToggle(value: boolean) {
     <section class="rounded-3xl bg-white p-6 shadow-sm">
         <h2 class="text-lg font-bold text-brand-green">Prywatność</h2>
         <div class="mt-2 divide-y divide-brand-cream">
-            <p class="flex items-start gap-2 py-3 text-sm text-brand-green">
-                <CalendarCheck class="mt-0.5 size-4 shrink-0" />
-                Pracodawcy widzą tylko datę, od kiedy możesz zacząć – nigdy
-                powodu przerwy.
-            </p>
+            <div>
+                <BrandSwitch
+                    v-model="showAvailabilityInsteadOfGap"
+                    label="Pokaż datę dostępności zamiast powodu przerwy"
+                    description="Włączone: firmy widzą tylko, od kiedy możesz zacząć – nigdy powodu przerwy. Wyłącz, jeśli chcesz, by firma, której zaproszenie przyjmiesz, zobaczyła Twoją notatkę o przerwie."
+                    @change="
+                        (value) =>
+                            save({ show_availability_instead_of_gap: value })
+                    "
+                />
+                <form class="pb-3" @submit.prevent="saveGapNote">
+                    <label
+                        for="career_gap_note"
+                        class="flex items-center gap-1.5 text-sm font-semibold text-brand-green"
+                    >
+                        <Lock class="size-3.5" aria-hidden="true" />
+                        Notatka o przerwie (prywatna)
+                    </label>
+                    <textarea
+                        id="career_gap_note"
+                        v-model="gapNoteForm.career_gap_note"
+                        rows="2"
+                        :maxlength="CAREER_GAP_NOTE_MAX_LENGTH"
+                        placeholder="np. urlop macierzyński"
+                        :aria-invalid="
+                            gapNoteForm.errors.career_gap_note
+                                ? true
+                                : undefined
+                        "
+                        aria-describedby="career_gap_note-hint career_gap_note-error"
+                        class="mt-1 w-full rounded-2xl border border-brand-mint-soft p-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
+                    />
+                    <p
+                        id="career_gap_note-hint"
+                        class="text-xs text-brand-green/80"
+                    >
+                        <template v-if="showAvailabilityInsteadOfGap">
+                            Widzisz ją tylko Ty. Żadna firma jej nie zobaczy.
+                        </template>
+                        <template v-else>
+                            Po przyjęciu zaproszenia firma zobaczy: „Przerwa w
+                            karierze: {{
+                                gapNoteForm.career_gap_note || '…'
+                            }}”. Przed akceptacją – nigdy.
+                        </template>
+                    </p>
+                    <InputError
+                        id="career_gap_note-error"
+                        :message="gapNoteForm.errors.career_gap_note"
+                    />
+                    <button
+                        type="submit"
+                        :disabled="
+                            gapNoteForm.processing || !gapNoteForm.isDirty
+                        "
+                        class="mt-2 rounded-full border border-brand-green px-4 py-1.5 text-xs font-semibold text-brand-green hover:bg-brand-cream disabled:opacity-50"
+                    >
+                        Zapisz notatkę
+                    </button>
+                </form>
+            </div>
             <div>
                 <BrandSwitch
                     v-model="hideFromEmployer"

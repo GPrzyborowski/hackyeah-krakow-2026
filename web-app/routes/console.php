@@ -19,3 +19,8 @@ Schedule::command('momjobs:send-newsletter')
     ->weeklyOn(1, '9:00')
     ->timezone('Europe/Warsaw')
     ->withoutOverlapping();
+
+Schedule::command('momjobs:prune-moderation-events')
+    ->dailyAt('3:00')
+    ->timezone('Europe/Warsaw')
+    ->withoutOverlapping();

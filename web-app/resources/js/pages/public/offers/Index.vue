@@ -5,7 +5,10 @@ import { computed, reactive, ref } from 'vue';
 import OfferCard from '@/components/brand/OfferCard.vue';
 import type { PublicOffer } from '@/components/brand/types';
 import { register } from '@/routes';
-import { index as offersIndex } from '@/routes/public/offers';
+import {
+    index as offersIndex,
+    show as offerShow,
+} from '@/routes/public/offers';
 
 type Option = { value: string; label: string };
 
@@ -15,9 +18,13 @@ type Filters = {
     work_mode: string[];
     fraction: string[];
     flexible: boolean;
+    childcare_subsidy: boolean;
     nursery_nearby: boolean;
+    with_reviews: boolean;
     job_share: boolean;
     verified_only: boolean;
+    start_from: string | null;
+    sort: 'newest' | 'rating' | 'start_date';
 };
 
 type Paginated<T> = {
@@ -47,10 +54,20 @@ const form = reactive<Filters>({
     work_mode: [...props.filters.work_mode],
     fraction: [...props.filters.fraction],
     flexible: props.filters.flexible,
+    childcare_subsidy: props.filters.childcare_subsidy,
     nursery_nearby: props.filters.nursery_nearby,
+    with_reviews: props.filters.with_reviews,
     job_share: props.filters.job_share,
     verified_only: props.filters.verified_only,
+    start_from: props.filters.start_from,
+    sort: props.filters.sort,
 });
+
+const sortOptions: { value: Filters['sort']; label: string }[] = [
+    { value: 'newest', label: 'Najnowsze' },
+    { value: 'rating', label: 'Najlepiej oceniane firmy' },
+    { value: 'start_date', label: 'Najbliższy termin startu' },
+];
 
 const areFiltersOpen = ref(false);
 
@@ -61,9 +78,12 @@ const hasActiveFilters = computed(
         form.work_mode.length > 0 ||
         form.fraction.length > 0 ||
         form.flexible ||
+        form.childcare_subsidy ||
         form.nursery_nearby ||
+        form.with_reviews ||
         form.job_share ||
-        form.verified_only,
+        form.verified_only ||
+        !!form.start_from,
 );
 
 function applyFilters(): void {
@@ -75,9 +95,13 @@ function applyFilters(): void {
             work_mode: form.work_mode.length ? form.work_mode : undefined,
             fraction: form.fraction.length ? form.fraction : undefined,
             flexible: form.flexible ? 1 : undefined,
+            childcare_subsidy: form.childcare_subsidy ? 1 : undefined,
             nursery_nearby: form.nursery_nearby ? 1 : undefined,
+            with_reviews: form.with_reviews ? 1 : undefined,
             job_share: form.job_share ? 1 : undefined,
             verified_only: form.verified_only ? 1 : undefined,
+            start_from: form.start_from || undefined,
+            sort: form.sort === 'newest' ? undefined : form.sort,
         },
         { preserveState: true, preserveScroll: true, replace: true },
     );
@@ -89,9 +113,12 @@ function resetFilters(): void {
     form.work_mode = [];
     form.fraction = [];
     form.flexible = false;
+    form.childcare_subsidy = false;
     form.nursery_nearby = false;
+    form.with_reviews = false;
     form.job_share = false;
     form.verified_only = false;
+    form.start_from = null;
     applyFilters();
 }
 
@@ -245,6 +272,30 @@ const offerCountLabel = computed(() => {
                             class="mt-2.5 flex cursor-pointer items-center gap-2.5"
                         >
                             <input
+                                v-model="form.childcare_subsidy"
+                                type="checkbox"
+                                class="size-4 accent-brand-green"
+                                data-test="filter-childcare-subsidy"
+                                @change="applyFilters"
+                            />
+                            Dofinansowanie żłobka lub przedszkola
+                        </label>
+                        <label
+                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
+                        >
+                            <input
+                                v-model="form.with_reviews"
+                                type="checkbox"
+                                class="size-4 accent-brand-green"
+                                data-test="filter-with-reviews"
+                                @change="applyFilters"
+                            />
+                            Firma z opiniami rodziców
+                        </label>
+                        <label
+                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
+                        >
+                            <input
                                 v-model="form.job_share"
                                 type="checkbox"
                                 class="size-4 accent-brand-green"
@@ -266,6 +317,28 @@ const offerCountLabel = computed(() => {
                             Tylko zweryfikowane firmy
                         </label>
                     </fieldset>
+
+                    <div class="mt-6">
+                        <label for="offer-start-from" class="font-semibold"
+                            >Mogę zacząć od</label
+                        >
+                        <input
+                            id="offer-start-from"
+                            v-model="form.start_from"
+                            type="date"
+                            class="mt-2.5 w-full rounded-2xl border border-brand-mint-soft px-3 py-2 text-sm text-brand-green"
+                            aria-describedby="offer-start-from-hint"
+                            data-test="filter-start-from"
+                            @change="applyFilters"
+                        />
+                        <p
+                            id="offer-start-from-hint"
+                            class="mt-1.5 text-xs text-brand-green/80"
+                        >
+                            Pokazujemy oferty, do których zdążysz (do 30 dni po
+                            starcie).
+                        </p>
+                    </div>
 
                     <button
                         v-if="hasActiveFilters"
@@ -313,15 +386,39 @@ const offerCountLabel = computed(() => {
                     </Link>
                 </div>
 
-                <p class="mt-6 text-sm font-medium text-brand-green">
-                    {{ offerCountLabel }}
-                </p>
+                <div
+                    class="mt-6 flex flex-wrap items-center justify-between gap-2"
+                >
+                    <p class="text-sm font-medium text-brand-green">
+                        {{ offerCountLabel }}
+                    </p>
+                    <label
+                        class="flex items-center gap-2 text-sm text-brand-green/80"
+                    >
+                        Sortuj
+                        <select
+                            v-model="form.sort"
+                            class="rounded-full border border-brand-mint-soft bg-white px-3 py-1.5 text-sm text-brand-green"
+                            data-test="offer-sort"
+                            @change="applyFilters"
+                        >
+                            <option
+                                v-for="option in sortOptions"
+                                :key="option.value"
+                                :value="option.value"
+                            >
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </label>
+                </div>
 
                 <div v-if="offers.data.length" class="mt-3 space-y-4">
                     <OfferCard
                         v-for="offer in offers.data"
                         :key="offer.id"
                         :offer="offer"
+                        :href="offerShow(offer.id)"
                     />
                 </div>
                 <div

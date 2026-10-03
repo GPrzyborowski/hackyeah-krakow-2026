@@ -278,7 +278,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                         </label>
                         <label class="flex items-center gap-3">
                             <Checkbox v-model="form.fixed_meeting_hours" />
-                            Spotkania w stałych godzinach, bez wieczorów
+                            Spotkania przed 15:00, bez wieczorów
                         </label>
                         <label class="flex items-center gap-3">
                             <Checkbox v-model="form.childcare_subsidy" />

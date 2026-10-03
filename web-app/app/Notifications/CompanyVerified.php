@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Company;
+use App\Notifications\Concerns\SendsPush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -11,7 +12,7 @@ use Illuminate\Notifications\Notification;
  */
 class CompanyVerified extends Notification
 {
-    use Queueable;
+    use Queueable, SendsPush;
 
     public function __construct(public Company $company) {}
 
@@ -20,7 +21,7 @@ class CompanyVerified extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $this->withPush(['database'], $notifiable);
     }
 
     /**

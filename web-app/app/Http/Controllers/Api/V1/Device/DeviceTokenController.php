@@ -10,7 +10,7 @@ use Illuminate\Http\Response;
 use Laravel\Sanctum\PersonalAccessToken;
 
 /**
- * Registers push tokens of the signed-in user's devices (no pushes are sent yet).
+ * Registers push tokens of the signed-in user's devices (pushes are sent by the FCM notification channel).
  */
 class DeviceTokenController extends Controller
 {

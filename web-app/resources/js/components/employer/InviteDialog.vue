@@ -49,7 +49,7 @@ const template = computed(() => {
             ? 'elastyczne godziny pracy'
             : 'stałe godziny pracy',
         props.offer.fixed_meeting_hours
-            ? 'spotkania w stałych godzinach, bez wieczorów'
+            ? 'spotkania przed 15:00, bez wieczorów'
             : null,
     ]
         .filter(Boolean)

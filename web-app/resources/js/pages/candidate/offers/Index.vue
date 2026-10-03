@@ -77,7 +77,7 @@ const parentFilters: {
 }[] = [
     { key: 'flexible_hours', label: 'Elastyczne godziny' },
     { key: 'nursery_nearby', label: 'Żłobek lub przedszkole w pobliżu' },
-    { key: 'childcare_subsidy', label: 'Dopłata do żłobka lub przedszkola' },
+    { key: 'childcare_subsidy', label: 'Dofinansowanie żłobka lub przedszkola' },
     { key: 'with_reviews', label: 'Firma z opiniami rodziców' },
     { key: 'verified_only', label: 'Tylko zweryfikowane firmy' },
     { key: 'job_share', label: 'Job sharing (dwie osoby)' },

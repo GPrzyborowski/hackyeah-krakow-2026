@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowRight, BadgeCheck, FileText, Scale, Star } from '@lucide/vue';
+import {
+    ArrowRight,
+    BadgeCheck,
+    FileText,
+    Scale,
+    ShieldAlert,
+    Star,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import { dashboard } from '@/routes/admin';
 import { index as articlesIndex } from '@/routes/admin/articles';
 import { index as companiesIndex } from '@/routes/admin/companies';
 import { index as legalSourcesIndex } from '@/routes/admin/legal-sources';
+import { index as moderationIndex } from '@/routes/admin/moderation';
 import { index as reviewsIndex } from '@/routes/admin/reviews';
 
 const props = defineProps<{
@@ -21,6 +29,7 @@ const props = defineProps<{
         articles: number;
         legal_sources: number;
         newsletter_subscribers: number;
+        blocked_messages_week: number;
     };
 }>();
 
@@ -72,6 +81,14 @@ const sections = computed(() => [
         href: companiesIndex({ query: { status: 'unverified' } }),
         icon: BadgeCheck,
         highlight: props.stats.unverified_companies > 0,
+    },
+    {
+        key: 'moderation',
+        label: 'Zablokowane wiadomości (7 dni)',
+        value: props.stats.blocked_messages_week,
+        href: moderationIndex(),
+        icon: ShieldAlert,
+        highlight: props.stats.blocked_messages_week > 0,
     },
     {
         key: 'articles',

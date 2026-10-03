@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * Contact data (full name, e-mail, phone, photo) shown to a company only after the candidate accepted its invitation.
+ * career_gap_note is included only when she switched off "show availability instead of the gap" and wrote a note.
  * photo_url points to the authorised photo endpoint: the API one for api/* requests, the web one otherwise.
  *
  * @mixin CandidateProfile
@@ -15,7 +16,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class RevealedCandidateResource extends JsonResource
 {
     /**
-     * @return array{id: int, anonymous_name: string, full_name: string, email: string, phone: string|null, photo_url: string|null, headline: string|null, years_of_experience: int|null}
+     * @return array{id: int, anonymous_name: string, full_name: string, email: string, phone: string|null, photo_url: string|null, headline: string|null, years_of_experience: int|null, career_gap_note: string|null}
      */
     public function toArray(Request $request): array
     {
@@ -28,6 +29,7 @@ class RevealedCandidateResource extends JsonResource
             'photo_url' => $this->resource->photoUrl($request->is('api/*')),
             'headline' => $this->resource->headline,
             'years_of_experience' => $this->resource->years_of_experience,
+            'career_gap_note' => $this->resource->careerGapNoteForEmployer(),
         ];
     }
 }

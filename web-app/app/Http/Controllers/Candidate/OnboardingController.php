@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Candidate;
 
-use App\Enums\EmploymentFraction;
-use App\Enums\WorkMode;
 use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Candidate\AnalyzeCvRequest;
@@ -11,12 +9,10 @@ use App\Http\Requests\Candidate\UpdatePreferencesRequest;
 use App\Http\Requests\Candidate\UpdatePrivacyRequest;
 use App\Http\Requests\Candidate\UpdateSummaryRequest;
 use App\Models\CandidateProfile;
-use App\Models\Company;
-use App\Models\Skill;
 use App\Services\Candidate\ProfileOnboarding;
+use App\Services\Candidate\ProfilePresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,26 +24,15 @@ class OnboardingController extends Controller
     /**
      * Show the 4-step profile wizard (also used as the profile editor once published).
      */
-    public function show(Request $request): Response
+    public function show(Request $request, ProfilePresenter $presenter): Response
     {
         $profile = $this->candidateProfile($request)->load(['user', 'skills']);
 
         return Inertia::render('candidate/Onboarding', [
             'step' => $this->resolveStep($profile, $request->integer('step')),
-            'profile' => $this->presentProfile($profile),
-            'skills' => $profile->skills
-                ->sortBy('name')
-                ->map(fn (Skill $skill): array => [
-                    'id' => $skill->id,
-                    'name' => $skill->name,
-                    'source' => $skill->getRelationValue('pivot')?->source,
-                    'confirmed' => $skill->getRelationValue('pivot')?->confirmed_at !== null,
-                ])
-                ->values(),
-            'skillSuggestions' => Skill::query()->suggestable()->orderBy('name')->pluck('name'),
-            'companies' => Company::query()->orderBy('name')->get(['id', 'name']),
-            'workModes' => collect(WorkMode::cases())->map(fn (WorkMode $mode): array => ['value' => $mode->value, 'label' => $mode->label()]),
-            'employmentFractions' => collect(EmploymentFraction::cases())->map(fn (EmploymentFraction $fraction): array => ['value' => $fraction->value, 'label' => $fraction->label()]),
+            'profile' => $presenter->profile($profile),
+            'skills' => $presenter->skills($profile),
+            ...$presenter->options(),
         ]);
     }
 
@@ -174,41 +159,5 @@ class OnboardingController extends Controller
         }
 
         return max(2, min($requestedStep, $furthestReachable));
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function presentProfile(CandidateProfile $profile): array
-    {
-        $cvExists = $profile->cv_path && Storage::disk('local')->exists($profile->cv_path);
-
-        return [
-            'anonymous_name' => $profile->anonymousName(),
-            'headline' => $profile->headline,
-            'years_of_experience' => $profile->years_of_experience,
-            'city' => $profile->city,
-            'phone' => $profile->phone,
-            'photo_url' => $profile->photoUrl(),
-            'ai_summary' => $profile->ai_summary,
-            'available_from' => $profile->available_from?->toDateString(),
-            'leave_starts_on' => $profile->leave_starts_on?->toDateString(),
-            'due_date' => $profile->due_date?->toDateString(),
-            'work_modes' => $profile->work_modes ?? [],
-            'employment_fractions' => $profile->employment_fractions ?? [],
-            'wants_flexible_hours' => (bool) $profile->wants_flexible_hours,
-            'open_to_job_sharing' => (bool) $profile->open_to_job_sharing,
-            'preferred_day_part' => $profile->preferred_day_part?->value,
-            'hidden_from_company_id' => $profile->hidden_from_company_id,
-            'allow_direct_messages' => (bool) $profile->allow_direct_messages,
-            'job_alerts_enabled' => (bool) $profile->job_alerts_enabled,
-            'onboarding_step' => $profile->onboarding_step,
-            'cv_original_name' => $profile->cv_original_name,
-            'cv_size' => $cvExists ? Storage::disk('local')->size($profile->cv_path) : null,
-            'cv_status' => $profile->cv_status?->value,
-            'cv_text' => $profile->cv_text,
-            'suggested_positions' => $profile->suggested_positions ?? [],
-            'is_published' => $profile->isPublished(),
-        ];
     }
 }

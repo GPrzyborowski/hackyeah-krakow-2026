@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Employer;
 
+use App\Enums\ModerationContext;
 use App\Services\Ai\MessageModerator;
+use App\Services\Ai\ModerationRecorder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -53,10 +55,19 @@ class StoreInvitationRequest extends FormRequest
                 $result = app(MessageModerator::class)->check((string) $this->input('message'));
 
                 if (! $result->allowed) {
+                    app(ModerationRecorder::class)->recordBlock($this->moderationContext(), $result, (string) $this->input('message'), $this->user(), $this->route('offer') ?? $this->route('pair'));
                     $validator->errors()->add('message', (string) $result->reason);
                     $validator->errors()->add('message_suggestion', (string) $result->suggestion);
                 }
             },
         ];
+    }
+
+    /**
+     * Where the blocked text is logged in the moderation log.
+     */
+    protected function moderationContext(): ModerationContext
+    {
+        return ModerationContext::Invitation;
     }
 }

@@ -171,11 +171,11 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                                     on: offer.flexible_hours,
                                 },
                                 {
-                                    label: 'Stałe godziny spotkań',
+                                    label: 'Spotkania przed 15:00',
                                     on: offer.fixed_meeting_hours,
                                 },
                                 {
-                                    label: 'Dopłata do żłobka / przedszkola',
+                                    label: 'Dofinansowanie żłobka lub przedszkola',
                                     on: offer.childcare_subsidy,
                                 },
                                 {

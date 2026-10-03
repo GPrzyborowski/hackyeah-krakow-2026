@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ArrowRight, Send, Sparkles } from '@lucide/vue';
-import { computed } from 'vue';
-import ArticleCard from '@/components/brand/ArticleCard.vue';
-import CompanyRatingCard from '@/components/brand/CompanyRatingCard.vue';
+import { Head, Link, usePage } from "@inertiajs/vue3";
+import { ArrowRight, Send, Sparkles } from "@lucide/vue";
+import { computed } from "vue";
+import ArticleCard from "@/components/brand/ArticleCard.vue";
+import CompanyRatingCard from "@/components/brand/CompanyRatingCard.vue";
 import type {
     PublicArticleSummary,
     PublicCompanySummary,
-} from '@/components/brand/types';
-import { dashboard, register } from '@/routes';
-import { index as candidateOffers } from '@/routes/candidate/offers';
-import { create as createOffer } from '@/routes/employer/offers';
-import { index as offersIndex } from '@/routes/public/offers';
+} from "@/components/brand/types";
+import { dashboard, register } from "@/routes";
+import { index as candidateOffers } from "@/routes/candidate/offers";
+import { create as createOffer } from "@/routes/employer/offers";
+import { index as offersIndex } from "@/routes/public/offers";
 
 defineProps<{
     companies: PublicCompanySummary[];
@@ -20,45 +20,45 @@ defineProps<{
 
 const page = usePage();
 const isSignedIn = computed(() => Boolean(page.props.auth.user));
-const isEmployer = computed(() => page.props.auth.role === 'employer');
+const isEmployer = computed(() => page.props.auth.role === "employer");
 
 const steps = [
     {
-        title: 'Dodaj CV i uzupełnij profil',
-        body: 'AI czyta CV, wyciąga umiejętności i proponuje tagi. Ty poprawiasz i ustawiasz, co pracodawca widzi.',
+        title: "Dodaj CV i uzupełnij profil",
+        body: "AI czyta CV, wyciąga umiejętności i proponuje tagi. Ty poprawiasz i ustawiasz, co pracodawca widzi.",
     },
     {
-        title: 'Firmy wybierają tagi i przeglądają profile',
-        body: 'Pracodawca opisuje ofertę, a Ty pojawiasz się, gdy pasujesz. Do akceptacji widzi tylko imię, umiejętności i datę dostępności.',
+        title: "Firmy wybierają tagi i przeglądają profile",
+        body: "Pracodawca opisuje ofertę, a Ty pojawiasz się, gdy pasujesz. Do akceptacji widzi tylko imię, umiejętności i datę dostępności.",
     },
     {
-        title: 'Ty decydujesz, z kim rozmawiasz',
-        body: 'Zaproszenia przyjmujesz albo odrzucasz. Dopiero po akceptacji otwiera się czat i dane kontaktowe.',
+        title: "Ty decydujesz, z kim rozmawiasz",
+        body: "Zaproszenia przyjmujesz albo odrzucasz. Dopiero po akceptacji otwiera się czat i dane kontaktowe.",
     },
 ];
 
 const interestedCompanies = [
     {
-        title: 'Specjalistka ds. HR',
-        meta: 'Zielone Biuro · 3/5 etatu · zdalnie',
-        start: 'start 1 wrz',
+        title: "Specjalistka ds. HR",
+        meta: "Zielone Biuro · 3/5 etatu · zdalnie",
+        start: "start 1 wrz",
     },
     {
-        title: 'Koordynatorka projektów',
-        meta: 'Kamienica Studio · 3/4 etatu · hybrydowo',
-        start: 'start 15 wrz',
+        title: "Koordynatorka projektów",
+        meta: "Kamienica Studio · 3/4 etatu · hybrydowo",
+        start: "start 15 wrz",
     },
 ];
 
 const pairChat = [
     {
-        author: 'marta',
-        text: 'Mogę brać poranki. O 13:00 odbieram małą ze żłobka.',
+        author: "marta",
+        text: "Mogę brać poranki. O 13:00 odbieram małą ze żłobka.",
     },
-    { author: 'ewa', text: 'Super, ja wolę popołudnia. Biorę 12:00–16:00.' },
+    { author: "ewa", text: "Super, ja wolę popołudnia. Biorę 12:00–16:00." },
     {
-        author: 'marta',
-        text: 'To zamieniamy się w środy, kiedy mam wizytę kontrolną?',
+        author: "marta",
+        text: "To zamieniamy się w środy, kiedy mam wizytę kontrolną?",
     },
 ] as const;
 </script>
@@ -90,8 +90,8 @@ const pairChat = [
                         >
                             {{
                                 isSignedIn
-                                    ? 'Przejdź do panelu'
-                                    : 'Załóż profil'
+                                    ? "Przejdź do panelu"
+                                    : "Załóż profil"
                             }}
                         </Link>
                         <Link
@@ -137,11 +137,11 @@ const pairChat = [
                     >
                         <div>
                             <p class="font-semibold">Ciąża</p>
-                            <p class="text-white/80">od 14 tyg.</p>
+                            <p class="text-white/80">dziś: 24. tydzień</p>
                         </div>
                         <div>
                             <p class="font-semibold">Urlop macierzyński</p>
-                            <p class="text-white/80">do 14 lut 2027</p>
+                            <p class="text-white/80">od 14 mar 2027</p>
                         </div>
                         <div>
                             <p class="font-semibold">Gotowa</p>
@@ -463,7 +463,7 @@ const pairChat = [
                     :href="isSignedIn ? dashboard() : register()"
                     class="w-fit shrink-0 rounded-full bg-brand-peach px-6 py-3 text-sm font-semibold text-brand-green transition hover:bg-white"
                 >
-                    {{ isSignedIn ? 'Mój panel' : 'Załóż profil' }}
+                    {{ isSignedIn ? "Mój panel" : "Załóż profil" }}
                 </Link>
             </div>
         </section>

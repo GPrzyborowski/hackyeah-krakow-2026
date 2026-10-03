@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Conversation;
+use App\Notifications\Concerns\SendsPush;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -12,7 +13,7 @@ use Illuminate\Notifications\Notification;
  */
 class InvitationAccepted extends Notification
 {
-    use Queueable;
+    use Queueable, SendsPush;
 
     public function __construct(public Conversation $conversation) {}
 
@@ -21,7 +22,7 @@ class InvitationAccepted extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return $this->withPush(['mail', 'database'], $notifiable);
     }
 
     public function toMail(object $notifiable): MailMessage

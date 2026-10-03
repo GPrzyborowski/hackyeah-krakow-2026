@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'email' => $user->email,
             'email_verified' => $user->email_verified_at !== null,
             'role' => $user->role->value,
+            'push_enabled' => $user->push_enabled,
             'company' => $user->company ? ['id' => $user->company->id, 'name' => $user->company->name] : null,
             'candidate_profile' => $user->isCandidate() && $user->candidateProfile ? [
                 'id' => $user->candidateProfile->id,

@@ -63,7 +63,7 @@ tags:
   - name: Reviews
     description: Anonymous company reviews written by candidates (role `candidate`), moderated before publishing.
   - name: Devices
-    description: Push notification device tokens (both roles). Stored for future push notifications; nothing is sent yet.
+    description: Push notification device tokens (both roles). Pushes go through FCM to every device while `push_enabled` is true.
 
 paths:
   /openapi.yaml:
@@ -160,6 +160,31 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/UserEnvelope' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/me/preferences:
+    patch:
+      tags: [Auth]
+      operationId: updatePreferences
+      summary: Update account preferences
+      description: '`push_enabled: false` stops push notifications on all devices of the account (the devices stay registered).'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [push_enabled]
+              properties:
+                push_enabled: { type: boolean }
+            example: { push_enabled: false }
+      responses:
+        '200':
+          description: The updated user.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserEnvelope' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
   /auth/logout:
     post:
       tags: [Auth]
@@ -2323,13 +2348,14 @@ components:
     # ---------- auth
     User:
       type: object
-      required: [id, name, email, email_verified, role, company, candidate_profile]
+      required: [id, name, email, email_verified, role, push_enabled, company, candidate_profile]
       properties:
         id: { type: integer }
         name: { type: string }
         email: { type: string, format: email }
         email_verified: { type: boolean }
         role: { type: string, enum: [candidate, employer, admin] }
+        push_enabled: { type: boolean, description: 'Push notifications on (default) or off for all devices.' }
         company: { oneOf: [{ $ref: '#/components/schemas/IdName' }, { type: 'null' }] }
         candidate_profile:
           description: Set for candidates only.

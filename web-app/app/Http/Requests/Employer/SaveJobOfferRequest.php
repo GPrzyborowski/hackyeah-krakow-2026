@@ -3,8 +3,10 @@
 namespace App\Http\Requests\Employer;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\ModerationContext;
 use App\Enums\WorkMode;
 use App\Services\Ai\MessageModerator;
+use App\Services\Ai\ModerationRecorder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -109,6 +111,7 @@ class SaveJobOfferRequest extends FormRequest
                     $result = $moderator->check($text);
 
                     if (! $result->allowed) {
+                        app(ModerationRecorder::class)->recordBlock(ModerationContext::Offer, $result, $text, $this->user(), $this->route('offer'));
                         $validator->errors()->add($field, trim($result->reason.' '.$result->suggestion));
                     }
                 }

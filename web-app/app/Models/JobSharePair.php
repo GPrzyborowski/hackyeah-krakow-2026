@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InvitationStatus;
 use App\Enums\JobSharePairStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\JobSharePairFactory;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Two candidates applying together for one job-sharing offer, each covering part of the workday.
@@ -72,6 +74,26 @@ class JobSharePair extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(Invitation::class);
+    }
+
+    /**
+     * Invitations of the pair that the member accepted; their members take part in the team chat.
+     *
+     * @return HasMany<Invitation, $this>
+     */
+    public function acceptedInvitations(): HasMany
+    {
+        return $this->invitations()->where('status', InvitationStatus::Accepted);
+    }
+
+    /**
+     * The shared team chat of the employer and the members who accepted, opened by the first acceptance.
+     *
+     * @return HasOne<Conversation, $this>
+     */
+    public function conversation(): HasOne
+    {
+        return $this->hasOne(Conversation::class);
     }
 
     /**

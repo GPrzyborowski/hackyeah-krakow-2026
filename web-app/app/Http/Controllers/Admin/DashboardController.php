@@ -13,6 +13,7 @@ use App\Models\Invitation;
 use App\Models\JobOffer;
 use App\Models\JobSharePair;
 use App\Models\LegalSource;
+use App\Models\ModerationEvent;
 use App\Models\NewsletterSubscriber;
 use App\Models\User;
 use Inertia\Inertia;
@@ -39,6 +40,7 @@ class DashboardController extends Controller
                 'job_share_pairs' => JobSharePair::query()->count(),
                 'articles' => Article::query()->count(),
                 'legal_sources' => LegalSource::query()->count(),
+                'blocked_messages_week' => ModerationEvent::query()->where('created_at', '>=', now()->subDays(7))->count(),
                 'newsletter_subscribers' => NewsletterSubscriber::query()
                     ->whereNotNull('confirmed_at')
                     ->whereNull('unsubscribed_at')

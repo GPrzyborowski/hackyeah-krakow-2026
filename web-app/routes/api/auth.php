@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\PreferenceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->name('auth.')->group(function () {
@@ -9,6 +10,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
 
     Route::middleware(['auth:sanctum', 'throttle:120,1,api-user'])->group(function () {
         Route::get('me', [AuthController::class, 'me'])->name('me');
+        Route::patch('me/preferences', [PreferenceController::class, 'update'])->name('me.preferences');
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
         Route::post('logout-all', [AuthController::class, 'logoutAll'])->name('logout-all');
         Route::post('email/verification-notification', [AuthController::class, 'resendVerification'])

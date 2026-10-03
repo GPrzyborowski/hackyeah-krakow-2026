@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Public;
 use App\Enums\EmploymentFraction;
 use App\Enums\WorkMode;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Public\Concerns\PresentsCompanyRatings;
 use App\Models\JobOffer;
-use App\Services\JobSharing\Workday;
+use App\Services\Offers\PublicOfferPresenter;
 use App\Services\Offers\PublicOfferSearch;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +14,7 @@ use Inertia\Response;
 
 class OfferController extends Controller
 {
-    use PresentsCompanyRatings;
+    public function __construct(private readonly PublicOfferPresenter $presenter) {}
 
     /**
      * Public, match-free list of published offers with simple query-string filters.
@@ -27,7 +26,7 @@ class OfferController extends Controller
         $offers = $search->query($filters)
             ->paginate(10)
             ->withQueryString()
-            ->through(fn (JobOffer $offer): array => $this->present($offer));
+            ->through(fn (JobOffer $offer): array => $this->presenter->card($offer));
 
         return Inertia::render('public/offers/Index', [
             'offers' => $offers,
@@ -38,35 +37,20 @@ class OfferController extends Controller
     }
 
     /**
-     * @return array<string, mixed>
+     * A published offer for everyone (guests, employers, candidates) without a match score; drafts and closed offers are 404.
      */
-    private function present(JobOffer $offer): array
+    public function show(JobOffer $offer): Response
     {
-        $company = $offer->company;
+        abort_unless($offer->isPublished(), 404);
 
-        return [
-            'id' => $offer->id,
-            'title' => $offer->title,
-            'city' => $offer->city,
-            'work_mode' => $offer->work_mode->value,
-            'work_mode_label' => $offer->work_mode->label(),
-            'employment_fraction_label' => $offer->employment_fraction->label(),
-            'salary_min' => $offer->salary_min,
-            'salary_max' => $offer->salary_max,
-            'start_date' => $offer->start_date->toDateString(),
-            'flexible_hours' => $offer->flexible_hours,
-            'fixed_meeting_hours' => $offer->fixed_meeting_hours,
-            'childcare_subsidy' => $offer->childcare_subsidy,
-            'nursery_distance_km' => $offer->nursery_distance_km,
-            'is_parent_friendly' => $offer->isParentFriendly(),
-            'job_share' => Workday::presentOffer($offer),
-            'company' => [
-                'id' => $company->id,
-                'name' => $company->name,
-                'verified' => $company->isVerified(),
-                'rating' => $company->averageRating(),
-                'featured_quote' => $this->featuredQuote($company),
+        $offer->load(['skills', 'company.approvedReviews' => fn ($query) => $query->orderBy('id')]);
+
+        return Inertia::render('public/offers/Show', [
+            'offer' => [
+                ...$this->presenter->detail($offer),
+                'company_description' => $offer->company->description,
             ],
-        ];
+            'reviews' => $this->presenter->reviews($offer),
+        ]);
     }
 }
