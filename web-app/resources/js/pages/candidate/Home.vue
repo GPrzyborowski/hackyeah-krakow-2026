@@ -119,11 +119,11 @@ function editCalendar() {
                 <h2 class="text-lg font-bold">Gdzie teraz jesteś?</h2>
                 <p class="text-sm">
                     Powiedz nam, czy jesteś w ciąży, czy po urlopie
-                    macierzyńskim – dopasujemy kalendarz, porady i artykuły.
+                    macierzyńskim, a dopasujemy kalendarz i artykuły.
                 </p>
                 <p class="mt-1 inline-flex items-center gap-1 text-xs">
                     <Lock class="size-3" aria-hidden="true" />
-                    Tę informację widzisz tylko Ty – pracodawcy jej nie zobaczą.
+                    Tę informację widzisz tylko Ty. Nie pokazujemy jej pracodawcom.
                 </p>
             </div>
             <ArrowRight class="size-5 shrink-0" aria-hidden="true" />
@@ -309,7 +309,7 @@ function editCalendar() {
         >
             <div>
                 <h2 class="text-lg font-bold">Masz pytanie o swoje prawa?</h2>
-                <p class="text-sm">Zapytaj asystenta. Odpowiada ze źródłem.</p>
+                <p class="text-sm">Zapytaj asystenta. Do każdej odpowiedzi poda źródło.</p>
             </div>
             <ArrowRight class="size-5 shrink-0" />
         </Link>

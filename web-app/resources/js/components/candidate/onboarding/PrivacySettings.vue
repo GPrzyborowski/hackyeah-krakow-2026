@@ -123,12 +123,12 @@ function onHideToggle(value: boolean) {
                         class="text-xs text-brand-green/80"
                     >
                         <template v-if="showAvailabilityInsteadOfGap">
-                            Widzisz ją tylko Ty. Żadna firma jej nie zobaczy.
+                            Notatkę widzisz tylko Ty, firmy jej nie dostają.
                         </template>
                         <template v-else>
                             Po przyjęciu zaproszenia firma zobaczy: „Przerwa w
                             karierze: {{ gapNoteForm.career_gap_note || '…' }}”.
-                            Przed akceptacją – nigdy.
+                            Przed akceptacją firma jej nie widzi.
                         </template>
                     </p>
                     <InputError

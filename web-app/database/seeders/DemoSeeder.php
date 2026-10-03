@@ -114,7 +114,7 @@ class DemoSeeder extends Seeder
             $company = Company::create([
                 'name' => $name,
                 'city' => $definition['city'],
-                'description' => "{$name} to firma, która stawia na elastyczną pracę i powroty po urlopie rodzicielskim.",
+                'description' => "{$name} oferuje elastyczne godziny pracy i zatrudnia osoby wracające z urlopu rodzicielskiego.",
             ]);
 
             User::factory()->create([
@@ -442,7 +442,7 @@ class DemoSeeder extends Seeder
             'user_id' => $user->id,
             'headline' => $headline,
             'years_of_experience' => 5,
-            'ai_summary' => 'Od pięciu lat pracuje w obszarach: '.implode(', ', $skillNames).'. Dobrze odnajduje się we współpracy z zespołem i chętnie dzieli obowiązki na stanowisku w modelu job sharing.',
+            'ai_summary' => 'Od pięciu lat pracuje w obszarach: '.implode(', ', $skillNames).'. Szuka stanowiska w modelu job sharing.',
             'city' => 'Poznań',
             'available_from' => '2027-08-01',
             'work_modes' => [WorkMode::Hybrid->value, WorkMode::Remote->value],

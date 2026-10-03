@@ -59,7 +59,7 @@ const template = computed(() => {
     return [
         'Dzień dobry,',
         '',
-        `Twój profil bardzo pasuje do stanowiska ${props.offer.title} (${props.offer.employment_fraction_label}, ${props.offer.work_mode_label.toLowerCase()}${props.offer.city ? `, ${props.offer.city}` : ''}).`,
+        `Twój profil pasuje do stanowiska ${props.offer.title} (${props.offer.employment_fraction_label}, ${props.offer.work_mode_label.toLowerCase()}${props.offer.city ? `, ${props.offer.city}` : ''}).`,
         salary ? `Widełki wynagrodzenia: ${salary}.` : null,
         `Godziny pracy: ${hours}.`,
         `Planowany start: ${formatLongDate(props.offer.start_date)}.`,

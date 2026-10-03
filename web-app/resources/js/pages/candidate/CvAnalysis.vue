@@ -300,8 +300,8 @@ defineOptions({
                 </li>
             </ul>
             <p v-else class="mt-4 text-sm text-brand-green/80">
-                Świetnie! W ofertach, do których pasujesz, nie brakuje Ci żadnej
-                wymaganej umiejętności.
+                W ofertach, do których pasujesz, masz już wszystkie wymagane
+                umiejętności.
             </p>
         </section>
 
@@ -398,7 +398,7 @@ defineOptions({
         >
             <Lock class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             Analiza jest widoczna tylko dla Ciebie. Firmy nie widzą Twojego CV,
-            braków ani wyników – tylko zatwierdzone umiejętności i procent
+            braków ani wyników. Widzą zatwierdzone umiejętności i procent
             dopasowania do ich oferty.
         </p>
     </div>

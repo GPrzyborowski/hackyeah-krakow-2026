@@ -75,8 +75,8 @@ const subtitle = computed(() =>
             </p>
         </div>
         <p class="mt-4 text-xs leading-relaxed text-white/70">
-            Bez zdjęcia, nazwiska i powodu przerwy. Kontakt pojawia się dopiero
-            po Twojej akceptacji.
+            Pracodawca nie widzi zdjęcia, nazwiska ani powodu przerwy. Kontakt
+            dostaje dopiero po Twojej akceptacji.
         </p>
     </section>
 </template>

@@ -360,7 +360,7 @@ const conditions = computed(() => [
                     </template>
                     <template v-else-if="isGuest">
                         <h2 class="mt-2 text-lg font-semibold">
-                            Ile pasujesz do tej oferty?
+                            Na ile pasujesz do tej oferty?
                         </h2>
                         <p class="mt-1 text-sm text-white/80">
                             Asystent AI porówna Twoje CV z wymaganiami i pokaże,
