@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\Ai\ClaudeCvAnalyzer;
+use App\Services\Ai\ClaudeMessageModerator;
 use App\Services\Ai\CvAnalyzer;
 use App\Services\Ai\KeywordCvAnalyzer;
 use App\Services\Ai\KeywordMessageModerator;
@@ -19,8 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(CvAnalyzer::class, KeywordCvAnalyzer::class);
-        $this->app->bind(MessageModerator::class, KeywordMessageModerator::class);
+        $this->app->bind(CvAnalyzer::class, fn ($app) => $app->make(filled(config('services.anthropic.key')) ? ClaudeCvAnalyzer::class : KeywordCvAnalyzer::class));
+        $this->app->bind(MessageModerator::class, fn ($app) => $app->make(filled(config('services.anthropic.key')) ? ClaudeMessageModerator::class : KeywordMessageModerator::class));
     }
 
     /**

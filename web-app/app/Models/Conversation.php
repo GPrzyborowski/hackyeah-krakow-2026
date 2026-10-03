@@ -51,4 +51,14 @@ class Conversation extends Model
 
         return $user->company_id !== null && $invitation->jobOffer->company_id === $user->company_id;
     }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'last_message_at' => 'datetime',
+        ];
+    }
 }
