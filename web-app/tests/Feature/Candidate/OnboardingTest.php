@@ -208,6 +208,25 @@ class OnboardingTest extends TestCase
         $this->assertSame(0, $this->profile->skills()->count());
     }
 
+    public function test_manual_tag_with_contact_details_is_rejected(): void
+    {
+        $this->actingAs($this->candidate)
+            ->post(route('candidate.skills.store'), ['name' => 'Excel 601 234 567'])
+            ->assertSessionHasErrors('name');
+
+        $this->assertSame(0, $this->profile->skills()->count());
+    }
+
+    public function test_skill_suggestions_do_not_include_free_text_tags_of_other_candidates(): void
+    {
+        Skill::factory()->create(['name' => 'Excel']);
+        Skill::findOrCreateByName('marta.prywatnie');
+
+        $this->actingAs($this->candidate)
+            ->get(route('candidate.onboarding.show'))
+            ->assertInertia(fn (Assert $page) => $page->where('skillSuggestions', ['Excel']));
+    }
+
     public function test_confirming_skills_confirms_remaining_tags_and_advances(): void
     {
         $skill = Skill::factory()->create();

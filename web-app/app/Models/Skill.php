@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Database\Factories\SkillFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
 /**
@@ -38,6 +40,27 @@ class Skill extends Model
         $name = trim($name);
 
         return self::firstOrCreate(['slug' => Str::slug($name)], ['name' => $name]);
+    }
+
+    /**
+     * @return BelongsToMany<JobOffer, $this>
+     */
+    public function jobOffers(): BelongsToMany
+    {
+        return $this->belongsToMany(JobOffer::class)->withPivot('importance')->withTimestamps();
+    }
+
+    /**
+     * Skills safe to suggest to other users: the curated dictionary (synonyms set, i.e. seeded) or skills used
+     * by at least one offer. Free-text skills that candidates typed in themselves are never suggested to anyone.
+     *
+     * @param  Builder<Skill>  $query
+     */
+    public function scopeSuggestable(Builder $query): void
+    {
+        $query->where(function (Builder $query): void {
+            $query->whereNotNull('synonyms')->orWhereHas('jobOffers');
+        });
     }
 
     /**

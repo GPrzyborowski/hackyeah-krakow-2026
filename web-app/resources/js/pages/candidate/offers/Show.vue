@@ -9,6 +9,7 @@ import {
     Star,
     X,
 } from '@lucide/vue';
+import VerifiedCompanyBadge from '@/components/brand/VerifiedCompanyBadge.vue';
 import Chip from '@/components/candidate/Chip.vue';
 import {
     formatRating,
@@ -87,6 +88,10 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                             </h1>
                             <p class="mt-1 text-brand-green/80">
                                 {{ offer.company.name }}
+                                <VerifiedCompanyBadge
+                                    v-if="offer.company.verified"
+                                    class="align-middle"
+                                />
                                 <template v-if="offer.city">
                                     · {{ offer.city }}</template
                                 >

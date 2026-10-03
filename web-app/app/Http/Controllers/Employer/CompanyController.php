@@ -25,7 +25,10 @@ class CompanyController extends Controller
         $reviews = $ratingSummary->reviews($company);
 
         return Inertia::render('employer/company/Edit', [
-            'company' => $company->only(['id', 'name', 'nip', 'city', 'description']),
+            'company' => [
+                ...$company->only(['id', 'name', 'nip', 'city', 'description']),
+                'verified' => $company->isVerified(),
+            ],
             'ratings' => $ratingSummary->ratings($company, $reviews),
             'reviews' => $reviews->map(fn (CompanyReview $review): array => [
                 'id' => $review->id,

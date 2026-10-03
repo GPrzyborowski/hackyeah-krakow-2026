@@ -139,6 +139,26 @@ class PairLifecycleTest extends TestCase
                 ->where('can.chat', true));
     }
 
+    public function test_ended_pair_keeps_its_chat_readable_but_closed_for_new_messages()
+    {
+        $recruitment = $this->skill('Rekrutacja IT');
+        $offer = $this->jobShareOffer(Company::factory()->create(), [$recruitment]);
+        $marta = $this->sharer([$recruitment], 'Marta Kowalska');
+        $pair = $this->pair($offer, $marta, $this->sharer([$recruitment], 'Ewa Nowak'), JobSharePairStatus::Cancelled);
+
+        $this->actingAs($marta->user)
+            ->post(route('job-sharing.pairs.messages.store', $pair), ['body' => 'Jeszcze jedno'])
+            ->assertForbidden();
+
+        $this->actingAs($marta->user)
+            ->get(route('job-sharing.pairs.show', $pair))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('can.chat', true)
+                ->where('can.send_message', false));
+
+        $this->assertDatabaseCount('job_share_messages', 0);
+    }
+
     public function test_pair_is_hired_once_both_members_accept_their_invitations(): void
     {
         Notification::fake();

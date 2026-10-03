@@ -37,6 +37,8 @@ class CompanyResource extends JsonResource
             'nip' => $company->nip,
             'city' => $company->city,
             'description' => $company->description,
+            'verified' => $company->isVerified(),
+            'verified_at' => $company->verified_at?->toIso8601String(),
             'ratings' => $this->ratings,
             'reviews' => $this->reviews->map(fn (CompanyReview $review): array => [
                 'id' => $review->id,

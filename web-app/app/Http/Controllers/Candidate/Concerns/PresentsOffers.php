@@ -49,6 +49,7 @@ trait PresentsOffers
                 'id' => $offer->company->id,
                 'name' => $offer->company->name,
                 'city' => $offer->company->city,
+                'verified' => $offer->company->isVerified(),
                 'average_rating' => $offer->company->averageRating(),
                 'reviews_count' => $offer->company->approvedReviews->count(),
                 'first_review' => $firstReview ? [

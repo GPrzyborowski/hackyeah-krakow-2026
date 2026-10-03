@@ -29,6 +29,7 @@ class PublicCompanyResource extends JsonResource
             'id' => $company->id,
             'name' => $company->name,
             'city' => $company->city,
+            'verified' => $company->isVerified(),
             'description' => $company->description,
             'rating' => $this->ratingSummary($company),
             'reviews' => PublicCompanyReviewResource::collection($company->approvedReviews)->toArray($request),

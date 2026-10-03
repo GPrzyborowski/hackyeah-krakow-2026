@@ -26,6 +26,7 @@ class OfferFilterRequest extends FormRequest
             'childcare_subsidy' => ['nullable', 'boolean'],
             'nursery_nearby' => ['nullable', 'boolean'],
             'with_reviews' => ['nullable', 'boolean'],
+            'verified_only' => ['nullable', 'boolean'],
             'job_share' => ['nullable', 'boolean'],
             'saved' => ['nullable', 'boolean'],
             'start_from' => ['nullable', 'date'],

@@ -29,6 +29,7 @@ class CompanyController extends Controller
                 'id' => $company->id,
                 'name' => $company->name,
                 'city' => $company->city,
+                'verified' => $company->isVerified(),
                 'description' => $company->description,
                 'rating' => $this->ratingSummary($company),
             ],

@@ -370,7 +370,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                         <div
                             class="mt-8 flex flex-wrap items-start justify-center gap-4 sm:gap-6"
                         >
-                            <div class="flex flex-col items-center gap-2">
+                            <div
+                                class="grid grid-rows-[5rem_1rem] items-center justify-items-center gap-2"
+                            >
                                 <button
                                     type="button"
                                     class="flex size-16 items-center justify-center rounded-full border-2 border-brand-green/60 bg-white text-brand-green shadow-sm transition disabled:opacity-50 motion-safe:hover:scale-105"
@@ -381,11 +383,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                                 >
                                     <X class="size-6" aria-hidden="true" />
                                 </button>
-                                <span class="text-xs text-brand-green"
+                                <span
+                                    class="text-xs leading-4 whitespace-nowrap text-brand-green"
                                     >Pomiń</span
                                 >
                             </div>
-                            <div class="flex flex-col items-center gap-2">
+                            <div
+                                class="grid grid-rows-[5rem_1rem] items-center justify-items-center gap-2"
+                            >
                                 <button
                                     type="button"
                                     class="flex size-16 items-center justify-center rounded-full bg-brand-yellow text-brand-green shadow-sm transition disabled:opacity-50 motion-safe:hover:scale-105"
@@ -398,11 +403,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                                         aria-hidden="true"
                                     />
                                 </button>
-                                <span class="text-xs text-brand-green"
+                                <span
+                                    class="text-xs leading-4 whitespace-nowrap text-brand-green"
                                     >Na później</span
                                 >
                             </div>
-                            <div class="flex flex-col items-center gap-2">
+                            <div
+                                class="grid grid-rows-[5rem_1rem] items-center justify-items-center gap-2"
+                            >
                                 <button
                                     type="button"
                                     class="flex size-20 items-center justify-center rounded-full bg-brand-green text-brand-peach shadow-md transition motion-safe:hover:scale-105"
@@ -410,18 +418,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                                     @click="invite"
                                 >
                                     <MessageSquare
-                                        class="size-7 fill-brand-peach"
+                                        class="size-8"
+                                        :stroke-width="2.25"
                                         aria-hidden="true"
                                     />
                                 </button>
                                 <span
-                                    class="text-xs font-semibold text-brand-green"
+                                    class="text-xs leading-4 font-semibold whitespace-nowrap text-brand-green"
                                     >Zaproś</span
                                 >
                             </div>
                             <div
                                 v-if="candidate.accepts_direct_messages"
-                                class="flex flex-col items-center gap-2"
+                                class="grid grid-rows-[5rem_1rem] items-center justify-items-center gap-2"
                             >
                                 <button
                                     type="button"
@@ -432,7 +441,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                                 >
                                     <Send class="size-6" aria-hidden="true" />
                                 </button>
-                                <span class="text-xs text-brand-green"
+                                <span
+                                    class="text-xs leading-4 whitespace-nowrap text-brand-green"
                                     >Napisz wiadomość</span
                                 >
                             </div>

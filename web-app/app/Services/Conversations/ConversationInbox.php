@@ -80,21 +80,28 @@ class ConversationInbox
     }
 
     /**
-     * Header data: the employer sees the revealed candidate (invitation accepted); the candidate sees the company.
+     * Header data: the employer sees the revealed candidate (invitation accepted, so contact data incl. phone and photo);
+     * the candidate sees the company. $forApi picks the API photo endpoint (bearer token) instead of the web one.
      *
-     * @return array{type: 'candidate', name: string, email: string}|array{type: 'company', id: int, name: string, rating: float|null}
+     * @return array{type: 'candidate', name: string, email: string, phone: string|null, photo_url: string|null}|array{type: 'company', id: int, name: string, verified: bool, rating: float|null}
      */
-    public function counterpart(Conversation $conversation, User $user): array
+    public function counterpart(Conversation $conversation, User $user, bool $forApi = false): array
     {
         if ($user->isCandidate()) {
             $company = $conversation->invitation->jobOffer->company;
 
-            return ['type' => 'company', 'id' => $company->id, 'name' => $company->name, 'rating' => $company->averageRating()];
+            return ['type' => 'company', 'id' => $company->id, 'name' => $company->name, 'verified' => $company->isVerified(), 'rating' => $company->averageRating()];
         }
 
-        $candidate = $conversation->invitation->candidateProfile->user;
+        $profile = $conversation->invitation->candidateProfile;
 
-        return ['type' => 'candidate', 'name' => $candidate->name, 'email' => $candidate->email];
+        return [
+            'type' => 'candidate',
+            'name' => $profile->user->name,
+            'email' => $profile->user->email,
+            'phone' => $profile->phone,
+            'photo_url' => $profile->photoUrl($forApi),
+        ];
     }
 
     /**

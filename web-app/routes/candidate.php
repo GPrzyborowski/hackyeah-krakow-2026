@@ -6,6 +6,7 @@ use App\Http\Controllers\Candidate\InvitationController;
 use App\Http\Controllers\Candidate\OfferController;
 use App\Http\Controllers\Candidate\OfferInterestController;
 use App\Http\Controllers\Candidate\OnboardingController;
+use App\Http\Controllers\Candidate\ProfilePhotoController;
 use App\Http\Controllers\Candidate\ProfileSkillController;
 use App\Http\Controllers\Candidate\SavedOfferController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,10 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     Route::put('onboarding/preferences', [OnboardingController::class, 'updatePreferences'])->name('onboarding.preferences');
     Route::patch('onboarding/privacy', [OnboardingController::class, 'updatePrivacy'])->name('onboarding.privacy');
     Route::post('onboarding/publish', [OnboardingController::class, 'publish'])->name('onboarding.publish');
+    Route::post('onboarding/photo', [ProfilePhotoController::class, 'store'])
+        ->middleware('throttle:10,1,candidate-photo')
+        ->name('onboarding.photo.store');
+    Route::delete('onboarding/photo', [ProfilePhotoController::class, 'destroy'])->name('onboarding.photo.destroy');
     Route::post('onboarding/visibility', [OnboardingController::class, 'toggleVisibility'])->name('onboarding.visibility');
 
     Route::post('skills', [ProfileSkillController::class, 'store'])->name('skills.store');
@@ -36,6 +41,6 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     Route::delete('offers/{offer}/save', [SavedOfferController::class, 'destroy'])->name('offers.unsave');
 
     Route::get('invitations', [InvitationController::class, 'index'])->name('invitations.index');
-    Route::post('invitations/{invitation}/accept', [InvitationController::class, 'accept'])->name('invitations.accept');
+    Route::post('invitations/{invitation}/accept', [InvitationController::class, 'accept'])->middleware('verified')->name('invitations.accept');
     Route::post('invitations/{invitation}/decline', [InvitationController::class, 'decline'])->name('invitations.decline');
 });

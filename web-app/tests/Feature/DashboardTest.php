@@ -36,7 +36,7 @@ class DashboardTest extends TestCase
     {
         $user = User::factory()->employer()->create();
 
-        $this->actingAs($user)->get(route('dashboard'))->assertRedirect('/employer/offers');
+        $this->actingAs($user)->get(route('dashboard'))->assertRedirect('/employer');
     }
 
     public function test_admins_are_sent_to_the_admin_panel()

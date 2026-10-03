@@ -170,7 +170,7 @@ function onBackspace(): void {
                     ref="inputElement"
                     v-model="input"
                     type="text"
-                    class="w-48 rounded-full border border-brand-green/60 bg-white px-3 py-1 text-xs text-brand-green outline-none focus:ring-2 focus:ring-brand-green"
+                    class="w-48 rounded-full border border-brand-line bg-white px-3 py-1 text-xs text-brand-green outline-none focus:ring-2 focus:ring-brand-green"
                     placeholder="Wpisz umiejętność…"
                     role="combobox"
                     :aria-labelledby="labelId"

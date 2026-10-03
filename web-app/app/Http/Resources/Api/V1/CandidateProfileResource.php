@@ -34,6 +34,8 @@ class CandidateProfileResource extends JsonResource
             'headline' => $profile->headline,
             'years_of_experience' => $profile->years_of_experience,
             'city' => $profile->city,
+            'phone' => $profile->phone,
+            'photo_url' => $profile->photoUrl(forApi: true),
             'ai_summary' => $profile->ai_summary,
             'available_from' => $profile->available_from?->toDateString(),
             'leave_starts_on' => $profile->leave_starts_on?->toDateString(),
@@ -53,6 +55,7 @@ class CandidateProfileResource extends JsonResource
             'privacy' => [
                 'show_availability_instead_of_gap' => (bool) $profile->show_availability_instead_of_gap,
                 'allow_direct_messages' => (bool) $profile->allow_direct_messages,
+                'job_alerts_enabled' => (bool) $profile->job_alerts_enabled,
                 'hidden_from_company' => $profile->hiddenFromCompany
                     ? ['id' => $profile->hiddenFromCompany->id, 'name' => $profile->hiddenFromCompany->name]
                     : null,

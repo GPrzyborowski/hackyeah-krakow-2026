@@ -33,6 +33,21 @@ class PublicOfferTest extends TestCase
             ->assertJsonMissingPath('data.0.score');
     }
 
+    public function test_guest_filters_offers_with_a_nursery_nearby_and_sees_the_distance(): void
+    {
+        $company = Company::factory()->create();
+        $nearby = JobOffer::factory()->published()->for($company)->create(['nursery_distance_km' => 2]);
+        JobOffer::factory()->published()->for($company)->create(['nursery_distance_km' => 10]);
+        JobOffer::factory()->published()->for($company)->create(['nursery_distance_km' => null]);
+
+        $this->getJson('/api/v1/public/offers?nursery_nearby=1')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $nearby->id)
+            ->assertJsonPath('data.0.nursery_distance_km', 2)
+            ->assertJsonPath('meta.filters.nursery_nearby', true);
+    }
+
     public function test_guest_sees_published_offer_detail_with_skills(): void
     {
         $offer = $this->publishedOffer(Company::factory()->create(), [$this->skill('Excel')], [$this->skill('SAP')]);

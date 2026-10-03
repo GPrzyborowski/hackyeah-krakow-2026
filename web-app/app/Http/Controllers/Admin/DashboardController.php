@@ -7,6 +7,7 @@ use App\Enums\ReviewStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\Company;
 use App\Models\CompanyReview;
 use App\Models\Invitation;
 use App\Models\JobOffer;
@@ -32,6 +33,7 @@ class DashboardController extends Controller
                 'employers' => (int) ($usersByRole[UserRole::Employer->value] ?? 0),
                 'admins' => (int) ($usersByRole[UserRole::Admin->value] ?? 0),
                 'published_offers' => JobOffer::query()->published()->count(),
+                'unverified_companies' => Company::query()->whereNull('verified_at')->count(),
                 'pending_reviews' => CompanyReview::query()->where('status', ReviewStatus::Pending)->count(),
                 'accepted_invitations' => Invitation::query()->where('status', InvitationStatus::Accepted)->count(),
                 'job_share_pairs' => JobSharePair::query()->count(),

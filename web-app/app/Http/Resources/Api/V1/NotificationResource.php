@@ -15,7 +15,7 @@ use Illuminate\Notifications\DatabaseNotification;
  */
 class NotificationResource extends JsonResource
 {
-    private const array TARGET_KEYS = ['conversation_id', 'invitation_id', 'job_share_pair_id', 'job_offer_id'];
+    private const array TARGET_KEYS = ['conversation_id', 'invitation_id', 'job_share_pair_id', 'job_offer_id', 'company_id'];
 
     /**
      * @return array<string, mixed>

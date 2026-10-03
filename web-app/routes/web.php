@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CandidatePhotoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Public\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -8,6 +9,7 @@ Route::get('/', WelcomeController::class)->name('home');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+    Route::get('candidate-photos/{profile}', CandidatePhotoController::class)->name('candidate-photos.show');
 });
 
 require __DIR__.'/candidate.php';

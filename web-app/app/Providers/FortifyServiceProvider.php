@@ -91,6 +91,15 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($throttleKey);
         });
 
+        RateLimiter::for('api-login', function (Request $request) {
+            $email = Str::transliterate(Str::lower($request->string('email')->toString()));
+
+            return [
+                Limit::perMinute(5)->by('email-ip:'.$email.'|'.$request->ip()),
+                Limit::perMinute(20)->by('email:'.$email),
+            ];
+        });
+
         RateLimiter::for('register', function (Request $request) {
             return $request->routeIs('register.store')
                 ? Limit::perMinute(10)->by($request->ip())

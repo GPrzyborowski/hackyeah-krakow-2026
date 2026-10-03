@@ -52,6 +52,18 @@ class InvitationsTest extends TestCase
         $response->assertRedirect('/conversations/'.$invitation->conversation->id);
     }
 
+    public function test_unverified_candidate_is_sent_to_verify_her_email_before_accepting(): void
+    {
+        $this->profile->user->forceFill(['email_verified_at' => null])->save();
+        $invitation = Invitation::factory()->create(['candidate_profile_id' => $this->profile->id]);
+
+        $this->actingAs($this->profile->user)
+            ->post(route('candidate.invitations.accept', $invitation))
+            ->assertRedirect(route('verification.notice'));
+
+        $this->assertSame(InvitationStatus::Pending, $invitation->refresh()->status);
+    }
+
     public function test_declining_marks_invitation_declined_without_conversation(): void
     {
         $invitation = Invitation::factory()->create(['candidate_profile_id' => $this->profile->id]);

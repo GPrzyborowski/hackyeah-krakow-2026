@@ -2,19 +2,12 @@
 
 namespace App\Http\Requests\Reviews;
 
-use Closure;
+use App\Rules\NoContactDetails;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SaveCompanyReviewRequest extends FormRequest
 {
-    private const string EMAIL_PATTERN = '/[\p{L}0-9._%+-]+@[\p{L}0-9-]+(\.[\p{L}0-9-]+)+/u';
-
-    /**
-     * Nine or more digits, optionally separated by spaces, dashes, dots or brackets (Polish phone numbers).
-     */
-    private const string PHONE_PATTERN = '/(?:\+?\d[\s\-().]{0,2}){9,}/';
-
     /**
      * Authorization happens in the controller (policy with the route's company or review).
      */
@@ -39,20 +32,10 @@ class SaveCompanyReviewRequest extends FormRequest
 
     /**
      * Reviews are published anonymously, so they must not contain e-mail addresses or phone numbers.
-     *
-     * @return Closure(string, mixed, Closure(string): mixed): void
      */
-    private function withoutPersonalData(): Closure
+    private function withoutPersonalData(): NoContactDetails
     {
-        return function (string $attribute, mixed $value, Closure $fail): void {
-            if (! is_string($value)) {
-                return;
-            }
-
-            if (preg_match(self::EMAIL_PATTERN, $value) === 1 || preg_match(self::PHONE_PATTERN, $value) === 1) {
-                $fail('Usuń adres e-mail lub numer telefonu – opinie publikujemy anonimowo.');
-            }
-        };
+        return new NoContactDetails('Usuń adres e-mail lub numer telefonu – opinie publikujemy anonimowo.');
     }
 
     /**

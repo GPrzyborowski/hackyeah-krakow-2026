@@ -40,10 +40,10 @@ class CompanyTest extends TestCase
         $otherCompany = Company::factory()->create(['name' => 'Inna firma']);
         Sanctum::actingAs($employer);
 
-        $this->putJson('/api/v1/employer/company', ['name' => 'Zielone Biuro', 'nip' => '123-456-78-90', 'city' => 'Kraków', 'description' => 'Elastyczne godziny.'])
+        $this->putJson('/api/v1/employer/company', ['name' => 'Zielone Biuro', 'nip' => '123-456-32-18', 'city' => 'Kraków', 'description' => 'Elastyczne godziny.'])
             ->assertOk()
             ->assertJsonPath('data.name', 'Zielone Biuro')
-            ->assertJsonPath('data.nip', '1234567890');
+            ->assertJsonPath('data.nip', '1234563218');
 
         $this->assertSame('Zielone Biuro', $employer->company->refresh()->name);
         $this->assertSame('Inna firma', $otherCompany->refresh()->name);
@@ -56,6 +56,30 @@ class CompanyTest extends TestCase
         $this->putJson('/api/v1/employer/company', ['name' => 'Zielone Biuro', 'nip' => '12345'])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['nip' => 'NIP musi składać się z 10 cyfr.']);
+    }
+
+    public function test_nip_checksum_is_validated(): void
+    {
+        Sanctum::actingAs($this->employer());
+
+        $this->putJson('/api/v1/employer/company', ['name' => 'Zielone Biuro', 'nip' => '1234567890'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['nip' => 'Podany NIP jest nieprawidłowy.']);
+    }
+
+    public function test_nip_of_another_company_is_rejected_but_own_nip_can_be_resubmitted(): void
+    {
+        $employer = $this->employer();
+        $employer->company->update(['nip' => '1234563218']);
+        Company::factory()->create(['nip' => '5260250274']);
+        Sanctum::actingAs($employer);
+
+        $this->putJson('/api/v1/employer/company', ['name' => 'Zielone Biuro', 'nip' => '526-025-02-74'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['nip' => 'Firma z tym NIP-em ma już konto w MomJobs.']);
+
+        $this->putJson('/api/v1/employer/company', ['name' => 'Zielone Biuro', 'nip' => '1234563218'])
+            ->assertOk();
     }
 
     public function test_description_asking_about_family_plans_is_rejected(): void
@@ -89,7 +113,18 @@ class CompanyTest extends TestCase
 
         $this->getJson('/api/v1/employer/company')
             ->assertForbidden()
-            ->assertJsonPath('message', 'Your email address is not verified.');
+            ->assertJsonPath('message', 'Potwierdź swój adres e-mail – link znajdziesz w skrzynce. Możesz poprosić o nowy link.')
+            ->assertJsonPath('email_verification_required', true);
+    }
+
+    public function test_unverified_employer_gets_json_even_without_an_accept_header(): void
+    {
+        $token = User::factory()->employer()->unverified()->create()->createToken('iPhone')->plainTextToken;
+
+        $this->withToken($token)
+            ->get('/api/v1/employer/company')
+            ->assertForbidden()
+            ->assertJsonPath('email_verification_required', true);
     }
 
     public function test_employer_without_company_is_forbidden(): void

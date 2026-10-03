@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { Form, Head, Link, usePoll } from '@inertiajs/vue3';
-import { ArrowLeft, Mail, SendHorizontal, Star, UsersRound } from '@lucide/vue';
+import {
+    ArrowLeft,
+    Mail,
+    Phone,
+    SendHorizontal,
+    Star,
+    UsersRound,
+} from '@lucide/vue';
 import { nextTick, onMounted, ref, watch } from 'vue';
+import VerifiedCompanyBadge from '@/components/brand/VerifiedCompanyBadge.vue';
+import CandidateAvatar from '@/components/candidate/CandidateAvatar.vue';
 import ChatBubble from '@/components/chat/ChatBubble.vue';
 import { formatBubbleTime } from '@/components/chat/format';
 import ModerationHint from '@/components/chat/ModerationHint.vue';
@@ -67,6 +76,12 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
             >
                 <ArrowLeft class="size-5" aria-hidden="true" />
             </Link>
+            <CandidateAvatar
+                v-if="conversation.counterpart.type === 'candidate'"
+                :name="conversation.counterpart.name"
+                :photo-url="conversation.counterpart.photo_url"
+                data-test="candidate-avatar"
+            />
             <div class="min-w-0 flex-1">
                 <h1 class="truncate text-lg font-bold text-brand-green">
                     {{ conversation.counterpart.name }}
@@ -74,6 +89,14 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 <p class="truncate text-sm text-brand-green/80">
                     {{ conversation.offer_title }}
                 </p>
+                <VerifiedCompanyBadge
+                    v-if="
+                        conversation.counterpart.type === 'company' &&
+                        conversation.counterpart.verified
+                    "
+                    compact
+                    class="mt-1.5 mr-1.5"
+                />
                 <span
                     v-if="conversation.pair_partner_name"
                     class="mt-1.5 inline-flex max-w-full items-center gap-1.5 rounded-full bg-brand-peach/60 px-3 py-1 text-xs font-semibold text-brand-green"
@@ -86,14 +109,26 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                     >
                 </span>
             </div>
-            <a
+            <div
                 v-if="conversation.counterpart.type === 'candidate'"
-                :href="`mailto:${conversation.counterpart.email}`"
-                class="hidden items-center gap-1.5 rounded-full bg-brand-mint-soft px-3 py-1.5 text-xs font-medium text-brand-green sm:inline-flex"
+                class="hidden flex-col items-end gap-1.5 sm:flex"
             >
-                <Mail class="size-3.5" />
-                {{ conversation.counterpart.email }}
-            </a>
+                <a
+                    :href="`mailto:${conversation.counterpart.email}`"
+                    class="inline-flex items-center gap-1.5 rounded-full bg-brand-mint-soft px-3 py-1.5 text-xs font-medium text-brand-green"
+                >
+                    <Mail class="size-3.5" aria-hidden="true" />
+                    {{ conversation.counterpart.email }}
+                </a>
+                <a
+                    v-if="conversation.counterpart.phone"
+                    :href="`tel:${conversation.counterpart.phone.replace(/\s/g, '')}`"
+                    class="inline-flex items-center gap-1.5 rounded-full bg-brand-mint-soft px-3 py-1.5 text-xs font-medium text-brand-green"
+                >
+                    <Phone class="size-3.5" aria-hidden="true" />
+                    {{ conversation.counterpart.phone }}
+                </a>
+            </div>
             <span
                 v-else-if="conversation.counterpart.rating !== null"
                 class="inline-flex items-center gap-1 rounded-full bg-brand-yellow px-3 py-1.5 text-xs font-semibold text-brand-green"

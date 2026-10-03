@@ -16,7 +16,7 @@ class PublicOfferSearch
     /**
      * Normalise filters from the query string, silently dropping unknown values.
      *
-     * @return array{q: string, location: string, work_mode: list<string>, fraction: list<string>, flexible: bool, nursery_nearby: bool, job_share: bool}
+     * @return array{q: string, location: string, work_mode: list<string>, fraction: list<string>, flexible: bool, nursery_nearby: bool, job_share: bool, verified_only: bool}
      */
     public function filters(Request $request): array
     {
@@ -33,20 +33,21 @@ class PublicOfferSearch
             'flexible' => $request->boolean('flexible'),
             'nursery_nearby' => $request->boolean('nursery_nearby'),
             'job_share' => $request->boolean('job_share'),
+            'verified_only' => $request->boolean('verified_only'),
         ];
     }
 
     /**
      * Published offers matching the filters, newest first, with the company and its approved reviews loaded.
      *
-     * @param  array{q: string, location: string, work_mode: list<string>, fraction: list<string>, flexible: bool, nursery_nearby: bool, job_share: bool}  $filters
+     * @param  array{q: string, location: string, work_mode: list<string>, fraction: list<string>, flexible: bool, nursery_nearby: bool, job_share: bool, verified_only: bool}  $filters
      * @return Builder<JobOffer>
      */
     public function query(array $filters): Builder
     {
         return JobOffer::query()
             ->published()
-            ->with(['company' => fn ($query) => $query->select(['id', 'name', 'city'])->with(['approvedReviews' => fn ($query) => $query->orderBy('id')])])
+            ->with(['company' => fn ($query) => $query->select(['id', 'name', 'city', 'verified_at'])->with(['approvedReviews' => fn ($query) => $query->orderBy('id')])])
             ->when($filters['q'] !== '', function (Builder $query) use ($filters): void {
                 $query->where(function (Builder $query) use ($filters): void {
                     $query->where('title', 'like', "%{$filters['q']}%")
@@ -68,6 +69,7 @@ class PublicOfferSearch
             ->when($filters['flexible'], fn (Builder $query) => $query->where('flexible_hours', true))
             ->when($filters['nursery_nearby'], fn (Builder $query) => $query->withNurseryNearby())
             ->when($filters['job_share'], fn (Builder $query) => $query->where('is_job_share', true))
+            ->when($filters['verified_only'], fn (Builder $query) => $query->whereHas('company', fn (Builder $query) => $query->whereNotNull('verified_at')))
             ->latest('published_at')
             ->latest('id');
     }

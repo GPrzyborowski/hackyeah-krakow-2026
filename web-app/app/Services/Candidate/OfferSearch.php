@@ -23,7 +23,7 @@ class OfferSearch
     /**
      * Normalised filters; "start_from" defaults to the candidate's availability unless explicitly sent (even empty).
      *
-     * @return array{q: string, location: string, work_modes: list<string>, employment_fractions: list<string>, flexible_hours: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, job_share: bool, saved: bool, start_from: string|null, sort: string}
+     * @return array{q: string, location: string, work_modes: list<string>, employment_fractions: list<string>, flexible_hours: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, verified_only: bool, job_share: bool, saved: bool, start_from: string|null, sort: string}
      */
     public function filtersFrom(OfferFilterRequest $request, CandidateProfile $profile): array
     {
@@ -38,6 +38,7 @@ class OfferSearch
             'childcare_subsidy' => $request->boolean('childcare_subsidy'),
             'nursery_nearby' => $request->boolean('nursery_nearby'),
             'with_reviews' => $request->boolean('with_reviews'),
+            'verified_only' => $request->boolean('verified_only'),
             'job_share' => $request->boolean('job_share'),
             'saved' => $request->boolean('saved'),
             'start_from' => $request->has('start_from')
@@ -48,7 +49,7 @@ class OfferSearch
     }
 
     /**
-     * @param  array{q: string, location: string, work_modes: list<string>, employment_fractions: list<string>, flexible_hours: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, job_share: bool, saved: bool, start_from: string|null, sort: string}  $filters
+     * @param  array{q: string, location: string, work_modes: list<string>, employment_fractions: list<string>, flexible_hours: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, verified_only: bool, job_share: bool, saved: bool, start_from: string|null, sort: string}  $filters
      * @return Collection<int, array{offer: JobOffer, match: MatchResult}>
      */
     public function rank(CandidateProfile $profile, array $filters): Collection
@@ -73,6 +74,7 @@ class OfferSearch
             ->when($filters['childcare_subsidy'], fn (Builder $query) => $query->where('childcare_subsidy', true))
             ->when($filters['nursery_nearby'], fn (Builder $query) => $query->withNurseryNearby())
             ->when($filters['with_reviews'], fn (Builder $query) => $query->whereHas('company.approvedReviews'))
+            ->when($filters['verified_only'], fn (Builder $query) => $query->whereHas('company', fn (Builder $query) => $query->whereNotNull('verified_at')))
             ->when($filters['job_share'], fn (Builder $query) => $query->where('is_job_share', true))
             ->when($filters['saved'], fn (Builder $query) => $query->whereIn('id', $profile->savedOffers()->select('job_offers.id')))
             ->when($filters['start_from'], fn (Builder $query, string $date) => $query->whereDate(

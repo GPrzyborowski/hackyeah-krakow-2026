@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Employer;
 
+use App\Rules\ValidNip;
 use App\Services\Ai\MessageModerator;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class UpdateCompanyRequest extends FormRequest
@@ -21,7 +23,12 @@ class UpdateCompanyRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'nip' => ['nullable', 'string', 'regex:/^\d{10}$/'],
+            'nip' => [
+                'nullable',
+                'string',
+                new ValidNip,
+                Rule::unique('companies', 'nip')->ignore($this->user()->company_id),
+            ],
             'city' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
         ];
@@ -33,7 +40,7 @@ class UpdateCompanyRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nip.regex' => 'NIP musi składać się z 10 cyfr.',
+            'nip.unique' => 'Firma z tym NIP-em ma już konto w MomJobs.',
         ];
     }
 
@@ -62,7 +69,7 @@ class UpdateCompanyRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         if (is_string($this->input('nip'))) {
-            $this->merge(['nip' => preg_replace('/[\s-]/', '', $this->input('nip')) ?: null]);
+            $this->merge(['nip' => ValidNip::normalize($this->input('nip')) ?: null]);
         }
     }
 }

@@ -3,6 +3,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import {
     BadgeCheck,
     CalendarDays,
+    Hourglass,
     MapPin,
     Plus,
     Users,
@@ -32,6 +33,7 @@ type OfferRow = EmployerOffer & {
 
 const props = defineProps<{
     offers: OfferRow[];
+    companyVerified: boolean;
 }>();
 
 defineOptions({
@@ -103,6 +105,19 @@ function closeOffer(offer: OfferRow): void {
             >
                 <Plus class="size-4" /> Nowe ogłoszenie
             </Link>
+        </div>
+
+        <div
+            v-if="!companyVerified"
+            class="mt-6 flex items-start gap-3 rounded-3xl bg-brand-yellow/60 p-4 text-sm text-brand-green"
+            role="status"
+            data-test="company-unverified-banner"
+        >
+            <Hourglass class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <p>
+                Twoja firma czeka na weryfikację – zweryfikowane firmy dostają
+                więcej odpowiedzi.
+            </p>
         </div>
 
         <div

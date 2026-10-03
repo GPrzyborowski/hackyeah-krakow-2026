@@ -42,7 +42,7 @@ function toggle() {
             :class="
                 model
                     ? 'border-brand-green bg-brand-green'
-                    : 'border-brand-green/60 bg-white'
+                    : 'border-brand-line bg-white'
             "
             @click="toggle"
         >
@@ -51,7 +51,7 @@ function toggle() {
                 :class="
                     model
                         ? 'translate-x-5 bg-white'
-                        : 'translate-x-0.5 bg-brand-green/60'
+                        : 'translate-x-0.5 bg-brand-line'
                 "
             />
         </button>

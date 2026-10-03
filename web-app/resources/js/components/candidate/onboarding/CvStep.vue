@@ -224,7 +224,7 @@ function confirmAndContinue() {
                     aria-describedby="cv_text-error"
                     rows="5"
                     placeholder="Doświadczenie, obowiązki, narzędzia…"
-                    class="mt-1 w-full rounded-2xl border border-brand-green/60 p-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
+                    class="mt-1 w-full rounded-2xl border border-brand-line p-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
                 />
                 <InputError id="cv_text-error" :message="form.errors.cv_text" />
             </div>
@@ -291,7 +291,7 @@ function confirmAndContinue() {
                     list="skill-suggestions"
                     placeholder="np. Excel"
                     aria-label="Nowa umiejętność"
-                    class="w-40 rounded-full border border-brand-green/60 px-3 py-1 text-xs text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
+                    class="w-40 rounded-full border border-brand-line px-3 py-1 text-xs text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
                     @keydown.esc="isAddingTag = false"
                 />
                 <datalist id="skill-suggestions">
@@ -338,7 +338,7 @@ function confirmAndContinue() {
                 rows="3"
                 :maxlength="SUMMARY_MAX_LENGTH"
                 placeholder="Np. Od 6 lat prowadzę rekrutacje IT i onboarding nowych osób."
-                class="mt-2 w-full rounded-2xl border border-brand-green/60 p-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
+                class="mt-2 w-full rounded-2xl border border-brand-line p-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
             />
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <InputError
@@ -388,11 +388,11 @@ function confirmAndContinue() {
             Twoje CV.
         </p>
 
-        <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
+        <div class="mt-8 flex items-center justify-between gap-3">
             <Link
                 v-if="profile.is_published"
                 :href="home()"
-                class="rounded-full border border-brand-green px-5 py-2.5 text-sm font-semibold text-brand-green"
+                class="shrink-0 rounded-full border border-brand-green px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-brand-green lg:px-4 xl:px-5"
             >
                 Wstecz
             </Link>
@@ -400,7 +400,7 @@ function confirmAndContinue() {
             <button
                 type="button"
                 :disabled="confirming || skills.length === 0"
-                class="rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold whitespace-nowrap text-white hover:bg-brand-green-soft disabled:opacity-50"
+                class="shrink-0 rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold whitespace-nowrap text-white hover:bg-brand-green-soft disabled:cursor-not-allowed disabled:bg-brand-green/40 disabled:hover:bg-brand-green/40 lg:px-4 xl:px-5"
                 @click="confirmAndContinue"
             >
                 Zatwierdź i przejdź dalej

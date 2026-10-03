@@ -1,0 +1,3439 @@
+openapi: 3.1.0
+info:
+  title: MomJobs mobile API
+  version: 1.0.0
+  summary: REST/JSON API for the MomJobs mobile app (candidates and employers).
+  description: |
+    Plain REST/JSON API that mirrors the MomJobs web app (same business rules, privacy rules, moderation and rate limits).
+    Human-readable reference: `docs/api/README.md`, `candidate.md`, `employer.md`, `shared.md`.
+
+    **Headers.** Send `Accept: application/json` (the server also forces it for `/api/*`, so errors are always JSON). Bodies are JSON, except the CV upload
+    (`multipart/form-data`). Every endpoint except `auth/register`, `auth/login`, `public/*`, `articles*` and this spec
+    requires `Authorization: Bearer <token>` – a Sanctum personal access token from `POST /auth/login` or `POST /auth/register`.
+    Tokens expire after 60 days (revoked earlier by logout, logout-all or a password change/reset); one token per device.
+
+    **Rate limits.** Every authenticated endpoint shares a limit of 120 requests per minute per user; some endpoints
+    have a stricter limit of their own (noted in their description). A hit returns `429` with a `Retry-After` header.
+
+    **Conventions.** Single resources are wrapped in `data`. Lists are paginated Laravel-style (20 per page,
+    `data` / `links` / `meta`, request further pages with `?page=N`); some lists add their own keys to `meta`.
+    Small fixed lists are not paginated. Timestamps are ISO 8601, date-only fields `Y-m-d`, workday times `HH:MM`.
+    Enums come as their value plus a Polish `*_label`. Money is an integer in PLN gross.
+    Actions without a body return `204 No Content`.
+
+    **Polling (no websockets).** `?since=<ISO 8601>` returns only items created strictly after that moment
+    (conversation messages, pair messages, notifications); `?after_id=<id>` returns only items with a greater id
+    (conversation and pair messages – preferred for chat threads).
+
+    **Privacy.** Employers see candidates only anonymously (`anonymous_name` = first name + surname initial, headline,
+    experience, AI summary, confirmed skills, availability, work modes / fractions, match %) until the candidate accepts
+    an invitation; then the inviting company sees the full name and e-mail. Surname (before acceptance), e-mail,
+    CV file / text, due date, leave dates and the reason of the career gap are never exposed to other users.
+    Profiles hidden from a company are invisible to it. Job-sharing partners are shown in the same anonymous form and the
+    pair chat is visible only to the two accepted members (never to the employer). Public endpoints never return
+    candidate data; company reviews are anonymous.
+
+    **Moderation.** Employer-authored texts (offer title / description, company description, invitation messages,
+    chat messages) are checked for questions about pregnancy or family plans and rejected with `422`; invitations and
+    chat messages also return a rewritten suggestion (`errors.message_suggestion` / `errors.body_suggestion`).
+
+    Demo accounts (password `password`): `marta@momjobs.test` (candidate), `hr@zielonebiuro.test` (employer).
+servers:
+  - url: http://localhost/api/v1
+    description: Local (Laravel Sail)
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+    description: Register, log in, restore the session, log out.
+  - name: Candidate
+    description: Candidate profile & onboarding, CV analysis, offers with match %, invitations (role `candidate`).
+  - name: Employer
+    description: Company, offers, candidate swipe queue, invitations and job-sharing pairs (role `employer`, verified e-mail, company attached). All data is scoped to the employer's company.
+  - name: Public
+    description: Public offers, company profiles and the blog. No token; never contains candidate data.
+  - name: Conversations
+    description: Candidate ↔ company chat, opened when a candidate accepts an invitation. Participants are the candidate and every member of the inviting company.
+  - name: Job sharing
+    description: Two candidates apply together for a job-sharing offer and split the workday (role `candidate`). Other candidates are always anonymous.
+  - name: Assistant
+    description: Legal assistant chat (both roles). General information, not legal advice.
+  - name: Notifications
+    description: In-app notifications (both roles).
+  - name: Reviews
+    description: Anonymous company reviews written by candidates (role `candidate`), moderated before publishing.
+  - name: Devices
+    description: Push notification device tokens (both roles). Stored for future push notifications; nothing is sent yet.
+
+paths:
+  /openapi.yaml:
+    get:
+      tags: [Public]
+      operationId: getOpenApiSpec
+      summary: This OpenAPI document
+      description: Serves `docs/api/openapi.yaml`. Registered outside production only.
+      security: []
+      responses:
+        '200':
+          description: The spec.
+          content:
+            application/yaml:
+              schema:
+                type: string
+
+  # ---------------------------------------------------------------- Auth
+  /auth/register:
+    post:
+      tags: [Auth]
+      operationId: register
+      summary: Register a candidate or employer
+      description: |
+        Same rules as the web registration form. A verification e-mail is sent; employer endpoints require a verified
+        e-mail. Employers also create their company (`company_name`, `company_nip`). Throttle: 10/min.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+            examples:
+              candidate:
+                value: { name: Ewa Nowak, email: ewa@example.com, password: password, password_confirmation: password, role: candidate, device_name: iPhone Ewy }
+              employer:
+                value: { name: Anna Rekruterka, email: anna@example.com, password: password, password_confirmation: password, role: employer, company_name: Nowa Firma, company_nip: 123-456-78-90, device_name: Pixel Anny }
+      responses:
+        '201':
+          description: Registered; token issued.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthToken' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      summary: Log in and get a token
+      description: |
+        Wrong credentials fail with `422` on `email`. Users with confirmed two-factor authentication must also send `code`
+        (TOTP) or `recovery_code` (single use); without a valid one the response is `422` with `errors.code` and
+        `two_factor_required: true` – ask for the code and repeat the request. Admin accounts are refused with `403`
+        (the admin panel is browser-only). Throttle: 5/min per e-mail + IP and 20/min per e-mail.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+            example: { email: marta@momjobs.test, password: password, device_name: iPhone Marty }
+      responses:
+        '200':
+          description: Token issued.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthToken' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422':
+          description: Validation failed, wrong credentials, or a 2FA code is required / invalid.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ValidationError'
+                  - type: object
+                    properties:
+                      two_factor_required: { type: boolean, description: 'Present (true) when the account needs a 2FA `code` or `recovery_code`.' }
+              examples:
+                twoFactorRequired:
+                  value: { message: Podaj kod z aplikacji uwierzytelniającej lub kod odzyskiwania., errors: { code: [Podaj kod z aplikacji uwierzytelniającej lub kod odzyskiwania.] }, two_factor_required: true }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/me:
+    get:
+      tags: [Auth]
+      operationId: me
+      summary: The signed-in user
+      description: Use on app start to restore the session and route by `data.role` (candidate → onboarding when `data.candidate_profile.published` is false).
+      responses:
+        '200':
+          description: The user.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserEnvelope' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      summary: Revoke the current token
+      description: Push device tokens registered with this API token are forgotten with it.
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/logout-all:
+    post:
+      tags: [Auth]
+      operationId: logoutAll
+      summary: Revoke every token of the user (all devices)
+      description: Their push device tokens are removed with them.
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/email/verification-notification:
+    post:
+      tags: [Auth]
+      operationId: resendVerificationEmail
+      summary: Resend the e-mail verification link
+      description: The link opens in the browser (web route), not in the app. Throttle 6/min.
+      responses:
+        '200':
+          description: The e-mail address is already verified; nothing sent.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              example: { message: Adres e-mail jest już zweryfikowany. }
+        '202':
+          description: A new link was sent.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              example: { message: Wysłaliśmy nowy link weryfikacyjny na Twój adres e-mail. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  # ---------------------------------------------------------------- Candidate
+  /candidate/home:
+    get:
+      tags: [Candidate]
+      operationId: candidateHome
+      summary: Candidate home screen
+      description: Return calendar, pending invitations and the 3 best matching offers. An unpublished profile still gets a response; send the user to onboarding when `profile.published` is false.
+      responses:
+        '200':
+          description: Home data.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CandidateHome' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /candidate/cv-analysis:
+    get:
+      tags: [Candidate]
+      operationId: candidateCvAnalysis
+      summary: Private CV analysis
+      description: The candidate's private "Analiza CV" (strengths, positions, missing skills, best offers). Never shown to employers.
+      responses:
+        '200':
+          description: Analysis.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CvAnalysis' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /candidate/profile:
+    get:
+      tags: [Candidate]
+      operationId: candidateProfile
+      summary: Own full profile
+      description: Includes private dates (never shown to employers). The CV file path and raw CV text are never returned.
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /candidate/profile/options:
+    get:
+      tags: [Candidate]
+      operationId: candidateProfileOptions
+      summary: Choice lists for the profile forms
+      description: '`companies` feeds the "hide my profile from my current employer" picker (`hidden_from_company_id`).'
+      responses:
+        '200':
+          description: Options.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ProfileOptions' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /candidate/profile/cv:
+    post:
+      tags: [Candidate]
+      operationId: candidateAnalyzeCv
+      summary: Upload / paste a CV and analyse it
+      description: |
+        Stores the CV privately and runs the analyzer: proposes **unconfirmed** skills (`source: ai`), `suggested_positions`,
+        `ai_summary`, and fills an empty headline / years of experience. If the analyzer fails the response is still `200`
+        with `meta.analysis_succeeded: false` and `data.cv.status: failed`. Throttle: 5/min.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                cv:
+                  type: string
+                  format: binary
+                  description: PDF, max 5 MB. Required without `cv_text`.
+                cv_text:
+                  type: string
+                  maxLength: 20000
+                  description: Required without `cv`.
+      responses:
+        '200':
+          description: Updated profile plus analysis outcome.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { $ref: '#/components/schemas/CandidateProfile' }
+                  meta:
+                    type: object
+                    required: [analysis_succeeded, message]
+                    properties:
+                      analysis_succeeded: { type: boolean }
+                      message: { type: string, example: Przeczytaliśmy Twoje CV. Sprawdź proponowane tagi. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /candidate/profile/skills:
+    post:
+      tags: [Candidate]
+      operationId: candidateAddSkill
+      summary: Add a skill tag
+      description: A dictionary skill or a new one typed by the candidate; confirmed immediately.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 60 }
+            example: { name: Rekrutacja IT }
+      responses:
+        '201': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /candidate/profile/skills/{skill}:
+    delete:
+      tags: [Candidate]
+      operationId: candidateRemoveSkill
+      summary: Remove a skill tag
+      parameters:
+        - $ref: '#/components/parameters/SkillId'
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /candidate/profile/skills/confirm:
+    post:
+      tags: [Candidate]
+      operationId: candidateConfirmSkills
+      summary: Confirm all AI-proposed tags
+      description: Confirmed skills become visible to employers and are used for matching. Onboarding step ≥ 2. `422` on `skills` when the profile has none.
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /candidate/profile/preferences:
+    put:
+      tags: [Candidate]
+      operationId: candidateUpdatePreferences
+      summary: Save work preferences
+      description: Omitted `work_modes` / `employment_fractions` are saved as empty. Onboarding step ≥ 3.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PreferencesRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /candidate/profile/privacy:
+    patch:
+      tags: [Candidate]
+      operationId: candidateUpdatePrivacy
+      summary: Update privacy toggles (partial)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PrivacyRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /candidate/profile/photo:
+    post:
+      tags: [Candidate]
+      operationId: candidateUploadPhoto
+      summary: Upload the private profile photo
+      description: |
+        Stored on a private disk (never public) and replaces the previous photo; JPEG metadata (EXIF) is stripped.
+        Only the candidate and a company whose invitation she accepted can load it (`photo_url`). Throttle: 10/min.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo]
+              properties:
+                photo:
+                  type: string
+                  format: binary
+                  description: JPG, PNG or WebP, max 3 MB.
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Candidate]
+      operationId: candidateDeletePhoto
+      summary: Remove the profile photo
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /candidate/profile/summary:
+    patch:
+      tags: [Candidate]
+      operationId: candidateUpdateSummary
+      summary: Edit the "about me" summary employers see
+      description: Rejected (`422`) when it contains an e-mail / phone number or mentions pregnancy, children or family plans. Empty clears it. Throttle 20/min.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ai_summary: { type: [string, 'null'], maxLength: 400 }
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /candidate/profile/publish:
+    post:
+      tags: [Candidate]
+      operationId: candidatePublishProfile
+      summary: Publish the profile to employers
+      description: Optional body with the privacy fields. `422` on `available_from` and/or `skills` when the start date or a confirmed skill is missing.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PrivacyRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /candidate/profile/visibility:
+    post:
+      tags: [Candidate]
+      operationId: candidateSetVisibility
+      summary: Hide the profile from employers or show it again
+      description: Showing it again runs the same `422` checks as publishing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [visible]
+              properties:
+                visible: { type: boolean }
+            example: { visible: false }
+      responses:
+        '200': { $ref: '#/components/responses/CandidateProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /candidate/profile/employer-preview:
+    get:
+      tags: [Candidate]
+      operationId: candidateEmployerPreview
+      summary: What employers see
+      description: Exactly the anonymous card employers see before an invitation is accepted (no surname, e-mail, CV or private dates). `match` is null here.
+      responses:
+        '200':
+          description: Anonymous card.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AnonymousCandidate' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /candidate/offers:
+    get:
+      tags: [Candidate]
+      operationId: candidateOffers
+      summary: Published offers ranked by match
+      description: Same search, filters and ranking as the web list, paginated after ranking.
+      parameters:
+        - { name: q, in: query, description: 'Text in title or skill names', schema: { type: string, maxLength: 100 } }
+        - { name: location, in: query, description: 'City substring; a value containing "zdaln" means remote offers', schema: { type: string, maxLength: 100 } }
+        - name: 'work_modes[]'
+          in: query
+          style: form
+          explode: true
+          schema: { type: array, items: { $ref: '#/components/schemas/WorkMode' } }
+        - name: 'employment_fractions[]'
+          in: query
+          style: form
+          explode: true
+          schema: { type: array, items: { $ref: '#/components/schemas/EmploymentFraction' } }
+        - { name: flexible_hours, in: query, schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: childcare_subsidy, in: query, schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: nursery_nearby, in: query, description: 'Only offers with a nursery nearby', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: with_reviews, in: query, schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: verified_only, in: query, description: 'Only offers of verified companies', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: job_share, in: query, schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: saved, in: query, description: 'Only bookmarked offers', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - name: start_from
+          in: query
+          description: Offers starting no earlier than 30 days before this date. Defaults to the candidate's `available_from`; send `start_from=` (empty) to disable.
+          schema: { type: [string, 'null'], format: date }
+        - { name: sort, in: query, schema: { type: string, enum: [match, newest], default: match } }
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated offer cards.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/CandidateOffer' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/PaginationMeta'
+                      - type: object
+                        properties:
+                          filters: { $ref: '#/components/schemas/CandidateOfferFilters' }
+                          has_confirmed_skills: { type: boolean }
+                          work_modes: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+                          employment_fractions: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /candidate/offers/{offer}:
+    get:
+      tags: [Candidate]
+      operationId: candidateOffer
+      summary: Offer detail with match breakdown
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200':
+          description: Offer detail.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CandidateOfferDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /candidate/offers/{offer}/interest:
+    post:
+      tags: [Candidate]
+      operationId: candidateShowInterest
+      summary: Show interest ("Pokaż zainteresowanie")
+      description: Idempotent. Interested candidates are shown first in the employer's queue. `404` for an unpublished offer.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Candidate]
+      operationId: candidateWithdrawInterest
+      summary: Withdraw interest
+      description: Idempotent.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /candidate/offers/{offer}/save:
+    post:
+      tags: [Candidate]
+      operationId: candidateSaveOffer
+      summary: Bookmark an offer
+      description: Idempotent. `404` for an unpublished offer.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Candidate]
+      operationId: candidateUnsaveOffer
+      summary: Remove the bookmark
+      description: Idempotent.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /candidate/invitations:
+    get:
+      tags: [Candidate]
+      operationId: candidateInvitations
+      summary: Invitations from companies
+      description: Pending first, then newest.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated invitations.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/CandidateInvitation' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /candidate/invitations/{invitation}/accept:
+    post:
+      tags: [Candidate]
+      operationId: candidateAcceptInvitation
+      summary: Accept an invitation
+      description: |
+        Opens the conversation (`conversation_id`). **Privacy:** from now on the inviting company sees the candidate's
+        full name and e-mail. Requires a verified e-mail address (otherwise `403` with `email_verification_required: true`).
+        `403` for someone else's invitation or one already answered ("Na to zaproszenie już odpowiedziano.").
+        For `kind: direct_message` accepting opens the chat in the same way.
+      parameters:
+        - $ref: '#/components/parameters/InvitationId'
+      responses:
+        '200': { $ref: '#/components/responses/CandidateInvitation' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /candidate/invitations/{invitation}/decline:
+    post:
+      tags: [Candidate]
+      operationId: candidateDeclineInvitation
+      summary: Decline an invitation
+      description: The candidate stays anonymous. Same `403` rules as accepting.
+      parameters:
+        - $ref: '#/components/parameters/InvitationId'
+      responses:
+        '200': { $ref: '#/components/responses/CandidateInvitation' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- Employer
+  /employer/dashboard:
+    get:
+      tags: [Employer]
+      operationId: employerDashboard
+      summary: Employer home ("Start") – KPIs, funnel per offer, to-do list, recent activity
+      description: Same data as the web panel at /employer. Counters cover published offers; the query count is constant.
+      responses:
+        '200':
+          description: Dashboard.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/EmployerDashboard' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /employer/company:
+    get:
+      tags: [Employer]
+      operationId: employerCompany
+      summary: The employer's company
+      description: Only approved reviews are included; rating fields are null when there are none.
+      responses:
+        '200': { $ref: '#/components/responses/EmployerCompany' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    put:
+      tags: [Employer]
+      operationId: employerUpdateCompany
+      summary: Update the company
+      description: '`nip` must be 10 digits (spaces and dashes are stripped). `description` is moderated.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompanyRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/EmployerCompany' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /employer/team:
+    get:
+      tags: [Employer]
+      operationId: employerTeam
+      summary: Company recruiters and pending team invitations
+      description: |
+        Every member of the company may manage the team. Not paginated. Invitations are the not-yet-accepted ones
+        (expired included, `is_expired: true`). Accepting an invitation is web-only (signed link in the e-mail).
+      responses:
+        '200':
+          description: Team.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [members, invitations]
+                    properties:
+                      members:
+                        type: array
+                        items: { $ref: '#/components/schemas/CompanyMember' }
+                      invitations:
+                        type: array
+                        items: { $ref: '#/components/schemas/CompanyTeamInvitation' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /employer/team/invitations:
+    post:
+      tags: [Employer]
+      operationId: employerInviteTeamMember
+      summary: Invite a recruiter by e-mail
+      description: |
+        E-mails a signed link valid 7 days (web page `/company-invitations/{token}`); replaces an expired invitation
+        for the same address. `422` when the address is already a member or has a pending invitation. Throttle 10/min.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email, maxLength: 255 }
+      responses:
+        '201':
+          description: The invitation.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CompanyTeamInvitation' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /employer/team/invitations/{invitation}:
+    delete:
+      tags: [Employer]
+      operationId: employerRevokeTeamInvitation
+      summary: Revoke a pending team invitation
+      description: '`403` for another company''s or an already accepted invitation.'
+      parameters:
+        - { name: invitation, in: path, required: true, description: Team invitation id., schema: { type: integer } }
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /employer/team/members/{user}:
+    delete:
+      tags: [Employer]
+      operationId: employerRemoveTeamMember
+      summary: Remove a recruiter from the company
+      description: |
+        Detaches the user from the company and revokes all their API tokens. `403` for yourself, a user of another
+        company, or the last member.
+      parameters:
+        - { name: user, in: path, required: true, description: User id of the member., schema: { type: integer } }
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /employer/skills:
+    get:
+      tags: [Employer]
+      operationId: employerSkills
+      summary: Skill autocomplete
+      description: Up to 10 skills whose name or slug contains `q` (all when empty), sorted by name. Throttle 60/min.
+      parameters:
+        - { name: q, in: query, schema: { type: string }, example: rekru }
+      responses:
+        '200':
+          description: Skills.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    maxItems: 10
+                    items: { $ref: '#/components/schemas/IdName' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /employer/offers/preview-matches:
+    post:
+      tags: [Employer]
+      operationId: employerPreviewMatches
+      summary: Live matching counters while editing an offer
+      description: Throttle 60/min.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [start_date, required_skills, nice_to_have_skills]
+              properties:
+                start_date: { type: string, format: date }
+                required_skills: { type: array, maxItems: 20, items: { type: string, maxLength: 80 } }
+                nice_to_have_skills: { type: array, maxItems: 20, items: { type: string, maxLength: 80 } }
+            example: { start_date: '2027-09-01', required_skills: [Rekrutacja IT], nice_to_have_skills: [Onboarding] }
+      responses:
+        '200':
+          description: Counters.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [with_required, with_nice_to_have]
+                    properties:
+                      with_required: { type: integer }
+                      with_nice_to_have: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /employer/offers:
+    get:
+      tags: [Employer]
+      operationId: employerOffers
+      summary: The company's offers
+      description: Published first, then drafts, then closed; newest first.
+      parameters:
+        - { name: status, in: query, description: 'Unknown value → 422', schema: { $ref: '#/components/schemas/OfferStatus' } }
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated offers.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/EmployerOffer' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    post:
+      tags: [Employer]
+      operationId: employerCreateOffer
+      summary: Create an offer (draft or publish)
+      description: Unknown skill names are created. Title and description are moderated.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SaveOfferRequest' }
+      responses:
+        '201': { $ref: '#/components/responses/EmployerOffer' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /employer/offers/{offer}:
+    get:
+      tags: [Employer]
+      operationId: employerOffer
+      summary: An offer of the company
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200': { $ref: '#/components/responses/EmployerOffer' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Employer]
+      operationId: employerUpdateOffer
+      summary: Update an offer
+      description: Same body as create; skills are replaced.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SaveOfferRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/EmployerOffer' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /employer/offers/{offer}/close:
+    post:
+      tags: [Employer]
+      operationId: employerCloseOffer
+      summary: Close an offer
+      description: Pending invitations are withdrawn. `403` if already closed or not own.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200': { $ref: '#/components/responses/EmployerOffer' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /employer/offers/{offer}/candidates/next:
+    get:
+      tags: [Employer]
+      operationId: employerNextCandidate
+      summary: Next candidate in the swipe queue
+      description: |
+        Only for **published** offers of the company (`403` otherwise). Interested candidates first, then best match.
+        **Privacy:** the card is anonymous. `candidate` is null when the queue is empty; `remaining_count` includes the current card.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+        - name: candidate
+          in: query
+          description: Id of a **saved** candidate to bring back onto the card (`is_saved_candidate` is then true).
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Queue state.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CandidateQueue' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /employer/offers/{offer}/candidates/saved:
+    get:
+      tags: [Employer]
+      operationId: employerSavedCandidates
+      summary: Candidates saved for later
+      description: Full anonymous cards, best match first. Not paginated.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200':
+          description: Anonymous cards.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/AnonymousCandidate' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /employer/offers/{offer}/candidates/{candidate}/decision:
+    post:
+      tags: [Employer]
+      operationId: employerDecideCandidate
+      summary: Skip or save a candidate
+      description: Upsert, always `200`. The candidate must currently match the offer (`404` otherwise). An existing invitation is never downgraded (response then shows `invited`).
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+        - $ref: '#/components/parameters/CandidateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision: { type: string, enum: [skipped, saved] }
+            example: { decision: saved }
+      responses:
+        '200':
+          description: The stored decision.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [offer_id, candidate_id, decision]
+                    properties:
+                      offer_id: { type: integer }
+                      candidate_id: { type: integer }
+                      decision: { type: string, enum: [skipped, saved, invited] }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /employer/offers/{offer}/candidates/{candidate}/invitation:
+    post:
+      tags: [Employer]
+      operationId: employerInviteCandidate
+      summary: Invite a matched candidate
+      description: |
+        Message is moderated (`422` with `errors.message` and `errors.message_suggestion`). Duplicate invitation → `422`
+        on `message`. The candidate must match the offer (`404` otherwise). Throttle 20/min. The invitation stays anonymous until accepted.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+        - $ref: '#/components/parameters/CandidateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/InvitationMessageRequest' }
+      responses:
+        '201':
+          description: The invitation.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/EmployerInvitation' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /employer/offers/{offer}/candidates/{candidate}/direct-message:
+    post:
+      tags: [Employer]
+      operationId: employerDirectMessageCandidate
+      summary: Ask a matched candidate a direct question
+      description: |
+        Sends a short question instead of a full invitation (creates an invitation with `kind: direct_message`; the candidate
+        stays anonymous until she accepts it). Only to candidates whose card has `accepts_direct_messages: true`.
+        `422` on `message` when the candidate does not accept direct messages, the candidate already has an invitation for
+        this offer, or moderation blocks the text (then also `errors.message_suggestion`). `403` for another company's offer,
+        `404` when the candidate does not match the offer. Throttle 20/min.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+        - $ref: '#/components/parameters/CandidateId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message: { type: string, maxLength: 1000, description: 'Moderated.' }
+            example: { message: 'Dzień dobry, czy rozważa Pani pracę w trybie hybrydowym od września?' }
+      responses:
+        '201':
+          description: The direct-message invitation.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/EmployerInvitation' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /employer/invitations:
+    get:
+      tags: [Employer]
+      operationId: employerInvitations
+      summary: Invitations sent by the company
+      description: Newest first. Pending / declined / withdrawn invitations of candidates who later hid their profile from the company are not listed; accepted ones stay.
+      parameters:
+        - { name: status, in: query, description: 'Unknown value → 422', schema: { $ref: '#/components/schemas/InvitationStatus' } }
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated invitations.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/EmployerInvitation' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /employer/offers/{offer}/job-share-pairs:
+    get:
+      tags: [Employer]
+      operationId: employerJobSharePairs
+      summary: Pairs that applied for a job-share offer
+      description: |
+        Pairs waiting for a decision first. `404` for a regular offer, `403` for another company's / unpublished offer.
+        Pairs with a member who hid her profile from the company are excluded. Members are anonymous cards. Not paginated.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200':
+          description: Pairs plus offer summary.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, offer]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/EmployerPair' }
+                  offer: { $ref: '#/components/schemas/EmployerPairOfferSummary' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /employer/job-share-pairs/{pair}/invitation:
+    post:
+      tags: [Employer]
+      operationId: employerInvitePair
+      summary: Invite a submitted pair
+      description: |
+        Creates one pending invitation per member and marks the pair `invited`. Moderated message (same `422` shape as
+        candidate invitations). `404` for another company's / hidden pair, `403` "O tej parze już zdecydowano." when the
+        pair is not `submitted`, `422` when a member already has an invitation for the offer. Throttle 20/min.
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/InvitationMessageRequest' }
+      responses:
+        '201':
+          description: The pair.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/EmployerPair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /employer/job-share-pairs/{pair}/reject:
+    post:
+      tags: [Employer]
+      operationId: employerRejectPair
+      summary: Reject a submitted pair
+      description: Same `404` / `403` rules as the invitation.
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      responses:
+        '200':
+          description: The pair.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/EmployerPair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- Public
+  /public/offers:
+    get:
+      tags: [Public]
+      operationId: publicOffers
+      summary: Published offers
+      description: Newest first, no match score. Unknown filter values are ignored.
+      security: []
+      parameters:
+        - { name: q, in: query, description: 'Title, company name or skill contains', schema: { type: string } }
+        - { name: location, in: query, description: 'City contains; a value containing "zdal" also matches remote offers', schema: { type: string } }
+        - name: 'work_mode[]'
+          in: query
+          style: form
+          explode: true
+          schema: { type: array, items: { $ref: '#/components/schemas/WorkMode' } }
+        - name: 'fraction[]'
+          in: query
+          style: form
+          explode: true
+          schema: { type: array, items: { $ref: '#/components/schemas/EmploymentFraction' } }
+        - { name: flexible, in: query, description: 'Only flexible hours', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: nursery_nearby, in: query, description: 'Only offers with a nursery nearby', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: job_share, in: query, description: 'Only job-sharing offers', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: verified_only, in: query, description: 'Only offers of verified companies', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated offer cards.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/PublicOffer' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/PaginationMeta'
+                      - type: object
+                        properties:
+                          filters:
+                            type: object
+                            properties:
+                              q: { type: string }
+                              location: { type: string }
+                              work_mode: { type: array, items: { type: string } }
+                              fraction: { type: array, items: { type: string } }
+                              flexible: { type: boolean }
+                              nursery_nearby: { type: boolean }
+                              job_share: { type: boolean }
+                              verified_only: { type: boolean }
+  /public/offers/{offer}:
+    get:
+      tags: [Public]
+      operationId: publicOffer
+      summary: A published offer
+      description: Drafts and closed offers are `404`.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200':
+          description: Offer detail.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/PublicOfferDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /public/companies/{company}:
+    get:
+      tags: [Public]
+      operationId: publicCompany
+      summary: Public company profile
+      description: Approved (anonymous) reviews only and published offers.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      responses:
+        '200':
+          description: Company.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/PublicCompany' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /articles:
+    get:
+      tags: [Public]
+      operationId: articles
+      summary: Blog articles
+      description: Published articles, featured first then newest.
+      security: []
+      parameters:
+        - { name: category, in: query, description: 'One of `meta.categories[].value`; unknown values are ignored', schema: { $ref: '#/components/schemas/ArticleCategory' } }
+        - { name: featured, in: query, description: 'Only featured articles', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated articles.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Article' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/PaginationMeta'
+                      - type: object
+                        properties:
+                          categories: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+                          active_category: { type: [string, 'null'] }
+  /articles/{article}:
+    get:
+      tags: [Public]
+      operationId: article
+      summary: An article by slug
+      description: '`404` when unpublished or scheduled. Body as Markdown and as safe HTML (raw HTML stripped, `javascript:` links removed), plus up to 3 related articles from the same category.'
+      security: []
+      parameters:
+        - name: article
+          in: path
+          required: true
+          description: Article slug.
+          schema: { type: string }
+          example: rozmowa-w-ciazy
+      responses:
+        '200':
+          description: Article.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, related]
+                properties:
+                  data: { $ref: '#/components/schemas/ArticleDetail' }
+                  related:
+                    type: array
+                    maxItems: 3
+                    items: { $ref: '#/components/schemas/Article' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- Conversations
+  /conversations:
+    get:
+      tags: [Conversations]
+      operationId: conversations
+      summary: Your conversations
+      description: Latest activity first.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated conversations.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Conversation' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /candidate-photos/{profile}:
+    get:
+      tags: [Conversations]
+      operationId: candidatePhoto
+      summary: Candidate photo (authorised image stream)
+      description: |
+        The image behind every `photo_url`. Allowed for the candidate herself and members of a company whose invitation she
+        **accepted**; everybody else (other companies, pending/declined invitations, other candidates) and profiles without a
+        photo get `404`. Response has `Cache-Control: private`.
+      parameters:
+        - { name: profile, in: path, required: true, description: Candidate profile id., schema: { type: integer } }
+        - { name: v, in: query, required: false, description: Cache-busting version (already in `photo_url`)., schema: { type: string } }
+      responses:
+        '200':
+          description: The image.
+          content:
+            image/jpeg: { schema: { type: string, format: binary } }
+            image/png: { schema: { type: string, format: binary } }
+            image/webp: { schema: { type: string, format: binary } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /conversations/{conversation}:
+    get:
+      tags: [Conversations]
+      operationId: conversation
+      summary: Conversation header
+      description: Messages come from the messages endpoint. `403` when not a participant.
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      responses:
+        '200':
+          description: Header.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ConversationDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /conversations/{conversation}/messages:
+    get:
+      tags: [Conversations]
+      operationId: conversationMessages
+      summary: Messages (newest first)
+      description: Reading marks the other side's messages as read. Poll with `after_id` (preferred) or `since`.
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+        - $ref: '#/components/parameters/Since'
+        - $ref: '#/components/parameters/AfterId'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated messages.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Message' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    post:
+      tags: [Conversations]
+      operationId: conversationPostMessage
+      summary: Send a message
+      description: Employer messages are moderated (`422` with `errors.body` and `errors.body_suggestion`). Throttle 30/min.
+      parameters:
+        - $ref: '#/components/parameters/ConversationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MessageRequest' }
+      responses:
+        '201':
+          description: The message.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Message' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  # ---------------------------------------------------------------- Job sharing
+  /job-sharing:
+    get:
+      tags: [Job sharing]
+      operationId: jobSharingHub
+      summary: Job-sharing hub
+      description: Pair invitations waiting for your answer, your pairs (cancelled hidden) and job-sharing offers with your active pair state. Not paginated.
+      responses:
+        '200':
+          description: Hub.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/JobSharingHub' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /job-sharing/offers/{offer}/partners:
+    get:
+      tags: [Job sharing]
+      operationId: jobSharingPartners
+      summary: Possible partners for an offer
+      description: |
+        Candidates open to job sharing, eligible for the offer and not already paired for it; interested first, then by match.
+        Empty when your profile is not published or you already have an active pair. `404` unless a published job-sharing offer.
+        **Privacy:** anonymous – never surname, e-mail, CV, due date or leave dates. Not paginated.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200':
+          description: Partners.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Partner' }
+                  meta:
+                    type: object
+                    properties:
+                      offer:
+                        type: object
+                        properties:
+                          id: { type: integer }
+                          title: { type: string }
+                          company: { type: string }
+                          city: { type: [string, 'null'] }
+                          work_mode_label: { type: string }
+                          job_share: { $ref: '#/components/schemas/JobShareSummary' }
+                      my_day_part_label: { type: [string, 'null'] }
+                      is_profile_published: { type: boolean }
+                      active_pair_id: { type: [integer, 'null'] }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /job-sharing/offers/{offer}/pairs:
+    post:
+      tags: [Job sharing]
+      operationId: jobSharingInvitePartner
+      summary: Invite a partner to apply together
+      description: |
+        `partner_id` is an `id` from the partners list; the partner is notified. `404` unless a published job-sharing offer;
+        `422` on `partner_id` when unknown, your profile is not published, you already have a pair for the offer or the
+        person is no longer available. Throttle 20/min.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [partner_id]
+              properties:
+                partner_id: { type: integer }
+            example: { partner_id: 14 }
+      responses:
+        '201': { $ref: '#/components/responses/Pair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /job-sharing/pairs/{pair}:
+    get:
+      tags: [Job sharing]
+      operationId: jobSharingPair
+      summary: A pair
+      description: Members only (including an invited partner who has not answered yet); others get `403`.
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      responses:
+        '200': { $ref: '#/components/responses/Pair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /job-sharing/pairs/{pair}/accept:
+    post:
+      tags: [Job sharing]
+      operationId: jobSharingAcceptPair
+      summary: Join a pair (invited partner)
+      description: '`status` → `formed`; the initiator is notified. `403` if you are not the invited partner or already answered; `422` on `pair` if you already have another pair for the offer or the pair is full.'
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      responses:
+        '200': { $ref: '#/components/responses/Pair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /job-sharing/pairs/{pair}/decline:
+    post:
+      tags: [Job sharing]
+      operationId: jobSharingDeclinePair
+      summary: Refuse a pair invitation
+      description: '`status` → `cancelled`. `403` unless you are the invited partner who has not answered.'
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      responses:
+        '200': { $ref: '#/components/responses/Pair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /job-sharing/pairs/{pair}/cancel:
+    post:
+      tags: [Job sharing]
+      operationId: jobSharingCancelPair
+      summary: Leave a pair
+      description: An accepted member leaves a `forming` / `formed` pair (`status` → `cancelled`). `403` otherwise.
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      responses:
+        '200': { $ref: '#/components/responses/Pair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /job-sharing/pairs/{pair}/messages:
+    get:
+      tags: [Job sharing]
+      operationId: jobSharingPairMessages
+      summary: Private pair chat (newest first)
+      description: Only for members who accepted the pair (`403` otherwise; the employer never sees it). Poll with `after_id` / `since`.
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+        - $ref: '#/components/parameters/Since'
+        - $ref: '#/components/parameters/AfterId'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated messages.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/PairMessage' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    post:
+      tags: [Job sharing]
+      operationId: jobSharingPostPairMessage
+      summary: Send a pair chat message
+      description: Not moderated (candidates only). Throttle 30/min.
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MessageRequest' }
+      responses:
+        '201':
+          description: The message.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/PairMessage' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /job-sharing/pairs/{pair}/schedule:
+    put:
+      tags: [Job sharing]
+      operationId: jobSharingSaveSchedule
+      summary: Propose the workday split
+      description: |
+        Formed pairs only (`403` otherwise). Resets both confirmations. Rules (`422`): 1–2 blocks, `HH:MM` times, each member
+        exactly one block of at least one hour inside the offer's workday, no overlaps and no gaps (error key `schedule`).
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [schedule]
+              properties:
+                schedule:
+                  type: array
+                  minItems: 1
+                  maxItems: 2
+                  items: { $ref: '#/components/schemas/ScheduleBlock' }
+            example:
+              schedule:
+                - { candidate_profile_id: 12, starts_at: '08:00', ends_at: '12:00' }
+                - { candidate_profile_id: 14, starts_at: '12:00', ends_at: '16:00' }
+      responses:
+        '200': { $ref: '#/components/responses/Pair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /job-sharing/pairs/{pair}/schedule/confirm:
+    post:
+      tags: [Job sharing]
+      operationId: jobSharingConfirmSchedule
+      summary: Accept the current proposal
+      description: '`422` on `schedule` when nothing is saved yet.'
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      responses:
+        '200': { $ref: '#/components/responses/Pair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /job-sharing/pairs/{pair}/submit:
+    post:
+      tags: [Job sharing]
+      operationId: jobSharingSubmitPair
+      summary: Send the pair to the employer
+      description: '`status` → `submitted` (still anonymous to the employer). `422` on `schedule` unless both members confirmed the saved split.'
+      parameters:
+        - $ref: '#/components/parameters/PairId'
+      responses:
+        '200': { $ref: '#/components/responses/Pair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  # ---------------------------------------------------------------- Assistant
+  /assistant/messages:
+    get:
+      tags: [Assistant]
+      operationId: assistantMessages
+      summary: Assistant chat history (newest first)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated messages with disclaimer and suggested questions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/AssistantMessage' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/PaginationMeta'
+                      - type: object
+                        properties:
+                          disclaimer: { type: string }
+                          suggestions: { type: array, items: { type: string } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [Assistant]
+      operationId: assistantAsk
+      summary: Ask the legal assistant
+      description: The answer can take a few seconds. Throttle 10/min.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question: { type: string, minLength: 3, maxLength: 1000 }
+            example: { question: 'Czy muszę mówić o ciąży na rozmowie?' }
+      responses:
+        '201':
+          description: The stored question and the answer.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: object
+                    required: [question, answer]
+                    properties:
+                      question: { $ref: '#/components/schemas/AssistantMessage' }
+                      answer: { $ref: '#/components/schemas/AssistantMessage' }
+                  meta:
+                    type: object
+                    properties:
+                      disclaimer: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  # ---------------------------------------------------------------- Notifications
+  /notifications:
+    get:
+      tags: [Notifications]
+      operationId: notifications
+      summary: Your notifications (newest first)
+      parameters:
+        - $ref: '#/components/parameters/Since'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Paginated notifications with `meta.unread_count`.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, links, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Notification' }
+                  links: { $ref: '#/components/schemas/PaginationLinks' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/PaginationMeta'
+                      - type: object
+                        properties:
+                          unread_count: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /notifications/unread-count:
+    get:
+      tags: [Notifications]
+      operationId: notificationsUnreadCount
+      summary: Unread badge count
+      responses:
+        '200':
+          description: Count.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [unread_count]
+                    properties:
+                      unread_count: { type: integer }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /notifications/{notification}/read:
+    post:
+      tags: [Notifications]
+      operationId: notificationRead
+      summary: Mark one notification read
+      description: '`404` for an unknown id or another user''s notification.'
+      parameters:
+        - name: notification
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: The notification.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Notification' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      operationId: notificationsReadAll
+      summary: Mark all notifications read
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  # ---------------------------------------------------------------- Reviews
+  /reviews:
+    get:
+      tags: [Reviews]
+      operationId: reviews
+      summary: Reviewable companies and your reviews
+      description: A candidate may review (once) a company whose invitation she accepted. Not paginated.
+      responses:
+        '200':
+          description: Overview.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [reviewable_companies, reviews]
+                    properties:
+                      reviewable_companies:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: integer }
+                            name: { type: string }
+                            city: { type: [string, 'null'] }
+                      reviews:
+                        type: array
+                        items: { $ref: '#/components/schemas/OwnCompanyReview' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /reviews/companies/{company}:
+    post:
+      tags: [Reviews]
+      operationId: reviewCreate
+      summary: Review a company
+      description: |
+        Anonymous; waits for moderation (`pending`). Texts may not contain an e-mail address or phone number.
+        `403` "Możesz ocenić tylko firmę, której zaproszenie przyjęłaś." / "Ta firma ma już Twoją opinię.".
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewRequest' }
+      responses:
+        '201':
+          description: The review.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/OwnCompanyReview' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /reviews/{review}:
+    put:
+      tags: [Reviews]
+      operationId: reviewUpdate
+      summary: Edit your pending review
+      description: Only your own review while it is `pending` (`403` otherwise).
+      parameters:
+        - name: review
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewRequest' }
+      responses:
+        '200':
+          description: The review.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/OwnCompanyReview' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  # ---------------------------------------------------------------- Devices
+  /devices:
+    post:
+      tags: [Devices]
+      operationId: deviceRegister
+      summary: Register a push token
+      description: Idempotent – call on every app start / token refresh. A token registered before by another account is moved to the current user. The device is bound to the API token of this request, so logging out (or any token revocation) forgets it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, platform]
+              properties:
+                token: { type: string, maxLength: 255 }
+                platform: { type: string, enum: [ios, android] }
+            example: { token: fcm-demo-token-123, platform: android }
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /devices/{token}:
+    delete:
+      tags: [Devices]
+      operationId: deviceForget
+      summary: Forget a push token
+      description: Call on logout, before `POST /auth/logout`. `404` if the token is not yours.
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Laravel Sanctum personal access token (`3|Jt0k…`) from `POST /auth/login` or `POST /auth/register`.
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Page number (20 items per page).
+      schema: { type: integer, minimum: 1, default: 1 }
+    Since:
+      name: since
+      in: query
+      description: Polling cursor – only items created strictly after this ISO 8601 moment.
+      schema: { type: string, format: date-time }
+    AfterId:
+      name: after_id
+      in: query
+      description: Polling cursor – only items with a greater id (preferred for chat threads).
+      schema: { type: integer, minimum: 0 }
+    OfferId:
+      name: offer
+      in: path
+      required: true
+      description: Job offer id.
+      schema: { type: integer }
+    CandidateId:
+      name: candidate
+      in: path
+      required: true
+      description: Candidate profile id (from an anonymous card).
+      schema: { type: integer }
+    CompanyId:
+      name: company
+      in: path
+      required: true
+      schema: { type: integer }
+    ConversationId:
+      name: conversation
+      in: path
+      required: true
+      schema: { type: integer }
+    InvitationId:
+      name: invitation
+      in: path
+      required: true
+      schema: { type: integer }
+    PairId:
+      name: pair
+      in: path
+      required: true
+      description: Job-share pair id.
+      schema: { type: integer }
+    SkillId:
+      name: skill
+      in: path
+      required: true
+      schema: { type: integer }
+
+  responses:
+    NoContent:
+      description: No content.
+    Unauthorized:
+      description: Missing, invalid or revoked token.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { message: Unauthenticated. }
+    Forbidden:
+      description: 'Wrong role, not a participant / owner, unverified e-mail (body adds `email_verification_required: true`, resend the link with `POST /auth/email/verification-notification`) or the action is not allowed in the current state (message may be Polish).'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { message: This action is unauthorized. }
+    NotFound:
+      description: Unknown id, unpublished resource or something hidden from you.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationFailed:
+      description: Validation failed; messages are Polish and can be shown as-is. Moderated texts add a `*_suggestion` key.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ValidationError' }
+          examples:
+            validation:
+              value: { message: Pole e-mail jest wymagane., errors: { email: [Pole e-mail jest wymagane.] } }
+            moderation:
+              value:
+                message: Pytania o ciążę i plany rodzinne są niedozwolone.
+                errors:
+                  body: [Pytania o ciążę i plany rodzinne są niedozwolone.]
+                  body_suggestion: ['Od kiedy może Pani rozpocząć pracę i jaki wymiar godzin Pani odpowiada?']
+    TooManyRequests:
+      description: Rate limit hit.
+      headers:
+        Retry-After:
+          description: Seconds to wait.
+          schema: { type: integer }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example: { message: Too Many Attempts. }
+    CandidateProfile:
+      description: The candidate's own profile.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/CandidateProfile' }
+    CandidateInvitation:
+      description: The invitation.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/CandidateInvitation' }
+    EmployerCompany:
+      description: The company.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/EmployerCompany' }
+    EmployerOffer:
+      description: The offer.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/EmployerOffer' }
+    Pair:
+      description: The pair.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/Pair' }
+
+  schemas:
+    # ---------- shared primitives
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+    ValidationError:
+      type: object
+      required: [message, errors]
+      properties:
+        message: { type: string }
+        errors:
+          type: object
+          description: Field name (dot notation for arrays, e.g. `schedule.0.starts_at`) → list of Polish messages.
+          additionalProperties:
+            type: array
+            items: { type: string }
+    PaginationLinks:
+      type: object
+      properties:
+        first: { type: [string, 'null'], format: uri }
+        last: { type: [string, 'null'], format: uri }
+        prev: { type: [string, 'null'], format: uri }
+        next: { type: [string, 'null'], format: uri }
+    PaginationMeta:
+      type: object
+      required: [current_page, last_page, per_page, total]
+      properties:
+        current_page: { type: integer }
+        from: { type: [integer, 'null'] }
+        last_page: { type: integer }
+        links:
+          type: array
+          items:
+            type: object
+            properties:
+              url: { type: [string, 'null'] }
+              label: { type: string }
+              page: { type: [integer, 'null'] }
+              active: { type: boolean }
+        path: { type: string }
+        per_page: { type: integer, example: 20 }
+        to: { type: [integer, 'null'] }
+        total: { type: integer }
+    QueryFlag:
+      type: string
+      enum: ['1', '0', 'true', 'false']
+      description: Boolean query flag; `1` enables the filter.
+    LabeledValue:
+      type: object
+      required: [value, label]
+      properties:
+        value: { type: string }
+        label: { type: string, description: 'Polish label' }
+    IdName:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    WorkMode:
+      type: string
+      enum: [remote, hybrid, onsite]
+    EmploymentFraction:
+      type: string
+      enum: ['1', '3/4', '3/5', '1/2']
+    DayPart:
+      type: string
+      enum: [morning, afternoon, any]
+    OfferStatus:
+      type: string
+      enum: [draft, published, closed]
+    InvitationStatus:
+      type: string
+      enum: [pending, accepted, declined, withdrawn]
+    InvitationKind:
+      type: string
+      enum: [invitation, direct_message]
+      description: '`invitation` – a full invitation to talk; `direct_message` – a short question sent via the direct-message endpoint.'
+    PairStatus:
+      type: string
+      enum: [forming, formed, submitted, invited, rejected, cancelled, hired, declined]
+    ArticleCategory:
+      type: string
+      enum: [pregnancy, leave, return, rights, cv_and_interviews]
+    Time:
+      type: string
+      pattern: '^\d{2}:\d{2}$'
+      example: '08:00'
+    MatchResult:
+      type: object
+      required: [score, matched_required, missing_required, matched_nice_to_have, missing_nice_to_have, start_date_compatible]
+      properties:
+        score: { type: integer, minimum: 0, maximum: 100 }
+        matched_required: { type: array, items: { type: string } }
+        missing_required: { type: array, items: { type: string } }
+        matched_nice_to_have: { type: array, items: { type: string } }
+        missing_nice_to_have: { type: array, items: { type: string } }
+        start_date_compatible: { type: boolean }
+    JobShareSummary:
+      type: object
+      required: [is_job_share, workday_starts_at, workday_ends_at, hours_per_person]
+      properties:
+        is_job_share: { type: boolean }
+        workday_starts_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }] }
+        workday_ends_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }] }
+        hours_per_person: { type: [number, 'null'] }
+    FeaturedQuote:
+      type: [object, 'null']
+      properties:
+        quote: { type: string }
+        author_label: { type: [string, 'null'] }
+    RatingSummary:
+      type: object
+      properties:
+        overall: { type: [number, 'null'] }
+        count: { type: integer }
+        categories:
+          type: object
+          properties:
+            return: { type: [number, 'null'] }
+            flexibility: { type: [number, 'null'] }
+            no_pregnancy_questions: { type: [number, 'null'] }
+    ScheduleBlock:
+      type: object
+      required: [candidate_profile_id, starts_at, ends_at]
+      properties:
+        candidate_profile_id: { type: integer }
+        starts_at: { $ref: '#/components/schemas/Time' }
+        ends_at: { $ref: '#/components/schemas/Time' }
+
+    # ---------- auth
+    User:
+      type: object
+      required: [id, name, email, email_verified, role, company, candidate_profile]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        email_verified: { type: boolean }
+        role: { type: string, enum: [candidate, employer, admin] }
+        company: { oneOf: [{ $ref: '#/components/schemas/IdName' }, { type: 'null' }] }
+        candidate_profile:
+          description: Set for candidates only.
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            published: { type: boolean }
+            onboarding_step: { type: integer }
+    UserEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/User' }
+    AuthToken:
+      type: object
+      required: [token, user]
+      properties:
+        token: { type: string, example: 3|Jt0kExampleToken }
+        user: { $ref: '#/components/schemas/User' }
+    RegisterRequest:
+      type: object
+      required: [name, email, password, password_confirmation, role, device_name]
+      properties:
+        name: { type: string, maxLength: 255 }
+        email: { type: string, format: email }
+        password: { type: string }
+        password_confirmation: { type: string }
+        role: { type: string, enum: [candidate, employer] }
+        company_name: { type: string, maxLength: 255, description: 'Required for employers.' }
+        company_nip: { type: string, description: 'Required for employers; 10 digits, spaces / dashes allowed. A NIP that already has an account → 422.' }
+        device_name: { type: string, maxLength: 255 }
+    LoginRequest:
+      type: object
+      required: [email, password, device_name]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+        device_name: { type: string, maxLength: 255, description: 'e.g. "iPhone Marty"' }
+        code: { type: [string, 'null'], maxLength: 16, description: 'TOTP code; required for accounts with two-factor authentication (or send `recovery_code`).' }
+        recovery_code: { type: [string, 'null'], maxLength: 64, description: 'Single-use 2FA recovery code, alternative to `code`.' }
+
+    # ---------- candidate
+    CandidateProfile:
+      type: object
+      description: The candidate's own full profile. Contains private fields (`full_name`, `leave_starts_on`, `due_date`, CV info) that are never shown to other users.
+      properties:
+        id: { type: integer }
+        full_name: { type: string }
+        anonymous_name: { type: string, example: Marta K. }
+        headline: { type: [string, 'null'] }
+        years_of_experience: { type: [integer, 'null'] }
+        city: { type: [string, 'null'] }
+        phone: { type: [string, 'null'], example: '+48 600 100 200', description: 'Private – revealed only to a company whose invitation she accepted.' }
+        photo_url: { type: [string, 'null'], format: uri, description: 'Authorised endpoint `GET /candidate-photos/{profile}` (send the bearer token); `null` without a photo.' }
+        ai_summary: { type: [string, 'null'] }
+        available_from: { type: [string, 'null'], format: date }
+        leave_starts_on: { type: [string, 'null'], format: date, description: 'Private.' }
+        due_date: { type: [string, 'null'], format: date, description: 'Private.' }
+        work_modes: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+        employment_fractions: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+        wants_flexible_hours: { type: boolean }
+        open_to_job_sharing: { type: boolean }
+        preferred_day_part: { oneOf: [{ $ref: '#/components/schemas/DayPart' }, { type: 'null' }] }
+        preferred_day_part_label: { type: [string, 'null'] }
+        privacy:
+          type: object
+          properties:
+            show_availability_instead_of_gap: { type: boolean }
+            allow_direct_messages: { type: boolean }
+            job_alerts_enabled: { type: boolean, description: 'Weekly e-mail with new offers matching at least 60%.' }
+            hidden_from_company: { oneOf: [{ $ref: '#/components/schemas/IdName' }, { type: 'null' }] }
+        cv:
+          type: object
+          description: The CV file path and raw text are never returned.
+          properties:
+            original_name: { type: [string, 'null'] }
+            size: { type: [integer, 'null'], description: 'Bytes.' }
+            status: { type: [string, 'null'], enum: [uploaded, parsing, parsed, failed, null] }
+            has_text: { type: boolean }
+        skills:
+          type: array
+          description: Only `confirmed` skills are visible to employers and used for matching.
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              source: { type: [string, 'null'], enum: [ai, manual, null] }
+              confirmed: { type: boolean }
+        suggested_positions:
+          type: array
+          items:
+            type: object
+            properties:
+              title: { type: string }
+              score: { type: integer }
+        onboarding_step: { type: integer }
+        published: { type: boolean }
+        published_at: { type: [string, 'null'], format: date-time }
+    ProfileOptions:
+      type: object
+      properties:
+        work_modes: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+        employment_fractions: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+        day_parts: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+        companies: { type: array, items: { $ref: '#/components/schemas/IdName' } }
+        skill_suggestions: { type: array, items: { type: string } }
+    PreferencesRequest:
+      type: object
+      required: [available_from]
+      properties:
+        available_from: { type: string, format: date }
+        headline: { type: [string, 'null'], maxLength: 120 }
+        years_of_experience: { type: [integer, 'null'], minimum: 0, maximum: 50 }
+        city: { type: [string, 'null'], maxLength: 100 }
+        work_modes: { type: array, items: { $ref: '#/components/schemas/WorkMode' } }
+        employment_fractions: { type: array, items: { $ref: '#/components/schemas/EmploymentFraction' } }
+        wants_flexible_hours: { type: boolean }
+        open_to_job_sharing: { type: boolean }
+        preferred_day_part: { oneOf: [{ $ref: '#/components/schemas/DayPart' }, { type: 'null' }] }
+        leave_starts_on: { type: [string, 'null'], format: date, description: 'Private.' }
+        due_date: { type: [string, 'null'], format: date, description: 'Private.' }
+      example:
+        available_from: '2027-09-01'
+        headline: Specjalistka ds. rekrutacji IT
+        years_of_experience: 6
+        city: Kraków
+        work_modes: [hybrid, remote]
+        employment_fractions: ['3/5', '3/4']
+        wants_flexible_hours: true
+        open_to_job_sharing: true
+        preferred_day_part: morning
+    PrivacyRequest:
+      type: object
+      description: Partial – send only the toggles that changed.
+      properties:
+        show_availability_instead_of_gap: { type: boolean }
+        allow_direct_messages: { type: boolean }
+        job_alerts_enabled: { type: boolean, description: 'Weekly e-mail with up to 5 new offers matching at least 60% that she can start in time.' }
+        hidden_from_company_id: { type: [integer, 'null'], description: 'Company id from `GET /candidate/profile/options`.' }
+        phone: { type: [string, 'null'], maxLength: 20, description: 'Polish number – optional +48, 9 digits, spaces/dashes allowed; stored as "+48 600 100 200". Empty clears it.' }
+      example: { show_availability_instead_of_gap: true, hidden_from_company_id: null, phone: '600 100 200' }
+    AnonymousCandidate:
+      type: object
+      description: |
+        **Privacy – anonymous card.** What employers (and the candidate's own preview) see before an invitation is accepted:
+        first name + surname initial, headline, experience, AI summary, confirmed skills, availability, fractions and work modes
+        (as Polish labels) and match. Never surname, e-mail, phone, photo, CV, due / leave dates or the reason of the gap.
+      required: [id, anonymous_name, initial, headline, years_of_experience, ai_summary, skills, available_from, employment_fractions, work_modes, match, is_interested, accepts_direct_messages]
+      properties:
+        id: { type: integer }
+        anonymous_name: { type: string, example: Marta K. }
+        initial: { type: string, example: M }
+        headline: { type: [string, 'null'] }
+        years_of_experience: { type: [integer, 'null'] }
+        ai_summary: { type: [string, 'null'] }
+        skills:
+          type: array
+          description: Confirmed skills only, matched ones first.
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              matched: { type: boolean }
+        available_from: { type: [string, 'null'], format: date }
+        employment_fractions: { type: array, items: { type: string }, example: [3/5 etatu] }
+        work_modes: { type: array, items: { type: string }, example: [Hybrydowo] }
+        match: { oneOf: [{ $ref: '#/components/schemas/MatchResult' }, { type: 'null' }] }
+        is_interested: { type: boolean, description: 'The candidate showed interest in this offer.' }
+        accepts_direct_messages: { type: boolean, description: 'The candidate allows direct questions (`POST …/direct-message`).' }
+    CandidateOffer:
+      type: object
+      description: Offer card for candidates (list, home top offers).
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        city: { type: [string, 'null'] }
+        work_mode: { $ref: '#/components/schemas/WorkMode' }
+        work_mode_label: { type: string }
+        employment_fraction: { $ref: '#/components/schemas/EmploymentFraction' }
+        employment_fraction_label: { type: string }
+        salary_min: { type: [integer, 'null'] }
+        salary_max: { type: [integer, 'null'] }
+        start_date: { type: string, format: date }
+        flexible_hours: { type: boolean }
+        fixed_meeting_hours: { type: boolean }
+        childcare_subsidy: { type: boolean }
+        nursery_distance_km: { type: [integer, 'null'] }
+        job_share: { $ref: '#/components/schemas/JobShareSummary' }
+        published_at: { type: [string, 'null'], format: date-time }
+        is_parent_friendly: { type: boolean }
+        is_interested: { type: boolean }
+        is_saved: { type: boolean }
+        match: { $ref: '#/components/schemas/MatchResult' }
+        company:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            city: { type: [string, 'null'] }
+            verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+            average_rating: { type: [number, 'null'] }
+            reviews_count: { type: integer }
+            first_review: { $ref: '#/components/schemas/FeaturedQuote' }
+    CandidateOfferDetail:
+      allOf:
+        - $ref: '#/components/schemas/CandidateOffer'
+        - type: object
+          properties:
+            description: { type: [string, 'null'] }
+            company_description: { type: [string, 'null'] }
+            job_sharing:
+              description: Null for regular offers.
+              type: [object, 'null']
+              properties:
+                workday_starts_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }] }
+                workday_ends_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }] }
+                hours_per_person: { type: [number, 'null'] }
+                is_open_to_job_sharing: { type: boolean }
+                pair:
+                  description: Null when she is not in an active pair for this offer. `partner_name` is anonymous.
+                  type: [object, 'null']
+                  properties:
+                    id: { type: integer }
+                    status: { $ref: '#/components/schemas/PairStatus' }
+                    partner_name: { type: [string, 'null'] }
+                    awaiting_my_answer: { type: boolean }
+            reviews:
+              type: array
+              description: Approved, anonymous reviews of the company, newest first.
+              items:
+                type: object
+                properties:
+                  id: { type: integer }
+                  quote: { type: [string, 'null'] }
+                  author_label: { type: [string, 'null'] }
+                  rating: { type: number }
+                  rating_return: { type: integer }
+                  rating_flexibility: { type: integer }
+                  rating_no_pregnancy_questions: { type: integer }
+                  created_at: { type: [string, 'null'], format: date-time }
+    CandidateOfferFilters:
+      type: object
+      description: The effective filters (incl. the defaulted `start_from`).
+      properties:
+        q: { type: string }
+        location: { type: string }
+        work_modes: { type: array, items: { type: string } }
+        employment_fractions: { type: array, items: { type: string } }
+        flexible_hours: { type: boolean }
+        childcare_subsidy: { type: boolean }
+        nursery_nearby: { type: boolean }
+        with_reviews: { type: boolean }
+        verified_only: { type: boolean }
+        job_share: { type: boolean }
+        saved: { type: boolean }
+        start_from: { type: [string, 'null'], format: date }
+        sort: { type: string, enum: [match, newest] }
+    CandidateHome:
+      type: object
+      properties:
+        greeting:
+          type: object
+          properties:
+            first_name: { type: string }
+        profile:
+          type: object
+          properties:
+            published: { type: boolean }
+            onboarding_step: { type: integer }
+        calendar:
+          type: object
+          description: Private return calendar (never shown to others).
+          properties:
+            pregnancy_week: { type: [integer, 'null'] }
+            due_date: { type: [string, 'null'], format: date }
+            leave_starts_on: { type: [string, 'null'], format: date }
+            available_from: { type: [string, 'null'], format: date }
+            current_phase: { type: string, enum: [pregnancy, leave, ready] }
+        invitations:
+          type: object
+          properties:
+            pending_count: { type: integer }
+            company_names: { type: array, items: { type: string } }
+        pair_invitations_count: { type: integer }
+        saved_offers_count: { type: integer }
+        top_offers:
+          type: array
+          maxItems: 3
+          items: { $ref: '#/components/schemas/CandidateOffer' }
+    CvAnalysis:
+      type: object
+      properties:
+        stats:
+          type: object
+          properties:
+            offers_total: { type: integer }
+            matching_offers: { type: integer }
+            average_score: { type: integer }
+            can_start_on_time: { type: integer }
+            good_match_threshold: { type: integer }
+        strengths:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              demand_count: { type: integer }
+        positions:
+          type: object
+          properties:
+            suggested:
+              type: array
+              items: { type: object, properties: { title: { type: string }, score: { type: integer } } }
+            offers:
+              type: array
+              items: { type: object, properties: { title: { type: string }, score: { type: integer } } }
+        missing_skills:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              offers_count: { type: integer }
+              average_gain: { type: integer }
+        offers:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              company: { type: string }
+              city: { type: [string, 'null'] }
+              work_mode_label: { type: string }
+              employment_fraction_label: { type: string }
+              start_date: { type: string, format: date }
+              score: { type: integer }
+              matched_skills: { type: array, items: { type: string } }
+              missing_required: { type: array, items: { type: string } }
+              missing_nice_to_have: { type: array, items: { type: string } }
+              start_date_compatible: { type: boolean }
+    CandidateInvitation:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { $ref: '#/components/schemas/InvitationStatus' }
+        status_label: { type: string, example: Oczekuje na odpowiedź }
+        kind: { $ref: '#/components/schemas/InvitationKind' }
+        kind_label: { type: string, enum: [Zaproszenie do rozmowy, Pytanie od firmy] }
+        message: { type: string }
+        created_at: { type: string, format: date-time }
+        responded_at: { type: [string, 'null'], format: date-time }
+        conversation_id: { type: [integer, 'null'], description: 'Set once accepted.' }
+        job_share_pair:
+          description: Set for job-sharing invitations; `partner_name` is anonymous.
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            partner_name: { type: [string, 'null'] }
+        offer:
+          type: object
+          properties:
+            id: { type: integer }
+            title: { type: string }
+            city: { type: [string, 'null'] }
+            work_mode: { $ref: '#/components/schemas/WorkMode' }
+            work_mode_label: { type: string }
+            employment_fraction: { $ref: '#/components/schemas/EmploymentFraction' }
+            employment_fraction_label: { type: string }
+            is_published: { type: boolean }
+        company:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+            average_rating: { type: [number, 'null'] }
+            reviews_count: { type: integer }
+
+    # ---------- employer
+    EmployerCompany:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        nip: { type: [string, 'null'] }
+        city: { type: [string, 'null'] }
+        description: { type: [string, 'null'] }
+        verified: { type: boolean, description: 'While false show the banner "Twoja firma czeka na weryfikację – zweryfikowane firmy dostają więcej odpowiedzi."' }
+        verified_at: { type: [string, 'null'], format: date-time }
+        ratings:
+          type: object
+          properties:
+            count: { type: integer }
+            overall: { type: [number, 'null'] }
+            return: { type: [number, 'null'] }
+            flexibility: { type: [number, 'null'] }
+            no_pregnancy_questions: { type: [number, 'null'] }
+        reviews:
+          type: array
+          description: Approved reviews only (anonymous).
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              quote: { type: [string, 'null'] }
+              author_label: { type: [string, 'null'] }
+              rating_return: { type: integer }
+              rating_flexibility: { type: integer }
+              rating_no_pregnancy_questions: { type: integer }
+              overall: { type: number }
+              created_at: { type: [string, 'null'], format: date-time }
+    CompanyMember:
+      type: object
+      required: [id, name, email, joined_at, is_current_user]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        joined_at: { type: string, format: date-time, description: Invitation acceptance (account creation for the founder). }
+        is_current_user: { type: boolean }
+    CompanyTeamInvitation:
+      type: object
+      required: [id, email, invited_by, created_at, expires_at, is_expired]
+      properties:
+        id: { type: integer }
+        email: { type: string, format: email }
+        invited_by: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        is_expired: { type: boolean }
+    CompanyRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 255 }
+        nip: { type: [string, 'null'], description: '10 digits; spaces and dashes are stripped.' }
+        city: { type: [string, 'null'], maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 5000, description: 'Moderated.' }
+      example: { name: Zielone Biuro, nip: 123-456-78-90, city: Kraków, description: 'Elastyczne godziny i spokojny powrót po urlopie.' }
+    EmployerDashboard:
+      type: object
+      properties:
+        greeting:
+          type: object
+          properties:
+            first_name: { type: string }
+        company:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            city: { type: [string, 'null'] }
+            verified: { type: boolean }
+            verified_at: { type: [string, 'null'], format: date-time }
+        stats:
+          type: object
+          properties:
+            published_offers_count: { type: integer }
+            matching_candidates_count: { type: integer, description: Unique candidates matched by at least one published offer. }
+            to_review_count: { type: integer, description: Sum of the per-offer review queues. }
+            invitations_sent_recent_count: { type: integer, description: 'Invitations created in the last `recent_days` days.' }
+            recent_days: { type: integer, example: 30 }
+            responded_count: { type: integer }
+            accepted_count: { type: integer }
+            acceptance_rate: { type: [integer, 'null'], description: 'accepted / responded in %, null when nobody answered.' }
+            active_conversations_count: { type: integer, description: 'Conversations with a message in the last `recent_days` days.' }
+            submitted_pairs_count: { type: integer }
+            parent_friendly:
+              type: object
+              properties:
+                count: { type: integer }
+                total: { type: integer }
+        funnel:
+          type: array
+          items: { $ref: '#/components/schemas/EmployerDashboardFunnelRow' }
+        todo:
+          type: array
+          items: { $ref: '#/components/schemas/EmployerDashboardTodo' }
+        reviews:
+          type: object
+          properties:
+            approved_count: { type: integer }
+            average_rating: { type: [number, 'null'] }
+        activity:
+          type: array
+          maxItems: 10
+          items: { $ref: '#/components/schemas/EmployerDashboardActivity' }
+    EmployerDashboardFunnelRow:
+      type: object
+      description: One published offer; matched → reviewed (skipped / saved / invited) → invited → accepted.
+      properties:
+        offer_id: { type: integer }
+        title: { type: string }
+        is_job_share: { type: boolean }
+        is_parent_friendly: { type: boolean }
+        matched_count: { type: integer }
+        reviewed_count: { type: integer }
+        to_review_count: { type: integer }
+        invited_count: { type: integer }
+        responded_count: { type: integer }
+        accepted_count: { type: integer }
+        submitted_pairs_count: { type: integer }
+    EmployerDashboardTodo:
+      type: object
+      properties:
+        kind: { type: string, enum: [unread_messages, submitted_pairs, candidates_to_review, offer_incomplete, no_approved_reviews] }
+        count: { type: integer }
+        offer_id: { type: [integer, 'null'] }
+        offer_title: { type: [string, 'null'] }
+        names: { type: array, items: { type: string }, description: 'unread_messages – up to 3 (revealed) candidate names.' }
+        hints:
+          type: array
+          items: { type: string, enum: [missing_required_skills, missing_salary, no_flexible_hours] }
+        url: { type: string, description: Web path. }
+    EmployerDashboardActivity:
+      type: object
+      properties:
+        id: { type: string, description: 'Notification uuid, or `pair-<id>` for a pair submission.' }
+        kind: { type: [string, 'null'], examples: [invitation_accepted, invitation_declined, new_message, pair_hired_company, pair_submitted] }
+        title: { type: string }
+        body: { type: [string, 'null'] }
+        url: { type: [string, 'null'], description: Web path. }
+        read: { type: boolean }
+        created_at: { type: [string, 'null'], format: date-time }
+        created_at_diff: { type: [string, 'null'] }
+        target:
+          type: object
+          properties:
+            conversation_id: { type: integer }
+            invitation_id: { type: integer }
+            job_share_pair_id: { type: integer }
+            job_offer_id: { type: integer }
+            company_id: { type: integer }
+    OfferStatistics:
+      type: object
+      description: matched = visible candidates who can start in time and share ≥1 skill; to_review = matched minus already skipped / saved / invited.
+      properties:
+        matched_count: { type: integer }
+        to_review_count: { type: integer }
+        invited_count: { type: integer }
+        responded_count: { type: integer }
+        accepted_count: { type: integer }
+    EmployerOffer:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        city: { type: [string, 'null'] }
+        work_mode: { $ref: '#/components/schemas/WorkMode' }
+        work_mode_label: { type: string }
+        employment_fraction: { $ref: '#/components/schemas/EmploymentFraction' }
+        employment_fraction_label: { type: string }
+        salary_min: { type: [integer, 'null'] }
+        salary_max: { type: [integer, 'null'] }
+        start_date: { type: string, format: date }
+        description: { type: [string, 'null'] }
+        flexible_hours: { type: boolean }
+        fixed_meeting_hours: { type: boolean }
+        childcare_subsidy: { type: boolean }
+        nursery_distance_km: { type: [integer, 'null'] }
+        is_job_share: { type: boolean }
+        workday_starts_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }] }
+        workday_ends_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }] }
+        hours_per_person: { type: [number, 'null'] }
+        status: { $ref: '#/components/schemas/OfferStatus' }
+        published_at: { type: [string, 'null'], format: date-time }
+        required_skills: { type: array, items: { type: string } }
+        nice_to_have_skills: { type: array, items: { type: string } }
+        status_label: { type: string, enum: [Szkic, Opublikowana, Zamknięta] }
+        is_parent_friendly: { type: boolean }
+        statistics: { $ref: '#/components/schemas/OfferStatistics' }
+        submitted_pairs_count: { type: integer, description: 'Job-share pairs waiting for a decision.' }
+        created_at: { type: [string, 'null'], format: date-time }
+        updated_at: { type: [string, 'null'], format: date-time }
+    SaveOfferRequest:
+      type: object
+      required: [action, title, work_mode, start_date, employment_fraction, required_skills, nice_to_have_skills]
+      properties:
+        action: { type: string, enum: [draft, publish] }
+        title: { type: string, maxLength: 255, description: 'Moderated.' }
+        city: { type: [string, 'null'], maxLength: 255 }
+        work_mode: { $ref: '#/components/schemas/WorkMode' }
+        start_date: { type: string, format: date, description: 'When publishing not in the past.' }
+        description: { type: [string, 'null'], maxLength: 5000, description: 'Moderated.' }
+        employment_fraction: { $ref: '#/components/schemas/EmploymentFraction' }
+        salary_min: { type: [integer, 'null'], minimum: 0, maximum: 1000000 }
+        salary_max: { type: [integer, 'null'], minimum: 0, maximum: 1000000, description: '>= salary_min' }
+        flexible_hours: { type: boolean }
+        fixed_meeting_hours: { type: boolean }
+        childcare_subsidy: { type: boolean }
+        nursery_distance_km: { type: [integer, 'null'], minimum: 0, maximum: 50 }
+        is_job_share: { type: boolean }
+        workday_starts_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }], description: 'Required when `is_job_share`.' }
+        workday_ends_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }], description: 'Required when `is_job_share`; after start.' }
+        required_skills: { type: array, maxItems: 20, items: { type: string, maxLength: 80 }, description: 'At least one when publishing; may be `[]` for drafts.' }
+        nice_to_have_skills: { type: array, maxItems: 20, items: { type: string, maxLength: 80 } }
+      example:
+        action: publish
+        title: Specjalistka ds. rekrutacji
+        city: Kraków
+        work_mode: hybrid
+        start_date: '2027-09-01'
+        description: Prowadzenie procesów rekrutacyjnych.
+        employment_fraction: '3/5'
+        salary_min: 8500
+        salary_max: 11000
+        flexible_hours: true
+        fixed_meeting_hours: false
+        childcare_subsidy: true
+        is_job_share: false
+        required_skills: [Rekrutacja IT]
+        nice_to_have_skills: [Onboarding]
+    CandidateQueue:
+      type: object
+      properties:
+        offer:
+          type: object
+          properties:
+            id: { type: integer }
+            title: { type: string }
+            city: { type: [string, 'null'] }
+            start_date: { type: string, format: date }
+            salary_min: { type: [integer, 'null'] }
+            salary_max: { type: [integer, 'null'] }
+            employment_fraction_label: { type: string }
+            work_mode_label: { type: string }
+            flexible_hours: { type: boolean }
+            fixed_meeting_hours: { type: boolean }
+            is_job_share: { type: boolean }
+            submitted_pairs_count: { type: integer }
+        candidate: { oneOf: [{ $ref: '#/components/schemas/AnonymousCandidate' }, { type: 'null' }], description: 'Null when the queue is empty.' }
+        is_saved_candidate: { type: boolean }
+        remaining_count: { type: integer }
+        saved:
+          type: array
+          description: Saved-for-later strip (anonymous).
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              anonymous_name: { type: string }
+              initial: { type: string }
+              available_from: { type: [string, 'null'], format: date }
+              score: { type: integer }
+        invitation_stats:
+          type: object
+          properties:
+            invited: { type: integer }
+            responded: { type: integer }
+        statistics: { $ref: '#/components/schemas/OfferStatistics' }
+    InvitationMessageRequest:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, maxLength: 2000, description: 'Moderated.' }
+      example: { message: 'Dzień dobry, zapraszamy na rozmowę o roli rekruterki IT.' }
+    RevealedCandidate:
+      type: object
+      description: '**Privacy:** only on accepted invitations – the candidate agreed to reveal her name, e-mail, phone and photo to this company.'
+      properties:
+        id: { type: integer }
+        anonymous_name: { type: string }
+        full_name: { type: string }
+        email: { type: string, format: email }
+        phone: { type: [string, 'null'] }
+        photo_url: { type: [string, 'null'], format: uri, description: 'Authorised `GET /candidate-photos/{profile}`; `null` without a photo.' }
+        headline: { type: [string, 'null'] }
+        years_of_experience: { type: [integer, 'null'] }
+    EmployerInvitation:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { $ref: '#/components/schemas/InvitationStatus' }
+        status_label: { type: string, enum: [Czeka na odpowiedź, Zaakceptowane, Odrzucone, Wycofane] }
+        kind: { $ref: '#/components/schemas/InvitationKind' }
+        kind_label: { type: string, enum: [Zaproszenie do rozmowy, Pytanie od firmy] }
+        message: { type: string }
+        created_at: { type: string, format: date-time }
+        responded_at: { type: [string, 'null'], format: date-time }
+        job_share_pair_id: { type: [integer, 'null'] }
+        offer: { $ref: '#/components/schemas/IdTitle' }
+        candidate:
+          description: Revealed (full name + e-mail) only when `status` is `accepted`; otherwise just `id` and `anonymous_name`.
+          oneOf:
+            - $ref: '#/components/schemas/RevealedCandidate'
+            - type: object
+              required: [id, anonymous_name]
+              properties:
+                id: { type: integer }
+                anonymous_name: { type: string }
+        conversation_id: { type: [integer, 'null'], description: 'Accepted invitations only.' }
+    IdTitle:
+      type: object
+      required: [id, title]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+    EmployerPair:
+      type: object
+      description: A job-share pair as the employer sees it – members are anonymous cards.
+      properties:
+        id: { type: integer }
+        offer_id: { type: integer }
+        status: { $ref: '#/components/schemas/PairStatus' }
+        status_label: { type: [string, 'null'], example: Czeka na decyzję }
+        submitted_at: { type: [string, 'null'], format: date-time }
+        members:
+          type: array
+          items: { $ref: '#/components/schemas/AnonymousCandidate' }
+        coverage:
+          type: object
+          description: Required skills covered by the two members together.
+          properties:
+            covered: { type: array, items: { type: string } }
+            missing: { type: array, items: { type: string } }
+            percent: { type: integer }
+        schedule:
+          type: array
+          items: { $ref: '#/components/schemas/ScheduleBlock' }
+    EmployerPairOfferSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        city: { type: [string, 'null'] }
+        start_date: { type: string, format: date }
+        salary_min: { type: [integer, 'null'] }
+        salary_max: { type: [integer, 'null'] }
+        employment_fraction_label: { type: string }
+        work_mode_label: { type: string }
+        flexible_hours: { type: boolean }
+        fixed_meeting_hours: { type: boolean }
+        workday_starts_at: { $ref: '#/components/schemas/Time' }
+        workday_ends_at: { $ref: '#/components/schemas/Time' }
+
+    # ---------- public
+    PublicOffer:
+      type: object
+      description: Public offer card (no match, no candidate data).
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        city: { type: [string, 'null'] }
+        work_mode: { $ref: '#/components/schemas/WorkMode' }
+        work_mode_label: { type: string }
+        employment_fraction: { $ref: '#/components/schemas/EmploymentFraction' }
+        employment_fraction_label: { type: string }
+        salary_min: { type: [integer, 'null'] }
+        salary_max: { type: [integer, 'null'] }
+        start_date: { type: string, format: date }
+        flexible_hours: { type: boolean }
+        fixed_meeting_hours: { type: boolean }
+        childcare_subsidy: { type: boolean }
+        nursery_distance_km: { type: [integer, 'null'], description: 'Km from the workplace to the nearest nursery/kindergarten (`null` = not provided).' }
+        is_parent_friendly: { type: boolean }
+        job_share: { $ref: '#/components/schemas/JobShareSummary' }
+        published_at: { type: [string, 'null'], format: date-time }
+        company:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+            rating: { type: [number, 'null'] }
+            featured_quote: { $ref: '#/components/schemas/FeaturedQuote' }
+    PublicOfferDetail:
+      allOf:
+        - $ref: '#/components/schemas/PublicOffer'
+        - type: object
+          properties:
+            description: { type: [string, 'null'] }
+            required_skills: { type: array, items: { type: string } }
+            nice_to_have_skills: { type: array, items: { type: string } }
+            workday_starts_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }], description: 'Job-sharing offers only.' }
+            workday_ends_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }], description: 'Job-sharing offers only.' }
+            company:
+              type: object
+              description: Replaces the card's `company`.
+              properties:
+                id: { type: integer }
+                name: { type: string }
+                city: { type: [string, 'null'] }
+                verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+                rating: { $ref: '#/components/schemas/RatingSummary' }
+                featured_quote: { $ref: '#/components/schemas/FeaturedQuote' }
+    PublicCompany:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        city: { type: [string, 'null'] }
+        verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+        description: { type: [string, 'null'] }
+        rating: { $ref: '#/components/schemas/RatingSummary' }
+        reviews:
+          type: array
+          description: Approved reviews only; anonymous (only the author's self-chosen label).
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              rating_return: { type: integer }
+              rating_flexibility: { type: integer }
+              rating_no_pregnancy_questions: { type: integer }
+              overall: { type: number }
+              quote: { type: [string, 'null'] }
+              author_label: { type: [string, 'null'] }
+        offers:
+          type: array
+          description: Published offers.
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              city: { type: [string, 'null'] }
+              work_mode: { $ref: '#/components/schemas/WorkMode' }
+              work_mode_label: { type: string }
+              employment_fraction_label: { type: string }
+              salary_min: { type: [integer, 'null'] }
+              salary_max: { type: [integer, 'null'] }
+              start_date: { type: string, format: date }
+              flexible_hours: { type: boolean }
+              fixed_meeting_hours: { type: boolean }
+              childcare_subsidy: { type: boolean }
+              is_job_share: { type: boolean }
+    Article:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        slug: { type: string }
+        excerpt: { type: [string, 'null'] }
+        category: { $ref: '#/components/schemas/ArticleCategory' }
+        category_label: { type: string }
+        reading_minutes: { type: [integer, 'null'] }
+        is_featured: { type: boolean }
+        published_at: { type: [string, 'null'], format: date-time }
+    ArticleDetail:
+      allOf:
+        - $ref: '#/components/schemas/Article'
+        - type: object
+          properties:
+            body_markdown: { type: string }
+            body_html: { type: string, description: 'Safe HTML rendered like the web.' }
+
+    # ---------- conversations
+    Conversation:
+      type: object
+      properties:
+        id: { type: integer }
+        counterpart_name: { type: string, description: 'Company name for a candidate; the candidate''s full name for an employer (revealed after acceptance).' }
+        offer: { $ref: '#/components/schemas/IdTitle' }
+        last_message:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            excerpt: { type: string }
+            created_at: { type: string, format: date-time }
+        last_message_at: { type: [string, 'null'], format: date-time }
+        unread_count: { type: integer }
+        has_unread: { type: boolean }
+    ConversationDetail:
+      type: object
+      properties:
+        id: { type: integer }
+        offer: { $ref: '#/components/schemas/IdTitle' }
+        counterpart:
+          description: The company (for a candidate) or the revealed candidate (for an employer).
+          oneOf:
+            - type: object
+              properties:
+                type: { const: company }
+                id: { type: integer }
+                name: { type: string }
+                verified: { type: boolean, description: 'Verified by a MomJobs admin (NIP checked) – show the badge "Zweryfikowana firma".' }
+                rating: { type: [number, 'null'] }
+            - type: object
+              properties:
+                type: { const: candidate }
+                name: { type: string }
+                email: { type: string, format: email }
+                phone: { type: [string, 'null'] }
+                photo_url: { type: [string, 'null'], format: uri, description: 'Header avatar; authorised `GET /candidate-photos/{profile}`.' }
+        pair_partner_name: { type: [string, 'null'], description: 'For a job-sharing pair invitation – the candidate''s partner, anonymous ("Ewa N.").' }
+        viewer_role: { type: string, enum: [candidate, employer] }
+        last_message_at: { type: [string, 'null'], format: date-time }
+    Message:
+      type: object
+      properties:
+        id: { type: integer }
+        body: { type: string }
+        author_name: { type: string }
+        author_side: { type: string, enum: [candidate, company] }
+        is_mine: { type: boolean, description: 'True for your side (your own messages as a candidate, any colleague''s as an employer).' }
+        read_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: string, format: date-time }
+    MessageRequest:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string, maxLength: 2000 }
+      example: { body: 'Dzień dobry, chętnie porozmawiam w czwartek.' }
+
+    # ---------- job sharing
+    PairListItem:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { $ref: '#/components/schemas/PairStatus' }
+        status_label: { type: string }
+        offer:
+          type: object
+          properties:
+            id: { type: integer }
+            title: { type: string }
+            company: { type: string }
+            job_share: { $ref: '#/components/schemas/JobShareSummary' }
+        partner:
+          description: The other member, anonymous.
+          type: [object, 'null']
+          properties:
+            display_name: { type: string }
+            headline: { type: [string, 'null'] }
+            preferred_day_part_label: { type: [string, 'null'] }
+    JobSharingHub:
+      type: object
+      properties:
+        is_open_to_job_sharing: { type: boolean }
+        is_profile_published: { type: boolean }
+        invitations:
+          type: array
+          description: Pair invitations waiting for your answer.
+          items: { $ref: '#/components/schemas/PairListItem' }
+        pairs:
+          type: array
+          description: Pairs you are an accepted member of (cancelled hidden).
+          items: { $ref: '#/components/schemas/PairListItem' }
+        offers:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              title: { type: string }
+              company: { type: string }
+              city: { type: [string, 'null'] }
+              work_mode_label: { type: string }
+              score: { type: integer }
+              job_share: { $ref: '#/components/schemas/JobShareSummary' }
+              active_pair_id: { type: [integer, 'null'] }
+              active_pair_state:
+                type: [string, 'null']
+                enum: [pair, invite_sent, invite_received, null]
+                description: Null → no active pair (show "Find a partner").
+    Partner:
+      type: object
+      description: '**Privacy:** anonymous possible partner – never surname, e-mail, CV, due date or leave dates.'
+      properties:
+        id: { type: integer }
+        anonymous_name: { type: string }
+        initial: { type: string }
+        headline: { type: [string, 'null'] }
+        years_of_experience: { type: [integer, 'null'] }
+        available_from: { type: [string, 'null'], format: date }
+        preferred_day_part: { oneOf: [{ $ref: '#/components/schemas/DayPart' }, { type: 'null' }] }
+        preferred_day_part_label: { type: [string, 'null'] }
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              matched: { type: boolean }
+        score: { type: integer }
+        is_interested: { type: boolean }
+        is_complementary: { type: boolean, description: 'Preferred part of the day complements yours.' }
+    Pair:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { $ref: '#/components/schemas/PairStatus' }
+        status_label: { type: string }
+        submitted_at: { type: [string, 'null'], format: date-time }
+        has_saved_schedule: { type: boolean }
+        offer:
+          type: object
+          properties:
+            id: { type: integer }
+            title: { type: string }
+            company: { type: string }
+            city: { type: [string, 'null'] }
+            work_mode_label: { type: string }
+            employment_fraction_label: { type: string }
+            is_published: { type: boolean }
+            workday_starts_at: { $ref: '#/components/schemas/Time' }
+            workday_ends_at: { $ref: '#/components/schemas/Time' }
+        members:
+          type: array
+          description: Initiator first. The partner is shown by first name / anonymous name only.
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              first_name: { type: string }
+              display_name: { type: string }
+              headline: { type: [string, 'null'] }
+              preferred_day_part: { oneOf: [{ $ref: '#/components/schemas/DayPart' }, { type: 'null' }] }
+              preferred_day_part_label: { type: [string, 'null'] }
+              is_me: { type: boolean }
+              is_initiator: { type: boolean }
+              has_accepted: { type: boolean }
+              has_confirmed_schedule: { type: boolean }
+        schedule:
+          type: array
+          description: The saved proposal, or a suggested even split when nothing is saved (`has_saved_schedule` false); empty until both members joined.
+          items: { $ref: '#/components/schemas/ScheduleBlock' }
+        can:
+          type: object
+          properties:
+            respond: { type: boolean }
+            chat: { type: boolean, description: 'May read the pair chat (accepted member; also after the pair ended).' }
+            send_message: { type: boolean, description: 'May post to the chat: only while the pair is forming, formed, submitted, invited or hired.' }
+            plan_schedule: { type: boolean }
+            cancel: { type: boolean }
+    PairMessage:
+      type: object
+      properties:
+        id: { type: integer }
+        body: { type: string }
+        author_name: { type: string, description: 'Author''s first name only.' }
+        is_mine: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    # ---------- assistant / notifications / reviews
+    AssistantMessage:
+      type: object
+      properties:
+        id: { type: integer }
+        role: { type: string, enum: [user, assistant] }
+        content: { type: string }
+        citations:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string, examples: [legal, article] }
+              label: { type: string }
+              url: { type: [string, 'null'], description: 'Web path for article citations (`/blog/<slug>`); open via `GET /articles/{slug}`.' }
+        created_at: { type: [string, 'null'], format: date-time }
+    Notification:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        kind:
+          type: [string, 'null']
+          description: Screen to open (ids in `target`).
+          examples: [invitation_received, invitation_accepted, invitation_declined, new_message, pair_invitation_received, pair_invitation_accepted, company_verified]
+        title: { type: string }
+        body: { type: [string, 'null'] }
+        url: { type: [string, 'null'], description: 'Web path.' }
+        read: { type: boolean }
+        created_at: { type: [string, 'null'], format: date-time }
+        created_at_diff: { type: [string, 'null'], example: 5 minut temu }
+        target:
+          type: object
+          description: Subset of these ids, depending on `kind`.
+          properties:
+            conversation_id: { type: integer }
+            invitation_id: { type: integer }
+            job_share_pair_id: { type: integer }
+            job_offer_id: { type: integer }
+            company_id: { type: integer }
+    OwnCompanyReview:
+      type: object
+      description: The candidate's own review with its moderation status.
+      properties:
+        id: { type: integer }
+        company: { $ref: '#/components/schemas/IdName' }
+        rating_return: { type: integer, minimum: 1, maximum: 5 }
+        rating_flexibility: { type: integer, minimum: 1, maximum: 5 }
+        rating_no_pregnancy_questions: { type: integer, minimum: 1, maximum: 5 }
+        quote: { type: string }
+        author_label: { type: [string, 'null'] }
+        status: { type: string, enum: [pending, approved, rejected] }
+        status_label: { type: string }
+        can_edit: { type: boolean }
+        created_at: { type: [string, 'null'], format: date-time }
+    ReviewRequest:
+      type: object
+      required: [rating_return, rating_flexibility, rating_no_pregnancy_questions, quote]
+      properties:
+        rating_return: { type: integer, minimum: 1, maximum: 5 }
+        rating_flexibility: { type: integer, minimum: 1, maximum: 5 }
+        rating_no_pregnancy_questions: { type: integer, minimum: 1, maximum: 5 }
+        quote: { type: string, minLength: 10, maxLength: 300, description: 'No e-mail address or phone number.' }
+        author_label: { type: [string, 'null'], maxLength: 80, description: 'No e-mail address or phone number.' }
+      example:
+        rating_return: 5
+        rating_flexibility: 4
+        rating_no_pregnancy_questions: 5
+        quote: Po powrocie dostałam miesiąc na wdrożenie.
+        author_label: Mama dwójki, księgowość

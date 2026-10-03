@@ -2,6 +2,7 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { MessageCircle, ShieldCheck, Star } from '@lucide/vue';
 import { ref } from 'vue';
+import VerifiedCompanyBadge from '@/components/brand/VerifiedCompanyBadge.vue';
 import Chip from '@/components/candidate/Chip.vue';
 import { formatLongDate, formatRating } from '@/components/candidate/format';
 import { pairStatusLabels } from '@/components/job-sharing/types';
@@ -35,6 +36,7 @@ type Invitation = {
     };
     company: {
         name: string;
+        verified: boolean;
         average_rating: number | null;
         reviews_count: number;
     };
@@ -121,6 +123,11 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                     </p>
                     <p class="mt-1 text-sm text-brand-green/80">
                         {{ invitation.company.name }}
+                        <VerifiedCompanyBadge
+                            v-if="invitation.company.verified"
+                            compact
+                            class="align-middle"
+                        />
                         <template v-if="invitation.offer.city">
                             · {{ invitation.offer.city }}</template
                         >

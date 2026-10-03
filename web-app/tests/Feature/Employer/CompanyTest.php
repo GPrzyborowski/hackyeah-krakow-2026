@@ -40,12 +40,12 @@ class CompanyTest extends TestCase
         $otherCompany = Company::factory()->create(['name' => 'Inna firma']);
 
         $this->actingAs($employer)
-            ->put('/employer/company', ['name' => 'Zielone Biuro', 'nip' => '123-456-78-90', 'city' => 'Kraków', 'description' => 'Elastyczne godziny.'])
+            ->put('/employer/company', ['name' => 'Zielone Biuro', 'nip' => '123-456-32-18', 'city' => 'Kraków', 'description' => 'Elastyczne godziny.'])
             ->assertRedirect(route('employer.company.edit'));
 
         $company = $employer->company->refresh();
         $this->assertSame('Zielone Biuro', $company->name);
-        $this->assertSame('1234567890', $company->nip);
+        $this->assertSame('1234563218', $company->nip);
         $this->assertSame('Inna firma', $otherCompany->refresh()->name);
     }
 
@@ -54,6 +54,15 @@ class CompanyTest extends TestCase
         $this->actingAs($this->employer())
             ->put('/employer/company', ['name' => 'Zielone Biuro', 'nip' => '12345'])
             ->assertSessionHasErrors('nip');
+    }
+
+    public function test_nip_of_another_company_is_rejected()
+    {
+        Company::factory()->create(['nip' => '5260250274']);
+
+        $this->actingAs($this->employer())
+            ->put('/employer/company', ['name' => 'Zielone Biuro', 'nip' => '5260250274'])
+            ->assertSessionHasErrors(['nip' => 'Firma z tym NIP-em ma już konto w MomJobs.']);
     }
 
     public function test_company_description_asking_about_family_plans_is_rejected()

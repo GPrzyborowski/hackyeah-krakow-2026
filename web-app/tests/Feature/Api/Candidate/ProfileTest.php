@@ -5,6 +5,7 @@ namespace Tests\Feature\Api\Candidate;
 use App\Enums\CvStatus;
 use App\Models\CandidateProfile;
 use App\Models\Company;
+use App\Models\JobOffer;
 use App\Models\Skill;
 use App\Models\User;
 use App\Services\Ai\CvAnalysis;
@@ -211,6 +212,17 @@ class ProfileTest extends TestCase
             ->assertJsonPath('data.ai_summary', 'Rekruterka IT z 6-letnim stażem.');
     }
 
+    public function test_summary_updates_are_rate_limited(): void
+    {
+        Sanctum::actingAs($this->candidate);
+
+        foreach (range(1, 20) as $ignored) {
+            $this->patchJson('/api/v1/candidate/profile/summary', ['ai_summary' => 'Rekruterka IT.'])->assertOk();
+        }
+
+        $this->patchJson('/api/v1/candidate/profile/summary', ['ai_summary' => 'Rekruterka IT.'])->assertTooManyRequests();
+    }
+
     public function test_publish_requires_available_from_and_a_confirmed_skill(): void
     {
         Sanctum::actingAs($this->candidate);
@@ -277,6 +289,18 @@ class ProfileTest extends TestCase
             ->assertJsonPath('data.companies.0.name', 'Zielone Biuro')
             ->assertJsonPath('data.day_parts.0.value', 'morning')
             ->assertJsonCount(4, 'data.employment_fractions');
+    }
+
+    public function test_skill_suggestions_contain_only_dictionary_and_offer_skills(): void
+    {
+        Skill::factory()->create(['name' => 'Excel']);
+        Skill::findOrCreateByName('Zielone Biuro HR')->jobOffers()->attach(JobOffer::factory()->create(), ['importance' => 'required']);
+        Skill::findOrCreateByName('marta.prywatnie');
+        Sanctum::actingAs($this->candidate);
+
+        $this->getJson('/api/v1/candidate/profile/options')
+            ->assertOk()
+            ->assertJsonPath('data.skill_suggestions', ['Excel', 'Zielone Biuro HR']);
     }
 
     private function fakeAnalyzer(CvAnalysis $analysis): void

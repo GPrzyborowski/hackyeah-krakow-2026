@@ -126,6 +126,7 @@ function toggleVisibility() {
                 v-if="step !== 4"
                 :hidden-from-company-id="profile.hidden_from_company_id"
                 :allow-direct-messages="profile.allow_direct_messages"
+                :job-alerts-enabled="profile.job_alerts_enabled"
                 :companies="companies"
             />
         </aside>

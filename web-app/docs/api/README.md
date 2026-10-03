@@ -9,6 +9,14 @@ moderation and rate limits) and is grouped into three reference documents:
 | [employer.md](employer.md) | Company, offers, candidate swipe, invitations, job-sharing pairs from the employer side (role `employer`, verified e-mail) |
 | [shared.md](shared.md) | Public offers/companies/blog, conversations, job sharing (candidate side), legal assistant, notifications, company reviews, push device tokens |
 
+Machine-readable versions:
+
+- [openapi.yaml](openapi.yaml) – OpenAPI 3.1 spec of every endpoint (also served outside production at
+  `GET /api/v1/openapi.yaml`, e.g. `http://localhost/api/v1/openapi.yaml` – import it into Swagger UI, Redocly, Insomnia…).
+  `tests/Feature/Api/OpenApiSpecTest.php` fails when a route is missing from the spec (or the spec lists a removed one).
+- [momjobs.postman_collection.json](momjobs.postman_collection.json) – Postman v2.1 collection (folders per area,
+  `{{baseUrl}}` / `{{token}}` variables). Run *Auth → Login as candidate / employer* first; it stores the token.
+
 ## Base URL
 
 ```
@@ -21,7 +29,7 @@ Locally (Sail): `http://localhost/api/v1`. All paths in the docs are relative to
 
 | Header | Value |
 | --- | --- |
-| `Accept` | `application/json` (always – guarantees JSON errors) |
+| `Accept` | `application/json` (recommended; the server forces it for every `/api/*` request, so errors are JSON even without it) |
 | `Content-Type` | `application/json` (or `multipart/form-data` for the CV upload) |
 | `Authorization` | `Bearer <token>` for every endpoint except `auth/register`, `auth/login` and the public endpoints |
 
@@ -31,11 +39,23 @@ Locally (Sail): `http://localhost/api/v1`. All paths in the docs are relative to
    employers also `company_name`, `company_nip`, plus `device_name`) → `201 {token, user}`.
    A verification e-mail is sent; employer endpoints require a verified e-mail.
 2. `POST /auth/login` (`email`, `password`, `device_name`, e.g. "iPhone Marty") → `200 {token, user}`.
+   - **Two-factor authentication:** when the account has 2FA enabled (set up in the web app), the first attempt
+     returns `422` with `"two_factor_required": true` and `errors.code`. Show a code field and repeat the same
+     request adding `code` (6-digit TOTP from the authenticator app) **or** `recovery_code` (single use – it is
+     replaced after a successful login). A wrong code returns the same `422` shape.
+   - Admin accounts are refused with `403` ("Panel administratora jest dostępny tylko w przeglądarce.").
+   - Throttled: 5 attempts/min per e-mail + IP and 20/min per e-mail (`429`).
 3. Store the token securely (Keychain / Keystore) and send it as `Authorization: Bearer <token>`.
-   Tokens do not expire; one token per device.
+   One token per device. **Tokens expire after 60 days** (`SANCTUM_TOKEN_EXPIRATION`, minutes) – on `401` send the
+   user back to login. All tokens are also revoked when the password is changed or reset (web app).
 4. `GET /auth/me` → `{data: user}` – use on app start to restore the session and route by `data.role`
-   (`candidate` → onboarding when `data.candidate_profile.published` is false, `employer` → offers).
-5. `POST /auth/logout` → `204`, revokes the current token. Also call `DELETE /devices/{token}` for the push token.
+   (`candidate` → onboarding when `data.candidate_profile.published` is false, `employer` → `GET /employer/dashboard`).
+5. `POST /auth/logout` → `204`, revokes the current token. A push token registered with `POST /devices` using this
+   API token is deleted automatically (device tokens are bound to the API token that registered them).
+6. `POST /auth/logout-all` → `204`, revokes every token of the user (all devices, with their push tokens).
+7. `POST /auth/email/verification-notification` (authenticated, 6/min) → `202 {message}` sends a new verification
+   link (`200` with "Adres e-mail jest już zweryfikowany." when nothing is needed). **The link opens in the browser**
+   (web app) – after clicking it, call `GET /auth/me` again; `data.email_verified` becomes `true`.
 
 ```json
 {
@@ -72,7 +92,8 @@ All errors are JSON:
 | Status | Body | When |
 | --- | --- | --- |
 | 401 | `{"message": "Unauthenticated."}` | Missing, invalid or revoked token |
-| 403 | `{"message": "This action is unauthorized."}` or a Polish reason | Wrong role, not a participant / owner, unverified employer (`"Your email address is not verified."`) |
+| 403 | `{"message": "This action is unauthorized."}` or a Polish reason | Wrong role, not a participant / owner, action not allowed in the current state |
+| 403 | `{"message": "Potwierdź swój adres e-mail…", "email_verification_required": true}` | Unverified e-mail: all employer endpoints and accepting an invitation (candidate). Offer "resend link" (`POST /auth/email/verification-notification`) |
 | 404 | `{"message": "…"}` | Unknown id, unpublished offer/article, or something hidden from you |
 | 422 | `{"message": "…", "errors": {"field": ["Polski komunikat"]}}` | Validation failed (messages are Polish and can be shown as-is) |
 | 429 | `{"message": "Too Many Attempts."}` + `Retry-After` header | Rate limit hit |
@@ -93,11 +114,17 @@ Suggested intervals: open chat thread 5 s, conversation list / notifications bad
 (`GET /notifications/unread-count`), nothing in the background. Lists are newest first; with a cursor you get only
 the new items (still paginated – read `meta.last_page`).
 
-## Rate limits (per user, per minute)
+## Rate limits (per minute)
+
+Every authenticated endpoint shares a general limit of **120 requests/min per user**; the endpoints below have an
+additional, stricter limit.
 
 | Endpoint | Limit |
 | --- | --- |
-| `POST /auth/register`, `POST /auth/login` | 10 |
+| `POST /auth/register` | 10 per IP |
+| `POST /auth/login` | 5 per e-mail + IP, 20 per e-mail |
+| `POST /auth/email/verification-notification` | 6 |
+| Moderated writes: `PATCH /candidate/profile/summary`, `PUT /employer/company`, `POST /employer/offers`, `PUT /employer/offers/{id}` | 20 |
 | CV analysis (candidate) | 5 |
 | Invitations, job-sharing pair invitations, employer pair invitations | 20 |
 | Conversation messages, pair chat messages | 30 |
@@ -108,8 +135,8 @@ the new items (still paginated – read `meta.last_page`).
 
 - Employers see candidates only anonymously (first name + surname initial, headline, experience, AI summary,
   confirmed skills, availability, work modes/fractions, match %) until the candidate accepts an invitation.
-  Then the inviting company sees full name and e-mail – only inside that conversation.
-- Never exposed to other users: surname before acceptance, e-mail, CV file / text, due date, leave dates, reason of the gap.
+  Then the inviting company sees full name, e-mail, phone and photo (`photo_url` → authorised `GET /candidate-photos/{profile}`).
+- Never exposed to other users: surname before acceptance, e-mail, phone, photo, CV file / text, due date, leave dates, reason of the gap.
 - Profiles hidden from a company are invisible to it.
 - Job-sharing partner search and pairs show other candidates in the same anonymous form; the pair chat is visible
   only to the two members who accepted the pair (never to the employer).

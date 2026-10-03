@@ -41,7 +41,7 @@ const candidateTabs: MobileTab[] = [
 ];
 
 const employerTabs: MobileTab[] = [
-    { title: 'Start', href: '/employer/offers', icon: Home },
+    { title: 'Start', href: '/employer', icon: Home, exact: true },
     { title: 'Kandydatki', href: '/employer/candidates', icon: Users },
     { title: 'Blog', href: '/blog', icon: FileText },
     { title: 'Czaty', href: '/conversations', icon: MessageCircle },

@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, MapPin, Star } from '@lucide/vue';
 import OfferCard from '@/components/brand/OfferCard.vue';
+import VerifiedCompanyBadge from '@/components/brand/VerifiedCompanyBadge.vue';
 import RatingBar from '@/components/brand/RatingBar.vue';
 import { formatRating } from '@/components/brand/format';
 import { ratingCategoryLabels } from '@/components/brand/types';
@@ -28,6 +29,7 @@ defineProps<{
         id: number;
         name: string;
         city: string | null;
+        verified: boolean;
         description: string | null;
         rating: RatingSummary;
     };
@@ -58,6 +60,10 @@ const categories = Object.keys(ratingCategoryLabels) as Array<
                 >
                     {{ company.name }}
                 </h1>
+                <VerifiedCompanyBadge
+                    v-if="company.verified"
+                    class="mt-2 mr-2"
+                />
                 <p
                     v-if="company.city"
                     class="mt-2 inline-flex items-center gap-1 text-sm text-brand-green/80"

@@ -56,6 +56,7 @@ class InvitationResource extends JsonResource
             'company' => [
                 'id' => $company->id,
                 'name' => $company->name,
+                'verified' => $company->isVerified(),
                 'average_rating' => $company->averageRating(),
                 'reviews_count' => $company->approvedReviews->count(),
             ],

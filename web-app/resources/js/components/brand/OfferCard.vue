@@ -8,6 +8,7 @@ import {
     formatShortDate,
 } from '@/components/brand/format';
 import type { PublicOffer } from '@/components/brand/types';
+import VerifiedCompanyBadge from '@/components/brand/VerifiedCompanyBadge.vue';
 import { jobShareLabel } from '@/components/job-sharing/format';
 import { register } from '@/routes';
 import { show as companyShow } from '@/routes/public/companies';
@@ -60,6 +61,11 @@ const chips = computed(() =>
                         class="hover:underline"
                         >{{ offer.company.name }}</Link
                     >
+                    <VerifiedCompanyBadge
+                        v-if="offer.company?.verified"
+                        compact
+                        class="ml-1 align-middle"
+                    />
                     <span v-if="offer.company"> · </span>
                     <span>{{ offer.city ?? 'Polska' }}</span>
                     <span> · {{ offer.work_mode_label.toLowerCase() }}</span>

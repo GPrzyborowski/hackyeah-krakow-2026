@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { Mail, MessageCircle } from '@lucide/vue';
+import { Mail, MessageCircle, Phone } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import CandidateController from '@/actions/App/Http/Controllers/Employer/CandidateController';
 import InvitationController from '@/actions/App/Http/Controllers/Employer/InvitationController';
+import CandidateAvatar from '@/components/candidate/CandidateAvatar.vue';
 import { formatShortDate } from '@/components/employer/format';
 
 type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'withdrawn';
@@ -22,6 +23,8 @@ type InvitationRow = {
         anonymous_name: string;
         full_name?: string;
         email?: string;
+        phone?: string | null;
+        photo_url?: string | null;
         headline?: string | null;
     };
     conversation_url: string | null;
@@ -80,8 +83,8 @@ const filters: { value: InvitationStatus | 'all'; label: string }[] = [
             Zaproszenia
         </h1>
         <p class="mt-2 text-sm text-brand-green/80">
-            Imię, nazwisko i e-mail kandydatki zobaczysz, gdy zaakceptuje
-            zaproszenie.
+            Zdjęcie, nazwisko i dane kontaktowe kandydatki zobaczysz, gdy
+            zaakceptuje zaproszenie.
         </p>
 
         <div
@@ -124,11 +127,13 @@ const filters: { value: InvitationStatus | 'all'; label: string }[] = [
                 :key="invitation.id"
                 class="flex flex-col gap-3 rounded-3xl bg-white p-5 shadow-sm sm:flex-row sm:items-center"
             >
-                <div
-                    class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-peach font-bold text-brand-green"
-                >
-                    {{ invitation.candidate.anonymous_name.charAt(0) }}
-                </div>
+                <CandidateAvatar
+                    :name="
+                        invitation.candidate.full_name ??
+                        invitation.candidate.anonymous_name
+                    "
+                    :photo-url="invitation.candidate.photo_url"
+                />
                 <div class="min-w-0 flex-1">
                     <p class="font-semibold text-brand-green">
                         {{
@@ -152,6 +157,17 @@ const filters: { value: InvitationStatus | 'all'; label: string }[] = [
                             :href="`mailto:${invitation.candidate.email}`"
                             class="underline"
                             >{{ invitation.candidate.email }}</a
+                        >
+                    </p>
+                    <p
+                        v-if="invitation.candidate.phone"
+                        class="mt-1 ml-3 inline-flex items-center gap-1 text-sm text-brand-green"
+                    >
+                        <Phone class="size-3.5" aria-hidden="true" />
+                        <a
+                            :href="`tel:${invitation.candidate.phone.replace(/\s/g, '')}`"
+                            class="underline"
+                            >{{ invitation.candidate.phone }}</a
                         >
                     </p>
                 </div>

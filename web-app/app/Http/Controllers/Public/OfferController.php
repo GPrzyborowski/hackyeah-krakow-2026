@@ -63,6 +63,7 @@ class OfferController extends Controller
             'company' => [
                 'id' => $company->id,
                 'name' => $company->name,
+                'verified' => $company->isVerified(),
                 'rating' => $company->averageRating(),
                 'featured_quote' => $this->featuredQuote($company),
             ],

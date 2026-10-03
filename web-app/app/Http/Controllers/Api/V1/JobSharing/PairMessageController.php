@@ -36,7 +36,7 @@ class PairMessageController extends Controller
 
     public function store(StorePairMessageRequest $request, JobSharePair $pair): JsonResponse
     {
-        Gate::authorize('chat', $pair);
+        Gate::authorize('sendMessage', $pair);
 
         $message = $pair->messages()->create([
             'user_id' => $request->user()->id,

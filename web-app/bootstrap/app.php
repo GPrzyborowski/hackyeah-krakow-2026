@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserHasRole;
+use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -9,6 +10,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,6 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
+        ]);
+
+        $middleware->api(prepend: [
+            ForceJsonResponse::class,
         ]);
 
         $middleware->web(append: [
@@ -43,6 +49,19 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->routeIs('newsletter.store')) {
                 return back()->withErrors(['email' => 'Za dużo prób zapisu. Spróbuj ponownie za minutę.']);
             }
+        });
+
+        $exceptions->render(function (HttpException $exception, Request $request) {
+            if ($exception->getStatusCode() !== 403
+                || $exception->getMessage() !== 'Your email address is not verified.'
+                || ! $request->expectsJson()) {
+                return null;
+            }
+
+            return response()->json([
+                'message' => 'Potwierdź swój adres e-mail – link znajdziesz w skrzynce. Możesz poprosić o nowy link.',
+                'email_verification_required' => true,
+            ], 403);
         });
 
         $exceptions->shouldRenderJsonWhen(

@@ -36,6 +36,7 @@ export type CandidateOffer = {
         id: number;
         name: string;
         city: string | null;
+        verified: boolean;
         average_rating: number | null;
         reviews_count: number;
         first_review: { quote: string; author_label: string | null } | null;
@@ -56,6 +57,8 @@ export type OnboardingProfile = {
     headline: string | null;
     years_of_experience: number | null;
     city: string | null;
+    phone: string | null;
+    photo_url: string | null;
     ai_summary: string | null;
     available_from: string | null;
     leave_starts_on: string | null;
@@ -67,6 +70,7 @@ export type OnboardingProfile = {
     preferred_day_part: 'morning' | 'afternoon' | 'any' | null;
     hidden_from_company_id: number | null;
     allow_direct_messages: boolean;
+    job_alerts_enabled: boolean;
     onboarding_step: number;
     cv_original_name: string | null;
     cv_size: number | null;

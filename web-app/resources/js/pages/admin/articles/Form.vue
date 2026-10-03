@@ -147,7 +147,7 @@ function submit(): void {
 }
 
 const fieldClass =
-    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/60 bg-white px-4 text-sm font-normal text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
+    'mt-1.5 h-11 w-full rounded-2xl border border-brand-line bg-white px-4 text-sm font-normal text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 const labelClass = 'block text-xs font-semibold text-brand-green';
 const tabClass = (isActive: boolean): string =>
     `rounded-full px-4 py-1.5 text-sm font-semibold transition ${isActive ? 'bg-brand-green text-white' : 'bg-brand-cream text-brand-green hover:bg-brand-mint-soft'}`;
@@ -188,7 +188,7 @@ const tabClass = (isActive: boolean): string =>
                     <label :class="labelClass">
                         Adres (slug)
                         <span
-                            class="mt-1.5 flex items-center rounded-2xl border border-brand-green/60 bg-white pl-4 focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-green/40"
+                            class="mt-1.5 flex items-center rounded-2xl border border-brand-line bg-white pl-4 focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-green/40"
                         >
                             <span
                                 class="text-sm font-normal text-brand-green/80"

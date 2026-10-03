@@ -45,6 +45,19 @@ class InvitationTest extends TestCase
             ->assertJsonPath('meta.total', 2);
     }
 
+    public function test_unverified_candidate_cannot_accept_yet(): void
+    {
+        $invitation = Invitation::factory()->create();
+        $invitation->candidateProfile->user->forceFill(['email_verified_at' => null])->save();
+        Sanctum::actingAs($invitation->candidateProfile->user);
+
+        $this->postJson("/api/v1/candidate/invitations/{$invitation->id}/accept")
+            ->assertForbidden()
+            ->assertJsonPath('email_verification_required', true);
+
+        $this->assertSame(InvitationStatus::Pending, $invitation->refresh()->status);
+    }
+
     public function test_accepting_opens_a_conversation(): void
     {
         $invitation = Invitation::factory()->create();

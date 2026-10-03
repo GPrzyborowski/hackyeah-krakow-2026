@@ -43,7 +43,7 @@ class ProfileController extends Controller
             'employment_fractions' => collect(EmploymentFraction::cases())->map(fn (EmploymentFraction $fraction): array => ['value' => $fraction->value, 'label' => $fraction->label()]),
             'day_parts' => collect(DayPart::cases())->map(fn (DayPart $part): array => ['value' => $part->value, 'label' => $part->label()]),
             'companies' => Company::query()->orderBy('name')->get(['id', 'name'])->map(fn (Company $company): array => ['id' => $company->id, 'name' => $company->name]),
-            'skill_suggestions' => Skill::query()->orderBy('name')->pluck('name'),
+            'skill_suggestions' => Skill::query()->suggestable()->orderBy('name')->pluck('name'),
         ]]);
     }
 

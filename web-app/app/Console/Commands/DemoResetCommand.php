@@ -8,7 +8,6 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Storage;
 
 #[Signature('momjobs:demo-reset {--force : Skip the confirmation and allow running in production}')]
@@ -45,7 +44,6 @@ class DemoResetCommand extends Command
 
         $this->rebuildDatabaseWithoutSendingMail();
 
-        DatabaseNotification::query()->delete();
         Storage::disk('local')->deleteDirectory(self::CV_DIRECTORY);
         $this->call('cache:clear');
 

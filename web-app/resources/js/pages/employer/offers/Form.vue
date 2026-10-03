@@ -73,7 +73,7 @@ function submit(action: 'draft' | 'publish'): void {
 }
 
 const fieldClass =
-    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/60 bg-white px-4 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
+    'mt-1.5 h-11 w-full rounded-2xl border border-brand-line bg-white px-4 text-sm font-normal text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 const labelClass = 'text-xs font-semibold text-brand-green';
 </script>
 

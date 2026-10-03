@@ -167,6 +167,39 @@ class ProfileOnboarding
         $profile->update(['published_at' => now(), 'onboarding_step' => self::LAST_STEP]);
     }
 
+    /**
+     * Store the private photo on the local (non-public) disk, replacing the previous one.
+     *
+     * @throws ValidationException
+     */
+    public function storePhoto(CandidateProfile $profile, UploadedFile $photo): void
+    {
+        $this->stripJpegMetadata($photo);
+
+        $storedPath = $photo->store('photos', 'local');
+
+        if ($storedPath === false) {
+            throw ValidationException::withMessages(['photo' => 'Nie udało się zapisać zdjęcia. Spróbuj ponownie.']);
+        }
+
+        $previousPath = $profile->photo_path;
+        $profile->forceFill(['photo_path' => $storedPath])->save();
+
+        if ($previousPath !== null) {
+            Storage::disk('local')->delete($previousPath);
+        }
+    }
+
+    public function removePhoto(CandidateProfile $profile): void
+    {
+        if ($profile->photo_path === null) {
+            return;
+        }
+
+        Storage::disk('local')->delete($profile->photo_path);
+        $profile->forceFill(['photo_path' => null])->save();
+    }
+
     private function applyAnalysis(CandidateProfile $profile, CvAnalysis $analysis): void
     {
         DB::transaction(function () use ($profile, $analysis): void {
@@ -217,6 +250,37 @@ class ProfileOnboarding
         if ($errors !== []) {
             throw ValidationException::withMessages($errors);
         }
+    }
+
+    /**
+     * Re-encode JPEG photos with GD so EXIF metadata (GPS position, device) is not kept; orientation is applied first.
+     * Skipped silently when GD is not available or the file cannot be decoded.
+     */
+    private function stripJpegMetadata(UploadedFile $photo): void
+    {
+        $path = $photo->getRealPath();
+
+        if ($path === false || $photo->getMimeType() !== 'image/jpeg' || ! function_exists('imagecreatefromjpeg')) {
+            return;
+        }
+
+        $image = @imagecreatefromjpeg($path);
+
+        if ($image === false) {
+            return;
+        }
+
+        $exif = function_exists('exif_read_data') ? @exif_read_data($path) : false;
+        $orientation = is_array($exif) ? (int) ($exif['Orientation'] ?? 1) : 1;
+
+        $oriented = match ($orientation) {
+            3 => imagerotate($image, 180, 0),
+            6 => imagerotate($image, -90, 0),
+            8 => imagerotate($image, 90, 0),
+            default => $image,
+        };
+
+        imagejpeg($oriented === false ? $image : $oriented, $path, 90);
     }
 
     private function advanceTo(CandidateProfile $profile, int $completedStep): void

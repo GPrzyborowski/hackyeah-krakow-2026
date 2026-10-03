@@ -37,6 +37,18 @@ class ProfileSkillTest extends TestCase
             ->assertJsonValidationErrors('name');
     }
 
+    public function test_tag_with_contact_details_is_rejected(): void
+    {
+        $profile = CandidateProfile::factory()->create();
+        Sanctum::actingAs($profile->user);
+
+        $this->postJson('/api/v1/candidate/profile/skills', ['name' => 'kontakt: marta@example.com'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('name');
+
+        $this->assertSame(0, $profile->skills()->count());
+    }
+
     public function test_candidate_removes_a_tag(): void
     {
         $profile = CandidateProfile::factory()->create();

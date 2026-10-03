@@ -23,7 +23,7 @@ class DemoResetCommandTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_rebuilds_demo_data_without_mail_notifications_or_uploads(): void
+    public function test_it_rebuilds_demo_data_with_bell_notifications_but_without_mail_or_uploads(): void
     {
         Mail::fake();
         Storage::fake('local');
@@ -37,7 +37,13 @@ class DemoResetCommandTest extends TestCase
 
         $this->assertDatabaseHas(User::class, ['email' => 'marta@momjobs.test']);
         $this->assertDatabaseHas(User::class, ['email' => 'hr@zielonebiuro.test']);
-        $this->assertSame(0, DatabaseNotification::query()->count());
+        $marta = User::firstWhere('email', 'marta@momjobs.test');
+        $recruiter = User::firstWhere('email', 'hr@zielonebiuro.test');
+        $this->assertTrue($marta->unreadNotifications()->where('data->kind', 'invitation_received')->where('data->title', 'like', 'Firma Kamienica Studio zaprasza Cię%')->exists());
+        $this->assertTrue($marta->notifications()->where('data->kind', 'pair_invitation_accepted')->exists());
+        $this->assertTrue($marta->notifications()->where('data->kind', 'new_message')->exists());
+        $this->assertTrue($recruiter->unreadNotifications()->where('data->kind', 'invitation_accepted')->exists());
+        $this->assertSame(5, DatabaseNotification::query()->count());
         Mail::assertNothingSent();
         Mail::assertNothingQueued();
         Storage::disk('local')->assertMissing('cvs/old-upload.pdf');

@@ -141,12 +141,31 @@ class DemoPolishSeeder extends Seeder
         'Fundacja Dobry Start' => 1,
     ];
 
+    /**
+     * Demo company left unverified, so the admin can show the verification flow.
+     */
+    private const string UNVERIFIED_DEMO_COMPANY = 'Północ Logistyka';
+
     public function run(): void
     {
         $this->polishCandidateSummaries();
         $this->polishExistingCompanies();
         $this->seedKrakowCompanies();
         $this->seedNurseryDistances();
+        $this->verifyDemoCompanies();
+    }
+
+    /**
+     * Marks the demo companies as verified by the admin, except one left waiting for verification.
+     */
+    private function verifyDemoCompanies(): void
+    {
+        $admin = User::query()->where('email', 'admin@momjobs.test')->first();
+
+        Company::query()
+            ->whereNull('verified_at')
+            ->where('name', '!=', self::UNVERIFIED_DEMO_COMPANY)
+            ->update(['verified_at' => now(), 'verified_by_user_id' => $admin?->id]);
     }
 
     /**

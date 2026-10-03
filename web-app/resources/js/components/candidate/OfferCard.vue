@@ -11,6 +11,7 @@ import InterestButton from '@/components/candidate/InterestButton.vue';
 import MatchPill from '@/components/candidate/MatchPill.vue';
 import SaveOfferButton from '@/components/candidate/SaveOfferButton.vue';
 import type { CandidateOffer } from '@/components/candidate/types';
+import VerifiedCompanyBadge from '@/components/brand/VerifiedCompanyBadge.vue';
 import JobShareChip from '@/components/job-sharing/JobShareChip.vue';
 import { show } from '@/routes/candidate/offers';
 
@@ -37,7 +38,13 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
                     </Chip>
                 </div>
                 <p class="mt-1 text-sm text-brand-green/80">
-                    {{ offer.company.name }} ·
+                    {{ offer.company.name }}
+                    <VerifiedCompanyBadge
+                        v-if="offer.company.verified"
+                        compact
+                        class="align-middle"
+                    />
+                    ·
                     {{ location || offer.work_mode_label.toLowerCase() }}
                 </p>
             </div>
@@ -72,7 +79,7 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
         <div
             class="mt-4 flex flex-col gap-4 border-t border-brand-cream pt-4 md:flex-row md:items-center"
         >
-            <p class="flex-1 text-sm text-brand-green/80">
+            <p class="line-clamp-2 min-w-0 flex-1 text-sm text-brand-green/80">
                 <template v-if="offer.company.average_rating !== null">
                     <span class="inline-flex items-center gap-1 font-semibold">
                         <Star

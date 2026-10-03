@@ -10,4 +10,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     require __DIR__.'/api/candidate.php';
     require __DIR__.'/api/employer.php';
     require __DIR__.'/api/shared.php';
+
+    if (! app()->isProduction()) {
+        Route::get('openapi.yaml', fn () => response()->file(base_path('docs/api/openapi.yaml'), ['Content-Type' => 'application/yaml']))
+            ->name('openapi');
+    }
 });

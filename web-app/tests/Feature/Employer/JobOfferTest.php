@@ -4,6 +4,7 @@ namespace Tests\Feature\Employer;
 
 use App\Enums\InvitationStatus;
 use App\Enums\OfferStatus;
+use App\Models\Company;
 use App\Models\CompanyReview;
 use App\Models\Invitation;
 use App\Models\JobOffer;
@@ -197,14 +198,26 @@ class JobOfferTest extends TestCase
 
     public function test_skill_autocomplete_returns_matching_skills()
     {
-        $this->skill('Rekrutacja IT');
-        $this->skill('Excel');
+        Skill::factory()->create(['name' => 'Rekrutacja IT']);
+        Skill::factory()->create(['name' => 'Excel']);
 
         $this->actingAs($this->employer())
             ->getJson('/employer/skills?q=rekru')
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.name', 'Rekrutacja IT');
+    }
+
+    public function test_skill_autocomplete_suggests_only_dictionary_skills_and_skills_used_by_offers()
+    {
+        $this->publishedOffer(Company::factory()->create(), [$this->skill('Rekrutacja w ofercie')]);
+        $this->skill('Rekrutacja prywatna – tag kandydatki');
+
+        $this->actingAs($this->employer())
+            ->getJson('/employer/skills?q=rekru')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.name', 'Rekrutacja w ofercie');
     }
 
     /**

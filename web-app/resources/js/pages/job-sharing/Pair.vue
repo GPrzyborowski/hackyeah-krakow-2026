@@ -68,6 +68,7 @@ const props = defineProps<{
     can: {
         respond: boolean;
         chat: boolean;
+        send_message: boolean;
         plan_schedule: boolean;
         cancel: boolean;
     };
@@ -201,7 +202,7 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
 }
 
 const inputClass =
-    'mt-1 h-10 w-full rounded-2xl border border-brand-green/60 bg-white px-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40 disabled:opacity-60';
+    'mt-1 h-10 w-full rounded-2xl border border-brand-line bg-white px-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40 disabled:opacity-60';
 </script>
 
 <template>
@@ -346,7 +347,7 @@ const inputClass =
                 </div>
 
                 <Form
-                    v-if="can.chat"
+                    v-if="can.send_message"
                     v-bind="PairMessageController.store.form(pair.id)"
                     reset-on-success
                     :options="{ preserveScroll: true }"
@@ -355,7 +356,7 @@ const inputClass =
                 >
                     <InputError id="pair-body-error" :message="errors.body" />
                     <div
-                        class="flex items-end gap-2 rounded-3xl border border-brand-green/60 bg-white p-2 has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-brand-green"
+                        class="flex items-end gap-2 rounded-3xl border border-brand-line bg-white p-2 has-[textarea:focus-visible]:ring-2 has-[textarea:focus-visible]:ring-brand-green"
                     >
                         <textarea
                             name="body"
@@ -520,9 +521,14 @@ const inputClass =
                         </button>
                         <button
                             type="button"
-                            class="rounded-full bg-brand-green px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-soft disabled:cursor-not-allowed disabled:opacity-50"
+                            class="rounded-full bg-brand-green px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-soft disabled:cursor-not-allowed disabled:bg-brand-green/40 disabled:hover:bg-brand-green/40"
                             :disabled="
                                 !bothConfirmed || isSending || form.isDirty
+                            "
+                            :aria-describedby="
+                                !bothConfirmed || form.isDirty
+                                    ? 'submit-pair-hint'
+                                    : undefined
                             "
                             data-test="submit-pair"
                             @click="
@@ -532,10 +538,16 @@ const inputClass =
                             Wyślij pracodawcy
                         </button>
                         <p
-                            v-if="!bothConfirmed"
-                            class="text-center text-[11px] text-brand-green/80"
+                            v-if="!bothConfirmed || form.isDirty"
+                            id="submit-pair-hint"
+                            class="text-center text-xs text-brand-green/80"
+                            data-test="submit-pair-hint"
                         >
-                            Wyślecie parę, gdy obie zaakceptujecie podział.
+                            {{
+                                form.isDirty
+                                    ? 'Najpierw zapisz zmiany w podziale.'
+                                    : 'Obie musicie zaakceptować podział, zanim wyślecie go pracodawcy.'
+                            }}
                         </p>
                     </div>
                 </section>

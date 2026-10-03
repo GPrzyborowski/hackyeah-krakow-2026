@@ -12,7 +12,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * The only shape in which an employer may see a candidate before she accepts an invitation.
- * Never add surname, email, photo, CV, leave or due dates here.
+ * Never add surname, email, phone, photo, CV, leave or due dates here.
  *
  * @mixin CandidateProfile
  *

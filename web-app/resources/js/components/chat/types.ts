@@ -22,8 +22,19 @@ export type ConversationMessage = {
 };
 
 export type ConversationCounterpart =
-    | { type: 'candidate'; name: string; email: string }
-    | { type: 'company'; name: string; rating: number | null };
+    | {
+          type: 'candidate';
+          name: string;
+          email: string;
+          phone: string | null;
+          photo_url: string | null;
+      }
+    | {
+          type: 'company';
+          name: string;
+          verified: boolean;
+          rating: number | null;
+      };
 
 export type AssistantChatMessage = {
     id: number;

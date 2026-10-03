@@ -58,6 +58,8 @@
     --color-brand-peach: #ffb59a;
     --color-brand-yellow: #ffd35e;
     --color-brand-cream: #eaf0ee;
+    /* Neutral field/control outline: >= 3:1 on white (WCAG 1.4.11), softer than brand-green/60. */
+    --color-brand-line: #7d9893;
 
     --color-sidebar: var(--sidebar-background);
     --color-sidebar-foreground: var(--sidebar-foreground);
@@ -115,7 +117,7 @@
     --destructive: hsl(0 72% 51%);
     --destructive-foreground: hsl(0 0% 98%);
     --border: #d1ddd9;
-    --input: #c3d3ce;
+    --input: #7d9893;
     --ring: #143f3b;
     --chart-1: #143f3b;
     --chart-2: #80b5a8;

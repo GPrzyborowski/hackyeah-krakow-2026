@@ -64,6 +64,7 @@ class PairResource extends JsonResource
             'can' => [
                 'respond' => Gate::allows('respond', $pair),
                 'chat' => Gate::allows('chat', $pair),
+                'send_message' => Gate::allows('sendMessage', $pair),
                 'plan_schedule' => Gate::allows('planSchedule', $pair),
                 'cancel' => Gate::allows('cancel', $pair),
             ],

@@ -3,6 +3,7 @@ import { Form, Head } from '@inertiajs/vue3';
 import { Quote, Star } from '@lucide/vue';
 import CompanyController from '@/actions/App/Http/Controllers/Employer/CompanyController';
 import InputError from '@/components/InputError.vue';
+import CompanyTabs from '@/components/employer/CompanyTabs.vue';
 import { reviewCountLabel } from '@/lib/plural';
 
 type Company = {
@@ -57,7 +58,7 @@ function formatRating(value: number | null): string {
 }
 
 const fieldClass =
-    'mt-1.5 h-11 w-full rounded-2xl border border-brand-green/60 bg-white px-4 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
+    'mt-1.5 h-11 w-full rounded-2xl border border-brand-line bg-white px-4 text-sm font-normal text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 const labelClass = 'block text-xs font-semibold text-brand-green';
 </script>
 
@@ -65,6 +66,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
     <Head title="Profil firmy" />
 
     <div class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+        <CompanyTabs active="profile" class="mb-5" />
         <h1 class="text-3xl font-bold text-brand-green sm:text-4xl">
             Profil firmy
         </h1>

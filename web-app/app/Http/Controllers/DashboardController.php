@@ -19,7 +19,7 @@ class DashboardController extends Controller
             UserRole::Candidate => $user->candidateProfile?->isPublished()
                 ? redirect('/candidate')
                 : redirect('/candidate/onboarding'),
-            UserRole::Employer => redirect('/employer/offers'),
+            UserRole::Employer => to_route('employer.dashboard'),
             UserRole::Admin => redirect('/admin'),
         };
     }

@@ -45,6 +45,7 @@ class JobOfferController extends Controller
 
         return Inertia::render('employer/offers/Index', [
             'offers' => $offers,
+            'companyVerified' => $company->isVerified(),
         ]);
     }
 

@@ -17,6 +17,7 @@ type Filters = {
     flexible: boolean;
     nursery_nearby: boolean;
     job_share: boolean;
+    verified_only: boolean;
 };
 
 type Paginated<T> = {
@@ -48,6 +49,7 @@ const form = reactive<Filters>({
     flexible: props.filters.flexible,
     nursery_nearby: props.filters.nursery_nearby,
     job_share: props.filters.job_share,
+    verified_only: props.filters.verified_only,
 });
 
 const areFiltersOpen = ref(false);
@@ -60,7 +62,8 @@ const hasActiveFilters = computed(
         form.fraction.length > 0 ||
         form.flexible ||
         form.nursery_nearby ||
-        form.job_share,
+        form.job_share ||
+        form.verified_only,
 );
 
 function applyFilters(): void {
@@ -74,6 +77,7 @@ function applyFilters(): void {
             flexible: form.flexible ? 1 : undefined,
             nursery_nearby: form.nursery_nearby ? 1 : undefined,
             job_share: form.job_share ? 1 : undefined,
+            verified_only: form.verified_only ? 1 : undefined,
         },
         { preserveState: true, preserveScroll: true, replace: true },
     );
@@ -87,6 +91,7 @@ function resetFilters(): void {
     form.flexible = false;
     form.nursery_nearby = false;
     form.job_share = false;
+    form.verified_only = false;
     applyFilters();
 }
 
@@ -247,6 +252,18 @@ const offerCountLabel = computed(() => {
                                 @change="applyFilters"
                             />
                             Job sharing (dwie osoby)
+                        </label>
+                        <label
+                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
+                        >
+                            <input
+                                v-model="form.verified_only"
+                                type="checkbox"
+                                class="size-4 accent-brand-green"
+                                data-test="filter-verified-only"
+                                @change="applyFilters"
+                            />
+                            Tylko zweryfikowane firmy
                         </label>
                     </fieldset>
 

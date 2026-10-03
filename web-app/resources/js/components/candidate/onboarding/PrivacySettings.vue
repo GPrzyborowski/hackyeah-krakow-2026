@@ -8,16 +8,23 @@ import { privacy } from '@/routes/candidate/onboarding';
 const props = defineProps<{
     hiddenFromCompanyId: number | null;
     allowDirectMessages: boolean;
+    jobAlertsEnabled: boolean;
     companies: { id: number; name: string }[];
 }>();
 
 const hideFromEmployer = ref(props.hiddenFromCompanyId !== null);
 const hiddenCompanyId = ref<number | null>(props.hiddenFromCompanyId);
 const allowDirectMessages = ref(props.allowDirectMessages);
+const jobAlertsEnabled = ref(props.jobAlertsEnabled);
 
 watch(
     () => props.allowDirectMessages,
     (value) => (allowDirectMessages.value = value),
+);
+
+watch(
+    () => props.jobAlertsEnabled,
+    (value) => (jobAlertsEnabled.value = value),
 );
 
 watch(
@@ -89,6 +96,12 @@ function onHideToggle(value: boolean) {
                 label="Pozwól firmom pisać bez zaproszenia"
                 description="Firma może zadać Ci krótkie pytanie, nadal nie znając Twoich danych. Ujawnisz je dopiero, gdy odpowiesz."
                 @change="(value) => save({ allow_direct_messages: value })"
+            />
+            <BrandSwitch
+                v-model="jobAlertsEnabled"
+                label="Wysyłaj mi nowe dopasowane oferty"
+                description="Raz w tygodniu e-mail z maksymalnie 5 nowymi ofertami, które pasują do Ciebie w co najmniej 60% i w których zdążysz zacząć."
+                @change="(value) => save({ job_alerts_enabled: value })"
             />
         </div>
     </section>

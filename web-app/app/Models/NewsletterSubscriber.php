@@ -5,8 +5,10 @@ namespace App\Models;
 use Carbon\CarbonImmutable;
 use Database\Factories\NewsletterSubscriberFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
@@ -16,8 +18,9 @@ use Illuminate\Support\Str;
  * @property string $token
  * @property CarbonImmutable|null $confirmed_at
  * @property CarbonImmutable|null $unsubscribed_at
+ * @property CarbonImmutable|null $last_sent_at
  */
-#[Fillable(['email', 'token', 'confirmed_at', 'unsubscribed_at'])]
+#[Fillable(['email', 'token', 'confirmed_at', 'unsubscribed_at', 'last_sent_at'])]
 class NewsletterSubscriber extends Model
 {
     /** @use HasFactory<NewsletterSubscriberFactory> */
@@ -26,6 +29,26 @@ class NewsletterSubscriber extends Model
     public static function generateToken(): string
     {
         return Str::random(48);
+    }
+
+    /**
+     * Articles already sent to this subscriber in a weekly newsletter.
+     *
+     * @return BelongsToMany<Article, $this>
+     */
+    public function deliveredArticles(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'newsletter_deliveries')->withPivot('sent_at');
+    }
+
+    /**
+     * Confirmed and not unsubscribed subscribers, i.e. the weekly e-mail audience.
+     *
+     * @param  Builder<NewsletterSubscriber>  $query
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->whereNotNull('confirmed_at')->whereNull('unsubscribed_at');
     }
 
     /**
@@ -44,6 +67,7 @@ class NewsletterSubscriber extends Model
         return [
             'confirmed_at' => 'datetime',
             'unsubscribed_at' => 'datetime',
+            'last_sent_at' => 'datetime',
         ];
     }
 }

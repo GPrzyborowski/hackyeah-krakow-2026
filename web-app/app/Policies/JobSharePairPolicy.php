@@ -11,6 +11,17 @@ use Illuminate\Auth\Access\Response;
 class JobSharePairPolicy
 {
     /**
+     * @var list<JobSharePairStatus>
+     */
+    private const array CHAT_OPEN_STATUSES = [
+        JobSharePairStatus::Forming,
+        JobSharePairStatus::Formed,
+        JobSharePairStatus::Submitted,
+        JobSharePairStatus::Invited,
+        JobSharePairStatus::Hired,
+    ];
+
+    /**
      * Only the two candidates of the pair (including an invited partner who has not answered yet) may open it.
      */
     public function view(User $user, JobSharePair $pair): bool
@@ -37,13 +48,28 @@ class JobSharePairPolicy
     }
 
     /**
-     * Accepted members chat with each other.
+     * Accepted members read their private chat (also after the pair has ended).
      */
     public function chat(User $user, JobSharePair $pair): bool
     {
         $profile = $this->profileOf($user);
 
         return $profile !== null && $pair->hasAcceptedMember($profile);
+    }
+
+    /**
+     * New messages only while the pair is active (forming, formed, submitted, invited, hired);
+     * a cancelled, rejected or declined pair keeps its history read-only.
+     */
+    public function sendMessage(User $user, JobSharePair $pair): Response
+    {
+        if (! $this->chat($user, $pair)) {
+            return Response::deny();
+        }
+
+        return in_array($pair->status, self::CHAT_OPEN_STATUSES, true)
+            ? Response::allow()
+            : Response::deny('Ta para została zakończona – czat jest już tylko do odczytu.');
     }
 
     /**

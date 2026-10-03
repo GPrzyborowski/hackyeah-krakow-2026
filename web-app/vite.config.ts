@@ -70,6 +70,7 @@ export default defineConfig({
             '.github/**',
             '.claude/**',
             '**/*.md',
+            'docs/**',
             '.mcp.json',
             'boost.json',
             'composer.json',

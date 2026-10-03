@@ -17,6 +17,7 @@ type Filters = {
     childcare_subsidy: boolean;
     nursery_nearby: boolean;
     with_reviews: boolean;
+    verified_only: boolean;
     job_share: boolean;
     saved: boolean;
     start_from: string | null;
@@ -54,6 +55,7 @@ function apply() {
             childcare_subsidy: form.childcare_subsidy ? 1 : undefined,
             nursery_nearby: form.nursery_nearby ? 1 : undefined,
             with_reviews: form.with_reviews ? 1 : undefined,
+            verified_only: form.verified_only ? 1 : undefined,
             job_share: form.job_share ? 1 : undefined,
             saved: form.saved ? 1 : undefined,
             start_from: form.start_from ?? '',
@@ -69,6 +71,7 @@ const parentFilters: {
         | 'childcare_subsidy'
         | 'nursery_nearby'
         | 'with_reviews'
+        | 'verified_only'
         | 'job_share';
     label: string;
 }[] = [
@@ -76,6 +79,7 @@ const parentFilters: {
     { key: 'nursery_nearby', label: 'Żłobek lub przedszkole w pobliżu' },
     { key: 'childcare_subsidy', label: 'Dopłata do żłobka lub przedszkola' },
     { key: 'with_reviews', label: 'Firma z opiniami rodziców' },
+    { key: 'verified_only', label: 'Tylko zweryfikowane firmy' },
     { key: 'job_share', label: 'Job sharing (dwie osoby)' },
 ];
 </script>

@@ -50,15 +50,15 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     ];
 
     /**
-     * Remove the stored CV file; the profile row itself goes with the database cascade.
+     * Remove the stored CV and photo files; the profile row itself goes with the database cascade.
      */
     protected static function booted(): void
     {
         static::deleting(function (User $user): void {
-            $cvPath = $user->candidateProfile?->cv_path;
+            $privateFiles = array_filter([$user->candidateProfile?->cv_path, $user->candidateProfile?->photo_path]);
 
-            if ($cvPath !== null) {
-                Storage::disk('local')->delete($cvPath);
+            if ($privateFiles !== []) {
+                Storage::disk('local')->delete($privateFiles);
             }
         });
     }

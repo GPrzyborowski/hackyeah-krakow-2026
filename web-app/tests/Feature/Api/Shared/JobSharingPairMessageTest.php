@@ -62,6 +62,25 @@ class JobSharingPairMessageTest extends TestCase
         $this->assertDatabaseCount('job_share_messages', 1);
     }
 
+    public function test_ended_pair_chat_is_read_only(): void
+    {
+        $recruitment = $this->skill('Rekrutacja IT');
+        $offer = $this->jobShareOffer(Company::factory()->create(), [$recruitment]);
+        $marta = $this->sharer([$recruitment], 'Marta Kowalska');
+        $pair = $this->pair($offer, $marta, $this->sharer([$recruitment], 'Ewa Nowak'), JobSharePairStatus::Rejected);
+        JobShareMessage::factory()->create(['job_share_pair_id' => $pair->id, 'body' => 'Stara wiadomość']);
+        Sanctum::actingAs($marta->user);
+
+        $this->getJson("/api/v1/job-sharing/pairs/{$pair->id}/messages")->assertOk()->assertJsonCount(1, 'data');
+        $this->postJson("/api/v1/job-sharing/pairs/{$pair->id}/messages", ['body' => 'Hej'])
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Ta para została zakończona – czat jest już tylko do odczytu.');
+
+        $this->getJson("/api/v1/job-sharing/pairs/{$pair->id}")
+            ->assertJsonPath('data.can.chat', true)
+            ->assertJsonPath('data.can.send_message', false);
+    }
+
     public function test_body_is_required(): void
     {
         $recruitment = $this->skill('Rekrutacja IT');

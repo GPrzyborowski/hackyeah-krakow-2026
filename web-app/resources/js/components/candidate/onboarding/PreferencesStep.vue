@@ -80,7 +80,7 @@ const dayParts: Option[] = [
 ];
 
 const inputClass =
-    'mt-1 w-full rounded-2xl border border-brand-green/60 bg-white px-3 py-2 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
+    'mt-1 w-full rounded-2xl border border-brand-line bg-white px-3 py-2 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 </script>
 
 <template>
@@ -330,14 +330,14 @@ const inputClass =
         <div class="mt-8 flex items-center justify-between gap-3">
             <Link
                 :href="show({ query: { step: 2 } })"
-                class="rounded-full border border-brand-green px-5 py-2.5 text-sm font-semibold text-brand-green"
+                class="shrink-0 rounded-full border border-brand-green px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-brand-green lg:px-4 xl:px-5"
             >
                 Wstecz
             </Link>
             <button
                 type="submit"
                 :disabled="form.processing"
-                class="rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-soft disabled:opacity-50"
+                class="shrink-0 rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold whitespace-nowrap text-white hover:bg-brand-green-soft disabled:cursor-not-allowed disabled:bg-brand-green/40 disabled:hover:bg-brand-green/40 lg:px-4 xl:px-5"
             >
                 {{ profile.is_published ? 'Zapisz' : 'Zapisz i przejdź dalej' }}
             </button>

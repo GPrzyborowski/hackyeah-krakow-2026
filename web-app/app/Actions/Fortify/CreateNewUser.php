@@ -35,7 +35,7 @@ class CreateNewUser implements CreatesNewUsers
             if (($input['role'] ?? null) === UserRole::Employer->value
                 && is_string($input['company_nip'] ?? null)
                 && Company::where('nip', ValidNip::normalize($input['company_nip']))->exists()) {
-                $validator->errors()->add('company_nip', 'Firma z tym NIP-em ma już konto w MomJobs. Poproś osobę, która je założyła, o dostęp.');
+                $validator->errors()->add('company_nip', 'Firma z tym NIP-em ma już konto w MomJobs. Poproś osobę z Twojej firmy o zaproszenie do zespołu w MomJobs.');
             }
         })->validate();
 

@@ -15,7 +15,7 @@ class PairMessageController extends Controller
      */
     public function store(StorePairMessageRequest $request, JobSharePair $pair): RedirectResponse
     {
-        Gate::authorize('chat', $pair);
+        Gate::authorize('sendMessage', $pair);
 
         $pair->messages()->create([
             'user_id' => $request->user()?->id,

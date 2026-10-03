@@ -32,6 +32,8 @@ Published offers, newest first, no match score. Query (all optional, unknown val
 | `fraction[]` | `1`, `3/4`, `3/5`, `1/2` | Employment fraction, any of |
 | `flexible` | `1` | Only flexible hours |
 | `job_share` | `1` | Only job-sharing offers |
+| `nursery_nearby` | `1` | Only offers with a nursery/kindergarten at most 3 km from the workplace (`nursery_distance_km` set and `<= 3`) |
+| `verified_only` | `1` | Only offers of companies verified by MomJobs (badge "Zweryfikowana firma") |
 | `page` | `2` | Page (20 per page) |
 
 ```json
@@ -50,18 +52,19 @@ Published offers, newest first, no match score. Query (all optional, unknown val
     "flexible_hours": true,
     "fixed_meeting_hours": false,
     "childcare_subsidy": true,
+    "nursery_distance_km": 2,
     "is_parent_friendly": true,
     "job_share": { "is_job_share": false, "workday_starts_at": null, "workday_ends_at": null, "hours_per_person": null },
     "published_at": "2026-09-28T09:00:00+00:00",
     "company": {
-      "id": 2, "name": "Zielone Biuro", "rating": 4.6,
+      "id": 2, "name": "Zielone Biuro", "verified": true, "rating": 4.6,
       "featured_quote": { "quote": "Po powrocie dostałam miesiąc na wdrożenie.", "author_label": "Mama dwójki" }
     }
   }],
   "links": { "first": "…?page=1", "last": "…?page=3", "prev": null, "next": "…?page=2" },
   "meta": {
     "current_page": 1, "last_page": 3, "per_page": 20, "total": 47,
-    "filters": { "q": "", "location": "", "work_mode": ["hybrid"], "fraction": [], "flexible": false, "job_share": false }
+    "filters": { "q": "", "location": "", "work_mode": ["hybrid"], "fraction": [], "flexible": false, "nursery_nearby": false, "job_share": false, "verified_only": false }
   }
 }
 ```
@@ -80,7 +83,7 @@ A published offer (404 for drafts / closed). Card fields above plus:
     "workday_starts_at": null,
     "workday_ends_at": null,
     "company": {
-      "id": 2, "name": "Zielone Biuro", "city": "Kraków",
+      "id": 2, "name": "Zielone Biuro", "city": "Kraków", "verified": true,
       "rating": { "overall": 4.6, "count": 5, "categories": { "return": 4.8, "flexibility": 4.4, "no_pregnancy_questions": 4.6 } },
       "featured_quote": { "quote": "…", "author_label": "Mama dwójki" }
     }
@@ -97,7 +100,7 @@ Company profile with **approved** reviews only (anonymous) and published offers.
 ```json
 {
   "data": {
-    "id": 2, "name": "Zielone Biuro", "city": "Kraków", "description": "…",
+    "id": 2, "name": "Zielone Biuro", "city": "Kraków", "verified": true, "description": "…",
     "rating": { "overall": 4.6, "count": 5, "categories": { "return": 4.8, "flexibility": 4.4, "no_pregnancy_questions": 4.6 } },
     "reviews": [{
       "id": 9, "rating_return": 5, "rating_flexibility": 4, "rating_no_pregnancy_questions": 5,
@@ -186,7 +189,7 @@ Header of the thread.
   "data": {
     "id": 7,
     "offer": { "id": 4, "title": "Specjalistka ds. kadr" },
-    "counterpart": { "type": "company", "id": 2, "name": "Zielone Biuro", "rating": 4.6 },
+    "counterpart": { "type": "company", "id": 2, "name": "Zielone Biuro", "verified": true, "rating": 4.6 },
     "pair_partner_name": null,
     "viewer_role": "candidate",
     "last_message_at": "2026-10-03T12:00:00+00:00"
@@ -194,7 +197,7 @@ Header of the thread.
 }
 ```
 
-For an employer `counterpart` is `{"type": "candidate", "name": "Marta Kowalska", "email": "marta@momjobs.test"}`.
+For an employer `counterpart` is `{"type": "candidate", "name": "Marta Kowalska", "email": "marta@momjobs.test", "phone": "+48 600 100 200", "photo_url": "https://momjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d"}` (`phone` / `photo_url` may be `null`). Show the photo as the header avatar, or the name's initial without one.
 `pair_partner_name` is set when the invitation was for a job-sharing pair: the candidate's partner, anonymous ("Ewa N.").
 
 Errors: 403 not a participant, 404 unknown id.
@@ -242,12 +245,23 @@ Errors: 403 not a participant, 422 validation / moderation, 429 throttled.
 
 ---
 
+## Candidate photo (auth)
+
+### GET /candidate-photos/{profile}
+
+Streams the candidate's photo (`image/jpeg`, `image/png` or `image/webp`; `Cache-Control: private`). Use the `photo_url` from a payload (it already points here, with a `v` cache-busting query) and send the bearer token – e.g. load it into an authenticated image component.
+
+Allowed: the candidate herself, or a member of a company whose invitation she **accepted**. Everybody else – other companies, a company whose invitation is still pending or was declined, other candidates – gets `404`, as does a profile without a photo. `401` without a token.
+
+---
+
 ## Job sharing (candidate)
 
 Two candidates apply together for a job-sharing offer and split the workday. Other candidates are always shown
 anonymously (first name + surname initial). Pair statuses: `forming` (invited partner has not answered), `formed`
 (both in, planning the split), `submitted` (sent to the employer), `invited` (employer invited the pair),
-`rejected`, `cancelled` – each with a Polish `status_label`.
+`rejected`, `cancelled`, `hired` (both members accepted their invitations), `declined` (a member declined her
+invitation) – each with a Polish `status_label`.
 
 ### GET /job-sharing
 
@@ -349,7 +363,7 @@ Members only (including an invited partner who has not answered yet); others get
       { "candidate_profile_id": 12, "starts_at": "08:00", "ends_at": "12:00" },
       { "candidate_profile_id": 14, "starts_at": "12:00", "ends_at": "16:00" }
     ],
-    "can": { "respond": false, "chat": true, "plan_schedule": true, "cancel": true }
+    "can": { "respond": false, "chat": true, "send_message": true, "plan_schedule": true, "cancel": true }
   }
 }
 ```
@@ -382,6 +396,9 @@ everyone else; the employer never sees it). Newest first, paginated, polling wit
 ### POST /job-sharing/pairs/{pair}/messages
 
 Throttle: 30/min. Body `{"body": "…"}` (required, max 2000; not moderated – candidates only). → `201 {"data": <message>}`.
+Only while the pair is active (`forming`, `formed`, `submitted`, `invited`, `hired`; `can.send_message`). In a
+`cancelled`, `rejected` or `declined` pair the chat stays readable (`can.chat`) but posting is `403`
+("Ta para została zakończona – czat jest już tylko do odczytu.").
 
 ### PUT /job-sharing/pairs/{pair}/schedule
 
@@ -443,7 +460,7 @@ Your chat history, newest first, paginated.
 
 ### POST /assistant/messages
 
-Throttle: 10/min (429 JSON). Body `{"question": "…"}` (3–1000 chars). The answer can take a few seconds.
+Throttle: 10/min (429 JSON). Body `{"question": "…"}` (3–1000 chars). The answer can take a few seconds. → `201`.
 
 ```json
 {
@@ -491,6 +508,7 @@ Your notifications, newest first, paginated; `?since=<ISO 8601>` returns only ne
 | `new_message` | both | `conversation_id` |
 | `pair_invitation_received` | candidate | `job_share_pair_id` |
 | `pair_invitation_accepted` | candidate | `job_share_pair_id` |
+| `company_verified` | employer (all company members) | `company_id` – "Twoja firma została zweryfikowana"; open the company screen |
 
 ### GET /notifications/unread-count
 
@@ -561,8 +579,10 @@ Tokens are stored for future push notifications; nothing is sent yet.
 ### POST /devices
 
 `{"token": "<FCM or APNs token>", "platform": "ios" | "android"}` → `204`. Idempotent: call on every app start /
-token refresh. A token registered before by another account is moved to the current user.
+token refresh. A token registered before by another account is moved to the current user. The push token is bound
+to the API token used for this call: `POST /auth/logout` (or `logout-all`, a password change/reset, token expiry)
+deletes it automatically.
 
 ### DELETE /devices/{token}
 
-Forget the token (call on logout, before `POST /auth/logout`). → `204`; 404 if the token is not yours.
+Forget the token explicitly (optional – logout already removes it). → `204`; 404 if the token is not yours.

@@ -19,6 +19,7 @@ class SkillController extends Controller
         $search = trim((string) $request->query('q', ''));
 
         $skills = Skill::query()
+            ->suggestable()
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($query) use ($search): void {
                     $query->where('name', 'like', '%'.$search.'%')

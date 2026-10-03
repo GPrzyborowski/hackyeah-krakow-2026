@@ -53,6 +53,7 @@ export type PublicOffer = {
     company?: {
         id: number;
         name: string;
+        verified?: boolean;
         rating: number | null;
         featured_quote: FeaturedQuote | null;
     };

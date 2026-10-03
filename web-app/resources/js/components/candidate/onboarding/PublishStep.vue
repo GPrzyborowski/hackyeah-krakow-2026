@@ -3,6 +3,7 @@ import { Link, router, usePage } from '@inertiajs/vue3';
 import { Check, EyeOff, X } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import { formatShortDate } from '@/components/candidate/format';
+import ContactDetailsCard from '@/components/candidate/onboarding/ContactDetailsCard.vue';
 import PrivacySettings from '@/components/candidate/onboarding/PrivacySettings.vue';
 import type {
     OnboardingProfile,
@@ -63,8 +64,8 @@ function submit(action: 'publish' | 'visibility') {
             </h2>
             <p class="mt-2 text-sm text-brand-green/80">
                 Firmy zobaczą Twoje imię z inicjałem nazwiska, stanowisko,
-                zatwierdzone umiejętności i datę dostępności. Nazwisko i e-mail
-                poznają dopiero po przyjęciu zaproszenia.
+                zatwierdzone umiejętności i datę dostępności. Nazwisko, e-mail,
+                telefon i zdjęcie poznają dopiero po przyjęciu zaproszenia.
             </p>
 
             <ul class="mt-6 space-y-2">
@@ -109,7 +110,7 @@ function submit(action: 'publish' | 'visibility') {
             <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
                 <Link
                     :href="show({ query: { step: 3 } })"
-                    class="rounded-full border border-brand-green px-5 py-2.5 text-sm font-semibold text-brand-green"
+                    class="shrink-0 rounded-full border border-brand-green px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-brand-green lg:px-4 xl:px-5"
                 >
                     Wstecz
                 </Link>
@@ -117,7 +118,7 @@ function submit(action: 'publish' | 'visibility') {
                     v-if="!profile.is_published"
                     type="button"
                     :disabled="processing"
-                    class="rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-soft disabled:opacity-50"
+                    class="shrink-0 rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold whitespace-nowrap text-white hover:bg-brand-green-soft disabled:cursor-not-allowed disabled:bg-brand-green/40 disabled:hover:bg-brand-green/40 lg:px-4 xl:px-5"
                     @click="submit('publish')"
                 >
                     Opublikuj profil
@@ -134,9 +135,16 @@ function submit(action: 'publish' | 'visibility') {
             </div>
         </div>
 
+        <ContactDetailsCard
+            :name="profile.anonymous_name"
+            :phone="profile.phone"
+            :photo-url="profile.photo_url"
+        />
+
         <PrivacySettings
             :hidden-from-company-id="profile.hidden_from_company_id"
             :allow-direct-messages="profile.allow_direct_messages"
+            :job-alerts-enabled="profile.job_alerts_enabled"
             :companies="companies"
         />
     </div>

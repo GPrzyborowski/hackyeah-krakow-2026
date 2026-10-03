@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\JobSharing\PairScheduleController;
 use App\Http\Controllers\Api\V1\JobSharing\PartnerController;
 use App\Http\Controllers\Api\V1\Notifications\NotificationController;
 use App\Http\Controllers\Api\V1\Reviews\CompanyReviewController;
+use App\Http\Controllers\CandidatePhotoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,13 +29,15 @@ Route::prefix('public')->name('public.')->group(function () {
 Route::get('articles', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('articles/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:120,1,api-user'])->group(function () {
     Route::get('conversations', [ConversationController::class, 'index'])->name('conversations.index');
     Route::get('conversations/{conversation}', [ConversationController::class, 'show'])->name('conversations.show');
     Route::get('conversations/{conversation}/messages', [MessageController::class, 'index'])->name('conversations.messages.index');
     Route::post('conversations/{conversation}/messages', [MessageController::class, 'store'])
         ->middleware('throttle:30,1,api-conversation-messages')
         ->name('conversations.messages.store');
+
+    Route::get('candidate-photos/{profile}', CandidatePhotoController::class)->name('candidate-photos.show');
 
     Route::get('assistant/messages', [AssistantMessageController::class, 'index'])->name('assistant.messages.index');
     Route::post('assistant/messages', [AssistantMessageController::class, 'store'])

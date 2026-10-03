@@ -7,16 +7,76 @@ Common errors:
 | Status | When |
 | --- | --- |
 | 401 | Missing / invalid token (`{"message": "Unauthenticated."}`) |
-| 403 | Not an employer, email not verified (`"Your email address is not verified."`), no company, or the offer belongs to another company / is not in the right state |
+| 403 | Not an employer, email not verified (`{"message": "Potwierdź swój adres e-mail…", "email_verification_required": true}` – offer `POST /auth/email/verification-notification`), no company, or the offer belongs to another company / is not in the right state |
 | 404 | Unknown id; candidate not matched to the offer or hidden from the company; job-share pair of another company or hidden |
 | 422 | Validation failed: `{"message": "...", "errors": {"field": ["Polish message"]}}` |
-| 429 | Throttled: skills 60/min, preview-matches 60/min, invitations 20/min, direct messages 20/min, pair invitations 20/min |
+| 429 | Throttled: 120/min per user on every endpoint; company update and offer create/update 20/min (moderated writes); skills 60/min, preview-matches 60/min, invitations 20/min, direct messages 20/min, pair invitations 20/min, team invitations 10/min |
 
 Conventions: resources wrapped in `data`; lists paginated (20 per page) with Laravel's `data` / `links` / `meta` – pass `?page=N`. Dates `Y-m-d`, timestamps ISO 8601. Money in PLN gross (integers). Enums as value plus `*_label` (Polish).
 
-**Privacy.** Before a candidate accepts an invitation the employer only ever sees the anonymous card: first name + surname initial (`anonymous_name`), headline, years of experience, AI summary, confirmed skills, `available_from`, employment fractions, work modes, match. Never surname, email, CV, due/leave dates. Candidates who hid their profile from the company never appear. Full name and email appear only on accepted invitations (`GET /employer/invitations`).
+**Privacy.** Before a candidate accepts an invitation the employer only ever sees the anonymous card: first name + surname initial (`anonymous_name`), headline, years of experience, AI summary, confirmed skills, `available_from`, employment fractions, work modes, match. Never surname, email, phone, photo, CV, due/leave dates. Candidates who hid their profile from the company never appear. Full name, email, phone and photo appear only on accepted invitations (`GET /employer/invitations`) and in the conversation header.
 
 **Moderation.** Employer-authored text (offer title/description, company description, invitation messages) is checked for questions about pregnancy/family. Blocked text → 422 on that field.
+
+---
+
+## Dashboard ("Start")
+
+### GET /employer/dashboard
+
+The employer home screen; the web panel (`/employer`) renders the same data. Counters cover the company's **published** offers unless stated otherwise; the query count does not grow with offers or candidates.
+
+```json
+{
+  "data": {
+    "greeting": { "first_name": "Hanna" },
+    "company": { "id": 3, "name": "Zielone Biuro", "city": "Kraków", "verified": true, "verified_at": "2026-10-01T09:00:00+02:00" },
+    "stats": {
+      "published_offers_count": 2,
+      "matching_candidates_count": 3,
+      "to_review_count": 2,
+      "invitations_sent_recent_count": 1,
+      "recent_days": 30,
+      "responded_count": 2,
+      "accepted_count": 1,
+      "acceptance_rate": 50,
+      "active_conversations_count": 1,
+      "submitted_pairs_count": 1,
+      "parent_friendly": { "count": 1, "total": 2 }
+    },
+    "funnel": [
+      {
+        "offer_id": 12, "title": "Rekruterka", "is_job_share": true, "is_parent_friendly": true,
+        "matched_count": 2, "reviewed_count": 3, "to_review_count": 0,
+        "invited_count": 2, "responded_count": 2, "accepted_count": 1, "submitted_pairs_count": 1
+      }
+    ],
+    "todo": [
+      { "kind": "unread_messages", "count": 1, "offer_id": null, "offer_title": null, "names": ["Anna Nowak"], "hints": [], "url": "/conversations" },
+      { "kind": "submitted_pairs", "count": 1, "offer_id": 12, "offer_title": "Rekruterka", "names": [], "hints": [], "url": "/employer/offers/12/job-share-pairs" },
+      { "kind": "candidates_to_review", "count": 2, "offer_id": 13, "offer_title": "Kadrowa", "names": [], "hints": [], "url": "/employer/candidates?offer=13" },
+      { "kind": "offer_incomplete", "count": 3, "offer_id": 13, "offer_title": "Kadrowa", "names": [], "hints": ["missing_required_skills", "missing_salary", "no_flexible_hours"], "url": "/employer/offers/13/edit" }
+    ],
+    "reviews": { "approved_count": 1, "average_rating": 4.3 },
+    "activity": [
+      {
+        "id": "pair-5", "kind": "pair_submitted", "title": "Para kandydatek zgłosiła się do oferty Rekruterka", "body": null,
+        "url": "/employer/offers/12/job-share-pairs", "read": false,
+        "created_at": "2026-10-03T12:01:00+02:00", "created_at_diff": "1 minutę temu",
+        "target": { "job_share_pair_id": 5, "job_offer_id": 12 }
+      }
+    ]
+  }
+}
+```
+
+- `stats.matching_candidates_count` – unique candidates matched by at least one published offer (visible to the company, can start within 30 days of the offer start, share ≥1 skill). `to_review_count` – sum of the per-offer review queues.
+- `stats.invitations_sent_recent_count` – invitations (incl. direct messages) created in the last `recent_days` days; `acceptance_rate` – accepted / answered in %, all time, `null` when nobody answered yet. `active_conversations_count` – conversations with a message in the last `recent_days` days.
+- `stats.parent_friendly` – published offers that have the "Przyjazna rodzicom" badge out of all published offers.
+- `funnel` – one row per published offer: matched → reviewed (skipped / saved / invited) → invited → accepted.
+- `todo[].kind`: `unread_messages` (conversations with unread candidate messages, `names` = up to 3 candidates), `submitted_pairs` (job-share pairs waiting for a decision), `candidates_to_review` (top 3 offers by queue size), `offer_incomplete` (published or draft offer; `hints`: `missing_required_skills`, `missing_salary`, `no_flexible_hours`), `no_approved_reviews` (no approved company review yet – no offer can get the badge). `url` is a web path; use `offer_id` in the app.
+- `activity` – last 10 items: the employer's notifications (`invitation_accepted`, `invitation_declined`, `new_message`, `pair_hired_company`, …, same shape as `GET /notifications`) merged with job-share pair submissions (`pair_submitted`), newest first.
+- `company.verified` is `true` once MomJobs verified the NIP.
 
 ---
 
@@ -29,9 +89,11 @@ Conventions: resources wrapped in `data`; lists paginated (20 per page) with Lar
   "data": {
     "id": 3,
     "name": "Zielone Biuro",
-    "nip": "1234567890",
+    "nip": "1234563218",
     "city": "Kraków",
     "description": "Elastyczne godziny…",
+    "verified": false,
+    "verified_at": null,
     "ratings": { "count": 2, "overall": 4.2, "return": 4.5, "flexibility": 4.0, "no_pregnancy_questions": 4.0 },
     "reviews": [
       {
@@ -46,11 +108,54 @@ Conventions: resources wrapped in `data`; lists paginated (20 per page) with Lar
 
 Only approved reviews are included; rating fields are `null` when there are none.
 
+`verified` / `verified_at` (ISO 8601): whether a MomJobs admin verified the company's NIP. While `verified` is `false` show the banner "Twoja firma czeka na weryfikację – zweryfikowane firmy dostają więcej odpowiedzi." (invitations are not blocked). Verification is done by an admin on the web; members get a `company_verified` notification.
+
 ### PUT /employer/company
 
-Body: `name` (required, max 255), `nip` (optional, 10 digits; spaces and dashes are stripped, e.g. `123-456-78-90`), `city`, `description` (max 5000, moderated). Returns the company resource.
+Body: `name` (required, max 255), `nip` (optional, valid Polish NIP – 10 digits with a correct checksum, unique across companies; spaces and dashes are stripped, e.g. `123-456-32-18`), `city`, `description` (max 5000, moderated). Returns the company resource.
 
-Errors: 422 `nip` ("NIP musi składać się z 10 cyfr."), 422 `description` (moderation reason + suggestion).
+Throttle 20/min. Errors: 422 `nip` ("NIP musi składać się z 10 cyfr." / "Podany NIP jest nieprawidłowy." / "Firma z tym NIP-em ma już konto w MomJobs."), 422 `description` (moderation reason + suggestion).
+
+---
+
+## Team (recruiters of the company)
+
+A company can have many recruiters (`users.company_id`). Every member sees the same company data (offers, candidates, conversations) – nothing beyond what the company already sees – and every member may manage the team (no owner role).
+
+**Joining is web-only.** `POST /employer/team/invitations` e-mails a signed link (`/company-invitations/{token}?signature=…`, valid 7 days). On that web page a person without an account sets name + password (the account is created as a verified employer attached to the company); a signed-in employer **without a company** whose e-mail matches joins with one click; an existing account of that address is asked to log in first. Expired / used links show a friendly message. The API never exposes the token. Registration with a NIP that already exists answers `company_nip`: "Firma z tym NIP-em ma już konto w MomJobs. Poproś osobę z Twojej firmy o zaproszenie do zespołu w MomJobs."
+
+### GET /employer/team
+
+Small fixed lists (not paginated). Members sorted by name; invitations = not accepted yet (expired ones included with `is_expired: true` until revoked or re-sent), newest first.
+
+```json
+{
+  "data": {
+    "members": [
+      { "id": 12, "name": "Anna Rekruterka", "email": "anna@firma.pl", "joined_at": "2026-10-03T12:00:00+00:00", "is_current_user": true }
+    ],
+    "invitations": [
+      { "id": 4, "email": "nowa@firma.pl", "invited_by": "Anna Rekruterka", "created_at": "2026-10-03T12:05:00+00:00", "expires_at": "2026-10-10T12:05:00+00:00", "is_expired": false }
+    ]
+  }
+}
+```
+
+`joined_at` = when the member accepted the invitation (account creation for the founder).
+
+### POST /employer/team/invitations → 201
+
+Body: `email` (required, e-mail; trimmed and lower-cased). Sends the e-mail and returns the invitation (`data`, same shape as above). A previous expired invitation for the same address is replaced. Throttle 10/min.
+
+Errors: 422 `email` – "Ta osoba już należy do Twojego zespołu." / "Zaproszenie na ten adres już czeka na akceptację.". Whether the address already has a MomJobs account is never revealed; the acceptance page explains when an account cannot join (candidate account, member of another company).
+
+### DELETE /employer/team/invitations/{invitation} → 204
+
+Revokes a pending invitation (the link stops working). 403 for another company's invitation or an already accepted one.
+
+### DELETE /employer/team/members/{user} → 204
+
+Removes a colleague: detaches them from the company and revokes **all their API tokens** (and push devices). 403 for yourself ("Nie możesz usunąć z zespołu własnego konta."), for a user of another company, or when they are the last member ("W zespole musi zostać co najmniej jedna osoba.").
 
 ---
 
@@ -58,7 +163,9 @@ Errors: 422 `nip` ("NIP musi składać się z 10 cyfr."), 422 `description` (mod
 
 ### GET /employer/skills?q=rekru
 
-Up to 10 skills whose name or slug contains `q` (all skills when `q` is empty), sorted by name. Throttle 60/min.
+Up to 10 skills whose name or slug contains `q` (all suggestable skills when `q` is empty), sorted by name. Throttle 60/min.
+Only the curated skill dictionary and skills already used by at least one offer are suggested – free-text tags typed by
+candidates never appear here.
 
 ```json
 { "data": [{ "id": 7, "name": "Rekrutacja IT" }] }
@@ -103,7 +210,7 @@ Paginated list of the company's offers: published first, then drafts, then close
 
 ### POST /employer/offers → 201
 
-Body (same rules as the web form):
+Throttle 20/min (moderated write). Body (same rules as the web form):
 
 | Field | Rules |
 | --- | --- |
@@ -129,7 +236,7 @@ Offer resource. 403 for another company's offer.
 
 ### PUT /employer/offers/{offer}
 
-Same body as POST (skills are replaced). Returns the offer resource. 403 for another company's offer.
+Same body as POST (skills are replaced), throttle 20/min. Returns the offer resource. 403 for another company's offer.
 
 ### POST /employer/offers/{offer}/close
 
@@ -252,6 +359,7 @@ Paginated, newest first. Optional `status` = `pending|accepted|declined|withdraw
       "offer": { "id": 21, "title": "Specjalistka ds. rekrutacji" },
       "candidate": {
         "id": 12, "anonymous_name": "Marta K.", "full_name": "Marta Kowalska", "email": "marta@example.com",
+        "phone": "+48 600 100 200", "photo_url": "https://momjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d",
         "headline": "Specjalistka ds. rekrutacji IT", "years_of_experience": 6
       },
       "conversation_id": 8
@@ -267,7 +375,7 @@ Paginated, newest first. Optional `status` = `pending|accepted|declined|withdraw
 }
 ```
 
-`kind`: `invitation` | `direct_message` (question sent via `/direct-message`). Status labels: pending "Czeka na odpowiedź", accepted "Zaakceptowane", declined "Odrzucone", withdrawn "Wycofane". `conversation_id` (accepted only) is used with the shared conversations endpoints.
+`kind`: `invitation` | `direct_message` (question sent via `/direct-message`). Status labels: pending "Czeka na odpowiedź", accepted "Zaakceptowane", declined "Odrzucone", withdrawn "Wycofane". `conversation_id` (accepted only) is used with the shared conversations endpoints. `phone` and `photo_url` (accepted only, each `null` when the candidate did not provide it) – fetch the photo with the bearer token via `GET /candidate-photos/{profile}` ([shared.md](shared.md)).
 
 ---
 
@@ -275,7 +383,7 @@ Paginated, newest first. Optional `status` = `pending|accepted|declined|withdraw
 
 ### GET /employer/offers/{offer}/job-share-pairs
 
-Pairs that applied together for a published job-share offer (404 for a regular offer, 403 for another company's / unpublished offer). Includes pairs `submitted` (waiting), `invited` and `rejected`; waiting first. Pairs with a member who hid her profile from the company are excluded. Not paginated.
+Pairs that applied together for a published job-share offer (404 for a regular offer, 403 for another company's / unpublished offer). Includes pairs `submitted` (waiting), `invited`, `rejected`, `hired` (both members accepted) and `declined` (a member declined her invitation); waiting first. Pairs with a member who hid her profile from the company are excluded. Not paginated.
 
 ```json
 {
@@ -301,7 +409,7 @@ Pairs that applied together for a published job-share offer (404 for a regular o
 }
 ```
 
-Status labels: submitted "Czeka na decyzję", invited "Zaproszona", rejected "Odrzucona".
+Status labels: submitted "Czeka na decyzję", invited "Zaproszona", rejected "Odrzucona", hired "Zatrudniona", declined "Odrzucona przez członkinię". `coverage`: required skills of the offer covered by the two members together (`covered`), the ones neither has (`missing`) and `percent` covered.
 
 ### POST /employer/job-share-pairs/{pair}/invitation → 201
 

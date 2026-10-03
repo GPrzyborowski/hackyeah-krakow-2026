@@ -40,7 +40,9 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user()
+                    ? [...$request->user()->toArray(), 'avatar' => $request->user()->isCandidate() ? $request->user()->candidateProfile?->photoUrl() : null]
+                    : null,
                 'role' => $request->user()?->role,
                 'company' => $request->user()?->company?->only(['id', 'name']),
             ],

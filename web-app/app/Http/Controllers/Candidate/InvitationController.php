@@ -56,6 +56,7 @@ class InvitationController extends Controller
                 ],
                 'company' => [
                     'name' => $invitation->jobOffer->company->name,
+                    'verified' => $invitation->jobOffer->company->isVerified(),
                     'average_rating' => $invitation->jobOffer->company->averageRating(),
                     'reviews_count' => $invitation->jobOffer->company->approvedReviews->count(),
                 ],

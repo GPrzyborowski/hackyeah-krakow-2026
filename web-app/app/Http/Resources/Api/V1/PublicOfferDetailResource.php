@@ -43,6 +43,7 @@ class PublicOfferDetailResource extends JsonResource
                 'id' => $company->id,
                 'name' => $company->name,
                 'city' => $company->city,
+                'verified' => $company->isVerified(),
                 'rating' => $this->ratingSummary($company),
                 'featured_quote' => $this->featuredQuote($company),
             ],

@@ -6,11 +6,12 @@ use App\Http\Controllers\Api\V1\Candidate\InvitationController;
 use App\Http\Controllers\Api\V1\Candidate\OfferController;
 use App\Http\Controllers\Api\V1\Candidate\OfferInterestController;
 use App\Http\Controllers\Api\V1\Candidate\ProfileController;
+use App\Http\Controllers\Api\V1\Candidate\ProfilePhotoController;
 use App\Http\Controllers\Api\V1\Candidate\ProfileSkillController;
 use App\Http\Controllers\Api\V1\Candidate\SavedOfferController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:120,1,api-user', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
     Route::get('home', HomeController::class)->name('home');
     Route::get('cv-analysis', CvAnalysisController::class)->name('cv-analysis');
 
@@ -21,11 +22,16 @@ Route::middleware(['auth:sanctum', 'role:candidate'])->prefix('candidate')->name
         Route::post('skills/confirm', 'confirmSkills')->name('skills.confirm');
         Route::put('preferences', 'updatePreferences')->name('preferences');
         Route::patch('privacy', 'updatePrivacy')->name('privacy');
-        Route::patch('summary', 'updateSummary')->name('summary');
+        Route::patch('summary', 'updateSummary')->middleware('throttle:20,1,api-moderated-write')->name('summary');
         Route::post('publish', 'publish')->name('publish');
         Route::post('visibility', 'updateVisibility')->name('visibility');
         Route::get('employer-preview', 'employerPreview')->name('employer-preview');
     });
+
+    Route::post('profile/photo', [ProfilePhotoController::class, 'store'])
+        ->middleware('throttle:10,1,api-candidate-photo')
+        ->name('profile.photo.store');
+    Route::delete('profile/photo', [ProfilePhotoController::class, 'destroy'])->name('profile.photo.destroy');
 
     Route::post('profile/skills', [ProfileSkillController::class, 'store'])->name('profile.skills.store');
     Route::delete('profile/skills/{skill}', [ProfileSkillController::class, 'destroy'])->name('profile.skills.destroy');
@@ -38,6 +44,6 @@ Route::middleware(['auth:sanctum', 'role:candidate'])->prefix('candidate')->name
     Route::delete('offers/{offer}/save', [SavedOfferController::class, 'destroy'])->name('offers.unsave');
 
     Route::get('invitations', [InvitationController::class, 'index'])->name('invitations.index');
-    Route::post('invitations/{invitation}/accept', [InvitationController::class, 'accept'])->name('invitations.accept');
+    Route::post('invitations/{invitation}/accept', [InvitationController::class, 'accept'])->middleware('verified')->name('invitations.accept');
     Route::post('invitations/{invitation}/decline', [InvitationController::class, 'decline'])->name('invitations.decline');
 });

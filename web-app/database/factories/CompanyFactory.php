@@ -25,4 +25,12 @@ class CompanyFactory extends Factory
             'description' => fake()->sentence(12),
         ];
     }
+
+    /**
+     * A company whose NIP was checked by a MomJobs administrator.
+     */
+    public function verified(): static
+    {
+        return $this->state(fn (): array => ['verified_at' => now()]);
+    }
 }

@@ -36,7 +36,7 @@ const formAction = props.review
     : CompanyReviewController.store.form(props.company.id);
 
 const fieldClass =
-    'mt-1.5 w-full rounded-2xl border border-brand-green/60 bg-white px-4 py-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
+    'mt-1.5 w-full rounded-2xl border border-brand-line bg-white px-4 py-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 </script>
 
 <template>

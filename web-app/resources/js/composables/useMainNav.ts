@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/vue3';
 import {
+    BadgeCheck,
     BookOpen,
     Briefcase,
     Building2,
@@ -30,6 +31,7 @@ const candidateItems: NavItem[] = [
 ];
 
 const employerItems: NavItem[] = [
+    { title: 'Start', href: '/employer', icon: Home },
     { title: 'Ogłoszenia', href: '/employer/offers', icon: Briefcase },
     { title: 'Kandydatki', href: '/employer/candidates', icon: Users },
     { title: 'Zaproszenia', href: '/employer/invitations', icon: Mail },
@@ -41,6 +43,7 @@ const employerItems: NavItem[] = [
 const adminItems: NavItem[] = [
     { title: 'Panel', href: '/admin', icon: LayoutDashboard },
     { title: 'Opinie do moderacji', href: '/admin/reviews', icon: ShieldCheck },
+    { title: 'Firmy', href: '/admin/companies', icon: BadgeCheck },
     { title: 'Artykuły', href: '/admin/articles', icon: FileText },
     { title: 'Źródła prawne', href: '/admin/legal-sources', icon: Scale },
     { title: 'Blog', href: '/blog', icon: BookOpen },

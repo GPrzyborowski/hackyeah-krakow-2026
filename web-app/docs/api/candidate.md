@@ -33,6 +33,8 @@ The candidate's own full profile, including private dates (never shown to employ
     "headline": "Specjalistka ds. rekrutacji IT",
     "years_of_experience": 6,
     "city": "Kraków",
+    "phone": "+48 600 100 200",
+    "photo_url": "https://momjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d",
     "ai_summary": "Rekruterka IT z 6-letnim doświadczeniem…",
     "available_from": "2027-09-01",
     "leave_starts_on": "2026-12-01",
@@ -46,6 +48,7 @@ The candidate's own full profile, including private dates (never shown to employ
     "privacy": {
       "show_availability_instead_of_gap": true,
       "allow_direct_messages": false,
+      "job_alerts_enabled": true,
       "hidden_from_company": { "id": 3, "name": "Obecny Pracodawca" }
     },
     "cv": { "original_name": "CV.pdf", "size": 204800, "status": "parsed", "has_text": true },
@@ -60,6 +63,8 @@ The candidate's own full profile, including private dates (never shown to employ
   }
 }
 ```
+
+`phone` and `photo_url` are private contact data: employers get them only after she accepts their invitation. `photo_url` is `null` without a photo; load it with the bearer token (see `GET /candidate-photos/{profile}` in [shared.md](shared.md)).
 
 `cv.status`: `uploaded` | `parsing` | `parsed` | `failed` | `null`. Only `confirmed` skills are visible to employers and used for matching. The CV file path and raw CV text are never returned.
 
@@ -78,6 +83,8 @@ Choice lists for the profile forms.
 ```
 
 `companies` feeds the "hide my profile from my current employer" picker (`hidden_from_company_id`).
+`skill_suggestions` contains only the curated skill dictionary and skills used by at least one offer (never free-text
+tags typed by other candidates).
 
 ### POST /candidate/profile/cv
 
@@ -98,7 +105,7 @@ If the analyzer fails, the response is still `200` with `analysis_succeeded: fal
 
 ### POST /candidate/profile/skills
 
-Add a skill tag typed by the candidate (dictionary skill or a new one). Confirmed immediately. Body: `name` (required, 2–60 chars). Response `201` + profile.
+Add a skill tag typed by the candidate (dictionary skill or a new one). Confirmed immediately. Body: `name` (required, 2–60 chars, no e-mail address or phone number – `422`). Response `201` + profile.
 
 ### DELETE /candidate/profile/skills/{skill}
 
@@ -126,11 +133,16 @@ Omitted `work_modes` / `employment_fractions` are saved as empty. Onboarding ste
 
 ### PATCH /candidate/profile/privacy
 
-Partial update; send only the toggles that changed: `show_availability_instead_of_gap` (bool), `allow_direct_messages` (bool – "Pozwól firmom pisać bez zaproszenia": companies may send her a short question without an invitation; she stays anonymous until she answers), `hidden_from_company_id` (nullable company id).
+Partial update; send only the toggles that changed: `show_availability_instead_of_gap` (bool), `allow_direct_messages` (bool – "Pozwól firmom pisać bez zaproszenia": companies may send her a short question without an invitation; she stays anonymous until she answers), `job_alerts_enabled` (bool, default `true` – "Wysyłaj mi nowe dopasowane oferty": a weekly Monday e-mail with up to 5 offers published in the last 7 days that match her at least 60% and that she can start in time; each offer is e-mailed once), `hidden_from_company_id` (nullable company id), `phone` (nullable string – Polish number: optional `+48`, 9 digits, spaces/dashes allowed; stored as `+48 600 100 200`; empty clears it; `422` `errors.phone` otherwise). UI copy: "Zdjęcie i telefon zobaczy tylko firma, której zaproszenie przyjmiesz."
+
+### POST /candidate/profile/photo · DELETE /candidate/profile/photo
+
+`POST`: `multipart/form-data` with `photo` (required image: JPG, PNG or WebP, max 3 MB). Throttled: 10 requests per minute. Stored on a private disk (never public), replacing the previous photo; JPEG metadata (EXIF, e.g. GPS) is stripped. `422` `errors.photo` on invalid files.
+`DELETE`: removes the photo file. Both return the profile resource (`photo_url` updated). The photo is also deleted with the account.
 
 ### PATCH /candidate/profile/summary
 
-Body: `ai_summary` (nullable string, max 400; empty clears it). Rejected (`422`) when it contains an e-mail / phone number or mentions pregnancy, children or family plans.
+Throttle 20/min. Body: `ai_summary` (nullable string, max 400; empty clears it). Rejected (`422`) when it contains an e-mail / phone number or mentions pregnancy, children or family plans.
 
 ### POST /candidate/profile/publish
 
@@ -142,7 +154,7 @@ Body: `visible` (required boolean). `false` hides the profile from employers, `t
 
 ### GET /candidate/profile/employer-preview
 
-Exactly what employers see before an invitation is accepted (anonymous allowlist; no surname, e-mail, CV or private dates).
+Exactly what employers see before an invitation is accepted (anonymous allowlist; no surname, e-mail, phone, photo, CV or private dates).
 
 ```json
 { "data": {
@@ -195,11 +207,12 @@ Published offers ranked by match (same filters as the web list). Query parameter
 | `employment_fractions[]` | `1`, `3/4`, `3/5`, `1/2` |
 | `flexible_hours`, `childcare_subsidy`, `with_reviews`, `job_share`, `saved` | `1` to enable |
 | `nursery_nearby` | `1` = only offers with a nursery/kindergarten at most 3 km from the workplace (`nursery_distance_km` set and `<= 3`) |
+| `verified_only` | `1` = only offers of companies verified by MomJobs ("Tylko zweryfikowane firmy") |
 | `start_from` | date; offers starting no earlier than 30 days before it. Defaults to the candidate's `available_from`; send `start_from=` (empty) to disable |
 | `sort` | `match` (default) or `newest` |
 | `page` | page number (20 per page) |
 
-Offer card (also used in `home.top_offers`). `nursery_distance_km` is the distance in km from the workplace to the nearest nursery/kindergarten (`null` = not provided; show it as the chip "Przedszkole {N} km"):
+Offer card (also used in `home.top_offers`). `company.verified` = the company's NIP was checked by a MomJobs admin – show the mint badge "Zweryfikowana firma" (check icon) next to the company name (same flag on offer detail, invitations and the conversation header). `nursery_distance_km` is the distance in km from the workplace to the nearest nursery/kindergarten (`null` = not provided; show it as the chip "Przedszkole {N} km"):
 
 ```json
 {
@@ -217,7 +230,7 @@ Offer card (also used in `home.top_offers`). `nursery_distance_km` is the distan
     "matched_nice_to_have": [], "missing_nice_to_have": ["Onboarding"], "start_date_compatible": true
   },
   "company": {
-    "id": 3, "name": "Zielone Biuro", "city": "Kraków", "average_rating": 4.7, "reviews_count": 5,
+    "id": 3, "name": "Zielone Biuro", "city": "Kraków", "verified": true, "average_rating": 4.7, "reviews_count": 5,
     "first_review": { "quote": "Wróciłam bez stresu.", "author_label": "Mama jednego dziecka" }
   }
 }
@@ -275,7 +288,7 @@ Paginated, pending first, then newest.
     "employment_fraction": "3/5", "employment_fraction_label": "3/5 etatu",
     "is_published": true
   },
-  "company": { "id": 3, "name": "Zielone Biuro", "average_rating": 4.7, "reviews_count": 5 }
+  "company": { "id": 3, "name": "Zielone Biuro", "verified": true, "average_rating": 4.7, "reviews_count": 5 }
 }], "links": { … }, "meta": { … } }
 ```
 
@@ -285,7 +298,7 @@ Paginated, pending first, then newest.
 
 ### POST /candidate/invitations/{invitation}/accept
 
-Accepts and opens the chat; the company now sees her full name and e-mail. Returns the invitation with `status: "accepted"` and `conversation_id` (open the conversation with the conversations API). `403` for someone else's invitation or one already answered (`"message": "Na to zaproszenie już odpowiedziano."`).
+Accepts and opens the chat; the company now sees her full name and e-mail. Returns the invitation with `status: "accepted"` and `conversation_id` (open the conversation with the conversations API). `403` for someone else's invitation or one already answered (`"message": "Na to zaproszenie już odpowiedziano."`). Requires a **verified e-mail**: otherwise `403` with `"email_verification_required": true` – offer to resend the link (`POST /auth/email/verification-notification`; the link opens in the browser).
 
 ### POST /candidate/invitations/{invitation}/decline
 
