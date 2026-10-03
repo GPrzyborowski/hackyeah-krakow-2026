@@ -1,0 +1,94 @@
+<resources>
+    <string name="app_name">Wracam</string>
+    <string name="nav_start">Start</string>
+    <string name="nav_offers">Oferty</string>
+    <string name="nav_blog">Blog</string>
+    <string name="nav_assistant">Asystent</string>
+    <string name="nav_profile">Profil</string>
+
+    <!-- Home Screen -->
+    <string name="greeting">Cześć, Marta. Dwie firmy już Cię zauważyły.</string>
+    <string name="return_calendar">Twój kalendarz powrotu</string>
+    <string name="week_24">24. tydzień</string>
+    <string name="leave_from">urlop od 14 mar</string>
+    <string name="ready_on">gotowa 1 wrz</string>
+
+    <string name="company_invitations">Zaproszenia od firm</string>
+    <string name="invitations_new">2 nowe</string>
+    <string name="sample_companies">Zielone Biuro, Kamienica Studio</string>
+
+    <string name="matching_offers">Pasujące oferty</string>
+    <string name="see_all">Zobacz wszystkie</string>
+    <string name="hr_specialist">Specjalistka ds. HR - zdalnie</string>
+    <string name="project_coordinator">Koordynatorka projektów</string>
+
+    <string name="assistant_prompt_title">Masz pytanie o swoje prawa?</string>
+    <string name="assistant_prompt_desc">Zapytaj asystenta. Odpowiada ze źródłem.</string>
+
+    <!-- Swipe Screen -->
+    <string name="swipe_title">Znajdź dopasowanie</string>
+    <string name="no_jobs">Brak dostępnych ofert. Spróbuj dodać własną!</string>
+    <string name="all_seen">Widziałaś już wszystkie oferty!</string>
+    <string name="start_over">Zacznij od nowa</string>
+    <string name="dislike">Nie interesuje mnie</string>
+    <string name="like">Interesuje mnie</string>
+    <string name="job_info">Szczegóły</string>
+
+    <!-- Job Listing -->
+    <string name="offers_title">Dostępne oferty</string>
+    <string name="no_offers_yet">Brak dostępnych ofert pracy.</string>
+    <string name="view_details">Szczegóły</string>
+    <string name="salary_label">Wynagrodzenie: %1$s</string>
+
+    <!-- Job Detail -->
+    <string name="job_details_title">Szczegóły oferty</string>
+    <string name="job_not_found">Nie znaleziono oferty</string>
+    <string name="description_label">Opis</string>
+    <string name="requirements_label">Wymagania</string>
+    <string name="reviews_label">Opinie o pracodawcy</string>
+    <string name="no_reviews_yet">Brak opinii o tym pracodawcy.</string>
+    <string name="maternity_friendly">Przyjazny mamom</string>
+
+    <!-- Blog Screen -->
+    <string name="blog_title">Porady i Blog</string>
+    <string name="read_more">Czytaj więcej</string>
+
+    <!-- AI Assistant -->
+    <string name="ai_assistant_title">Asystent Kariery AI</string>
+    <string name="ai_placeholder">Zapytaj o swoją karierę&#8230;</string>
+    <string name="thinking">Zastanawiam się&#8230;</string>
+    <string name="smart_match">Inteligentne dopasowanie</string>
+    <string name="ai_intro">Witaj! Jestem Twoim asystentem Wracam. Pomogę Ci w powrocie na rynek pracy. W czym mogę pomóc?</string>
+    <string name="ai_config_error">Przepraszam, usługi AI nie są skonfigurowane (brak klucza API).</string>
+    <string name="ai_error">Wystąpił błąd podczas łączenia z moim procesorem. Spróbuj ponownie później.</string>
+
+    <!-- Profile Screen -->
+    <string name="my_profile_title">Mój Profil</string>
+    <string name="no_profile">Nie znaleziono profilu. Zarejestruj się.</string>
+    <string name="bio_label">O mnie</string>
+    <string name="cv_uploaded">CV przesłane</string>
+    <string name="availability_label">Dostępność</string>
+    <string name="return_date_label">Data powrotu do pracy</string>
+
+    <!-- Registration -->
+    <string name="candidate_reg_title">Rejestracja Kandydatki</string>
+    <string name="full_name">Imię i nazwisko</string>
+    <string name="email_address">Adres e-mail</string>
+    <string name="bio_experience">Bio / Doświadczenie</string>
+    <string name="availability_hint">Dostępność (np. pół etatu, zdalnie)</string>
+    <string name="return_to_work_date">Data powrotu do pracy</string>
+    <string name="upload_cv_pdf">Prześlij CV (PDF)</string>
+    <string name="cv_selected">Wybrano CV: %1$s</string>
+    <string name="no_cv_uploaded">Nie przesłano CV</string>
+    <string name="complete_registration">Zakończ rejestrację</string>
+
+    <!-- Post Job -->
+    <string name="post_job_title">Opublikuj ofertę pracy</string>
+    <string name="job_title">Nazwa stanowiska</string>
+    <string name="company_name">Nazwa firmy</string>
+    <string name="job_description">Opis stanowiska</string>
+    <string name="requirements">Wymagania</string>
+    <string name="location_hint">Lokalizacja (lub zdalnie)</string>
+    <string name="salary_range">Widełki płacowe (opcjonalnie)</string>
+    <string name="post_job_button">Opublikuj ofertę</string>
+</resources>
