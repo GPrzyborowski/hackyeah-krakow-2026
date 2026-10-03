@@ -147,7 +147,7 @@ const offerCountLabel = computed(() => {
         <h1
             class="text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl lg:text-5xl"
         >
-            Oferty od firm, które czekają na Twój powrót
+            Oferty pracy
         </h1>
 
         <form

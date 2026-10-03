@@ -11,7 +11,7 @@ defineProps<{
 <template>
     <LegalPageShell
         title="Polityka prywatności"
-        lead="Jak mumjobs przetwarza Twoje dane osobowe – prostym językiem, zgodnie z RODO."
+        lead="Jakie dane zbieramy, do czego ich używamy, kto je widzi i jak długo je przechowujemy."
         updated-at="3 października 2026"
     >
         <h2>1. Administrator danych</h2>
@@ -70,7 +70,7 @@ defineProps<{
                     >Kalendarz powrotu na podstawie dat ciąży i urlopu</strong
                 >
                 – Twoja wyraźna zgoda (art. 9 ust. 2 lit. a w zw. z art. 6 ust.
-                1 lit. a RODO). Podanie tych dat jest całkowicie dobrowolne –
+                1 lit. a RODO). Podanie tych dat jest dobrowolne –
                 bez nich możesz korzystać ze wszystkich funkcji serwisu,
                 wystarczy data „Dostępna od”. Zgodę możesz wycofać w każdej
                 chwili, usuwając daty z profilu; wycofanie zgody nie wpływa na

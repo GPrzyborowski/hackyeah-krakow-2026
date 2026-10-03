@@ -90,7 +90,7 @@ function onHideToggle(value: boolean) {
                 <BrandSwitch
                     v-model="showAvailabilityInsteadOfGap"
                     label="Pokaż datę dostępności zamiast powodu przerwy"
-                    description="Włączone: firmy widzą tylko, od kiedy możesz zacząć – nigdy powodu przerwy. Wyłącz, jeśli chcesz, by firma, której zaproszenie przyjmiesz, zobaczyła Twoją notatkę o przerwie."
+                    description="Włączone: firmy widzą tylko, od kiedy możesz zacząć. Wyłącz, jeśli chcesz, by firma, której zaproszenie przyjmiesz, zobaczyła Twoją notatkę o przerwie."
                     @change="
                         (value) =>
                             save({ show_availability_instead_of_gap: value })
@@ -123,12 +123,11 @@ function onHideToggle(value: boolean) {
                         class="text-xs text-brand-green/80"
                     >
                         <template v-if="showAvailabilityInsteadOfGap">
-                            Notatkę widzisz tylko Ty, firmy jej nie dostają.
+                            Notatkę widzisz tylko Ty.
                         </template>
                         <template v-else>
                             Po przyjęciu zaproszenia firma zobaczy: „Przerwa w
                             karierze: {{ gapNoteForm.career_gap_note || '…' }}”.
-                            Przed akceptacją firma jej nie widzi.
                         </template>
                     </p>
                     <InputError
@@ -174,7 +173,7 @@ function onHideToggle(value: boolean) {
                         </option>
                     </select>
                     <p class="mt-1 text-xs text-brand-green/80">
-                        Ta firma w ogóle nie zobaczy Twojego profilu.
+                        Ta firma nie zobaczy Twojego profilu.
                     </p>
                 </div>
             </div>

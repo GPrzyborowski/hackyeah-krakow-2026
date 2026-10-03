@@ -30,9 +30,7 @@ const middle = midpoint(startsAt, endsAt);
     >
         <div class="flex items-center gap-2 text-brand-green">
             <UsersRound class="size-5" />
-            <h2 class="text-xl font-bold">
-                Job sharing: jedno stanowisko, dwie osoby
-            </h2>
+            <h2 class="text-xl font-bold">Aplikuj w parze</h2>
         </div>
         <p class="mt-2 max-w-2xl text-sm text-brand-green/80">
             Dzień pracy trwa od {{ formatHour(startsAt) }} do

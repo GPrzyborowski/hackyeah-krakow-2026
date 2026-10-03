@@ -131,8 +131,7 @@ function editCalendar() {
                 </p>
                 <p class="mt-1 inline-flex items-center gap-1 text-xs">
                     <Lock class="size-3" aria-hidden="true" />
-                    Tę informację widzisz tylko Ty. Nie pokazujemy jej
-                    pracodawcom.
+                    Widzisz to tylko Ty.
                 </p>
             </div>
             <ArrowRight class="size-5 shrink-0" aria-hidden="true" />

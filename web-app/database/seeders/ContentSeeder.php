@@ -195,7 +195,7 @@ class ContentSeeder extends Seeder
                 'reading_minutes' => 9,
                 'is_featured' => true,
                 'body' => <<<'MD'
-                    Urlop rodzicielski możesz dzielić na części, łączyć z pracą na część etatu i rozłożyć między rodziców. Jeśli zaplanujesz go wcześniej, wrócisz do pracy stopniowo.
+                    Urlop rodzicielski możesz dzielić na części, łączyć z pracą na część etatu i rozłożyć między rodziców. Terminy wniosków są krótkie, więc plan dobrze mieć jeszcze w czasie urlopu macierzyńskiego.
 
                     ## Ile go jest i do kogo należy
 
@@ -234,7 +234,7 @@ class ContentSeeder extends Seeder
                 'reading_minutes' => 6,
                 'is_featured' => false,
                 'body' => <<<'MD'
-                    Szukasz pracy w ciąży i zastanawiasz się, czy musisz o niej powiedzieć? Krótko: **nie musisz**. Rekrutacja dotyczy Twoich kompetencji, a nie planów rodzinnych.
+                    Przepisy nie wymagają, żeby kandydatka mówiła na rozmowie o ciąży, a pracodawca nie może o nią pytać.
 
                     ## Co pracodawca może wiedzieć
 
@@ -242,17 +242,15 @@ class ContentSeeder extends Seeder
 
                     ## Co zrobić, gdy padnie niewygodne pytanie
 
-                    Masz kilka możliwości:
+                    Możesz odpowiedzieć o dostępności, np. „Mogę zacząć od 1 marca i pracować w pełnym wymiarze”, albo grzecznie wrócić do tematu: „Wolałabym porozmawiać o moim doświadczeniu”.
 
-                    - **Przekieruj rozmowę na dostępność**: „Mogę zacząć od 1 marca i pracować w pełnym wymiarze.”
-                    - **Odmów uprzejmie**: „Wolałabym skupić się na moim doświadczeniu.”
-                    - **Zanotuj sytuację** – datę, osoby i treść pytania. Odmowa zatrudnienia z powodu ciąży to dyskryminacja ze względu na płeć, za którą przysługuje odszkodowanie.
+                    Po rozmowie zapisz datę, kto był obecny i jak brzmiało pytanie. Odmowa zatrudnienia z powodu ciąży to dyskryminacja ze względu na płeć, a za nią przysługuje odszkodowanie nie niższe niż minimalne wynagrodzenie (art. 18³d Kodeksu pracy).
 
-                    ## Czy warto powiedzieć?
+                    ## Ochrona i zaświadczenie lekarskie
 
-                    To Twoja decyzja. Niektóre kandydatki mówią o ciąży, gdy rozmowy są już zaawansowane, żeby wspólnie ustalić termin startu. Inne mówią dopiero po podpisaniu umowy. Pamiętaj, że ochrona przed zwolnieniem z art. 177 Kodeksu pracy działa od początku ciąży, a z niektórych uprawnień (np. zwolnienia na badania) skorzystasz po przedstawieniu zaświadczenia lekarskiego.
+                    Ochrona przed zwolnieniem z art. 177 Kodeksu pracy obowiązuje od początku ciąży. Z części uprawnień, np. zwolnienia od pracy na badania, skorzystasz po przedstawieniu pracodawcy zaświadczenia lekarskiego.
 
-                    ## Jak mumjobs Ci pomaga
+                    ## Co widzi pracodawca w mumjobs
 
                     W mumjobs pracodawca widzi Twój anonimowy profil: umiejętności, doświadczenie i datę, od kiedy jesteś dostępna. Nie widzi przyczyny przerwy, terminu porodu ani zdjęcia. Wiadomości od firm przechodzą przez filtr, który blokuje pytania o ciążę i plany rodzinne.
 
@@ -292,7 +290,7 @@ class ContentSeeder extends Seeder
 
                     Jeśli padnie pytanie o przerwę, odpowiedz krótko i wróć do konkretów: „Miałam przerwę w pracy, teraz jestem gotowa wrócić od marca. W ostatnim projekcie odpowiadałam za…”. Nie musisz mówić więcej.
 
-                    W mumjobs profil pokazuje datę dostępności zamiast przerwy – pracodawca widzi Twoje umiejętności, a nie lukę w kalendarzu.
+                    W profilu mumjobs widać datę, od kiedy jesteś dostępna. Okresu przerwy profil nie pokazuje.
                     MD,
             ],
             [
@@ -307,7 +305,7 @@ class ContentSeeder extends Seeder
                     ## Tydzień 1–2: zanim wrócisz
 
                     - Umów rozmowę z przełożoną: zakres obowiązków, godziny, możliwość pracy zdalnej.
-                    - Jeśli chcesz pracować krócej, złóż wniosek o obniżony wymiar czasu pracy lub elastyczną organizację pracy – najlepiej co najmniej 21 dni wcześniej.
+                    - Jeśli chcesz pracować krócej, złóż wniosek o obniżony wymiar czasu pracy lub elastyczną organizację pracy. Termin to co najmniej 21 dni przed planowaną zmianą, więc zrób to jeszcze na urlopie.
                     - Przećwicz adaptację w żłobku lub u niani, zanim zaczniesz pracę.
                     - Sprawdź, czy masz zaległy urlop wypoczynkowy – możesz go wziąć bezpośrednio po urlopie macierzyńskim.
 
@@ -320,16 +318,12 @@ class ContentSeeder extends Seeder
                     ## Tydzień 5–6: rytm
 
                     - Zablokuj w kalendarzu stałe godziny wyjścia.
-                    - Ustal z partnerem dyżury na chorobę dziecka. Każde z Was ma prawo do 2 dni (lub 16 godzin) płatnego zwolnienia na opiekę nad dzieckiem w roku.
-                    - Zapisz pierwsze sukcesy – przydadzą się na rozmowie podsumowującej.
+                    - Ustal z partnerem dyżury na chorobę dziecka. Na dziecko do 14 lat przysługują w roku 2 dni (lub 16 godzin) płatnego zwolnienia od pracy, łącznie dla obojga rodziców, a nie dla każdego z osobna.
+                    - Zapisuj, co udało się zrobić. Przyda się na rozmowie podsumowującej.
 
                     ## Tydzień 7–8: podsumowanie
 
                     Umów rozmowę podsumowującą okres powrotu. Co działa? Co trzeba zmienić? Jeśli godziny się nie sprawdzają, możesz poprosić o inny rozkład czasu pracy – rodzic dziecka do 8 lat ma prawo złożyć wniosek o elastyczną organizację pracy.
-
-                    ## Na koniec
-
-                    Pierwsze tygodnie zwykle są nierówne, więc zmieniaj plan, kiedy przestaje pasować do Twojej sytuacji.
                     MD,
             ],
             [
@@ -339,7 +333,7 @@ class ContentSeeder extends Seeder
                 'reading_minutes' => 7,
                 'is_featured' => false,
                 'body' => <<<'MD'
-                    Wiele kobiet boi się zmiany pracy w ciąży, bo „straci zasiłek”. Zasiłek macierzyński ma jednak inne zasady niż chorobowy.
+                    Przy zmianie pracy w ciąży najczęściej pada pytanie, czy nie przepadnie zasiłek. Zasiłek macierzyński i chorobowy mają tu różne zasady.
 
                     ## Zasiłek macierzyński – bez okresu wyczekiwania
 
@@ -374,11 +368,11 @@ class ContentSeeder extends Seeder
             [
                 'title' => 'Praca zdalna a przedszkole: 5 pytań do ogłoszenia',
                 'category' => ArticleCategory::Return,
-                'excerpt' => 'Zanim odpowiesz na ogłoszenie, sprawdź, czy godziny i tryb pracy zgrają się z odbiorem dziecka.',
+                'excerpt' => 'Zanim umówisz się na rozmowę, sprawdź, czy godziny i tryb pracy zgrają się z odbiorem dziecka.',
                 'reading_minutes' => 4,
                 'is_featured' => false,
                 'body' => <<<'MD'
-                    „Praca zdalna” w ogłoszeniu może oznaczać różne rzeczy. Te pięć pytań pomoże Ci sprawdzić, czy oferta naprawdę pasuje do rytmu dnia z przedszkolakiem.
+                    „Praca zdalna” w ofercie może oznaczać różne rzeczy. Te pytania warto zadać, zanim zgodzisz się na rozmowę, jeśli codziennie odbierasz dziecko z przedszkola.
 
                     ## 1. Czy są stałe godziny spotkań?
 
@@ -394,7 +388,7 @@ class ContentSeeder extends Seeder
 
                     ## 4. Co się dzieje, gdy dziecko zachoruje?
 
-                    Odpowiedź dużo mówi o firmie. Każdy rodzic dziecka do 14 lat ma prawo do 2 dni (lub 16 godzin) płatnego zwolnienia w roku, a przy chorobie dziecka – do zasiłku opiekuńczego. Warto wiedzieć, jak zespół radzi sobie z zastępstwami.
+                    Na dziecko do 14 lat przysługują w roku 2 dni (lub 16 godzin) płatnego zwolnienia od pracy, łącznie dla obojga rodziców, a przy chorobie dziecka – zasiłek opiekuńczy. Zapytaj, kto przejmuje Twoje sprawy, kiedy nagle musisz zostać w domu.
 
                     ## 5. Czy firma ma doświadczenie z rodzicami?
 

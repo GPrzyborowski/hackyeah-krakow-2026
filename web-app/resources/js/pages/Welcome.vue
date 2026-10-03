@@ -108,12 +108,11 @@ const pairChat = [
                     <h1
                         class="text-4xl leading-[1.05] font-semibold tracking-tight text-brand-green sm:text-5xl lg:text-6xl"
                     >
-                        To nie jest tablica ogłoszeń. Firmy piszą do Ciebie albo
-                        aplikujesz w parze.
+                        Firmy piszą do Ciebie pierwsze albo aplikujesz w parze z
+                        drugą mamą.
                     </h1>
                     <p class="mt-6 max-w-lg text-base text-brand-green/80">
-                        Nie wysyłasz CV w ciemno. O ciąży mówisz wtedy, kiedy
-                        sama zdecydujesz.
+                        Tu nie ma tablicy ogłoszeń ani wysyłania CV w ciemno.
                     </p>
                     <ul class="mt-6 grid max-w-lg gap-3 sm:grid-cols-2">
                         <li class="rounded-2xl bg-white p-4 text-brand-green">
@@ -295,8 +294,8 @@ const pairChat = [
                             <h3
                                 class="mt-2 max-w-xl text-2xl leading-tight font-semibold"
                             >
-                                Nie czekasz na CV. Sam wybierasz, do kogo
-                                napisać.
+                                Przeglądasz anonimowe profile i sam wybierasz,
+                                do kogo napisać.
                             </h3>
                         </div>
                         <Link
@@ -341,13 +340,12 @@ const pairChat = [
                     <h2
                         class="text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
                     >
-                        Aplikuj w parze: jedno stanowisko, dwie osoby
+                        Aplikuj w parze na jedno stanowisko
                     </h2>
                     <p class="mt-4 max-w-lg text-sm text-brand-green/80">
-                        Firma zatrudnia dwie osoby na jedno stanowisko. Każda
-                        pracuje część dnia, więc resztę możesz poświęcić domowi
-                        i dziecku, a stanowisko jest obsadzone od rana do
-                        popołudnia. Wybierz ofertę dla wielu osób, zaproś
+                        Każda z Was pracuje część dnia, więc resztę możesz
+                        poświęcić domowi i dziecku, a firma ma obsadzone
+                        stanowisko od rana do popołudnia. Wybierz ofertę dla wielu osób, zaproś
                         partnerkę albo przyjmij jej zaproszenie, ustalcie
                         podział dnia i wyślijcie parę do firmy. Firma zobaczy
                         Was dopiero wtedy, gdy obie się zgodzicie.

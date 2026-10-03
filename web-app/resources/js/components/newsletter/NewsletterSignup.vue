@@ -10,10 +10,10 @@ import { store } from '@/routes/newsletter';
     >
         <div>
             <h2 class="text-2xl leading-tight font-semibold sm:text-3xl">
-                Jeden nowy tekst w tygodniu.
+                Jeden nowy tekst z bloga w tygodniu
             </h2>
             <p class="mt-2 text-sm text-white/80">
-                Bez reklam i bez spamu. Wypiszesz się jednym kliknięciem.
+                Bez reklam. Wypiszesz się jednym kliknięciem.
             </p>
         </div>
 

@@ -138,7 +138,7 @@ const inputClass =
                 class="mt-1 flex items-center gap-1.5 text-xs text-brand-green/80"
             >
                 <Lock class="size-3 shrink-0" aria-hidden="true" />
-                Tę informację widzisz tylko Ty. Nie pokazujemy jej pracodawcom.
+                Widzisz to tylko Ty.
             </p>
             <div class="mt-3 grid gap-3 sm:grid-cols-2">
                 <label

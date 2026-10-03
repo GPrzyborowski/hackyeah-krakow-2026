@@ -92,8 +92,9 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
                 Job sharing
             </h1>
             <p class="mt-2 max-w-2xl text-brand-green/80">
-                Jedno stanowisko, dwie osoby po kilka godzin. Znajdź partnerkę,
-                ustalcie podział dnia i aplikujcie razem.
+                Dwie osoby dzielą jedno stanowisko, każda pracuje kilka godzin
+                dziennie. Znajdź partnerkę, ustalcie podział dnia i aplikujcie
+                razem.
             </p>
         </header>
 

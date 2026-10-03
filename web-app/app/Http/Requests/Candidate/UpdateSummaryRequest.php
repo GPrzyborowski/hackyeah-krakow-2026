@@ -44,7 +44,7 @@ class UpdateSummaryRequest extends FormRequest
 
                 if (! $result->allowed) {
                     app(ModerationRecorder::class)->recordBlock(ModerationContext::CandidateSummary, $result, $summary, $this->user());
-                    $validator->errors()->add('ai_summary', 'Nie wspominaj o ciąży, dzieciach ani planach rodzinnych – to informacje tylko dla Ciebie.');
+                    $validator->errors()->add('ai_summary', 'Usuń wzmianki o ciąży, dzieciach i planach rodzinnych. Ten opis widzą pracodawcy.');
                 }
             },
         ];

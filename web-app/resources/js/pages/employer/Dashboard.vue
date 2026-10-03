@@ -310,7 +310,7 @@ const activityIcons: Record<string, typeof Mail> = {
                                 'Twoich stanowisk',
                                 'Twoich stanowisk',
                             )
-                        }}. Ty zapraszasz, one decydują, czy pokazać dane.
+                        }}. Dane kandydatki zobaczysz, gdy przyjmie zaproszenie.
                     </template>
                     <template v-else>
                         Opisz stanowisko (umiejętności, wymiar, start), a
@@ -348,12 +348,11 @@ const activityIcons: Record<string, typeof Mail> = {
                         class="flex items-center gap-2 text-lg font-bold text-brand-green"
                     >
                         <UsersRound class="size-5" aria-hidden="true" />
-                        Job sharing: jeden etat, dwie mamy
+                        Job sharing
                     </h2>
                     <p class="mt-1 max-w-2xl text-sm text-brand-green/80">
-                        Kandydatki same dobierają się w pary i ustalają podział
-                        dnia. Ty dostajesz gotowy zespół, który pokrywa cały
-                        etat.
+                        Kandydatki same dobierają się w pary, ustalają podział
+                        dnia i razem pokrywają cały etat.
                     </p>
                 </div>
                 <span

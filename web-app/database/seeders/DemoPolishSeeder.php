@@ -36,7 +36,7 @@ class DemoPolishSeeder extends Seeder
             'Prowadziła pełne procesy rekrutacyjne na stanowiska programistyczne – od briefu z menedżerem po ofertę. Zaprojektowała onboarding, który skrócił czas wdrożenia nowych osób o kilka tygodni.',
             'Rekruterka IT z doświadczeniem w software house i firmie produktowej. Dba o zgodność procesów z prawem pracy i o dobre pierwsze tygodnie nowych pracowników.',
             'Zamykała rocznie kilkadziesiąt rekrutacji technicznych, współpracując bezpośrednio z liderami zespołów. Odpowiadała też za program onboardingu dla działu IT.',
-            'Specjalizuje się w rekrutacji developerów i testerów, sprawnie prowadzi rozmowy techniczne razem z zespołem. Zna prawo pracy na tyle, by samodzielnie przygotować dokumenty dla nowych osób.',
+            'Specjalizuje się w rekrutacji developerów i testerów, rozmowy techniczne prowadzi razem z zespołem. Zna prawo pracy na tyle, by samodzielnie przygotować dokumenty dla nowych osób.',
             'Budowała od podstaw dział rekrutacji w rosnącej firmie technologicznej. Wprowadziła ustrukturyzowany onboarding i standardy przygotowania umów zgodnych z kodeksem pracy.',
             'Prowadzi rekrutacje IT i każdemu kandydatowi wysyła informację zwrotną. Koordynowała wdrożenia kilkudziesięciu osób rocznie.',
             'Rekrutowała specjalistów IT na rynek polski i zagraniczny, korzystając z sourcingu i poleceń. Przygotowuje plany wdrożenia i pilnuje formalności wynikających z prawa pracy.',
@@ -45,7 +45,7 @@ class DemoPolishSeeder extends Seeder
         'HR Business Partner' => [
             'Jako HR Business Partner wspierała menedżerów w strukturze kilkuset pracowników, od planowania zatrudnienia po rozmowy rozwojowe. Dobrze porusza się w prawie pracy i procesach wdrożenia.',
             'Partnerka biznesowa dla działów sprzedaży i operacji, odpowiadała za politykę wynagrodzeń i ścieżki awansu. Zaprojektowała onboarding dla nowych liderów zespołów.',
-            'Prowadziła projekty zmian organizacyjnych i restrukturyzacje zgodnie z prawem pracy. Wspiera menedżerów w trudnych rozmowach i budowaniu zespołów.',
+            'Prowadziła projekty zmian organizacyjnych i restrukturyzacje zgodnie z prawem pracy. Przygotowuje menedżerów do rozmów o zwolnieniach i zmianach zakresu obowiązków.',
             'Doświadczona HRBP w firmie produkcyjnej i w centrum usług wspólnych. Wdrożyła ustandaryzowany proces onboardingu oraz badanie zaangażowania pracowników.',
             'Przygotowywała analizy rotacji i plany sukcesji. Konsultuje kwestie z zakresu prawa pracy dla kadry kierowniczej.',
             'Odpowiadała za obszar HR dla kilku działów jednocześnie, w tym za przeglądy roczne i budżety szkoleniowe. Usprawniła wdrożenie nowych pracowników w modelu hybrydowym.',
@@ -53,7 +53,7 @@ class DemoPolishSeeder extends Seeder
             'HR Business Partner z doświadczeniem w środowisku międzynarodowym. Prowadziła programy onboardingowe i rozwojowe dla zespołów liczących łącznie ponad 300 osób.',
         ],
         'Specjalistka ds. kadr i płac' => [
-            'Samodzielnie naliczała wynagrodzenia dla ponad 200 pracowników i prowadziła pełną dokumentację kadrową. Bardzo dobrze zna prawo pracy oraz Excela w codziennym raportowaniu.',
+            'Samodzielnie naliczała wynagrodzenia dla ponad 200 pracowników i prowadziła pełną dokumentację kadrową. Raporty przygotowuje w Excelu, zna prawo pracy w zakresie czasu pracy i urlopów.',
             'Specjalistka ds. kadr i płac z doświadczeniem w biurze rachunkowym i dużej firmie usługowej. Przygotowuje zestawienia płacowe i kontroluje zgodność z przepisami prawa pracy.',
             'Prowadziła kadry i płace dla kilku spółek jednocześnie, w tym rozliczenia z ZUS i PIT. Automatyzuje raporty w Excelu, co skraca zamknięcie miesiąca.',
             'Odpowiadała za listy płac, urlopy i ewidencję czasu pracy w firmie z pracą zmianową. Na bieżąco śledzi zmiany w prawie pracy.',
@@ -63,21 +63,21 @@ class DemoPolishSeeder extends Seeder
             'Prowadziła dokumentację kadrową od zatrudnienia po rozwiązanie umowy, w tym akta osobowe w wersji elektronicznej. Rozlicza płace w terminie.',
         ],
         'Koordynatorka projektów' => [
-            'Koordynowała równolegle kilka projektów wdrożeniowych dla klientów biznesowych, pracując w Scrumie. Prowadzi backlog w Jirze i dba o przejrzystą komunikację z klientem.',
+            'Koordynowała równolegle kilka projektów wdrożeniowych dla klientów biznesowych, pracując w Scrumie. Prowadzi backlog w Jirze i co tydzień wysyła klientowi krótki raport postępów.',
             'Doświadczona koordynatorka projektów IT, pełniła też rolę Scrum Mastera w dwóch zespołach. Potrafi utrzymać harmonogram i budżet bez nadgodzin zespołu.',
-            'Zarządzała projektami wdrożenia systemów dla klientów z branży finansowej. Sprawnie organizuje pracę w Jirze i prowadzi regularne przeglądy z interesariuszami.',
+            'Zarządzała projektami wdrożenia systemów dla klientów z branży finansowej. Organizuje pracę w Jirze i prowadzi comiesięczne przeglądy z klientem.',
             'Prowadziła projekty od fazy ofertowania po odbiór, będąc głównym punktem kontaktu dla klienta. Wprowadziła w zespole praktyki Scrum i retrospektywy.',
-            'Koordynatorka z doświadczeniem w agencji i software house, przyzwyczajona do pracy z wieloma klientami naraz. Raportuje postępy w Jirze i dba o jakość dokumentacji.',
+            'Koordynatorka z doświadczeniem w agencji i software house, przyzwyczajona do pracy z wieloma klientami naraz. Raportuje postępy w Jirze i pisze dokumentację wdrożeniową.',
             'Zarządzała portfelem projektów o łącznym budżecie kilku milionów złotych. Facylitowała ceremonie scrumowe i warsztaty z klientami.',
             'Planuje sprinty i kamienie milowe w Jirze. Potrafi spokojnie prowadzić trudne rozmowy z klientem o zakresie.',
             'Prowadziła projekty rozproszonych zespołów pracujących zdalnie w kilku strefach czasowych. Dba o przejrzyste zadania w Jirze i rytm pracy oparty na Scrumie.',
         ],
         'Konsultantka obsługi klienta' => [
-            'Obsługiwała klientów przez czat, telefon i e-mail, także w języku angielskim. Ma wysokie wyniki satysfakcji klientów i doświadczenie w szkoleniu nowych konsultantów.',
-            'Konsultantka w dziale wsparcia aplikacji mobilnej, rozwiązywała zgłoszenia klientów z Polski i zagranicy. Spokojnie prowadzi trudne rozmowy i dba o dobrą komunikację.',
+            'Obsługiwała klientów przez czat, telefon i e-mail, także w języku angielskim. Szkoliła nowych konsultantów i prowadziła z nimi pierwsze dyżury.',
+            'Konsultantka w dziale wsparcia aplikacji mobilnej, rozwiązywała zgłoszenia klientów z Polski i zagranicy. Najczęściej zajmowała się zgłoszeniami o nieudanych płatnościach.',
             'Pracowała w zespole obsługi klienta sklepu internetowego, odpowiadała za reklamacje i zwroty. Swobodnie komunikuje się po angielsku w mowie i piśmie.',
             'Ma doświadczenie w helpdesku pierwszej linii i w obsłudze kluczowych klientów. Tworzyła bazę wiedzy i szablony odpowiedzi, które skróciły czas obsługi zgłoszeń.',
-            'Obsługiwała klientów anglojęzycznych w centrum usług wspólnych, z naciskiem na jakość i terminowość. Potrafi tłumaczyć złożone kwestie prostym językiem.',
+            'Obsługiwała klientów anglojęzycznych w centrum usług wspólnych, z naciskiem na jakość i terminowość. Wyjaśniała klientom warunki umów i reklamacji.',
             'Konsultantka z doświadczeniem w branży ubezpieczeniowej i telekomunikacyjnej. Pracowała głównie ze stałymi klientami.',
             'Prowadziła obsługę klienta przez czat i media społecznościowe, w języku polskim i angielskim. Regularnie osiągała najlepsze wyniki NPS w zespole.',
             'Odpowiadała za wsparcie klientów biznesowych i eskalacje trudniejszych spraw. Dobrze odnajduje się w pracy zdalnej i komunikacji pisemnej.',
@@ -87,7 +87,7 @@ class DemoPolishSeeder extends Seeder
             'Księgowa z doświadczeniem w rozrachunkach i zamknięciach miesiąca. Rozlicza VAT, w tym transakcje wewnątrzwspólnotowe, i sprawnie korzysta z Optimy.',
             'Odpowiadała za księgowanie dokumentów kosztowych i przychodowych oraz deklaracje VAT. Wdrożyła w zespole obieg dokumentów w Optimie.',
             'Ma doświadczenie w księgowości firm handlowych i usługowych, w tym w ewidencji środków trwałych. Terminowo przygotowuje JPK i rozliczenia VAT.',
-            'Prowadziła księgi dla klientów biura rachunkowego od dokumentu źródłowego po sprawozdanie. Bardzo dobrze zna Comarch Optima i przepisy o VAT.',
+            'Prowadziła księgi dla klientów biura rachunkowego od dokumentu źródłowego po sprawozdanie. Na co dzień pracuje w Comarch Optima.',
             'Specjalizuje się w rozliczeniach VAT i uzgadnianiu sald z kontrahentami. Pracowała w Optimie przy obsłudze kilkudziesięciu klientów jednocześnie.',
             'Księgowa z doświadczeniem w spółkach produkcyjnych, odpowiedzialna za rozrachunki i rozliczenia podatkowe. Zamyka miesiąc i rok w terminie.',
             'Wspierała głównego księgowego przy bilansie i audycie, prowadząc ewidencję VAT. Automatyzuje powtarzalne księgowania w Optimie.',
@@ -96,9 +96,9 @@ class DemoPolishSeeder extends Seeder
             'Budowała raporty sprzedażowe i dashboardy w Power BI, a dane przygotowywała w SQL. Na podstawie raportów przygotowuje rekomendacje dla działu sprzedaży.',
             'Analityczka danych z doświadczeniem w e-commerce, analizowała ścieżki klientów i wyniki kampanii. Swobodnie pisze zapytania SQL i modele w Excelu.',
             'Odpowiadała za raportowanie zarządcze w centrum usług wspólnych, automatyzując zestawienia w SQL. Prezentuje wyniki menedżerom w przystępnej formie.',
-            'Prowadziła analizy danych produktowych i testy A/B we współpracy z zespołem produktu. Sprawnie łączy dane z wielu źródeł za pomocą SQL i Excela.',
+            'Prowadziła analizy danych produktowych i testy A/B we współpracy z zespołem produktu. Łączy dane z wielu źródeł w SQL i Excelu.',
             'Zbudowała od podstaw hurtownię raportów dla działu finansów, skracając czas przygotowania raportu miesięcznego o połowę. Dobrze zna SQL i zaawansowany Excel.',
-            'Analizowała dane operacyjne i logistyczne, szukając oszczędności kosztowych. Tworzy czytelne wizualizacje i dokumentuje swoje analizy.',
+            'Analizowała dane operacyjne i logistyczne, szukając oszczędności kosztowych. Wyniki pokazuje na wykresach i opisuje założenia każdej analizy.',
             'Ma doświadczenie w analizie danych klientów w banku, w tym segmentacji i prognozowaniu odejść. Pisze wydajne zapytania SQL na dużych zbiorach danych.',
             'Regularnie prowadziła warsztaty z interpretacji raportów. Pracuje w SQL, Excelu i narzędziach BI.',
         ],
@@ -108,7 +108,7 @@ class DemoPolishSeeder extends Seeder
             'Odpowiadała za komunikację marki w mediach społecznościowych i współpracę z twórcami. Pisze posty i artykuły eksperckie.',
             'Prowadziła kampanie płatne i organiczne, samodzielnie przygotowując copy i harmonogram publikacji. Analizuje wyniki działań i optymalizuje budżet.',
             'Budowała strategię contentową dla firmy B2B i prowadziła bloga eksperckiego. Ma doświadczenie w social mediach i marketingu automation.',
-            'Marketerka z doświadczeniem w agencji, obsługiwała kilka marek jednocześnie. Tworzy spójne komunikaty i kampanie w mediach społecznościowych.',
+            'Marketerka z doświadczeniem w agencji, obsługiwała kilka marek jednocześnie. Prowadziła kampanie w mediach społecznościowych dla marek kosmetycznych i spożywczych.',
             'Przygotowywała kampanie produktowe i premiery, koordynując pracę grafików i copywriterów. Pisze teksty kampanii i pilnuje tonu marki.',
             'Rozwinęła kanały social media marki od zera do kilkudziesięciu tysięcy obserwujących. Decyzje o treściach opiera na statystykach kanałów.',
         ],
@@ -121,8 +121,8 @@ class DemoPolishSeeder extends Seeder
         'Zielone Biuro' => 'Zielone Biuro świadczy usługi HR i księgowe dla małych i średnich firm z Wielkopolski. Większość zespołu pracuje zdalnie lub na część etatu, a godziny pracy ustalamy indywidualnie. Po powrocie z urlopu każda osoba dostaje miesiąc spokojnego wdrożenia.',
         'Kamienica Studio' => 'Kamienica Studio to pracownia projektowania wnętrz z siedzibą w poznańskiej kamienicy. Pracujemy hybrydowo, spotkania z klientami planujemy wyłącznie przed 15:00. Chętnie zatrudniamy na 3/4 etatu.',
         'Nadrzeczna Fintech' => 'Nadrzeczna Fintech rozwija aplikację płatniczą dla małych firm, z biurem nad Wisłą w Krakowie. Zespół pracuje w modelu remote-first z grafikiem ustalanym z miesięcznym wyprzedzeniem. Na rozmowach pytamy wyłącznie o doświadczenie i kompetencje.',
-        'Biuro Rachunkowe Warta' => 'Biuro Rachunkowe Warta od 15 lat prowadzi księgowość firm z okolic Poznania. Oferujemy pracę hybrydową i dofinansowanie do opieki nad dziećmi. W okresie rozliczeń wspieramy się w zespole, by nikt nie zostawał po godzinach.',
-        'Północ Logistyka' => 'Północ Logistyka to operator logistyczny z centrum dystrybucyjnym w Gdańsku. Pracujemy w biurze, ale część stanowisk administracyjnych umożliwia ruchomy start pracy. Wspieramy powroty do pracy indywidualnym planem wdrożenia.',
+        'Biuro Rachunkowe Warta' => 'Biuro Rachunkowe Warta od 15 lat prowadzi księgowość firm z okolic Poznania. Oferujemy pracę hybrydową i dofinansowanie do opieki nad dziećmi. W marcu i kwietniu, przy rozliczeniach rocznych, dzielimy klientów między więcej osób, żeby ograniczyć nadgodziny.',
+        'Północ Logistyka' => 'Północ Logistyka to operator logistyczny z centrum dystrybucyjnym w Gdańsku. Pracujemy w biurze, ale część stanowisk administracyjnych umożliwia ruchomy start pracy. Po urlopie rodzicielskim plan pierwszych tygodni ustala się z kierownikiem działu.',
     ];
 
     /**
@@ -256,7 +256,7 @@ class DemoPolishSeeder extends Seeder
         $skillNames = $profile->confirmedSkills->pluck('name')->map(fn (string $name): string => Str::lower($name))->values()->all();
 
         if ($skillNames === []) {
-            return "Doświadczona specjalistka na stanowisku: {$headline}. Pracuje samodzielnie i sama planuje swoje zadania.";
+            return "Doświadczona specjalistka na stanowisku: {$headline}. Pracuje samodzielnie.";
         }
 
         $lastSkill = array_pop($skillNames);
@@ -399,10 +399,10 @@ class DemoPolishSeeder extends Seeder
                 'nip_prefix' => '676259813',
                 'email' => 'hr@wawelskisoftware.test',
                 'recruiter' => 'Agata Nowicka',
-                'description' => 'Wawelski Software House tworzy aplikacje webowe i mobilne dla klientów z Europy, z biurem na krakowskim Zabłociu. Pracujemy w modelu hybrydowym z elastycznym startem dnia między 7:00 a 10:00. Spotkania zespołowe kończymy przed 15:00. Większość zespołu pracuje na część etatu.',
+                'description' => 'Wawelski Software House tworzy aplikacje webowe i mobilne dla klientów z Europy, z biurem na krakowskim Zabłociu. Pracujemy w modelu hybrydowym z elastycznym startem dnia między 7:00 a 10:00. Spotkania zespołowe kończymy przed 15:00. Mniej więcej co trzecia osoba w zespole pracuje na część etatu.',
                 'reviews' => [
                     [5, 5, 5, '„Wróciłam na 3/4 etatu i nikt nie robił z tego problemu – zespół sam przesunął daily na 9:30.”', 'Mama jednego dziecka, IT'],
-                    [4, 5, 5, '„Na rozmowie pytano wyłącznie o projekty i doświadczenie. Elastyczne godziny działają naprawdę.”', 'Mama dwójki, zarządzanie projektami'],
+                    [4, 5, 5, '„Na rozmowie pytali tylko o projekty. Elastyczny start faktycznie jest, choć w tygodniu wydania i tak siedzi się dłużej.”', 'Mama dwójki, zarządzanie projektami'],
                 ],
                 'offers' => [
                     [
@@ -438,10 +438,10 @@ class DemoPolishSeeder extends Seeder
                 'nip_prefix' => '677312458',
                 'email' => 'kariera@wislanybank.test',
                 'recruiter' => 'Zespół Kariery Wiślany Bank',
-                'description' => 'Centrum Usług Wspólnych Wiślanego Banku w Krakowie obsługuje procesy finansowe, kadrowe i analityczne dla całej grupy. Oferujemy pracę hybrydową, ruchomy czas pracy i dofinansowanie do żłobka lub przedszkola. Program powrotów zapewnia mentora i stopniowe zwiększanie zakresu obowiązków.',
+                'description' => 'Centrum Usług Wspólnych Wiślanego Banku w Krakowie obsługuje procesy finansowe, kadrowe i analityczne dla całej grupy. Oferujemy pracę hybrydową, ruchomy czas pracy i dofinansowanie do żłobka lub przedszkola. Osoby wracające po urlopie rodzicielskim dostają mentora z zespołu, a pełny zakres obowiązków przejmują w ciągu trzech miesięcy.',
                 'reviews' => [
-                    [4, 4, 5, '„Dofinansowanie do przedszkola i ruchomy start dnia bardzo ułatwiły mi powrót.”', 'Mama jednego dziecka, finanse'],
-                    [4, 3, 5, '„Procedury bywają długie, ale nikt nie pytał mnie o plany rodzinne.”', 'Mama dwójki, kadry i płace'],
+                    [4, 4, 5, '„Dopłata do przedszkola przy krakowskich cenach robi różnicę. Zaczynam o 7:00 i o 15:00 jestem po małą.”', 'Mama jednego dziecka, finanse'],
+                    [4, 3, 5, '„Na zgodę na 3/4 etatu czekałam prawie miesiąc, bo wszystko idzie przez centralę. O plany rodzinne nikt nie pytał.”', 'Mama dwójki, kadry i płace'],
                 ],
                 'offers' => [
                     [
@@ -490,9 +490,9 @@ class DemoPolishSeeder extends Seeder
                 'nip_prefix' => '675148392',
                 'email' => 'ludzie@koszykonline.test',
                 'recruiter' => 'Zespół People Koszyk Online',
-                'description' => 'Koszyk Online to krakowski sklep internetowy z produktami dla domu, obsługujący klientów w całej Polsce. Większość stanowisk jest w pełni zdalna, a grafik ustalamy z wyprzedzeniem i w porozumieniu z zespołem. Chętnie łączymy etaty w modelu part-time.',
+                'description' => 'Koszyk Online to krakowski sklep internetowy z produktami dla domu, obsługujący klientów w całej Polsce. Większość stanowisk jest w pełni zdalna, a grafik ustalamy z miesięcznym wyprzedzeniem. Mamy stanowiska na pół etatu i przyjmujemy zgłoszenia par w job sharingu.',
                 'reviews' => [
-                    [5, 4, 4, '„Pracuję na pół etatu zdalnie, grafik znam z miesięcznym wyprzedzeniem.”', 'Mama jednego dziecka, obsługa klienta'],
+                    [5, 4, 4, '„Pół etatu z domu, grafik dostaję na miesiąc do przodu. W grudniu jest młyn i trzeba brać dodatkowe godziny.”', 'Mama jednego dziecka, obsługa klienta'],
                 ],
                 'offers' => [
                     [
@@ -530,7 +530,7 @@ class DemoPolishSeeder extends Seeder
                 'recruiter' => 'Biuro Fundacji Dobry Start',
                 'description' => 'Fundacja Dobry Start realizuje programy aktywizacji zawodowej w Małopolsce we współpracy z samorządami. Pracujemy hybrydowo w stałych godzinach 8:00–16:00, z możliwością wcześniejszego wyjścia. Oferujemy dofinansowanie do opieki nad dziećmi i pracę na część etatu.',
                 'reviews' => [
-                    [5, 4, 5, '„Bardzo ludzkie podejście – po powrocie mogłam wybrać 3/4 etatu i stałe godziny.”', 'Mama dwójki, HR'],
+                    [5, 4, 5, '„Po powrocie sama wybrałam 3/4 etatu i stałe godziny. Pensje niższe niż w korporacji, ale tego się spodziewałam.”', 'Mama dwójki, HR'],
                 ],
                 'offers' => [
                     [

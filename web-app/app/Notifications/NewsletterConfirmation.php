@@ -28,7 +28,7 @@ class NewsletterConfirmation extends Notification
         return (new MailMessage)
             ->subject('Potwierdź zapis do newslettera mumjobs')
             ->greeting('Cześć!')
-            ->line('Dziękujemy za zapis. Jeden nowy tekst w tygodniu, bez reklam i bez spamu.')
+            ->line('Dziękujemy za zapis. Raz w tygodniu wyślemy Ci nowe teksty z bloga, bez reklam.')
             ->action('Potwierdzam zapis', URL::temporarySignedRoute('newsletter.confirm', now()->addDays(7), ['token' => $notifiable->token]))
             ->line('Jeśli to nie Ty, zignoruj tę wiadomość – bez potwierdzenia nic nie wyślemy.');
     }

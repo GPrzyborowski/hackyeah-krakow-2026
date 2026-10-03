@@ -151,7 +151,7 @@ class CompanyInvitationAcceptanceTest extends TestCase
             'email' => 'ktos@firma.pl',
             'password' => 'password',
             'password_confirmation' => 'password',
-        ])->assertSessionHasErrors(['company_nip' => 'Firma z tym NIP-em ma już konto w mumjobs. Poproś osobę z Twojej firmy o zaproszenie do zespołu w mumjobs.']);
+        ])->assertSessionHasErrors(['company_nip' => 'Firma z tym NIP-em ma już konto w mumjobs. Poproś kogoś z firmy o zaproszenie do zespołu.']);
     }
 
     private function link(CompanyInvitation $invitation): string

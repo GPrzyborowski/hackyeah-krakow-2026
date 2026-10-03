@@ -41,7 +41,7 @@ class WeeklyNewsletter extends Notification
                 ? "Nowy tekst na blogu mumjobs: {$leadArticle->title}"
                 : 'Nowe teksty na blogu mumjobs')
             ->greeting('Cześć!')
-            ->line('Jeden nowy tekst w tygodniu – bez reklam i bez spamu. Oto, co przygotowałyśmy:');
+            ->line('Oto, co w tym tygodniu pojawiło się na blogu:');
 
         foreach ($this->articles as $article) {
             $message

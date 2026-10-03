@@ -93,15 +93,15 @@ class DemoSeeder extends Seeder
     {
         $definitions = [
             'Zielone Biuro' => ['city' => 'Poznań', 'email' => 'hr@zielonebiuro.test', 'reviews' => [
-                [5, 4, 5, '„Po powrocie dostałam miesiąc na wdrożenie i nikt nie liczył mi nadgodzin.”', 'Mama dwójki, księgowość'],
+                [5, 4, 5, '„Po powrocie miałam miesiąc na wdrożenie i nikt nie dorzucał mi klientów ponad to, co ustaliłyśmy.”', 'Mama dwójki, księgowość'],
                 [4, 5, 5, '„Zespół sam zaproponował mi 3/5 etatu po urlopie.”', 'Mama jednego dziecka, HR'],
             ]],
             'Kamienica Studio' => ['city' => 'Poznań', 'email' => 'rekrutacja@kamienica.test', 'reviews' => [
-                [4, 5, 4, '„Zdalnie od pierwszego dnia, a spotkania są przed 15:00.”', 'Mama jednego dziecka, projekty'],
+                [4, 5, 4, '„Dwa dni w pracowni, reszta z domu. Spotkania z klientami rzeczywiście kończą się przed 15:00.”', 'Mama jednego dziecka, projekty'],
             ]],
             'Nadrzeczna Fintech' => ['city' => 'Kraków', 'email' => 'people@nadrzeczna.test', 'reviews' => []],
             'Biuro Rachunkowe Warta' => ['city' => 'Swarzędz', 'email' => 'biuro@warta.test', 'reviews' => [
-                [4, 4, 4, '„Dużo zrozumienia, ale okres rozliczeń jest ciężki.”', 'Mama jednego dziecka, księgowość'],
+                [4, 4, 4, '„Szefowa rozumie, jak dziecko choruje. Ale marzec i kwiecień to nadgodziny, nie ma co ukrywać.”', 'Mama jednego dziecka, księgowość'],
             ]],
             'Północ Logistyka' => ['city' => 'Gdańsk', 'email' => 'kadry@polnoc.test', 'reviews' => [
                 [3, 3, 4, '„Dobry zespół, ale grafik zmieniano z dnia na dzień.”', 'Mama dwójki, obsługa klienta'],
@@ -300,7 +300,7 @@ class DemoSeeder extends Seeder
         $messages = [
             [$greenOfficeRecruiter, 'Dziękujemy za przyjęcie zaproszenia! Czy pasowałaby Pani krótka rozmowa online w przyszłym tygodniu?'],
             [$marta->user, 'Dzień dobry, bardzo chętnie. Najlepiej pasują mi poranki, np. wtorek o 10:00.'],
-            [$greenOfficeRecruiter, 'Wtorek 10:00 jest super. Wyślę link do spotkania. Start planujemy od 1 września 2027.'],
+            [$greenOfficeRecruiter, 'Wtorek 10:00 pasuje. Link do spotkania wyślę mailem. Start planujemy od 1 września 2027.'],
         ];
 
         foreach ($messages as $index => [$author, $body]) {
@@ -416,7 +416,7 @@ class DemoSeeder extends Seeder
         ]);
 
         $messages = [
-            [$marta->user, 'Mogę brać poranki. O 13:00 odbieram małą z żłobka.'],
+            [$marta->user, 'Mogę brać poranki. O 13:00 odbieram małą ze żłobka.'],
             [$ewa->user, 'Super, ja wolę popołudnia. Biorę 12:00–16:00.'],
             [$marta->user, 'To zamieniamy się w środy, kiedy mam wizytę kontrolną?'],
         ];

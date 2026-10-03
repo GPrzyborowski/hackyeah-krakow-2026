@@ -397,9 +397,8 @@ defineOptions({
             class="flex items-start gap-2 rounded-3xl bg-brand-mint-soft p-4 text-sm text-brand-green"
         >
             <Lock class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-            Analiza jest widoczna tylko dla Ciebie. Firmy nie widzą Twojego CV,
-            braków ani wyników. Widzą zatwierdzone umiejętności i procent
-            dopasowania do ich oferty.
+            Analizę widzisz tylko Ty. Firma widzi wyłącznie Twoje zatwierdzone
+            umiejętności i procent dopasowania do swojej oferty.
         </p>
     </div>
 </template>

@@ -11,7 +11,7 @@ defineProps<{
 <template>
     <LegalPageShell
         title="Regulamin serwisu"
-        lead="Zasady korzystania z mumjobs – serwisu, który łączy przyszłe i obecne mamy z pracodawcami przyjaznymi rodzicom."
+        lead="Zasady korzystania z mumjobs dla kandydatek i pracodawców: konto, zaproszenia, opinie o firmach i treści generowane przez AI."
         updated-at="3 października 2026"
     >
         <h2>1. Postanowienia ogólne</h2>

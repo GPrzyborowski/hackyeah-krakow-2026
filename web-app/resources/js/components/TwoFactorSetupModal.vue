@@ -48,7 +48,7 @@ const modalConfig = computed<TwoFactorConfigContent>(() => {
         return {
             title: 'Weryfikacja dwuetapowa włączona',
             description:
-                'Weryfikacja dwuetapowa jest włączona. Zeskanuj kod QR albo wpisz klucz w aplikacji uwierzytelniającej.',
+                'Zeskanuj kod QR albo wpisz klucz w aplikacji uwierzytelniającej.',
             buttonText: 'Zamknij',
         };
     }

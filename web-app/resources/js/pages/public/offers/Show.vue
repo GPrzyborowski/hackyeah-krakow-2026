@@ -180,7 +180,7 @@ const conditions = computed(() => [
                     data-test="job-share-info"
                 >
                     <h2 class="text-xl font-semibold">
-                        Job sharing: jedno stanowisko, dwie osoby
+                        Aplikuj w parze
                     </h2>
                     <p class="mt-2 text-sm">
                         <template

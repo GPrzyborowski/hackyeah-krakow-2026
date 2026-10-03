@@ -25,8 +25,8 @@ enum CandidateStage: string
     public function homeMessage(): string
     {
         return match ($this) {
-            self::Pregnant => 'Spokojnie zaplanuj powrót jeszcze przed porodem – pracodawcy widzą tylko datę, od kiedy możesz zacząć.',
-            self::AfterLeave => 'Wracasz do pracy na swoich warunkach – szukamy firm, które rozumieją rodzicielstwo.',
+            self::Pregnant => 'Zaplanuj powrót jeszcze przed porodem.',
+            self::AfterLeave => 'Wracasz do pracy po urlopie. Firmy, którym pasują Twoje godziny i umiejętności, mogą zaprosić Cię do rozmowy.',
         };
     }
 
