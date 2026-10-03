@@ -6,6 +6,7 @@ use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 
@@ -29,6 +30,20 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (ThrottleRequestsException $exception, Request $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            if ($request->routeIs('assistant.store')) {
+                return back()->withErrors(['question' => 'Za dużo pytań naraz. Spróbuj ponownie za minutę.']);
+            }
+
+            if ($request->routeIs('newsletter.store')) {
+                return back()->withErrors(['email' => 'Za dużo prób zapisu. Spróbuj ponownie za minutę.']);
+            }
+        });
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

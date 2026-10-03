@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Conversation;
+use App\Models\Invitation;
+use App\Models\Message;
+use App\Observers\ConversationObserver;
+use App\Observers\InvitationObserver;
+use App\Observers\MessageObserver;
 use App\Services\Ai\ClaudeCvAnalyzer;
 use App\Services\Ai\ClaudeMessageModerator;
 use App\Services\Ai\CvAnalyzer;
@@ -31,6 +37,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->registerObservers();
+    }
+
+    /**
+     * Model observers that send in-app and e-mail notifications.
+     */
+    protected function registerObservers(): void
+    {
+        Invitation::observe(InvitationObserver::class);
+        Conversation::observe(ConversationObserver::class);
+        Message::observe(MessageObserver::class);
     }
 
     /**

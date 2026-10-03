@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import NewsletterSignup from '@/components/newsletter/NewsletterSignup.vue';
 import { index, show } from '@/routes/blog';
 
 type ArticleCard = {
@@ -151,5 +152,7 @@ function chipClass(isActive: boolean): string {
         >
             W tej kategorii nie ma jeszcze artykułów.
         </p>
+
+        <NewsletterSignup class="mt-16" />
     </div>
 </template>
