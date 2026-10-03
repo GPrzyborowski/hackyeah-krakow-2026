@@ -31,7 +31,6 @@ const { hasTabs } = useMobileTabs();
 const navItems = computed<PublicNavItem[]>(() => [
     { title: 'Jak to działa', href: `${home.url()}#jak-to-dziala` },
     { title: 'Job sharing', href: `${home.url()}#job-sharing` },
-    { title: 'Oferty', href: offersIndex.url() },
     { title: 'Asystent AI', href: '/assistant' },
     {
         title: 'Dla pracodawców',
@@ -41,6 +40,7 @@ const navItems = computed<PublicNavItem[]>(() => [
 
 const footerLinks: PublicNavItem[] = [
     { title: 'Blog', href: '/blog' },
+    { title: 'Oferty pracy', href: offersIndex.url() },
     { title: 'Regulamin', href: legalTerms.url() },
     { title: 'Prywatność', href: legalPrivacy.url() },
     { title: 'Kontakt', href: legalContact.url() },
