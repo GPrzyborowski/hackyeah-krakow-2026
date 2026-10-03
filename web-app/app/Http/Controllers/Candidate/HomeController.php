@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Candidate;
 
 use App\Enums\InvitationStatus;
-use App\Enums\JobSharePairStatus;
 use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
@@ -11,6 +10,7 @@ use App\Models\Invitation;
 use App\Models\JobOffer;
 use App\Services\Candidate\ArticleRecommendations;
 use App\Services\Candidate\ReturnCalendar;
+use App\Services\JobSharing\CandidatePairOverview;
 use App\Services\Matching\MatchResult;
 use App\Services\Matching\MatchScorer;
 use Illuminate\Http\RedirectResponse;
@@ -23,10 +23,10 @@ class HomeController extends Controller
     use ResolvesCandidateProfile;
 
     /**
-     * Candidate home: stage-specific greeting, return calendar, pending invitations, the best matching offers
-     * and blog articles for her stage.
+     * Candidate home: stage-specific greeting, return calendar, pending invitations, her job-sharing pairs,
+     * the best matching offers and blog articles for her stage.
      */
-    public function __invoke(Request $request, MatchScorer $matchScorer, ReturnCalendar $returnCalendar, ArticleRecommendations $articleRecommendations): Response|RedirectResponse
+    public function __invoke(Request $request, MatchScorer $matchScorer, ReturnCalendar $returnCalendar, ArticleRecommendations $articleRecommendations, CandidatePairOverview $pairOverview): Response|RedirectResponse
     {
         $profile = $this->candidateProfile($request)->load('user');
 
@@ -51,10 +51,7 @@ class HomeController extends Controller
                     ->unique()
                     ->values(),
             ],
-            'pairInvitationsCount' => $profile->jobSharePairs()
-                ->where('status', JobSharePairStatus::Forming)
-                ->wherePivotNull('accepted_at')
-                ->count(),
+            'jobSharing' => $pairOverview->forProfile($profile),
             'savedOffersCount' => $profile->savedOffers()->published()->count(),
             'topOffers' => $matchScorer->rankOffersFor($profile)
                 ->take(3)

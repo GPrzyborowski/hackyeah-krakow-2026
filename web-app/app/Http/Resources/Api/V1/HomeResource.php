@@ -8,9 +8,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * Candidate home screen: greeting (with a message for her private stage), private return calendar, invitation counters,
- * the best matching offers and blog articles recommended for her stage.
+ * the job-sharing summary, the best matching offers and blog articles recommended for her stage.
  *
- * @property array{first_name: string, stage_message: string|null, published: bool, onboarding_step: int, calendar: array<string, mixed>, invitations: array{pending_count: int, company_names: list<string>}, pair_invitations_count: int, saved_offers_count: int, top_offers: list<OfferResource>, recommended_articles: AnonymousResourceCollection} $resource
+ * @property array{first_name: string, stage_message: string|null, published: bool, onboarding_step: int, calendar: array<string, mixed>, invitations: array{pending_count: int, company_names: list<string>}, pair_invitations_count: int, job_sharing: array<string, mixed>, saved_offers_count: int, top_offers: list<OfferResource>, recommended_articles: AnonymousResourceCollection} $resource
  */
 class HomeResource extends JsonResource
 {
@@ -31,6 +31,7 @@ class HomeResource extends JsonResource
             'calendar' => $this->resource['calendar'],
             'invitations' => $this->resource['invitations'],
             'pair_invitations_count' => $this->resource['pair_invitations_count'],
+            'job_sharing' => $this->resource['job_sharing'],
             'saved_offers_count' => $this->resource['saved_offers_count'],
             'top_offers' => $this->resource['top_offers'],
             'recommended_articles' => $this->resource['recommended_articles'],

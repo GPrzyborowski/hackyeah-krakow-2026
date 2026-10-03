@@ -25,12 +25,27 @@ import {
 } from '@/routes/candidate/offers';
 import { show as onboarding } from '@/routes/candidate/onboarding';
 
+type PairSummary = {
+    id: number;
+    status: string;
+    status_label: string;
+    offer_title: string;
+    company: string;
+    partner_name: string | null;
+};
+
 const props = defineProps<{
     firstName: string;
     stageMessage: string | null;
     calendar: ReturnCalendar;
     invitations: { pending_count: number; company_names: string[] };
-    pairInvitationsCount?: number;
+    jobSharing: {
+        invitations_count: number;
+        awaiting_answer_count: number;
+        current_pair: PairSummary | null;
+        recently_ended_pair: PairSummary | null;
+        open_offers_count: number;
+    };
     savedOffersCount: number;
     topOffers: {
         id: number;
@@ -55,6 +70,43 @@ defineOptions({
         breadcrumbs: [{ title: 'Start', href: home() }],
     },
 });
+
+const jobSharingHeading = computed(() => {
+    if (props.jobSharing.awaiting_answer_count) {
+        return props.jobSharing.invitations_count
+            ? 'Zaproszenie do pary'
+            : 'Para czeka na Twoje potwierdzenie';
+    }
+
+    const partner = props.jobSharing.current_pair?.partner_name;
+
+    return partner ? `Twoja para: ${partner}` : 'Aplikuj w parze';
+});
+
+const jobSharingDescription = computed(() => {
+    const { awaiting_answer_count, invitations_count, current_pair } =
+        props.jobSharing;
+
+    if (awaiting_answer_count && invitations_count) {
+        return 'Ktoś chce dzielić z Tobą stanowisko w job sharingu.';
+    }
+
+    if (awaiting_answer_count) {
+        return 'Potwierdź podział dnia, żeby wysłać parę do pracodawcy.';
+    }
+
+    if (current_pair) {
+        return `${current_pair.offer_title} · ${current_pair.company}: ${current_pair.status_label.toLowerCase()}.`;
+    }
+
+    return 'Podziel etat z inną mamą: jedna pracuje rano, druga po południu.';
+});
+
+const jobSharingHref = computed(() =>
+    props.jobSharing.current_pair && !props.jobSharing.awaiting_answer_count
+        ? PairController.show(props.jobSharing.current_pair.id)
+        : PairController.index(),
+);
 
 const numberWords: Record<number, string> = {
     2: 'Dwie',
@@ -180,7 +232,7 @@ function editCalendar() {
         </Link>
 
         <Link
-            :href="PairController.index()"
+            :href="jobSharingHref"
             class="flex items-center justify-between gap-4 rounded-3xl bg-brand-mint-soft p-6 transition hover:shadow-md"
             data-test="job-sharing-card"
         >
@@ -189,27 +241,53 @@ function editCalendar() {
                     class="flex items-center gap-2 text-lg font-bold text-brand-green"
                 >
                     <UsersRound class="size-5 shrink-0" aria-hidden="true" />
-                    {{
-                        pairInvitationsCount
-                            ? 'Zaproszenia do pary'
-                            : 'Job sharing'
-                    }}
+                    {{ jobSharingHeading }}
                 </h2>
-                <p class="text-brand-green/80">
+                <p class="text-brand-green/80">{{ jobSharingDescription }}</p>
+                <p
+                    v-if="jobSharing.recently_ended_pair"
+                    class="mt-2 text-sm text-brand-green/80"
+                    data-test="recently-ended-pair"
+                >
+                    {{ jobSharing.recently_ended_pair.offer_title }}:
                     {{
-                        pairInvitationsCount
-                            ? 'Ktoś chce dzielić z Tobą stanowisko w job sharingu.'
-                            : 'Podziel etat z inną mamą: jedna pracuje rano, druga po południu.'
+                        jobSharing.recently_ended_pair.status_label.toLowerCase()
+                    }}. Możesz zgłosić się z kimś na inne stanowisko.
+                </p>
+                <p
+                    v-if="
+                        !jobSharing.awaiting_answer_count &&
+                        jobSharing.open_offers_count
+                    "
+                    class="mt-2 text-sm font-semibold text-brand-green"
+                    data-test="job-share-offers-count"
+                >
+                    {{ jobSharing.open_offers_count }}
+                    {{
+                        pluralize(
+                            jobSharing.open_offers_count,
+                            'stanowisko czeka',
+                            'stanowiska czekają',
+                            'stanowisk czeka',
+                        )
                     }}
+                    na parę
                 </p>
             </div>
             <span
-                v-if="pairInvitationsCount"
+                v-if="jobSharing.awaiting_answer_count"
                 class="shrink-0 rounded-full bg-brand-yellow px-4 py-1.5 text-sm font-semibold text-brand-green"
                 data-test="pair-invitations-count"
             >
-                {{ pairInvitationsCount }}
-                {{ pluralize(pairInvitationsCount, 'nowe', 'nowe', 'nowych') }}
+                {{ jobSharing.awaiting_answer_count }}
+                {{
+                    pluralize(
+                        jobSharing.awaiting_answer_count,
+                        'czeka',
+                        'czekają',
+                        'czeka',
+                    )
+                }}
             </span>
             <ArrowRight
                 v-else

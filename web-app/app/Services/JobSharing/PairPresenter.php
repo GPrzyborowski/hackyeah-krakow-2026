@@ -93,6 +93,21 @@ class PairPresenter
         return $pair->getRelationValue('pivot')?->getAttribute('accepted_at') !== null ? 'invite_sent' : 'invite_received';
     }
 
+    /**
+     * Whether the pair waits for the viewing candidate (pivot = her membership): she has not answered the invitation
+     * yet, or the pair is agreeing the day split and she has not confirmed the current proposal.
+     */
+    public function awaitsViewer(JobSharePair $pair): bool
+    {
+        $membership = $pair->getRelationValue('pivot');
+
+        return match ($pair->status) {
+            JobSharePairStatus::Forming => $membership?->getAttribute('accepted_at') === null,
+            JobSharePairStatus::Formed => $membership?->getAttribute('schedule_confirmed_at') === null,
+            default => false,
+        };
+    }
+
     private function pivot(CandidateProfile $member, string $key): mixed
     {
         $pivot = $member->getRelationValue('pivot');

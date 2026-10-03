@@ -2689,7 +2689,15 @@ components:
           properties:
             pending_count: { type: integer }
             company_names: { type: array, items: { type: string } }
-        pair_invitations_count: { type: integer }
+        pair_invitations_count: { type: integer, description: 'Same as `job_sharing.invitations_count`.' }
+        job_sharing:
+          type: object
+          properties:
+            invitations_count: { type: integer, description: 'Pair invitations she has not answered.' }
+            awaiting_answer_count: { type: integer, description: 'Unanswered pair invitations + formed pairs whose day split she has not confirmed.' }
+            current_pair: { oneOf: [{ $ref: '#/components/schemas/HomePairSummary' }, { type: 'null' }], description: 'Her latest active pair she already joined.' }
+            recently_ended_pair: { oneOf: [{ $ref: '#/components/schemas/HomePairSummary' }, { type: 'null' }], description: 'Pair rejected, declined or dissolved in the last 7 days.' }
+            open_offers_count: { type: integer, description: 'Published multi-person offers without her active pair.' }
         saved_offers_count: { type: integer }
         top_offers:
           type: array
@@ -2700,6 +2708,15 @@ components:
           maxItems: 3
           description: 'Blog articles for her stage – pregnant: W ciąży, Prawa, CV i rozmowy; after leave: Powrót do pracy, Urlop, Prawa; newest articles without a stage.'
           items: { $ref: '#/components/schemas/Article' }
+    HomePairSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { type: string }
+        status_label: { type: string }
+        offer_title: { type: string }
+        company: { type: string }
+        partner_name: { type: [string, 'null'], description: 'First name and last-name initial.' }
     CvAnalysis:
       type: object
       properties:

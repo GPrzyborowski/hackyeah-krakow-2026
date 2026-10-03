@@ -193,6 +193,12 @@ Exactly what employers see before an invitation is accepted (anonymous allowlist
   },
   "invitations": { "pending_count": 2, "company_names": ["Zielone Biuro", "Kamienica"] },
   "pair_invitations_count": 1,
+  "job_sharing": {
+    "invitations_count": 1, "awaiting_answer_count": 2,
+    "current_pair": { "id": 7, "status": "submitted", "status_label": "Wysłane do pracodawcy", "offer_title": "Specjalistka ds. HR", "company": "Zielone Biuro", "partner_name": "Ewa K." },
+    "recently_ended_pair": null,
+    "open_offers_count": 4
+  },
   "saved_offers_count": 3,
   "top_offers": [ /* 3 × offer card, see below */ ],
   "recommended_articles": [ /* up to 3 × article card, see shared.md */ ]
@@ -201,6 +207,7 @@ Exactly what employers see before an invitation is accepted (anonymous allowlist
 
 The calendar depends on the private `stage`: pregnant – `phases` `pregnancy` → `leave` → `ready` (with `pregnancy_week`); after leave – `leave` → `return` → `ready` (`pregnancy_week` and `due_date` always `null`; `return` = start date within 60 days). `calendar.current_phase`: `pregnancy` | `leave` | `return` | `ready`; any date may be `null`. Without dates the phase follows the stage (`pregnancy` / `return`), and profiles without a stage fall back to `ready` – when `calendar.stage` is `null`, show a "Gdzie teraz jesteś?" card that leads to the preferences form.
 `greeting.stage_message` is a supporting line for her stage (`null` without one). `recommended_articles` are picked by stage – pregnant: "W ciąży", "Prawa", "CV i rozmowy"; after leave: "Powrót do pracy", "Urlop", "Prawa" (one per category first); newest articles without a stage.
+`job_sharing` drives the job-sharing card: `awaiting_answer_count` = pair invitations she has not answered + formed pairs whose day split she has not confirmed (show as a badge); `invitations_count` is the first part only (same as the older `pair_invitations_count`). `current_pair` is her latest pair she is already in (any active status), `recently_ended_pair` a pair rejected, declined or dissolved in the last 7 days (both `null` when none). `open_offers_count` = published multi-person offers she has no active pair for.
 When `profile.published` is `false` the app should send the user to onboarding.
 
 ---

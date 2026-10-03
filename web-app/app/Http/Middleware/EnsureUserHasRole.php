@@ -16,7 +16,13 @@ class EnsureUserHasRole
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        abort_unless($request->user()?->role === UserRole::from($role), 403);
+        $requiredRole = UserRole::from($role);
+
+        abort_unless(
+            $request->user()?->role === $requiredRole,
+            403,
+            "Ta funkcja jest dostępna tylko dla kont {$requiredRole->audienceLabel()}.",
+        );
 
         return $next($request);
     }

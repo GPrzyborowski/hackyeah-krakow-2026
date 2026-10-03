@@ -40,6 +40,8 @@ class HomeTest extends TestCase
             ->assertJsonPath('data.invitations.pending_count', 1)
             ->assertJsonPath('data.invitations.company_names', [$invitation->jobOffer->company->name])
             ->assertJsonPath('data.pair_invitations_count', 0)
+            ->assertJsonPath('data.job_sharing.awaiting_answer_count', 0)
+            ->assertJsonPath('data.job_sharing.current_pair', null)
             ->assertJsonPath('data.saved_offers_count', 1)
             ->assertJsonCount(3, 'data.top_offers')
             ->assertJsonStructure(['data' => ['top_offers' => [['id', 'title', 'match' => ['score'], 'company' => ['name'], 'is_saved']]]]);
@@ -61,6 +63,8 @@ class HomeTest extends TestCase
         $this->getJson('/api/v1/candidate/home')->assertUnauthorized();
 
         Sanctum::actingAs(User::factory()->employer()->create());
-        $this->getJson('/api/v1/candidate/home')->assertForbidden();
+        $this->getJson('/api/v1/candidate/home')
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Ta funkcja jest dostępna tylko dla kont kandydatek.');
     }
 }
