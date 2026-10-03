@@ -29,12 +29,16 @@ class InvitationResource extends JsonResource
             'id' => $invitation->id,
             'status' => $invitation->status->value,
             'status_label' => $this->statusLabel($invitation->status),
+            'kind' => $invitation->kind->value,
+            'kind_label' => $invitation->kind->label(),
             'message' => $invitation->message,
             'created_at' => $invitation->created_at->toIso8601String(),
             'responded_at' => $invitation->responded_at?->toIso8601String(),
             'conversation_id' => $invitation->conversation?->id,
             'job_share_pair' => $invitation->jobSharePair ? [
                 'id' => $invitation->jobSharePair->id,
+                'status' => $invitation->jobSharePair->status->value,
+                'status_label' => $invitation->jobSharePair->status->label(),
                 'partner_name' => $invitation->jobSharePair->members
                     ->first(fn (CandidateProfile $member): bool => $member->id !== $invitation->candidate_profile_id)
                     ?->anonymousName(),

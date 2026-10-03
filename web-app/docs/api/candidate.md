@@ -126,7 +126,7 @@ Omitted `work_modes` / `employment_fractions` are saved as empty. Onboarding ste
 
 ### PATCH /candidate/profile/privacy
 
-Partial update; send only the toggles that changed: `show_availability_instead_of_gap` (bool), `allow_direct_messages` (bool), `hidden_from_company_id` (nullable company id).
+Partial update; send only the toggles that changed: `show_availability_instead_of_gap` (bool), `allow_direct_messages` (bool – "Pozwól firmom pisać bez zaproszenia": companies may send her a short question without an invitation; she stays anonymous until she answers), `hidden_from_company_id` (nullable company id).
 
 ### PATCH /candidate/profile/summary
 
@@ -194,11 +194,12 @@ Published offers ranked by match (same filters as the web list). Query parameter
 | `work_modes[]` | `remote`, `hybrid`, `onsite` |
 | `employment_fractions[]` | `1`, `3/4`, `3/5`, `1/2` |
 | `flexible_hours`, `childcare_subsidy`, `with_reviews`, `job_share`, `saved` | `1` to enable |
+| `nursery_nearby` | `1` = only offers with a nursery/kindergarten at most 3 km from the workplace (`nursery_distance_km` set and `<= 3`) |
 | `start_from` | date; offers starting no earlier than 30 days before it. Defaults to the candidate's `available_from`; send `start_from=` (empty) to disable |
 | `sort` | `match` (default) or `newest` |
 | `page` | page number (20 per page) |
 
-Offer card (also used in `home.top_offers`):
+Offer card (also used in `home.top_offers`). `nursery_distance_km` is the distance in km from the workplace to the nearest nursery/kindergarten (`null` = not provided; show it as the chip "Przedszkole {N} km"):
 
 ```json
 {
@@ -207,6 +208,7 @@ Offer card (also used in `home.top_offers`):
   "employment_fraction": "3/5", "employment_fraction_label": "3/5 etatu",
   "salary_min": 6000, "salary_max": 8000, "start_date": "2027-09-01",
   "flexible_hours": true, "fixed_meeting_hours": false, "childcare_subsidy": true,
+  "nursery_distance_km": 2,
   "job_share": { "is_job_share": false, "workday_starts_at": null, "workday_ends_at": null, "hours_per_person": null },
   "published_at": "2026-09-20T08:00:00+00:00",
   "is_parent_friendly": true, "is_interested": false, "is_saved": true,
@@ -262,6 +264,7 @@ Paginated, pending first, then newest.
 ```json
 { "data": [{
   "id": 5, "status": "pending", "status_label": "Oczekuje na odpowiedź",
+  "kind": "invitation", "kind_label": "Zaproszenie do rozmowy",
   "message": "Dzień dobry, zapraszamy do rozmowy…",
   "created_at": "2026-10-01T09:00:00+00:00", "responded_at": null,
   "conversation_id": null,
@@ -277,6 +280,8 @@ Paginated, pending first, then newest.
 ```
 
 `status`: `pending` | `accepted` | `declined` | `withdrawn`. For job-sharing invitations `job_share_pair` is `{ "id": 9, "partner_name": "Anna N." }`.
+
+`kind`: `invitation` | `direct_message`. A `direct_message` ("Pytanie od firmy") is a question from a company sent without an invitation (only when `allow_direct_messages` is on). Show it with "Odpowiedz" (= `accept`: opens the conversation with the question as the first message and **reveals her full name and e-mail to the company** – say so in the UI: "Odpowiedź ujawni firmie Twoje imię, nazwisko i e-mail") and "Zignoruj" (= `decline`: she stays anonymous).
 
 ### POST /candidate/invitations/{invitation}/accept
 

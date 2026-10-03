@@ -5,6 +5,7 @@ import {
     CircleCheck,
     CircleX,
     MessageCircle,
+    PartyPopper,
     UsersRound,
 } from '@lucide/vue';
 import { computed } from 'vue';
@@ -24,6 +25,9 @@ const icon = computed(() => {
             return CircleCheck;
         case 'pair_invitation_received':
             return UsersRound;
+        case 'pair_hired':
+        case 'pair_hired_company':
+            return PartyPopper;
         case 'invitation_declined':
             return CircleX;
         default:

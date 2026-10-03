@@ -182,11 +182,14 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
                 <span class="flex items-center gap-2">
                     <Chip
                         :tone="
-                            pair.status === 'rejected'
-                                ? 'outline'
-                                : pair.status === 'formed'
-                                  ? 'yellow'
-                                  : 'dark'
+                            pair.status === 'hired'
+                                ? 'peach'
+                                : pair.status === 'rejected' ||
+                                    pair.status === 'declined'
+                                  ? 'outline'
+                                  : pair.status === 'formed'
+                                    ? 'yellow'
+                                    : 'dark'
                         "
                         >{{ pairStatusLabels[pair.status] }}</Chip
                     >

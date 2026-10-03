@@ -33,6 +33,8 @@ class EmployerInvitationResource extends JsonResource
                 InvitationStatus::Declined => 'Odrzucone',
                 InvitationStatus::Withdrawn => 'Wycofane',
             },
+            'kind' => $invitation->kind->value,
+            'kind_label' => $invitation->kind->label(),
             'message' => $invitation->message,
             'created_at' => $invitation->created_at->toIso8601String(),
             'responded_at' => $invitation->responded_at?->toIso8601String(),

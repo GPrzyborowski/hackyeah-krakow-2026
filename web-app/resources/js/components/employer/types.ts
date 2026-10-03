@@ -61,6 +61,7 @@ export type AnonymousCandidate = {
     work_modes: string[];
     match: MatchDetails | null;
     is_interested: boolean;
+    accepts_direct_messages: boolean;
 };
 
 export type SwipeOffer = {

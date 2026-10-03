@@ -48,6 +48,11 @@ class JobOffer extends Model
     use HasFactory;
 
     /**
+     * Max distance (km) from the workplace to a nursery/kindergarten for the "nearby" filter.
+     */
+    public const int NURSERY_NEARBY_MAX_KM = 3;
+
+    /**
      * @return BelongsTo<Company, $this>
      */
     public function company(): BelongsTo
@@ -118,11 +123,6 @@ class JobOffer extends Model
     {
         $query->where('status', OfferStatus::Published);
     }
-
-    /**
-     * Max distance (km) from the workplace to a nursery/kindergarten for the "nearby" filter.
-     */
-    public const int NURSERY_NEARBY_MAX_KM = 3;
 
     /**
      * Offers with a nursery or kindergarten within NURSERY_NEARBY_MAX_KM of the workplace.

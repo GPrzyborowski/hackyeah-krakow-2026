@@ -7,11 +7,18 @@ import { privacy } from '@/routes/candidate/onboarding';
 
 const props = defineProps<{
     hiddenFromCompanyId: number | null;
+    allowDirectMessages: boolean;
     companies: { id: number; name: string }[];
 }>();
 
 const hideFromEmployer = ref(props.hiddenFromCompanyId !== null);
 const hiddenCompanyId = ref<number | null>(props.hiddenFromCompanyId);
+const allowDirectMessages = ref(props.allowDirectMessages);
+
+watch(
+    () => props.allowDirectMessages,
+    (value) => (allowDirectMessages.value = value),
+);
 
 watch(
     () => props.hiddenFromCompanyId,
@@ -21,7 +28,7 @@ watch(
     },
 );
 
-function save(data: Record<string, number | null>) {
+function save(data: Record<string, number | boolean | null>) {
     router.patch(privacy.url(), data, {
         preserveScroll: true,
         preserveState: true,
@@ -77,6 +84,12 @@ function onHideToggle(value: boolean) {
                     </p>
                 </div>
             </div>
+            <BrandSwitch
+                v-model="allowDirectMessages"
+                label="Pozwól firmom pisać bez zaproszenia"
+                description="Firma może zadać Ci krótkie pytanie, nadal nie znając Twoich danych. Ujawnisz je dopiero, gdy odpowiesz."
+                @change="(value) => save({ allow_direct_messages: value })"
+            />
         </div>
     </section>
 </template>

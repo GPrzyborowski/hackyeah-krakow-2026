@@ -11,7 +11,9 @@ export type PairStatus =
     | 'submitted'
     | 'invited'
     | 'rejected'
-    | 'cancelled';
+    | 'cancelled'
+    | 'hired'
+    | 'declined';
 
 export type ScheduleBlock = {
     candidate_profile_id: number;
@@ -34,6 +36,8 @@ export const pairStatusLabels: Record<PairStatus, string> = {
     invited: 'Pracodawca zaprosił Waszą parę',
     rejected: 'Pracodawca odrzucił parę',
     cancelled: 'Para rozwiązana',
+    hired: 'Zatrudnione',
+    declined: 'Odrzucone przez członkinię',
 };
 
 export type OfferJobSharing = {

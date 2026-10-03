@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Tells the candidate a company wants to talk (to her alone or to her job-sharing pair); carries only the company name and offer title.
+ * Tells the candidate a company wants to talk (to her alone or to her job-sharing pair) or has a direct question; carries only the company name and offer title.
  */
 class InvitationReceived extends Notification
 {
@@ -27,11 +27,13 @@ class InvitationReceived extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject($this->invitation->job_share_pair_id !== null ? 'Zaproszenie do rozmowy dla Waszej pary job-sharing' : 'Nowe zaproszenie do rozmowy')
+            ->subject($this->subject())
             ->greeting('Cześć!')
             ->line($this->title())
-            ->line('Zaproszenie możesz przyjąć albo odrzucić. Dopiero po akceptacji firma zobaczy Twoje imię, nazwisko i e-mail.')
-            ->action('Zobacz zaproszenie', route('candidate.invitations.index'));
+            ->line($this->invitation->isDirectMessage()
+                ? 'Możesz odpowiedzieć albo zignorować pytanie. Dopiero odpowiedź ujawni firmie Twoje imię, nazwisko i e-mail.'
+                : 'Zaproszenie możesz przyjąć albo odrzucić. Dopiero po akceptacji firma zobaczy Twoje imię, nazwisko i e-mail.')
+            ->action($this->invitation->isDirectMessage() ? 'Zobacz pytanie' : 'Zobacz zaproszenie', route('candidate.invitations.index'));
     }
 
     /**
@@ -48,9 +50,22 @@ class InvitationReceived extends Notification
         ];
     }
 
+    private function subject(): string
+    {
+        if ($this->invitation->isDirectMessage()) {
+            return 'Nowe pytanie od firmy';
+        }
+
+        return $this->invitation->job_share_pair_id !== null ? 'Zaproszenie do rozmowy dla Waszej pary job-sharing' : 'Nowe zaproszenie do rozmowy';
+    }
+
     private function title(): string
     {
         $offer = $this->invitation->jobOffer;
+
+        if ($this->invitation->isDirectMessage()) {
+            return "Firma {$offer->company->name} ma pytanie dotyczące stanowiska {$offer->title}";
+        }
 
         if ($this->invitation->job_share_pair_id !== null) {
             return "Firma {$offer->company->name} zaprasza Waszą parę job-sharing do rozmowy o stanowisku {$offer->title}";

@@ -28,6 +28,8 @@ class JobSharePairReview
         JobSharePairStatus::Submitted,
         JobSharePairStatus::Invited,
         JobSharePairStatus::Rejected,
+        JobSharePairStatus::Hired,
+        JobSharePairStatus::Declined,
     ];
 
     public function __construct(private readonly PairPresenter $presenter, private readonly MatchScorer $scorer) {}

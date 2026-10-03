@@ -32,7 +32,9 @@ class InvitationDeclined extends Notification
 
         return [
             'kind' => 'invitation_declined',
-            'title' => "{$name} odrzuciła zaproszenie na stanowisko {$this->invitation->jobOffer->title}",
+            'title' => $this->invitation->isDirectMessage()
+                ? "{$name} nie odpowie na pytanie dotyczące stanowiska {$this->invitation->jobOffer->title}"
+                : "{$name} odrzuciła zaproszenie na stanowisko {$this->invitation->jobOffer->title}",
             'body' => null,
             'url' => route('employer.invitations.index', absolute: false),
             'invitation_id' => $this->invitation->id,

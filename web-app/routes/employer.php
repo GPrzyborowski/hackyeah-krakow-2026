@@ -28,6 +28,9 @@ Route::middleware(['auth', 'verified', 'role:employer'])->prefix('employer')->na
     Route::post('offers/{offer}/candidates/{candidate}/invitation', [InvitationController::class, 'store'])
         ->middleware('throttle:20,1,employer-invitations')
         ->name('offers.candidates.invitation');
+    Route::post('offers/{offer}/candidates/{candidate}/direct-message', [InvitationController::class, 'storeDirectMessage'])
+        ->middleware('throttle:20,1,employer-direct-messages')
+        ->name('offers.candidates.direct-message');
 
     Route::get('invitations', [InvitationController::class, 'index'])->name('invitations.index');
 });

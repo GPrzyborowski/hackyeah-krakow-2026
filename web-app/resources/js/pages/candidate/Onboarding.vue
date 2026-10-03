@@ -125,6 +125,7 @@ function toggleVisibility() {
             <PrivacySettings
                 v-if="step !== 4"
                 :hidden-from-company-id="profile.hidden_from_company_id"
+                :allow-direct-messages="profile.allow_direct_messages"
                 :companies="companies"
             />
         </aside>

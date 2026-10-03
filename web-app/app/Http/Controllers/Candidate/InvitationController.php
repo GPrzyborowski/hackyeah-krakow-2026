@@ -33,12 +33,15 @@ class InvitationController extends Controller
             'invitations' => $invitations->map(fn (Invitation $invitation): array => [
                 'id' => $invitation->id,
                 'status' => $invitation->status->value,
+                'kind' => $invitation->kind->value,
+                'kind_label' => $invitation->kind->label(),
                 'message' => $invitation->message,
                 'created_at' => $invitation->created_at->toIso8601String(),
                 'responded_at' => $invitation->responded_at?->toIso8601String(),
                 'conversation_id' => $invitation->conversation?->id,
                 'job_share_pair' => $invitation->jobSharePair ? [
                     'id' => $invitation->jobSharePair->id,
+                    'status' => $invitation->jobSharePair->status->value,
                     'partner_name' => $invitation->jobSharePair->members
                         ->first(fn (CandidateProfile $member): bool => $member->id !== $invitation->candidate_profile_id)
                         ?->anonymousName(),
@@ -69,7 +72,9 @@ class InvitationController extends Controller
 
         $conversation = $invitation->accept();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Zaproszenie przyjęte. Możecie już rozmawiać.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => $invitation->isDirectMessage()
+            ? 'Rozmowa otwarta. Napisz firmie swoją odpowiedź.'
+            : 'Zaproszenie przyjęte. Możecie już rozmawiać.']);
 
         return Route::has('conversations.show')
             ? to_route('conversations.show', $conversation)
@@ -85,7 +90,9 @@ class InvitationController extends Controller
 
         $invitation->decline();
 
-        Inertia::flash('toast', ['type' => 'info', 'message' => 'Zaproszenie odrzucone. Firma nie pozna Twoich danych.']);
+        Inertia::flash('toast', ['type' => 'info', 'message' => $invitation->isDirectMessage()
+            ? 'Pytanie zignorowane. Firma nie pozna Twoich danych.'
+            : 'Zaproszenie odrzucone. Firma nie pozna Twoich danych.']);
 
         return to_route('candidate.invitations.index');
     }

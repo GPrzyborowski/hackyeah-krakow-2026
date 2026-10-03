@@ -10,7 +10,7 @@ Common errors:
 | 403 | Not an employer, email not verified (`"Your email address is not verified."`), no company, or the offer belongs to another company / is not in the right state |
 | 404 | Unknown id; candidate not matched to the offer or hidden from the company; job-share pair of another company or hidden |
 | 422 | Validation failed: `{"message": "...", "errors": {"field": ["Polish message"]}}` |
-| 429 | Throttled: skills 60/min, preview-matches 60/min, invitations 20/min, pair invitations 20/min |
+| 429 | Throttled: skills 60/min, preview-matches 60/min, invitations 20/min, direct messages 20/min, pair invitations 20/min |
 
 Conventions: resources wrapped in `data`; lists paginated (20 per page) with Laravel's `data` / `links` / `meta` – pass `?page=N`. Dates `Y-m-d`, timestamps ISO 8601. Money in PLN gross (integers). Enums as value plus `*_label` (Polish).
 
@@ -81,6 +81,7 @@ Up to 10 skills whose name or slug contains `q` (all skills when `q` is empty), 
   "start_date": "2027-09-01",
   "description": "Prowadzenie procesów rekrutacyjnych…",
   "flexible_hours": true, "fixed_meeting_hours": true, "childcare_subsidy": false,
+  "nursery_distance_km": 2,
   "is_job_share": false, "workday_starts_at": null, "workday_ends_at": null, "hours_per_person": null,
   "status": "published", "status_label": "Opublikowana",
   "published_at": "2026-10-01T09:00:00+00:00",
@@ -115,6 +116,7 @@ Body (same rules as the web form):
 | `employment_fraction` | required: `1`, `3/4`, `3/5`, `1/2` |
 | `salary_min`, `salary_max` | optional integers; `salary_max >= salary_min` |
 | `flexible_hours`, `fixed_meeting_hours`, `childcare_subsidy`, `is_job_share` | booleans |
+| `nursery_distance_km` | optional integer 0–50: km from the workplace to the nearest nursery/kindergarten (candidates filter by it). Ignored (stored as `null`) for `work_mode=remote` |
 | `workday_starts_at`, `workday_ends_at` | `HH:MM`, required when `is_job_share`; end after start |
 | `required_skills` | array of skill names (max 20); at least one when publishing; must be present (may be `[]`) for drafts |
 | `nice_to_have_skills` | array of skill names (max 20), must be present (may be `[]`) |
@@ -176,7 +178,8 @@ The next undecided matched candidate (candidates who expressed interest in the o
         "matched_nice_to_have": [], "missing_nice_to_have": ["Onboarding"],
         "start_date_compatible": true
       },
-      "is_interested": true
+      "is_interested": true,
+      "accepts_direct_messages": false
     },
     "is_saved_candidate": false,
     "remaining_count": 6,
@@ -219,6 +222,14 @@ Errors:
 
 Duplicate invitation → 422 `errors.message`: "Ta kandydatka ma już zaproszenie do tej oferty."
 
+### POST /employer/offers/{offer}/candidates/{candidate}/direct-message → 201
+
+A lightweight question without an invitation ("Napisz wiadomość"), allowed only when the card has `accepts_direct_messages: true` (the candidate's privacy toggle "Pozwól firmom pisać bez zaproszenia"). Body: `message` (required, max 1000, moderated – same 422 shape as invitations). Throttle 20/min. Same 404/403 rules as the invitation.
+
+It is stored as an invitation with `kind: "direct_message"` (`kind_label`: "Pytanie od firmy"), so the candidate stays anonymous until she answers (= accepts: the conversation opens with the question as its first message and her full name + e-mail are revealed) or ignores it (= `declined`). Like an invitation it removes her from the swipe queue (decision `invited`) and counts as the one invitation per offer and candidate.
+
+Errors: candidate does not allow direct messages → 422 `errors.message`: "Ta kandydatka nie przyjmuje wiadomości bez zaproszenia. Możesz ją zaprosić do rozmowy."; duplicate → 422 as above.
+
 ---
 
 ## Invitations
@@ -233,6 +244,7 @@ Paginated, newest first. Optional `status` = `pending|accepted|declined|withdraw
     {
       "id": 40,
       "status": "accepted", "status_label": "Zaakceptowane",
+      "kind": "invitation", "kind_label": "Zaproszenie do rozmowy",
       "message": "Dzień dobry, zapraszamy…",
       "created_at": "2026-10-01T09:00:00+00:00",
       "responded_at": "2026-10-02T12:00:00+00:00",
@@ -255,7 +267,7 @@ Paginated, newest first. Optional `status` = `pending|accepted|declined|withdraw
 }
 ```
 
-Status labels: pending "Czeka na odpowiedź", accepted "Zaakceptowane", declined "Odrzucone", withdrawn "Wycofane". `conversation_id` (accepted only) is used with the shared conversations endpoints.
+`kind`: `invitation` | `direct_message` (question sent via `/direct-message`). Status labels: pending "Czeka na odpowiedź", accepted "Zaakceptowane", declined "Odrzucone", withdrawn "Wycofane". `conversation_id` (accepted only) is used with the shared conversations endpoints.
 
 ---
 

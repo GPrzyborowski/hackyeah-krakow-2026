@@ -2,11 +2,20 @@
 
 namespace Tests\Feature\JobSharing;
 
+use App\Enums\InvitationStatus;
 use App\Enums\JobSharePairStatus;
+use App\Models\CandidateProfile;
 use App\Models\Company;
+use App\Models\Invitation;
+use App\Models\JobOffer;
 use App\Models\JobSharePair;
+use App\Models\User;
+use App\Notifications\PairHired;
+use App\Notifications\PairHiredForCompany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class PairLifecycleTest extends TestCase
@@ -128,5 +137,129 @@ class PairLifecycleTest extends TestCase
                 ->where('members.0.display_name', 'Marta K.')
                 ->where('members.1.display_name', 'Ewa N.')
                 ->where('can.chat', true));
+    }
+
+    public function test_pair_is_hired_once_both_members_accept_their_invitations(): void
+    {
+        Notification::fake();
+        [$employer, $offer, $marta, $ewa, $pair] = $this->invitedPair();
+        $martaInvitation = $this->invitationOf($pair, $marta);
+        $ewaInvitation = $this->invitationOf($pair, $ewa);
+
+        $this->actingAs($marta->user)->post(route('candidate.invitations.accept', $martaInvitation))->assertRedirect();
+
+        $this->assertSame(JobSharePairStatus::Invited, $pair->fresh()?->status);
+        Notification::assertNotSentTo($marta->user, PairHired::class);
+
+        $this->actingAs($ewa->user)->post(route('candidate.invitations.accept', $ewaInvitation))->assertRedirect();
+        $ewaInvitation->refresh()->accept();
+
+        $this->assertSame(JobSharePairStatus::Hired, $pair->fresh()?->status);
+        foreach ([$marta->user, $ewa->user] as $member) {
+            Notification::assertSentToTimes($member, PairHired::class, 1);
+            Notification::assertSentTo($member, PairHired::class, fn (PairHired $notification): bool => $notification->toArray($member)['title'] === "Gratulacje! Wasza para została zatrudniona na stanowisko {$offer->title}");
+        }
+        Notification::assertSentToTimes($employer, PairHiredForCompany::class, 1);
+
+        $this->actingAs($employer)
+            ->get(route('employer.offers.job-share-pairs.index', $offer))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('pairs.0.id', $pair->id)
+                ->where('pairs.0.status', 'hired'));
+
+        $this->actingAs($marta->user)
+            ->get(route('candidate.invitations.index'))
+            ->assertInertia(fn (Assert $page) => $page->where('invitations.0.job_share_pair.status', 'hired'));
+    }
+
+    public function test_member_declining_her_invitation_declines_the_pair_and_withdraws_the_partners_invitation(): void
+    {
+        Notification::fake();
+        [, , $marta, $ewa, $pair] = $this->invitedPair();
+
+        $this->actingAs($marta->user)
+            ->post(route('candidate.invitations.decline', $this->invitationOf($pair, $marta)))
+            ->assertRedirect(route('candidate.invitations.index'));
+
+        $this->assertSame(JobSharePairStatus::Declined, $pair->fresh()?->status);
+        $this->assertSame(InvitationStatus::Withdrawn, $this->invitationOf($pair, $ewa)->status);
+        $this->actingAs($ewa->user)->post(route('candidate.invitations.accept', $this->invitationOf($pair, $ewa)))->assertForbidden();
+        Notification::assertNotSentTo([$marta->user, $ewa->user], PairHired::class);
+    }
+
+    public function test_closing_the_offer_cancels_pairs_in_progress_and_keeps_hired_ones(): void
+    {
+        $employer = $this->employer();
+        $recruitment = $this->skill('Rekrutacja IT');
+        $offer = $this->jobShareOffer($employer->company, [$recruitment]);
+        $pairs = collect([
+            JobSharePairStatus::Forming,
+            JobSharePairStatus::Formed,
+            JobSharePairStatus::Submitted,
+            JobSharePairStatus::Invited,
+            JobSharePairStatus::Hired,
+            JobSharePairStatus::Rejected,
+        ])->mapWithKeys(fn (JobSharePairStatus $status): array => [
+            $status->value => $this->pair($offer, $this->sharer([$recruitment], 'Anna Nowak'), $this->sharer([$recruitment], 'Ola Mazur'), $status),
+        ]);
+        $invitedMember = $pairs['invited']->members()->firstOrFail();
+        $pendingInvitation = Invitation::factory()->for($offer)->for($invitedMember)->create(['job_share_pair_id' => $pairs['invited']->id]);
+
+        $this->actingAs($employer)->post(route('employer.offers.close', $offer))->assertRedirect();
+
+        foreach (['forming', 'formed', 'submitted', 'invited'] as $status) {
+            $this->assertSame(JobSharePairStatus::Cancelled, $pairs[$status]->fresh()?->status, "{$status} pair should be cancelled");
+        }
+        $this->assertSame(JobSharePairStatus::Hired, $pairs['hired']->fresh()?->status);
+        $this->assertSame(JobSharePairStatus::Rejected, $pairs['rejected']->fresh()?->status);
+        $this->assertSame(InvitationStatus::Withdrawn, $pendingInvitation->fresh()?->status);
+    }
+
+    public function test_member_cannot_dissolve_a_pair_once_it_is_invited_or_hired(): void
+    {
+        $recruitment = $this->skill('Rekrutacja IT');
+        $offer = $this->jobShareOffer(Company::factory()->create(), [$recruitment]);
+
+        foreach ([JobSharePairStatus::Invited, JobSharePairStatus::Hired] as $status) {
+            $marta = $this->sharer([$recruitment], 'Marta Kowalska');
+            $pair = $this->scheduledPair($offer, $marta, $this->sharer([$recruitment], 'Ewa Nowak'), $status);
+
+            $this->actingAs($marta->user)->post(route('job-sharing.pairs.cancel', $pair))->assertForbidden();
+
+            Sanctum::actingAs($marta->user);
+            $this->postJson("/api/v1/job-sharing/pairs/{$pair->id}/cancel")
+                ->assertForbidden()
+                ->assertJsonPath('message', 'Tej pary nie można już rozwiązać – została wysłana do pracodawcy lub zakończyła się decyzją.');
+
+            $this->assertSame($status, $pair->fresh()?->status);
+        }
+    }
+
+    /**
+     * A submitted pair invited by the employer through the web app: one pending invitation per member.
+     *
+     * @return array{0: User, 1: JobOffer, 2: CandidateProfile, 3: CandidateProfile, 4: JobSharePair}
+     */
+    private function invitedPair(): array
+    {
+        $employer = $this->employer();
+        $recruitment = $this->skill('Rekrutacja IT');
+        $offer = $this->jobShareOffer($employer->company, [$recruitment]);
+        $marta = $this->sharer([$recruitment], 'Marta Kowalska');
+        $ewa = $this->sharer([$recruitment], 'Ewa Nowak');
+        $pair = $this->scheduledPair($offer, $marta, $ewa, JobSharePairStatus::Submitted);
+
+        $this->actingAs($employer)
+            ->post(route('employer.job-share-pairs.invitation', $pair), [
+                'message' => 'Dzień dobry, zapraszamy Was na rozmowę o stanowisku w modelu job sharing.',
+            ])
+            ->assertSessionHasNoErrors();
+
+        return [$employer, $offer, $marta, $ewa, $pair];
+    }
+
+    private function invitationOf(JobSharePair $pair, CandidateProfile $member): Invitation
+    {
+        return Invitation::query()->where('job_share_pair_id', $pair->id)->where('candidate_profile_id', $member->id)->sole();
     }
 }

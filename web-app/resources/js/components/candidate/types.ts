@@ -25,6 +25,7 @@ export type CandidateOffer = {
     flexible_hours: boolean;
     fixed_meeting_hours: boolean;
     childcare_subsidy: boolean;
+    nursery_distance_km: number | null;
     published_at: string | null;
     is_parent_friendly: boolean;
     is_interested: boolean;
@@ -65,6 +66,7 @@ export type OnboardingProfile = {
     open_to_job_sharing: boolean;
     preferred_day_part: 'morning' | 'afternoon' | 'any' | null;
     hidden_from_company_id: number | null;
+    allow_direct_messages: boolean;
     onboarding_step: number;
     cv_original_name: string | null;
     cv_size: number | null;

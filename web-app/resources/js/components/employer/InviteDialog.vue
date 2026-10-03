@@ -20,16 +20,26 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 
-const props = defineProps<{
-    offer: SwipeOffer;
-    candidate: AnonymousCandidate;
-}>();
+const props = withDefaults(
+    defineProps<{
+        offer: SwipeOffer;
+        candidate: AnonymousCandidate;
+        kind?: 'invitation' | 'direct_message';
+    }>(),
+    { kind: 'invitation' },
+);
+
+const isDirectMessage = computed(() => props.kind === 'direct_message');
 
 const open = defineModel<boolean>('open', { required: true });
 
 const page = usePage();
 
 const template = computed(() => {
+    if (isDirectMessage.value) {
+        return `Dzień dobry, mamy pytanie dotyczące stanowiska ${props.offer.title}. `;
+    }
+
     const salary = formatSalaryRange(
         props.offer.salary_min,
         props.offer.salary_max,
@@ -80,8 +90,12 @@ const errors = computed(
 );
 
 function send(): void {
+    const action = isDirectMessage.value
+        ? InvitationController.storeDirectMessage
+        : InvitationController.store;
+
     form.post(
-        InvitationController.store.url({
+        action.url({
             offer: props.offer.id,
             candidate: props.candidate.id,
         }),
@@ -101,9 +115,15 @@ function send(): void {
         <DialogContent class="rounded-3xl sm:max-w-xl">
             <DialogHeader>
                 <DialogTitle class="text-brand-green">
-                    Zaproś {{ candidate.anonymous_name }}
+                    {{ isDirectMessage ? 'Napisz do' : 'Zaproś' }}
+                    {{ candidate.anonymous_name }}
                 </DialogTitle>
-                <DialogDescription>
+                <DialogDescription v-if="isDirectMessage">
+                    Krótkie pytanie bez zaproszenia (do 1000 znaków). Kandydatka
+                    zostaje anonimowa – jej dane zobaczysz dopiero, gdy odpowie.
+                    Pytania o sytuację rodzinną są zablokowane.
+                </DialogDescription>
+                <DialogDescription v-else>
                     Napisz o stanowisku, widełkach i godzinach pracy. Pytania o
                     sytuację rodzinną są zablokowane.
                 </DialogDescription>
@@ -114,7 +134,8 @@ function send(): void {
                     Wiadomość
                     <textarea
                         v-model="form.message"
-                        rows="10"
+                        :rows="isDirectMessage ? 5 : 10"
+                        :maxlength="isDirectMessage ? 1000 : 2000"
                         class="mt-1.5 w-full rounded-2xl border border-brand-green/60 bg-white px-4 py-3 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40"
                         :aria-invalid="Boolean(form.errors.message)"
                     />
@@ -146,7 +167,11 @@ function send(): void {
                         class="h-10 rounded-full bg-brand-green px-5 text-sm font-semibold text-white hover:bg-brand-green-soft disabled:opacity-50"
                         :disabled="form.processing"
                     >
-                        Wyślij zaproszenie
+                        {{
+                            isDirectMessage
+                                ? 'Wyślij wiadomość'
+                                : 'Wyślij zaproszenie'
+                        }}
                     </button>
                 </div>
             </form>

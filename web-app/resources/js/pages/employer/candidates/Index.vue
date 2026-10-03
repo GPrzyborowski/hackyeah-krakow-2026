@@ -5,6 +5,7 @@ import {
     MessageSquare,
     PartyPopper,
     Plus,
+    Send,
     UsersRound,
     X,
 } from '@lucide/vue';
@@ -50,6 +51,7 @@ defineOptions({
 });
 
 const isInviteOpen = ref(false);
+const inviteKind = ref<'invitation' | 'direct_message'>('invitation');
 const isSubmitting = ref(false);
 
 function decide(decision: 'skipped' | 'saved'): void {
@@ -74,6 +76,14 @@ function decide(decision: 'skipped' | 'saved'): void {
 
 function invite(): void {
     if (props.candidate) {
+        inviteKind.value = 'invitation';
+        isInviteOpen.value = true;
+    }
+}
+
+function writeDirectMessage(): void {
+    if (props.candidate?.accepts_direct_messages) {
+        inviteKind.value = 'direct_message';
         isInviteOpen.value = true;
     }
 }
@@ -357,7 +367,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                         </p>
                         <CandidateCard :candidate="candidate" />
 
-                        <div class="mt-8 flex items-start justify-center gap-6">
+                        <div
+                            class="mt-8 flex flex-wrap items-start justify-center gap-4 sm:gap-6"
+                        >
                             <div class="flex flex-col items-center gap-2">
                                 <button
                                     type="button"
@@ -407,6 +419,23 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                                     >Zaproś</span
                                 >
                             </div>
+                            <div
+                                v-if="candidate.accepts_direct_messages"
+                                class="flex flex-col items-center gap-2"
+                            >
+                                <button
+                                    type="button"
+                                    class="flex size-16 items-center justify-center rounded-full border-2 border-brand-green bg-brand-mint-soft text-brand-green shadow-sm transition motion-safe:hover:scale-105"
+                                    aria-label="Napisz wiadomość"
+                                    data-test="direct-message-button"
+                                    @click="writeDirectMessage"
+                                >
+                                    <Send class="size-6" aria-hidden="true" />
+                                </button>
+                                <span class="text-xs text-brand-green"
+                                    >Napisz wiadomość</span
+                                >
+                            </div>
                         </div>
                         <div
                             class="mt-6 hidden flex-col items-center gap-2 text-center text-xs text-brand-green/80 sm:flex"
@@ -439,6 +468,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                             v-model:open="isInviteOpen"
                             :offer="currentOffer"
                             :candidate="candidate"
+                            :kind="inviteKind"
                         />
                     </template>
                     <div

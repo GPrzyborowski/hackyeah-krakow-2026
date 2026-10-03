@@ -257,7 +257,13 @@ const inputClass =
                 </div>
             </div>
             <Chip
-                :tone="pair.status === 'submitted' ? 'dark' : 'soft'"
+                :tone="
+                    pair.status === 'hired'
+                        ? 'peach'
+                        : pair.status === 'submitted'
+                          ? 'dark'
+                          : 'soft'
+                "
                 class="shrink-0 self-start"
             >
                 {{ pairStatusLabels[pair.status] }}
@@ -536,12 +542,31 @@ const inputClass =
 
                 <section
                     v-if="
-                        pair.status === 'submitted' || pair.status === 'invited'
+                        pair.status === 'submitted' ||
+                        pair.status === 'invited' ||
+                        pair.status === 'hired' ||
+                        pair.status === 'declined'
                     "
                     class="flex items-start gap-3 rounded-3xl bg-brand-green p-5 text-sm text-white"
+                    data-test="pair-outcome"
                 >
                     <ShieldCheck class="mt-0.5 size-5 shrink-0" />
-                    <p v-if="pair.status === 'invited'">
+                    <p v-if="pair.status === 'hired'">
+                        Gratulacje! Obie przyjęłyście zaproszenie – Wasza para
+                        została zatrudniona. Szczegóły ustalicie z firmą w
+                        zakładce
+                        <Link
+                            :href="invitationsIndex()"
+                            class="font-semibold underline underline-offset-2"
+                            >„Zaproszenia”</Link
+                        >.
+                    </p>
+                    <p v-else-if="pair.status === 'declined'">
+                        Jedna z Was odrzuciła zaproszenie pracodawcy, więc para
+                        nie przejdzie dalej. Pozostałe zaproszenie zostało
+                        wycofane.
+                    </p>
+                    <p v-else-if="pair.status === 'invited'">
                         Pracodawca zaprosił Waszą parę. Każda z Was odpowiada na
                         swoje zaproszenie w zakładce
                         <Link

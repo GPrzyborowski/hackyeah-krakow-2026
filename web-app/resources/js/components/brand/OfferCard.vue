@@ -36,6 +36,9 @@ const chips = computed(() =>
             ? 'Spotkania w stałych godzinach'
             : null,
         props.offer.childcare_subsidy ? 'Dopłata do żłobka' : null,
+        props.offer.nursery_distance_km != null
+            ? `Przedszkole ${props.offer.nursery_distance_km} km`
+            : null,
         `Start od ${formatShortDate(props.offer.start_date)}`,
     ].filter((chip): chip is string => chip !== null),
 );

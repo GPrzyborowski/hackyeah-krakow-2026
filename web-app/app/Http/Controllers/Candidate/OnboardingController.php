@@ -198,6 +198,7 @@ class OnboardingController extends Controller
             'open_to_job_sharing' => (bool) $profile->open_to_job_sharing,
             'preferred_day_part' => $profile->preferred_day_part?->value,
             'hidden_from_company_id' => $profile->hidden_from_company_id,
+            'allow_direct_messages' => (bool) $profile->allow_direct_messages,
             'onboarding_step' => $profile->onboarding_step,
             'cv_original_name' => $profile->cv_original_name,
             'cv_size' => $cvExists ? Storage::disk('local')->size($profile->cv_path) : null,

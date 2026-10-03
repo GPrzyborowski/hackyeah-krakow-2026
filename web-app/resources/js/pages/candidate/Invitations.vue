@@ -4,6 +4,8 @@ import { MessageCircle, ShieldCheck, Star } from '@lucide/vue';
 import { ref } from 'vue';
 import Chip from '@/components/candidate/Chip.vue';
 import { formatLongDate, formatRating } from '@/components/candidate/format';
+import { pairStatusLabels } from '@/components/job-sharing/types';
+import type { PairStatus } from '@/components/job-sharing/types';
 import { parentReviewCountLabel } from '@/lib/plural';
 import { accept, decline, index } from '@/routes/candidate/invitations';
 import { show as conversationShow } from '@/routes/conversations';
@@ -12,11 +14,17 @@ import { show as offerShow } from '@/routes/candidate/offers';
 type Invitation = {
     id: number;
     status: 'pending' | 'accepted' | 'declined' | 'withdrawn';
+    kind: 'invitation' | 'direct_message';
+    kind_label: string;
     message: string;
     created_at: string;
     responded_at: string | null;
     conversation_id: number | null;
-    job_share_pair?: { id: number; partner_name: string | null } | null;
+    job_share_pair?: {
+        id: number;
+        status: PairStatus;
+        partner_name: string | null;
+    } | null;
     offer: {
         id: number;
         title: string;
@@ -46,6 +54,19 @@ const statusLabels: Record<Invitation['status'], string> = {
     declined: 'Odrzucone',
     withdrawn: 'Wycofane przez firmę',
 };
+
+const directMessageStatusLabels: Record<Invitation['status'], string> = {
+    pending: 'Czeka na odpowiedź',
+    accepted: 'Odpowiedziano',
+    declined: 'Zignorowane',
+    withdrawn: 'Wycofane przez firmę',
+};
+
+function statusLabel(invitation: Invitation): string {
+    return invitation.kind === 'direct_message'
+        ? directMessageStatusLabels[invitation.status]
+        : statusLabels[invitation.status];
+}
 
 const processingId = ref<number | null>(null);
 
@@ -116,7 +137,7 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                               : 'soft'
                     "
                 >
-                    {{ statusLabels[invitation.status] }}
+                    {{ statusLabel(invitation) }}
                 </Chip>
             </div>
 
@@ -140,9 +161,36 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                 class="mt-3 flex flex-wrap items-center gap-2 text-sm text-brand-green"
             >
                 <Chip tone="peach">Zaproszenie dla Waszej pary</Chip>
+                <Chip
+                    v-if="
+                        invitation.job_share_pair.status === 'hired' ||
+                        invitation.job_share_pair.status === 'declined'
+                    "
+                    :tone="
+                        invitation.job_share_pair.status === 'hired'
+                            ? 'dark'
+                            : 'outline'
+                    "
+                    data-test="invitation-pair-status"
+                    >{{
+                        pairStatusLabels[invitation.job_share_pair.status]
+                    }}</Chip
+                >
                 <span v-if="invitation.job_share_pair.partner_name"
                     >razem z {{ invitation.job_share_pair.partner_name }} ·
                     każda z Was odpowiada osobno</span
+                >
+            </div>
+
+            <div
+                v-if="invitation.kind === 'direct_message'"
+                class="mt-3 flex flex-wrap items-center gap-2 text-sm text-brand-green"
+                data-test="direct-message-label"
+            >
+                <Chip tone="peach">{{ invitation.kind_label }}</Chip>
+                <span v-if="invitation.status === 'pending'"
+                    >Firma nie zna Twoich danych. Odpowiedź ujawni firmie Twoje
+                    imię, nazwisko i e-mail.</span
                 >
             </div>
 
@@ -170,7 +218,11 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                         class="rounded-full border border-brand-green px-5 py-2 text-sm font-semibold text-brand-green hover:bg-brand-cream disabled:opacity-60"
                         @click="respond(invitation, 'decline')"
                     >
-                        Odrzuć
+                        {{
+                            invitation.kind === 'direct_message'
+                                ? 'Zignoruj'
+                                : 'Odrzuć'
+                        }}
                     </button>
                     <button
                         type="button"
@@ -178,7 +230,11 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                         class="rounded-full bg-brand-green px-5 py-2 text-sm font-semibold text-white hover:bg-brand-green-soft disabled:opacity-60"
                         @click="respond(invitation, 'accept')"
                     >
-                        Przyjmij
+                        {{
+                            invitation.kind === 'direct_message'
+                                ? 'Odpowiedz'
+                                : 'Przyjmij'
+                        }}
                     </button>
                 </div>
                 <Link

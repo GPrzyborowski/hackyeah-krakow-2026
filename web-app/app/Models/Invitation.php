@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\InvitationKind;
 use App\Enums\InvitationStatus;
+use App\Enums\JobSharePairStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\InvitationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -20,14 +22,22 @@ use Illuminate\Support\Facades\DB;
  * @property int|null $sent_by_user_id
  * @property string $message
  * @property InvitationStatus $status
+ * @property InvitationKind $kind
  * @property CarbonImmutable|null $responded_at
  * @property CarbonImmutable $created_at
  */
-#[Fillable(['job_offer_id', 'candidate_profile_id', 'job_share_pair_id', 'sent_by_user_id', 'message', 'status', 'responded_at'])]
+#[Fillable(['job_offer_id', 'candidate_profile_id', 'job_share_pair_id', 'sent_by_user_id', 'message', 'status', 'kind', 'responded_at'])]
 class Invitation extends Model
 {
     /** @use HasFactory<InvitationFactory> */
     use HasFactory;
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'kind' => 'invitation',
+    ];
 
     /**
      * @return BelongsTo<JobOffer, $this>
@@ -76,14 +86,22 @@ class Invitation extends Model
         return $this->status === InvitationStatus::Pending;
     }
 
+    public function isDirectMessage(): bool
+    {
+        return $this->kind === InvitationKind::DirectMessage;
+    }
+
     /**
      * Accept the invitation and open the conversation; contact data becomes visible to the company.
      * A newly opened conversation starts with the invitation message, so the chat never opens empty.
+     * A job-sharing pair is hired once both of its members accepted their invitations.
      */
     public function accept(): Conversation
     {
         return DB::transaction(function (): Conversation {
             $this->update(['status' => InvitationStatus::Accepted, 'responded_at' => now()]);
+
+            $this->markPairHiredWhenEveryoneAccepted();
 
             $conversation = $this->conversation()->firstOrCreate([], ['last_message_at' => now()]);
 
@@ -118,9 +136,56 @@ class Invitation extends Model
         Message::withoutEvents(fn (): bool => $message->save());
     }
 
+    /**
+     * Decline; for a job-sharing pair the whole pair is declined and the partner's pending invitation withdrawn.
+     */
     public function decline(): void
     {
-        $this->update(['status' => InvitationStatus::Declined, 'responded_at' => now()]);
+        DB::transaction(function (): void {
+            $this->update(['status' => InvitationStatus::Declined, 'responded_at' => now()]);
+
+            $pair = $this->lockedPair();
+
+            if ($pair === null) {
+                return;
+            }
+
+            if ($pair->status === JobSharePairStatus::Invited) {
+                $pair->update(['status' => JobSharePairStatus::Declined]);
+            }
+
+            $pair->invitations()
+                ->whereKeyNot($this->id)
+                ->where('status', InvitationStatus::Pending)
+                ->update(['status' => InvitationStatus::Withdrawn]);
+        });
+    }
+
+    private function markPairHiredWhenEveryoneAccepted(): void
+    {
+        $pair = $this->lockedPair();
+
+        if ($pair === null || $pair->status !== JobSharePairStatus::Invited) {
+            return;
+        }
+
+        $acceptedCount = $pair->invitations()->where('status', InvitationStatus::Accepted)->count();
+
+        if ($acceptedCount === $pair->invitations()->count() && $acceptedCount >= $pair->members()->count()) {
+            $pair->update(['status' => JobSharePairStatus::Hired]);
+        }
+    }
+
+    /**
+     * The invitation's pair, locked so that two members answering at the same moment settle it only once.
+     */
+    private function lockedPair(): ?JobSharePair
+    {
+        if ($this->job_share_pair_id === null) {
+            return null;
+        }
+
+        return JobSharePair::query()->lockForUpdate()->find($this->job_share_pair_id);
     }
 
     /**
@@ -130,6 +195,7 @@ class Invitation extends Model
     {
         return [
             'status' => InvitationStatus::class,
+            'kind' => InvitationKind::class,
             'responded_at' => 'datetime',
         ];
     }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowLeft, Check, MessageSquare, UsersRound, X } from '@lucide/vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import EmployerPairController from '@/actions/App/Http/Controllers/JobSharing/EmployerPairController';
 import CandidateController from '@/actions/App/Http/Controllers/Employer/CandidateController';
 import JobOfferController from '@/actions/App/Http/Controllers/Employer/JobOfferController';
@@ -57,6 +57,8 @@ const statusLabels: Partial<Record<PairStatus, string>> = {
     submitted: 'Czeka na decyzję',
     invited: 'Zaproszona',
     rejected: 'Odrzucona',
+    hired: 'Zatrudniona',
+    declined: 'Odrzucona przez członkinię',
 };
 
 const tones: ScheduleBarBlock['tone'][] = ['peach', 'yellow'];
@@ -119,9 +121,24 @@ function reject(pair: Pair): void {
     );
 }
 
-const pendingCount = props.pairs.filter(
-    (pair) => pair.status === 'submitted',
-).length;
+const pendingCount = computed(
+    () => props.pairs.filter((pair) => pair.status === 'submitted').length,
+);
+
+const sections = computed(() =>
+    [
+        {
+            key: 'review',
+            title: null,
+            pairs: props.pairs.filter((pair) => pair.status !== 'hired'),
+        },
+        {
+            key: 'hired',
+            title: 'Zatrudnione pary',
+            pairs: props.pairs.filter((pair) => pair.status === 'hired'),
+        },
+    ].filter((section) => section.pairs.length > 0),
+);
 </script>
 
 <template>
@@ -162,24 +179,41 @@ const pendingCount = props.pairs.filter(
             </p>
         </div>
 
-        <div class="mt-6 flex flex-col gap-5">
+        <section
+            v-for="section in sections"
+            :key="section.key"
+            class="mt-6 flex flex-col gap-5"
+            :data-test="`job-share-pairs-${section.key}`"
+        >
+            <h2
+                v-if="section.title"
+                class="mt-4 text-2xl font-bold text-brand-green"
+            >
+                {{ section.title }}
+            </h2>
             <article
-                v-for="pair in pairs"
+                v-for="pair in section.pairs"
                 :key="pair.id"
                 class="rounded-3xl bg-white p-6 shadow-sm"
-                :class="{ 'opacity-70': pair.status === 'rejected' }"
+                :class="{
+                    'opacity-70':
+                        pair.status === 'rejected' ||
+                        pair.status === 'declined',
+                }"
                 data-test="job-share-pair"
             >
                 <div class="flex flex-wrap items-start justify-between gap-3">
-                    <h2 class="text-xl font-semibold text-brand-green">
+                    <h3 class="text-xl font-semibold text-brand-green">
                         {{ pair.members.map(firstName).join(' i ') }}
-                    </h2>
+                    </h3>
                     <span
                         class="rounded-full px-3 py-1 text-xs font-semibold text-brand-green"
                         :class="
                             pair.status === 'submitted'
                                 ? 'bg-brand-yellow'
-                                : 'bg-brand-mint-soft'
+                                : pair.status === 'hired'
+                                  ? 'bg-brand-peach'
+                                  : 'bg-brand-mint-soft'
                         "
                     >
                         {{ statusLabels[pair.status] ?? pair.status }}
@@ -341,7 +375,7 @@ const pendingCount = props.pairs.filter(
                     </button>
                 </div>
             </article>
-        </div>
+        </section>
 
         <PairInviteDialog
             v-if="invitedPair"

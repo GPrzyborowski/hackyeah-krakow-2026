@@ -91,6 +91,21 @@ class OfferIndexTest extends TestCase
             );
     }
 
+    public function test_offers_can_be_filtered_by_nursery_nearby(): void
+    {
+        $nearby = JobOffer::factory()->published()->create(['nursery_distance_km' => 1]);
+        JobOffer::factory()->published()->create(['nursery_distance_km' => 5]);
+        JobOffer::factory()->published()->create(['nursery_distance_km' => null]);
+
+        $this->get(route('public.offers.index', ['nursery_nearby' => 1]))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers.data', 1)
+                ->where('offers.data.0.id', $nearby->id)
+                ->where('offers.data.0.nursery_distance_km', 1)
+                ->where('filters.nursery_nearby', true),
+            );
+    }
+
     public function test_offers_can_be_searched_by_title_and_company_name(): void
     {
         $byTitle = JobOffer::factory()->published()->create(['title' => 'Księgowa']);

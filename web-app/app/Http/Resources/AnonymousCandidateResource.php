@@ -26,7 +26,7 @@ class AnonymousCandidateResource extends JsonResource
     }
 
     /**
-     * @return array{id: int, anonymous_name: string, initial: string, headline: string|null, years_of_experience: int|null, ai_summary: string|null, skills: list<array{name: string, matched: bool}>, available_from: string|null, employment_fractions: list<string>, work_modes: list<string>, match: array<string, mixed>|null, is_interested: bool}
+     * @return array{id: int, anonymous_name: string, initial: string, headline: string|null, years_of_experience: int|null, ai_summary: string|null, skills: list<array{name: string, matched: bool}>, available_from: string|null, employment_fractions: list<string>, work_modes: list<string>, match: array<string, mixed>|null, is_interested: bool, accepts_direct_messages: bool}
      */
     public function toArray(Request $request): array
     {
@@ -55,6 +55,7 @@ class AnonymousCandidateResource extends JsonResource
                 ->all()),
             'match' => $this->match?->toArray(),
             'is_interested' => $this->isInterested,
+            'accepts_direct_messages' => (bool) $this->resource->allow_direct_messages,
         ];
     }
 }

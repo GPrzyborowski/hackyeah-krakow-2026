@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api\V1\Employer;
 
 use App\Actions\Employer\InviteCandidate;
+use App\Enums\InvitationKind;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Employer\Concerns\InteractsWithEmployerCompany;
 use App\Http\Requests\Api\V1\Employer\IndexInvitationsRequest;
+use App\Http\Requests\Employer\StoreDirectMessageRequest;
 use App\Http\Requests\Employer\StoreInvitationRequest;
 use App\Http\Resources\Api\V1\EmployerInvitationResource;
 use App\Models\CandidateProfile;
@@ -44,6 +46,20 @@ class InvitationController extends Controller
         Gate::authorize('reviewCandidates', $offer);
 
         $invitation = $inviteCandidate->handle($offer, $candidate, $request->user(), $request->validated('message'));
+        $invitation->load(['jobOffer', 'candidateProfile.user', 'conversation']);
+
+        return (new EmployerInvitationResource($invitation))->response()->setStatusCode(201);
+    }
+
+    /**
+     * Send a direct question to a candidate whose card has `accepts_direct_messages: true` (422 otherwise).
+     * Moderated like an invitation; the candidate stays anonymous until she answers.
+     */
+    public function storeDirectMessage(StoreDirectMessageRequest $request, JobOffer $offer, CandidateProfile $candidate, InviteCandidate $inviteCandidate): JsonResponse
+    {
+        Gate::authorize('reviewCandidates', $offer);
+
+        $invitation = $inviteCandidate->handle($offer, $candidate, $request->user(), $request->validated('message'), InvitationKind::DirectMessage);
         $invitation->load(['jobOffer', 'candidateProfile.user', 'conversation']);
 
         return (new EmployerInvitationResource($invitation))->response()->setStatusCode(201);

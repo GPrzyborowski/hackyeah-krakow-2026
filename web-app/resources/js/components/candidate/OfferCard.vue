@@ -63,6 +63,9 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
             <Chip>{{ offer.work_mode_label }}</Chip>
             <Chip v-if="offer.flexible_hours">Elastyczne godziny</Chip>
             <Chip v-if="offer.childcare_subsidy">Dopłata do żłobka</Chip>
+            <Chip v-if="offer.nursery_distance_km !== null"
+                >Przedszkole {{ offer.nursery_distance_km }} km</Chip
+            >
             <Chip>Start od {{ formatShortDate(offer.start_date) }}</Chip>
         </div>
 

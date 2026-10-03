@@ -72,6 +72,29 @@ class JobOfferTest extends TestCase
         $this->assertNotNull($offer->published_at);
     }
 
+    public function test_employer_saves_nursery_distance_for_onsite_offers_and_validates_it()
+    {
+        $employer = $this->employer();
+
+        $this->actingAs($employer)->post('/employer/offers', $this->payload(['nursery_distance_km' => 51]))
+            ->assertSessionHasErrors('nursery_distance_km');
+
+        $this->actingAs($employer)->post('/employer/offers', $this->payload(['nursery_distance_km' => 2]))
+            ->assertSessionHasNoErrors();
+
+        $offer = JobOffer::sole();
+        $this->assertSame(2, $offer->nursery_distance_km);
+
+        $this->actingAs($employer)
+            ->get("/employer/offers/{$offer->id}/edit")
+            ->assertInertia(fn (Assert $page) => $page->where('offer.nursery_distance_km', 2));
+
+        $this->actingAs($employer)->put("/employer/offers/{$offer->id}", $this->payload(['work_mode' => 'remote', 'nursery_distance_km' => 2]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertNull($offer->refresh()->nursery_distance_km);
+    }
+
     public function test_publishing_requires_a_required_skill_valid_salary_range_and_future_start()
     {
         $employer = $this->employer();

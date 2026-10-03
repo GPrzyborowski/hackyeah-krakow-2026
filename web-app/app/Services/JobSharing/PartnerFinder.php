@@ -26,6 +26,7 @@ class PartnerFinder
         JobSharePairStatus::Formed,
         JobSharePairStatus::Submitted,
         JobSharePairStatus::Invited,
+        JobSharePairStatus::Hired,
     ];
 
     public function __construct(private readonly MatchScorer $scorer) {}

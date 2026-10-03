@@ -76,6 +76,33 @@ class OfferTest extends TestCase
             ->assertJsonValidationErrors('sort');
     }
 
+    public function test_nursery_nearby_filter_and_distance_on_cards(): void
+    {
+        $skill = $this->skill('Rekrutacja IT');
+        $candidate = $this->candidate([$skill]);
+        $nearby = $this->publishedOffer(Company::factory()->create(), [$skill]);
+        $nearby->update(['nursery_distance_km' => 3]);
+        $far = $this->publishedOffer(Company::factory()->create(), [$skill]);
+        $far->update(['nursery_distance_km' => 4]);
+        $this->publishedOffer(Company::factory()->create(), [$skill]);
+        Sanctum::actingAs($candidate->user);
+
+        $this->getJson('/api/v1/candidate/offers?nursery_nearby=1')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $nearby->id)
+            ->assertJsonPath('data.0.nursery_distance_km', 3)
+            ->assertJsonPath('meta.filters.nursery_nearby', true);
+
+        $this->getJson("/api/v1/candidate/offers/{$far->id}")
+            ->assertOk()
+            ->assertJsonPath('data.nursery_distance_km', 4);
+
+        $this->getJson('/api/v1/candidate/offers?nursery_nearby=maybe')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('nursery_nearby');
+    }
+
     public function test_offers_list_is_paginated_without_n_plus_one_queries(): void
     {
         $skill = $this->skill('Rekrutacja IT');

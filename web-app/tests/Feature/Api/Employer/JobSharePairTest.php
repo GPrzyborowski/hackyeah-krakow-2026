@@ -136,4 +136,20 @@ class JobSharePairTest extends TestCase
 
         $this->assertSame(JobSharePairStatus::Rejected, $pair->fresh()?->status);
     }
+
+    public function test_hired_and_declined_pairs_are_listed_with_their_labels(): void
+    {
+        $employer = $this->employer();
+        $recruitment = $this->skill('Rekrutacja IT');
+        $offer = $this->jobShareOffer($employer->company, [$recruitment]);
+        $hired = $this->scheduledPair($offer, $this->sharer([$recruitment], 'Marta Kowalska'), $this->sharer([$recruitment], 'Ewa Nowak'), JobSharePairStatus::Hired);
+        $declined = $this->scheduledPair($offer, $this->sharer([$recruitment], 'Anna Zielińska'), $this->sharer([$recruitment], 'Ola Mazur'), JobSharePairStatus::Declined);
+        Sanctum::actingAs($employer);
+
+        $response = $this->getJson("/api/v1/employer/offers/{$offer->id}/job-share-pairs")->assertOk()->assertJsonCount(2, 'data');
+
+        $labels = collect($response->json('data'))->pluck('status_label', 'id');
+        $this->assertSame('Zatrudniona', $labels[$hired->id]);
+        $this->assertSame('Odrzucona przez członkinię', $labels[$declined->id]);
+    }
 }

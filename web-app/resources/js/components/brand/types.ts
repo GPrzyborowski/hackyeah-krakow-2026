@@ -47,6 +47,7 @@ export type PublicOffer = {
     flexible_hours: boolean;
     fixed_meeting_hours?: boolean;
     childcare_subsidy?: boolean;
+    nursery_distance_km?: number | null;
     is_parent_friendly?: boolean;
     job_share?: JobShareSummary;
     company?: {

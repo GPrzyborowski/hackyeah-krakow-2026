@@ -63,6 +63,25 @@ class OffersTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->has('offers', 1)->where('offers.0.id', $remoteFlexible->id));
     }
 
+    public function test_nursery_nearby_filter_keeps_offers_with_a_nursery_within_three_km(): void
+    {
+        $nearby = $this->offer(['nursery_distance_km' => 2]);
+        $this->offer(['nursery_distance_km' => 6]);
+        $this->offer(['nursery_distance_km' => null]);
+
+        $this->actingAs($this->profile->user)
+            ->get(route('candidate.offers.index', ['nursery_nearby' => 1]))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers', 1)
+                ->where('offers.0.id', $nearby->id)
+                ->where('offers.0.nursery_distance_km', 2)
+                ->where('filters.nursery_nearby', true));
+
+        $this->actingAs($this->profile->user)
+            ->get(route('candidate.offers.index'))
+            ->assertInertia(fn (Assert $page) => $page->has('offers', 3));
+    }
+
     public function test_text_search_matches_title_and_skills(): void
     {
         $this->offer(['title' => 'Koordynatorka projektów']);

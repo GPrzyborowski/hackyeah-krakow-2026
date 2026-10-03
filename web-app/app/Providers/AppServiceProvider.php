@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Models\Conversation;
 use App\Models\Invitation;
+use App\Models\JobSharePair;
 use App\Models\Message;
 use App\Observers\ConversationObserver;
 use App\Observers\InvitationObserver;
+use App\Observers\JobSharePairObserver;
 use App\Observers\MessageObserver;
 use App\Services\Ai\ClaudeCvAnalyzer;
 use App\Services\Ai\ClaudeMessageModerator;
@@ -48,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         Invitation::observe(InvitationObserver::class);
         Conversation::observe(ConversationObserver::class);
         Message::observe(MessageObserver::class);
+        JobSharePair::observe(JobSharePairObserver::class);
     }
 
     /**

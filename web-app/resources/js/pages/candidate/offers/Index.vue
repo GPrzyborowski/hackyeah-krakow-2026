@@ -15,6 +15,7 @@ type Filters = {
     employment_fractions: string[];
     flexible_hours: boolean;
     childcare_subsidy: boolean;
+    nursery_nearby: boolean;
     with_reviews: boolean;
     job_share: boolean;
     saved: boolean;
@@ -51,6 +52,7 @@ function apply() {
                 : undefined,
             flexible_hours: form.flexible_hours ? 1 : undefined,
             childcare_subsidy: form.childcare_subsidy ? 1 : undefined,
+            nursery_nearby: form.nursery_nearby ? 1 : undefined,
             with_reviews: form.with_reviews ? 1 : undefined,
             job_share: form.job_share ? 1 : undefined,
             saved: form.saved ? 1 : undefined,
@@ -62,10 +64,16 @@ function apply() {
 }
 
 const parentFilters: {
-    key: 'flexible_hours' | 'childcare_subsidy' | 'with_reviews' | 'job_share';
+    key:
+        | 'flexible_hours'
+        | 'childcare_subsidy'
+        | 'nursery_nearby'
+        | 'with_reviews'
+        | 'job_share';
     label: string;
 }[] = [
     { key: 'flexible_hours', label: 'Elastyczne godziny' },
+    { key: 'nursery_nearby', label: 'Żłobek lub przedszkole w pobliżu' },
     { key: 'childcare_subsidy', label: 'Dopłata do żłobka lub przedszkola' },
     { key: 'with_reviews', label: 'Firma z opiniami rodziców' },
     { key: 'job_share', label: 'Job sharing (dwie osoby)' },

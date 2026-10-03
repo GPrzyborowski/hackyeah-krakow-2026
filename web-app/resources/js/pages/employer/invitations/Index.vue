@@ -11,6 +11,8 @@ type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'withdrawn';
 type InvitationRow = {
     id: number;
     status: InvitationStatus;
+    kind: 'invitation' | 'direct_message';
+    kind_label: string;
     message: string;
     created_at: string;
     responded_at: string | null;
@@ -135,6 +137,9 @@ const filters: { value: InvitationStatus | 'all'; label: string }[] = [
                         }}
                     </p>
                     <p class="text-xs text-brand-green/80">
+                        <template v-if="invitation.kind === 'direct_message'"
+                            >{{ invitation.kind_label }} ·
+                        </template>
                         {{ invitation.offer.title }} · wysłane
                         {{ formatShortDate(invitation.created_at) }}
                     </p>

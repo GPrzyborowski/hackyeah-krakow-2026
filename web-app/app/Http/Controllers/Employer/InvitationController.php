@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Employer;
 
 use App\Actions\Employer\InviteCandidate;
+use App\Enums\InvitationKind;
 use App\Enums\InvitationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Employer\Concerns\InteractsWithEmployerCompany;
+use App\Http\Requests\Employer\StoreDirectMessageRequest;
 use App\Http\Requests\Employer\StoreInvitationRequest;
 use App\Http\Resources\RevealedCandidateResource;
 use App\Models\CandidateProfile;
@@ -36,6 +38,8 @@ class InvitationController extends Controller
             ->map(fn (Invitation $invitation): array => [
                 'id' => $invitation->id,
                 'status' => $invitation->status->value,
+                'kind' => $invitation->kind->value,
+                'kind_label' => $invitation->kind->label(),
                 'message' => $invitation->message,
                 'created_at' => $invitation->created_at->toIso8601String(),
                 'responded_at' => $invitation->responded_at?->toIso8601String(),
@@ -63,6 +67,20 @@ class InvitationController extends Controller
         $inviteCandidate->handle($offer, $candidate, $request->user(), $request->validated('message'));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Zaproszenie wysłane. Dane kontaktowe zobaczysz po jego akceptacji.']);
+
+        return to_route('employer.candidates.index', ['offer' => $offer->id]);
+    }
+
+    /**
+     * Send a direct question (no invitation) to a candidate who allows it; she stays anonymous until she answers.
+     */
+    public function storeDirectMessage(StoreDirectMessageRequest $request, JobOffer $offer, CandidateProfile $candidate, InviteCandidate $inviteCandidate): RedirectResponse
+    {
+        Gate::authorize('reviewCandidates', $offer);
+
+        $inviteCandidate->handle($offer, $candidate, $request->user(), $request->validated('message'), InvitationKind::DirectMessage);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Wiadomość wysłana. Dane kontaktowe zobaczysz, gdy kandydatka odpowie.']);
 
         return to_route('employer.candidates.index', ['offer' => $offer->id]);
     }

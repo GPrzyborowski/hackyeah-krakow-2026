@@ -61,12 +61,18 @@ class JobSharePairPolicy
     }
 
     /**
-     * Any accepted member may leave a pair that has not been sent to the employer yet.
+     * Any accepted member may leave a pair that has not been sent to the employer yet;
+     * once the pair is submitted, invited or hired it can no longer be dissolved by a member.
      */
-    public function cancel(User $user, JobSharePair $pair): bool
+    public function cancel(User $user, JobSharePair $pair): Response
     {
-        return $this->chat($user, $pair)
-            && in_array($pair->status, [JobSharePairStatus::Forming, JobSharePairStatus::Formed], true);
+        if (! $this->chat($user, $pair)) {
+            return Response::deny();
+        }
+
+        return in_array($pair->status, [JobSharePairStatus::Forming, JobSharePairStatus::Formed], true)
+            ? Response::allow()
+            : Response::deny('Tej pary nie można już rozwiązać – została wysłana do pracodawcy lub zakończyła się decyzją.');
     }
 
     /**

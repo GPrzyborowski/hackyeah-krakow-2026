@@ -110,6 +110,10 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                         />
                         <Chip>{{ offer.employment_fraction_label }}</Chip>
                         <Chip>{{ offer.work_mode_label }}</Chip>
+                        <Chip v-if="offer.nursery_distance_km !== null"
+                            >Przedszkole
+                            {{ offer.nursery_distance_km }} km</Chip
+                        >
                         <Chip
                             >Start od
                             {{ formatShortDate(offer.start_date, true) }}</Chip
@@ -168,6 +172,13 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                                 {
                                     label: 'Dopłata do żłobka / przedszkola',
                                     on: offer.childcare_subsidy,
+                                },
+                                {
+                                    label:
+                                        offer.nursery_distance_km !== null
+                                            ? `Żłobek lub przedszkole ${offer.nursery_distance_km} km od miejsca pracy`
+                                            : 'Żłobek lub przedszkole w pobliżu',
+                                    on: offer.nursery_distance_km !== null,
                                 },
                                 {
                                     label: 'Widełki płacowe w ogłoszeniu',

@@ -124,11 +124,47 @@ class DemoPolishSeeder extends Seeder
         'Północ Logistyka' => 'Północ Logistyka to operator logistyczny z centrum dystrybucyjnym w Gdańsku. Pracujemy w biurze, ale część stanowisk administracyjnych umożliwia ruchomy start pracy. Wspieramy powroty do pracy indywidualnym planem wdrożenia.',
     ];
 
+    /**
+     * Distance (km) from each company's office to the nearest nursery or kindergarten, as employers would enter it.
+     *
+     * @var array<string, int>
+     */
+    private const array NURSERY_DISTANCES_KM = [
+        'Biuro Rachunkowe Warta' => 2,
+        'Kamienica Studio' => 1,
+        'Zielone Biuro' => 3,
+        'Północ Logistyka' => 6,
+        'Nadrzeczna Fintech' => 2,
+        'Wawelski Software House' => 1,
+        'Wiślany Bank – Centrum Usług Wspólnych' => 4,
+        'Koszyk Online' => 3,
+        'Fundacja Dobry Start' => 1,
+    ];
+
     public function run(): void
     {
         $this->polishCandidateSummaries();
         $this->polishExistingCompanies();
         $this->seedKrakowCompanies();
+        $this->seedNurseryDistances();
+    }
+
+    /**
+     * Fills the nursery/kindergarten distance of onsite and hybrid offers that do not have it yet.
+     */
+    private function seedNurseryDistances(): void
+    {
+        JobOffer::query()
+            ->with('company:id,name')
+            ->whereIn('work_mode', [WorkMode::Onsite, WorkMode::Hybrid])
+            ->whereNull('nursery_distance_km')
+            ->each(function (JobOffer $offer): void {
+                $distance = self::NURSERY_DISTANCES_KM[$offer->company->name] ?? null;
+
+                if ($distance !== null) {
+                    $offer->update(['nursery_distance_km' => $distance]);
+                }
+            });
     }
 
     /**
