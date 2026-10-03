@@ -2048,9 +2048,21 @@
                                     "disabled": true
                                 },
                                 {
+                                    "key": "childcare_subsidy",
+                                    "value": "1",
+                                    "description": "Only offers with a nursery/kindergarten subsidy (\"Dofinansowanie żłobka lub przedszkola\")",
+                                    "disabled": true
+                                },
+                                {
                                     "key": "nursery_nearby",
                                     "value": "1",
                                     "description": "Only offers with a nursery nearby",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "with_reviews",
+                                    "value": "1",
+                                    "description": "Only offers of companies with at least one approved parent review (\"Firma z opiniami rodziców\")",
                                     "disabled": true
                                 },
                                 {
@@ -2066,6 +2078,18 @@
                                     "disabled": true
                                 },
                                 {
+                                    "key": "start_from",
+                                    "value": "2027-09-01",
+                                    "description": "\"Mogę zacząć od\": keeps offers starting no earlier than 30 days before this date (same tolerance as matching)",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "sort",
+                                    "value": "newest",
+                                    "description": "`newest` (default, by published date), `rating` (best company rating, unrated last), `start_date` (soonest start first)",
+                                    "disabled": true
+                                },
+                                {
                                     "key": "page",
                                     "value": "1",
                                     "description": "Page number (20 items per page).",
@@ -2073,7 +2097,7 @@
                                 }
                             ]
                         },
-                        "description": "Published offers\n\nNewest first, no match score. Unknown filter values are ignored.",
+                        "description": "Published offers\n\nNewest first by default, no match score. Unknown filter values (including an invalid `start_from` or `sort`) are ignored.",
                         "auth": {
                             "type": "noauth"
                         }

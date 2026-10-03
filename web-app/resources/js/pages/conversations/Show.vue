@@ -26,6 +26,7 @@ const props = defineProps<{
     conversation: {
         id: number;
         offer_title: string;
+        is_team_chat: boolean;
         counterpart: ConversationCounterpart;
         pair_partner_name: string | null;
     };
@@ -52,6 +53,16 @@ function scrollToBottom(): void {
 onMounted(scrollToBottom);
 watch(() => props.messages.length, scrollToBottom);
 
+function speakerOf(message: ConversationMessage): string {
+    if (message.is_mine) {
+        return 'Ty';
+    }
+
+    return props.conversation.is_team_chat
+        ? message.author_name
+        : props.conversation.counterpart.name;
+}
+
 function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
     if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
@@ -61,7 +72,13 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
 </script>
 
 <template>
-    <Head :title="`Czat – ${conversation.counterpart.name}`" />
+    <Head
+        :title="
+            conversation.is_team_chat
+                ? `${conversation.counterpart.name} · ${conversation.offer_title}`
+                : `Czat – ${conversation.counterpart.name}`
+        "
+    />
 
     <div
         class="mx-auto flex h-[calc(100svh-9rem-env(safe-area-inset-bottom))] w-full max-w-3xl flex-col gap-4 p-4 md:h-[calc(100svh-5rem)] md:p-8"
@@ -89,6 +106,14 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 <p class="truncate text-sm text-brand-green/80">
                     {{ conversation.offer_title }}
                 </p>
+                <span
+                    v-if="conversation.counterpart.type === 'team'"
+                    class="mt-1.5 mr-1.5 inline-flex items-center gap-1.5 rounded-full bg-brand-peach/60 px-3 py-1 text-xs font-semibold text-brand-green"
+                    data-test="team-chat-chip"
+                >
+                    <UsersRound class="size-3.5 shrink-0" aria-hidden="true" />
+                    Para job-sharing
+                </span>
                 <VerifiedCompanyBadge
                     v-if="
                         conversation.counterpart.type === 'company' &&
@@ -130,7 +155,10 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 </a>
             </div>
             <span
-                v-else-if="conversation.counterpart.rating !== null"
+                v-else-if="
+                    conversation.counterpart.type === 'company' &&
+                    conversation.counterpart.rating !== null
+                "
                 class="inline-flex items-center gap-1 rounded-full bg-brand-yellow px-3 py-1.5 text-xs font-semibold text-brand-green"
                 title="Średnia ocena firmy"
             >
@@ -140,6 +168,46 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 }}
             </span>
         </header>
+
+        <section
+            v-if="conversation.counterpart.type === 'team'"
+            class="flex flex-wrap items-center gap-2 rounded-3xl bg-white px-5 py-3 text-xs text-brand-green shadow-sm"
+            aria-label="Uczestniczki i uczestnicy czatu zespołu"
+            data-test="team-chat-members"
+        >
+            <span
+                class="inline-flex items-center gap-1.5 rounded-full bg-brand-mint-soft px-3 py-1.5 font-semibold"
+            >
+                {{ conversation.counterpart.company.name }}
+                <VerifiedCompanyBadge
+                    v-if="conversation.counterpart.company.verified"
+                    compact
+                />
+            </span>
+            <span
+                v-for="member in conversation.counterpart.members"
+                :key="member.name"
+                class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium"
+                :class="
+                    member.joined
+                        ? 'bg-brand-cream'
+                        : 'border border-dashed border-brand-green/40'
+                "
+            >
+                {{ member.is_me ? `${member.name} (Ty)` : member.name }}
+                <span v-if="!member.joined" class="text-brand-green/80"
+                    >– jeszcze nie dołączyła</span
+                >
+                <a
+                    v-if="member.email"
+                    :href="`mailto:${member.email}`"
+                    class="inline-flex items-center gap-1 underline-offset-2 hover:underline"
+                >
+                    <Mail class="size-3.5" aria-hidden="true" />
+                    {{ member.email }}
+                </a>
+            </span>
+        </section>
 
         <div
             ref="thread"
@@ -155,7 +223,11 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 v-if="messages.length === 0"
                 class="m-auto max-w-sm text-center text-sm text-brand-green/80"
             >
-                <template v-if="viewerRole === 'employer'">
+                <template v-if="conversation.is_team_chat">
+                    To wspólny czat firmy i Waszej pary job-sharing. Każda z Was
+                    dołącza po przyjęciu zaproszenia.
+                </template>
+                <template v-else-if="viewerRole === 'employer'">
                     Kandydatka przyjęła zaproszenie. Zaproponuj termin rozmowy i
                     zapytaj o dostępność.
                 </template>
@@ -168,9 +240,7 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 v-for="message in messages"
                 :key="message.id"
                 :mine="message.is_mine"
-                :speaker="
-                    message.is_mine ? 'Ty' : conversation.counterpart.name
-                "
+                :speaker="speakerOf(message)"
                 :meta="formatBubbleTime(message.created_at)"
             >
                 {{ message.body }}

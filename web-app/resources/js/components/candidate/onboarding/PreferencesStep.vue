@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { Link, useForm } from "@inertiajs/vue3";
-import { Lock } from "@lucide/vue";
-import { watch } from "vue";
-import BrandSwitch from "@/components/candidate/BrandSwitch.vue";
+import { Link, useForm } from '@inertiajs/vue3';
+import { Lock } from '@lucide/vue';
+import { watch } from 'vue';
+import BrandSwitch from '@/components/candidate/BrandSwitch.vue';
 import type {
     OnboardingProfile,
     Option,
     PreviewData,
-} from "@/components/candidate/types";
-import InputError from "@/components/InputError.vue";
-import { preferences, show } from "@/routes/candidate/onboarding";
-import { privacy } from "@/routes/public/legal";
+} from '@/components/candidate/types';
+import InputError from '@/components/InputError.vue';
+import { preferences, show } from '@/routes/candidate/onboarding';
+import { privacy } from '@/routes/public/legal';
 
 const props = defineProps<{
     profile: OnboardingProfile;
@@ -29,28 +29,30 @@ const emit = defineEmits<{
 }>();
 
 const form = useForm({
-    headline: props.profile.headline ?? "",
+    headline: props.profile.headline ?? '',
     years_of_experience: props.profile.years_of_experience as number | null,
-    city: props.profile.city ?? "",
+    city: props.profile.city ?? '',
     work_modes: [...props.profile.work_modes],
     employment_fractions: [...props.profile.employment_fractions],
     wants_flexible_hours: props.profile.wants_flexible_hours,
     open_to_job_sharing: props.profile.open_to_job_sharing,
-    preferred_day_part: (props.profile.preferred_day_part ?? "any") as
-        "morning" | "afternoon" | "any",
-    available_from: props.profile.available_from ?? "",
-    leave_starts_on: props.profile.leave_starts_on ?? "",
-    due_date: props.profile.due_date ?? "",
+    preferred_day_part: (props.profile.preferred_day_part ?? 'any') as
+        | 'morning'
+        | 'afternoon'
+        | 'any',
+    available_from: props.profile.available_from ?? '',
+    leave_starts_on: props.profile.leave_starts_on ?? '',
+    due_date: props.profile.due_date ?? '',
 });
 
 watch(
     () => [form.headline, form.years_of_experience, form.available_from],
     () =>
-        emit("preview", {
+        emit('preview', {
             headline: form.headline || null,
             years_of_experience:
                 form.years_of_experience === null ||
-                String(form.years_of_experience) === ""
+                String(form.years_of_experience) === ''
                     ? null
                     : Number(form.years_of_experience),
             available_from: form.available_from || null,
@@ -72,25 +74,25 @@ function submit() {
         ...data,
         years_of_experience:
             data.years_of_experience === null ||
-            String(data.years_of_experience) === ""
+            String(data.years_of_experience) === ''
                 ? null
                 : data.years_of_experience,
         leave_starts_on: data.leave_starts_on || null,
         due_date: data.due_date || null,
     })).put(props.submitUrl ?? preferences.url(), {
         preserveScroll: true,
-        onSuccess: () => emit("saved"),
+        onSuccess: () => emit('saved'),
     });
 }
 
 const dayParts: Option[] = [
-    { value: "morning", label: "Poranki" },
-    { value: "afternoon", label: "Popołudnia" },
-    { value: "any", label: "Bez znaczenia" },
+    { value: 'morning', label: 'Poranki' },
+    { value: 'afternoon', label: 'Popołudnia' },
+    { value: 'any', label: 'Bez znaczenia' },
 ];
 
 const inputClass =
-    "mt-1 w-full rounded-2xl border border-brand-line bg-white px-3 py-2 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40";
+    'mt-1 w-full rounded-2xl border border-brand-line bg-white px-3 py-2 text-sm text-brand-green outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/40';
 </script>
 
 <template>
@@ -367,7 +369,7 @@ const inputClass =
                 :disabled="form.processing"
                 class="shrink-0 rounded-full bg-brand-green px-6 py-2.5 text-sm font-semibold whitespace-nowrap text-white hover:bg-brand-green-soft disabled:cursor-not-allowed disabled:bg-brand-green/40 disabled:hover:bg-brand-green/40 lg:px-4 xl:px-5"
             >
-                {{ profile.is_published ? "Zapisz" : "Zapisz i przejdź dalej" }}
+                {{ profile.is_published ? 'Zapisz' : 'Zapisz i przejdź dalej' }}
             </button>
         </div>
     </form>

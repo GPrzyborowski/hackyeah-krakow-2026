@@ -81,6 +81,7 @@ class PushNotificationTest extends TestCase
             ['device-a', 'device-b', 'device-a', 'device-b'],
             Http::recorded(fn (Request $request): bool => $request->url() === self::SEND_URL)
                 ->map(fn (array $pair): string => $pair[0]['message']['token'])
+                ->values()
                 ->all(),
         );
     }

@@ -32,12 +32,7 @@ const candidateTabs: MobileTab[] = [
     { title: 'Oferty', href: '/candidate/offers', icon: Briefcase },
     { title: 'Blog', href: '/blog', icon: FileText },
     { title: 'Asystent', href: '/assistant', icon: MessageCircle },
-    {
-        title: 'Profil',
-        href: '/candidate/onboarding?step=2',
-        icon: User,
-        activePrefix: '/candidate/onboarding',
-    },
+    { title: 'Profil', href: '/candidate/profile', icon: User },
 ];
 
 const employerTabs: MobileTab[] = [

@@ -194,7 +194,7 @@ class ConversationInbox
         $pair = $conversation->jobSharePair;
         $joinedProfileIds = $pair->acceptedInvitations->pluck('candidate_profile_id')->all();
 
-        return $pair->members->map(function (CandidateProfile $member) use ($user, $joinedProfileIds, $forApi): array {
+        return array_values($pair->members->map(function (CandidateProfile $member) use ($user, $joinedProfileIds, $forApi): array {
             $joined = in_array($member->id, $joinedProfileIds, true);
             $revealed = $joined && ! $user->isCandidate();
 
@@ -206,7 +206,7 @@ class ConversationInbox
                 'phone' => $revealed ? $member->phone : null,
                 'photo_url' => $revealed ? $member->photoUrl($forApi) : null,
             ];
-        })->values()->all();
+        })->all());
     }
 
     /**

@@ -218,7 +218,7 @@ class EmployerDashboard
                 'count' => $unreadConversations->count(),
                 'offer_id' => null,
                 'offer_title' => null,
-                'names' => $unreadConversations->take(3)->map(fn (Conversation $conversation): string => $conversation->invitation->candidateProfile->user->name)->values()->all(),
+                'names' => $unreadConversations->take(3)->map(fn (Conversation $conversation): string => $conversation->candidateParticipants()->map(fn (CandidateProfile $profile): string => $profile->user->name)->implode(' i '))->values()->all(),
                 'hints' => [],
                 'url' => route('conversations.index', absolute: false),
             ]);

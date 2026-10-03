@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Head, Link } from "@inertiajs/vue3";
-import { TriangleAlert } from "@lucide/vue";
-import { contact, privacy, terms } from "@/routes/public/legal";
+import { Head, Link } from '@inertiajs/vue3';
+import { TriangleAlert } from '@lucide/vue';
+import { contact, privacy, terms } from '@/routes/public/legal';
 
 defineProps<{
     title: string;
@@ -10,9 +10,9 @@ defineProps<{
 }>();
 
 const legalLinks = [
-    { title: "Regulamin", href: terms.url() },
-    { title: "Polityka prywatności", href: privacy.url() },
-    { title: "Kontakt", href: contact.url() },
+    { title: 'Regulamin', href: terms.url() },
+    { title: 'Polityka prywatności', href: privacy.url() },
+    { title: 'Kontakt', href: contact.url() },
 ];
 </script>
 

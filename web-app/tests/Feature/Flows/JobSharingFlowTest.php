@@ -168,7 +168,8 @@ class JobSharingFlowTest extends TestCase
             $this->assertSame(InvitationStatus::Accepted, $invitation->refresh()->status);
         }
 
-        $this->assertSame(2, Conversation::query()->count());
+        $this->assertSame(2, Conversation::query()->whereNotNull('invitation_id')->count());
+        $this->assertSame(1, Conversation::query()->where('job_share_pair_id', $pair->id)->count());
         $this->actingAs($recruiter)
             ->get(route('employer.invitations.index'))
             ->assertInertia(fn (Assert $page) => $page

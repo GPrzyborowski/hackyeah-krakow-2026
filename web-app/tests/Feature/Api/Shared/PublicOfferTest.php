@@ -66,4 +66,32 @@ class PublicOfferTest extends TestCase
 
         $this->getJson("/api/v1/public/offers/{$draft->id}")->assertNotFound();
     }
+
+    public function test_guest_filters_by_reviews_and_start_date_and_sorts_by_rating(): void
+    {
+        $rated = Company::factory()->create();
+        CompanyReview::factory()->for($rated)->create();
+        $ratedOffer = JobOffer::factory()->published()->for($rated)->create(['start_date' => '2027-09-15', 'published_at' => now()->subWeek()]);
+        JobOffer::factory()->published()->create(['start_date' => '2027-09-15', 'published_at' => now()]);
+        JobOffer::factory()->published()->for($rated)->create(['start_date' => '2027-06-01']);
+
+        $this->getJson('/api/v1/public/offers?with_reviews=1&start_from=2027-09-01&sort=rating')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $ratedOffer->id)
+            ->assertJsonPath('meta.filters.with_reviews', true)
+            ->assertJsonPath('meta.filters.start_from', '2027-09-01')
+            ->assertJsonPath('meta.filters.sort', 'rating');
+
+        $this->getJson('/api/v1/public/offers?start_from=2027-09-01&sort=rating')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $ratedOffer->id);
+
+        $this->getJson('/api/v1/public/offers?sort=bogus&start_from=nope')
+            ->assertOk()
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('meta.filters.sort', 'newest')
+            ->assertJsonPath('meta.filters.start_from', null);
+    }
 }

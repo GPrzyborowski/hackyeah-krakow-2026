@@ -87,8 +87,8 @@ function changeCompany(event: Event): void {
             <p class="mt-2 text-sm text-brand-green/80">
                 Teksty pracodawców zatrzymane przez moderację (pytania o ciążę,
                 dzieci, plany rodzinne). Nie zostały zapisane ani wysłane.
-                Fragmenty opisów kandydatek nie są przechowywane. Wpisy
-                starsze niż {{ retention_days }} dni są usuwane automatycznie.
+                Fragmenty opisów kandydatek nie są przechowywane. Wpisy starsze
+                niż {{ retention_days }} dni są usuwane automatycznie.
             </p>
         </div>
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3";
-import { Clock, Mail, ShieldCheck } from "@lucide/vue";
-import LegalPageShell from "@/components/legal/LegalPageShell.vue";
-import { privacy, terms } from "@/routes/public/legal";
+import { Link } from '@inertiajs/vue3';
+import { Clock, Mail, ShieldCheck } from '@lucide/vue';
+import LegalPageShell from '@/components/legal/LegalPageShell.vue';
+import { privacy, terms } from '@/routes/public/legal';
 
 defineProps<{
     contactEmail: string;
@@ -10,28 +10,28 @@ defineProps<{
 
 const faq: { question: string; answer: string }[] = [
     {
-        question: "Czy pracodawca zobaczy, że jestem w ciąży?",
-        answer: "Nie. Termin porodu i daty urlopu są opcjonalne i prywatne – służą tylko Twojemu kalendarzowi powrotu. Pracodawca widzi jedynie datę „Dostępna od”.",
+        question: 'Czy pracodawca zobaczy, że jestem w ciąży?',
+        answer: 'Nie. Termin porodu i daty urlopu są opcjonalne i prywatne – służą tylko Twojemu kalendarzowi powrotu. Pracodawca widzi jedynie datę „Dostępna od”.',
     },
     {
-        question: "Kiedy firma pozna moje imię i dane kontaktowe?",
-        answer: "Dopiero gdy przyjmiesz jej zaproszenie. Wcześniej widzi tylko anonimowy profil: doświadczenie, umiejętności i preferencje.",
+        question: 'Kiedy firma pozna moje imię i dane kontaktowe?',
+        answer: 'Dopiero gdy przyjmiesz jej zaproszenie. Wcześniej widzi tylko anonimowy profil: doświadczenie, umiejętności i preferencje.',
     },
     {
-        question: "Czy korzystanie z MomJobs jest płatne?",
-        answer: "Dla kandydatek serwis jest bezpłatny.",
+        question: 'Czy korzystanie z MomJobs jest płatne?',
+        answer: 'Dla kandydatek serwis jest bezpłatny.',
     },
     {
-        question: "Co dzieje się z moim CV?",
-        answer: "CV analizuje model AI Claude (Anthropic) jako nasz podmiot przetwarzający. Wyciąga umiejętności i przygotowuje podsumowanie, które możesz poprawić. Dane nie służą do trenowania modeli.",
+        question: 'Co dzieje się z moim CV?',
+        answer: 'CV analizuje model AI Claude (Anthropic) jako nasz podmiot przetwarzający. Wyciąga umiejętności i przygotowuje podsumowanie, które możesz poprawić. Dane nie służą do trenowania modeli.',
     },
     {
-        question: "Jak usunąć konto i dane?",
-        answer: "W ustawieniach konta. Usunięcie konta kasuje profil, CV i daty z kalendarza powrotu.",
+        question: 'Jak usunąć konto i dane?',
+        answer: 'W ustawieniach konta. Usunięcie konta kasuje profil, CV i daty z kalendarza powrotu.',
     },
     {
-        question: "Jak zgłosić nieodpowiednie ogłoszenie lub zachowanie firmy?",
-        answer: "Napisz do nas e-mail z nazwą firmy i opisem sytuacji. Każde zgłoszenie sprawdzamy.",
+        question: 'Jak zgłosić nieodpowiednie ogłoszenie lub zachowanie firmy?',
+        answer: 'Napisz do nas e-mail z nazwą firmy i opisem sytuacji. Każde zgłoszenie sprawdzamy.',
     },
 ];
 </script>

@@ -7,6 +7,7 @@ export type Citation = {
 export type ConversationSummary = {
     id: number;
     counterpart_name: string;
+    is_team_chat: boolean;
     offer_title: string;
     last_message: string | null;
     last_message_at: string | null;
@@ -34,7 +35,27 @@ export type ConversationCounterpart =
           name: string;
           verified: boolean;
           rating: number | null;
+      }
+    | {
+          type: 'team';
+          name: string;
+          company: {
+              id: number;
+              name: string;
+              verified: boolean;
+              rating: number | null;
+          };
+          members: TeamChatMember[];
       };
+
+export type TeamChatMember = {
+    name: string;
+    joined: boolean;
+    is_me: boolean;
+    email: string | null;
+    phone: string | null;
+    photo_url: string | null;
+};
 
 export type AssistantChatMessage = {
     id: number;

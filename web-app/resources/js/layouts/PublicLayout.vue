@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { Link, router, usePage } from "@inertiajs/vue3";
-import { Menu, X } from "@lucide/vue";
-import { computed, onUnmounted, ref } from "vue";
-import BrandLogo from "@/components/brand/BrandLogo.vue";
-import MobileTabBar from "@/components/mobile/MobileTabBar.vue";
-import SkipLink from "@/components/SkipLink.vue";
-import { useCurrentUrl } from "@/composables/useCurrentUrl";
-import { useMobileTabs } from "@/composables/useMobileTabs";
-import { dashboard, home, login, register } from "@/routes";
+import { Link, router, usePage } from '@inertiajs/vue3';
+import { Menu, X } from '@lucide/vue';
+import { computed, onUnmounted, ref } from 'vue';
+import BrandLogo from '@/components/brand/BrandLogo.vue';
+import MobileTabBar from '@/components/mobile/MobileTabBar.vue';
+import SkipLink from '@/components/SkipLink.vue';
+import { useCurrentUrl } from '@/composables/useCurrentUrl';
+import { useMobileTabs } from '@/composables/useMobileTabs';
+import { dashboard, home, login, register } from '@/routes';
 import {
     contact as legalContact,
     privacy as legalPrivacy,
     terms as legalTerms,
-} from "@/routes/public/legal";
-import { index as offersIndex } from "@/routes/public/offers";
+} from '@/routes/public/legal';
+import { index as offersIndex } from '@/routes/public/offers';
 
 type PublicNavItem = {
     title: string;
@@ -29,25 +29,25 @@ const isSignedIn = computed(() => Boolean(page.props.auth.user));
 const { hasTabs } = useMobileTabs();
 
 const navItems = computed<PublicNavItem[]>(() => [
-    { title: "Oferty", href: offersIndex.url() },
-    { title: "Blog", href: "/blog" },
-    { title: "Asystent AI", href: "/assistant" },
+    { title: 'Oferty', href: offersIndex.url() },
+    { title: 'Blog', href: '/blog' },
+    { title: 'Asystent AI', href: '/assistant' },
     {
-        title: "Dla pracodawców",
-        href: register.url({ query: { role: "employer" } }),
+        title: 'Dla pracodawców',
+        href: register.url({ query: { role: 'employer' } }),
     },
 ]);
 
 const footerLinks: PublicNavItem[] = [
-    { title: "Regulamin", href: legalTerms.url() },
-    { title: "Prywatność", href: legalPrivacy.url() },
-    { title: "Kontakt", href: legalContact.url() },
+    { title: 'Regulamin', href: legalTerms.url() },
+    { title: 'Prywatność', href: legalPrivacy.url() },
+    { title: 'Kontakt', href: legalContact.url() },
 ];
 
 const isActive = (href: string): boolean =>
-    !href.includes("?") && isCurrentOrParentUrl(href);
+    !href.includes('?') && isCurrentOrParentUrl(href);
 
-const stopListening = router.on("navigate", () => {
+const stopListening = router.on('navigate', () => {
     isMenuOpen.value = false;
 });
 

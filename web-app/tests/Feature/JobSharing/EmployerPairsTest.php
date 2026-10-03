@@ -157,6 +157,6 @@ class EmployerPairsTest extends TestCase
         $this->actingAs($marta->user)->post(route('candidate.invitations.accept', $invitation))->assertRedirect();
 
         $this->assertSame(InvitationStatus::Accepted, $invitation->fresh()?->status);
-        $this->assertSame($invitation->id, Conversation::sole()->invitation_id);
+        $this->assertSame($invitation->id, Conversation::query()->whereNull('job_share_pair_id')->sole()->invitation_id);
     }
 }

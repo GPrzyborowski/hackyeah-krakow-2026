@@ -1249,7 +1249,7 @@ paths:
       tags: [Public]
       operationId: publicOffers
       summary: Published offers
-      description: Newest first, no match score. Unknown filter values are ignored.
+      description: Newest first by default, no match score. Unknown filter values (including an invalid `start_from` or `sort`) are ignored.
       security: []
       parameters:
         - { name: q, in: query, description: 'Title, company name or skill contains', schema: { type: string } }
@@ -1265,9 +1265,13 @@ paths:
           explode: true
           schema: { type: array, items: { $ref: '#/components/schemas/EmploymentFraction' } }
         - { name: flexible, in: query, description: 'Only flexible hours', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: childcare_subsidy, in: query, description: 'Only offers with a nursery/kindergarten subsidy ("Dofinansowanie żłobka lub przedszkola")', schema: { $ref: '#/components/schemas/QueryFlag' } }
         - { name: nursery_nearby, in: query, description: 'Only offers with a nursery nearby', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: with_reviews, in: query, description: 'Only offers of companies with at least one approved parent review ("Firma z opiniami rodziców")', schema: { $ref: '#/components/schemas/QueryFlag' } }
         - { name: job_share, in: query, description: 'Only job-sharing offers', schema: { $ref: '#/components/schemas/QueryFlag' } }
         - { name: verified_only, in: query, description: 'Only offers of verified companies', schema: { $ref: '#/components/schemas/QueryFlag' } }
+        - { name: start_from, in: query, description: '"Mogę zacząć od": keeps offers starting no earlier than 30 days before this date (same tolerance as matching)', schema: { type: string, format: date } }
+        - { name: sort, in: query, description: '`newest` (default, by published date), `rating` (best company rating, unrated last), `start_date` (soonest start first)', schema: { type: string, enum: [newest, rating, start_date], default: newest } }
         - $ref: '#/components/parameters/Page'
       responses:
         '200':
@@ -1295,9 +1299,13 @@ paths:
                               work_mode: { type: array, items: { type: string } }
                               fraction: { type: array, items: { type: string } }
                               flexible: { type: boolean }
+                              childcare_subsidy: { type: boolean }
                               nursery_nearby: { type: boolean }
+                              with_reviews: { type: boolean }
                               job_share: { type: boolean }
                               verified_only: { type: boolean }
+                              start_from: { type: [string, 'null'], format: date }
+                              sort: { type: string, enum: [newest, rating, start_date] }
   /public/offers/{offer}:
     get:
       tags: [Public]
@@ -2423,7 +2431,8 @@ components:
         privacy:
           type: object
           properties:
-            show_availability_instead_of_gap: { type: boolean }
+            show_availability_instead_of_gap: { type: boolean, description: 'Default `true`: employers only see `available_from`, never the gap. `false` = she opts in to show `career_gap_note` to companies whose invitation she accepted.' }
+            career_gap_note: { type: [string, 'null'], maxLength: 300, example: 'urlop macierzyński', description: 'Private note about the career gap. Never on anonymous cards; revealed only after acceptance and only when `show_availability_instead_of_gap` is `false`.' }
             allow_direct_messages: { type: boolean }
             job_alerts_enabled: { type: boolean, description: 'Weekly e-mail with new offers matching at least 60%.' }
             hidden_from_company: { oneOf: [{ $ref: '#/components/schemas/IdName' }, { type: 'null' }] }
@@ -2492,7 +2501,8 @@ components:
       type: object
       description: Partial – send only the toggles that changed.
       properties:
-        show_availability_instead_of_gap: { type: boolean }
+        show_availability_instead_of_gap: { type: boolean, description: 'UI "Pokaż datę dostępności zamiast powodu przerwy" (default `true`). `false` lets companies whose invitation she accepted see "Przerwa w karierze: {career_gap_note}".' }
+        career_gap_note: { type: [string, 'null'], maxLength: 300, description: 'Private note, e.g. "urlop macierzyński". Trimmed; empty clears it. Never shown before acceptance.' }
         allow_direct_messages: { type: boolean }
         job_alerts_enabled: { type: boolean, description: 'Weekly e-mail with up to 5 new offers matching at least 60% that she can start in time.' }
         hidden_from_company_id: { type: [integer, 'null'], description: 'Company id from `GET /candidate/profile/options`.' }
@@ -2718,6 +2728,7 @@ components:
           properties:
             id: { type: integer }
             partner_name: { type: [string, 'null'] }
+            team_conversation_id: { type: [integer, 'null'], description: 'The pair''s team chat ("Czat zespołu"); set once this invitation is accepted.' }
         offer:
           type: object
           properties:
@@ -3028,6 +3039,7 @@ components:
         photo_url: { type: [string, 'null'], format: uri, description: 'Authorised `GET /candidate-photos/{profile}`; `null` without a photo.' }
         headline: { type: [string, 'null'] }
         years_of_experience: { type: [integer, 'null'] }
+        career_gap_note: { type: [string, 'null'], description: 'Only when the candidate switched off "show availability instead of the gap" and wrote a note; otherwise `null`. Display as "Przerwa w karierze: {note}".' }
     EmployerInvitation:
       type: object
       properties:
@@ -3211,7 +3223,8 @@ components:
       type: object
       properties:
         id: { type: integer }
-        counterpart_name: { type: string, description: 'Company name for a candidate; the candidate''s full name for an employer (revealed after acceptance).' }
+        counterpart_name: { type: string, description: 'Company name for a candidate; the candidate''s full name for an employer (revealed after acceptance). Team chat: "Czat zespołu: Marta K. i Ewa N.".' }
+        is_team_chat: { type: boolean, description: 'Shared chat of a job-sharing pair and the company – show the chip "Para job-sharing".' }
         offer: { $ref: '#/components/schemas/IdTitle' }
         last_message:
           type: [object, 'null']
@@ -3227,8 +3240,9 @@ components:
       properties:
         id: { type: integer }
         offer: { $ref: '#/components/schemas/IdTitle' }
+        is_team_chat: { type: boolean }
         counterpart:
-          description: The company (for a candidate) or the revealed candidate (for an employer).
+          description: The company (for a candidate), the revealed candidate (for an employer), or – in a job-sharing team chat – the company and the pair members.
           oneOf:
             - type: object
               properties:
@@ -3244,7 +3258,29 @@ components:
                 email: { type: string, format: email }
                 phone: { type: [string, 'null'] }
                 photo_url: { type: [string, 'null'], format: uri, description: 'Header avatar; authorised `GET /candidate-photos/{profile}`.' }
-        pair_partner_name: { type: [string, 'null'], description: 'For a job-sharing pair invitation – the candidate''s partner, anonymous ("Ewa N.").' }
+            - type: object
+              properties:
+                type: { const: team }
+                name: { type: string, description: '"Czat zespołu: Marta K. i Ewa N."' }
+                company:
+                  type: object
+                  properties:
+                    id: { type: integer }
+                    name: { type: string }
+                    verified: { type: boolean }
+                    rating: { type: [number, 'null'] }
+                members:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name: { type: string, description: 'Full name for the company once she joined; otherwise (and always for candidates) anonymous "Ewa N.".' }
+                      joined: { type: boolean, description: 'She accepted her invitation and takes part in the chat.' }
+                      is_me: { type: boolean }
+                      email: { type: [string, 'null'], format: email, description: 'Company view of a joined member only.' }
+                      phone: { type: [string, 'null'] }
+                      photo_url: { type: [string, 'null'], format: uri }
+        pair_partner_name: { type: [string, 'null'], description: 'For a job-sharing pair invitation – the candidate''s partner, anonymous ("Ewa N."). Null in a team chat.' }
         viewer_role: { type: string, enum: [candidate, employer] }
         last_message_at: { type: [string, 'null'], format: date-time }
     Message:
@@ -3252,7 +3288,7 @@ components:
       properties:
         id: { type: integer }
         body: { type: string }
-        author_name: { type: string }
+        author_name: { type: string, description: 'In a team chat a candidate sees her partner anonymously ("Ewa N.").' }
         author_side: { type: string, enum: [candidate, company] }
         is_mine: { type: boolean, description: 'True for your side (your own messages as a candidate, any colleague''s as an employer).' }
         read_at: { type: [string, 'null'], format: date-time }

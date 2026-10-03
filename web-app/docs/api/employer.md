@@ -14,7 +14,7 @@ Common errors:
 
 Conventions: resources wrapped in `data`; lists paginated (20 per page) with Laravel's `data` / `links` / `meta` – pass `?page=N`. Dates `Y-m-d`, timestamps ISO 8601. Money in PLN gross (integers). Enums as value plus `*_label` (Polish).
 
-**Privacy.** Before a candidate accepts an invitation the employer only ever sees the anonymous card: first name + surname initial (`anonymous_name`), headline, years of experience, AI summary, confirmed skills, `available_from`, employment fractions, work modes, match. Never surname, email, phone, photo, CV, due/leave dates. Candidates who hid their profile from the company never appear. Full name, email, phone and photo appear only on accepted invitations (`GET /employer/invitations`) and in the conversation header.
+**Privacy.** Before a candidate accepts an invitation the employer only ever sees the anonymous card: first name + surname initial (`anonymous_name`), headline, years of experience, AI summary, confirmed skills, `available_from`, employment fractions, work modes, match. Never surname, email, phone, photo, CV, due/leave dates. Candidates who hid their profile from the company never appear. Full name, email, phone and photo appear only on accepted invitations (`GET /employer/invitations`) and in the conversation header. Accepted invitations also carry `career_gap_note` ("Przerwa w karierze: …") only when the candidate explicitly opted in (privacy toggle `show_availability_instead_of_gap` off); otherwise it is `null`.
 
 **Moderation.** Employer-authored text (offer title/description, company description, invitation messages) is checked for questions about pregnancy/family. Blocked text → 422 on that field.
 
@@ -360,7 +360,8 @@ Paginated, newest first. Optional `status` = `pending|accepted|declined|withdraw
       "candidate": {
         "id": 12, "anonymous_name": "Marta K.", "full_name": "Marta Kowalska", "email": "marta@example.com",
         "phone": "+48 600 100 200", "photo_url": "https://momjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d",
-        "headline": "Specjalistka ds. rekrutacji IT", "years_of_experience": 6
+        "headline": "Specjalistka ds. rekrutacji IT", "years_of_experience": 6,
+        "career_gap_note": null
       },
       "conversation_id": 8
     },

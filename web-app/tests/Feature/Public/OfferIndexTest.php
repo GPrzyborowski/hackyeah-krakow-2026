@@ -4,8 +4,10 @@ namespace Tests\Feature\Public;
 
 use App\Enums\EmploymentFraction;
 use App\Enums\OfferStatus;
+use App\Enums\ReviewStatus;
 use App\Enums\WorkMode;
 use App\Models\Company;
+use App\Models\CompanyReview;
 use App\Models\JobOffer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -143,6 +145,78 @@ class OfferIndexTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->has('offers.data', 1)
                 ->where('offers.data.0.id', $remote->id),
+            );
+    }
+
+    public function test_offers_can_be_filtered_by_companies_with_reviews_and_childcare_subsidy(): void
+    {
+        $reviewed = Company::factory()->create();
+        CompanyReview::factory()->for($reviewed)->create();
+        $pendingOnly = Company::factory()->create();
+        CompanyReview::factory()->for($pendingOnly)->create(['status' => ReviewStatus::Pending]);
+        $match = JobOffer::factory()->published()->for($reviewed)->create(['childcare_subsidy' => true]);
+        JobOffer::factory()->published()->for($reviewed)->create(['childcare_subsidy' => false]);
+        JobOffer::factory()->published()->for($pendingOnly)->create(['childcare_subsidy' => true]);
+
+        $this->get(route('public.offers.index', ['with_reviews' => 1, 'childcare_subsidy' => 1]))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers.data', 1)
+                ->where('offers.data.0.id', $match->id)
+                ->where('filters.with_reviews', true)
+                ->where('filters.childcare_subsidy', true),
+            );
+    }
+
+    public function test_start_from_keeps_offers_the_candidate_can_still_make_within_the_tolerance(): void
+    {
+        $withinTolerance = JobOffer::factory()->published()->create(['start_date' => '2027-08-10']);
+        $later = JobOffer::factory()->published()->create(['start_date' => '2027-10-01']);
+        JobOffer::factory()->published()->create(['start_date' => '2027-07-01']);
+
+        $this->get(route('public.offers.index', ['start_from' => '2027-09-01', 'sort' => 'start_date']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers.data', 2)
+                ->where('offers.data.0.id', $withinTolerance->id)
+                ->where('offers.data.1.id', $later->id)
+                ->where('filters.start_from', '2027-09-01')
+                ->where('filters.sort', 'start_date'),
+            );
+    }
+
+    public function test_invalid_start_from_and_sort_are_ignored(): void
+    {
+        JobOffer::factory()->published()->create();
+
+        $this->get(route('public.offers.index', ['start_from' => '2027-02-31', 'sort' => 'match']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers.data', 1)
+                ->where('filters.start_from', null)
+                ->where('filters.sort', 'newest'),
+            );
+    }
+
+    public function test_offers_can_be_sorted_by_company_rating_with_unrated_companies_last(): void
+    {
+        $unrated = JobOffer::factory()->published()->create(['published_at' => now()]);
+        $good = Company::factory()->create();
+        CompanyReview::factory()->for($good)->create(['rating_return' => 4, 'rating_flexibility' => 4, 'rating_no_pregnancy_questions' => 4]);
+        $best = Company::factory()->create();
+        CompanyReview::factory()->for($best)->create(['rating_return' => 5, 'rating_flexibility' => 5, 'rating_no_pregnancy_questions' => 5]);
+        CompanyReview::factory()->for($best)->create(['rating_return' => 1, 'rating_flexibility' => 1, 'rating_no_pregnancy_questions' => 1, 'status' => ReviewStatus::Rejected]);
+        $goodOffer = JobOffer::factory()->published()->for($good)->create(['published_at' => now()->subDays(2)]);
+        $bestOffer = JobOffer::factory()->published()->for($best)->create(['published_at' => now()->subDays(5)]);
+
+        $this->get(route('public.offers.index', ['sort' => 'rating']))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('offers.data.0.id', $bestOffer->id)
+                ->where('offers.data.1.id', $goodOffer->id)
+                ->where('offers.data.2.id', $unrated->id),
+            );
+
+        $this->get(route('public.offers.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('offers.data.0.id', $unrated->id)
+                ->where('filters.sort', 'newest'),
             );
     }
 }

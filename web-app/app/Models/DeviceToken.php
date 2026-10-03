@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\Channels\FcmChannel;
 use Carbon\CarbonImmutable;
 use Database\Factories\DeviceTokenFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * FCM registration token of a mobile device (Android, or iOS through APNs in Firebase); pushes go out via {@see \App\Notifications\Channels\FcmChannel}.
+ * FCM registration token of a mobile device (Android, or iOS through APNs in Firebase); pushes go out via {@see FcmChannel}.
  * Bound to the Sanctum token that registered it: revoking that API token deletes the row (FK cascade).
  *
  * @property int $id

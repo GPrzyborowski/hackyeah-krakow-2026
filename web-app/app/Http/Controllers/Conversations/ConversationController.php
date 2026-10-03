@@ -33,7 +33,8 @@ class ConversationController extends Controller
                 return [
                     'id' => $conversation->id,
                     'counterpart_name' => $this->inbox->counterpartName($conversation, $user),
-                    'offer_title' => $conversation->invitation->jobOffer->title,
+                    'is_team_chat' => $conversation->isTeamChat(),
+                    'offer_title' => $conversation->jobOffer()->title,
                     'last_message' => $lastMessage ? Str::limit($lastMessage->body, 90) : null,
                     'last_message_at' => ($lastMessage->created_at ?? $conversation->last_message_at)?->toIso8601String(),
                     'has_unread' => $conversation->unread_count > 0,
@@ -43,24 +44,24 @@ class ConversationController extends Controller
     }
 
     /**
-     * The thread; opening it marks the counterpart's messages as read.
+     * The thread (a 1:1 chat or a job-sharing pair's team chat); opening it marks the counterpart's messages as read.
      */
     public function show(Request $request, Conversation $conversation): Response
     {
         Gate::authorize('view', $conversation);
 
         $user = $request->user();
-        $conversation->load(['invitation.jobOffer.company', 'invitation.candidateProfile.user', 'invitation.jobSharePair.members.user']);
-        $candidateUserId = $conversation->invitation->candidateProfile->user_id;
+        $conversation->load([...ConversationInbox::PRESENTATION_RELATIONS, 'invitation.jobSharePair.members.user']);
 
         $this->inbox->markCounterpartMessagesRead($conversation, $user);
 
-        $messages = $conversation->messages()->with('author:id,name')->oldest('id')->get();
+        $messages = $conversation->messages()->with(['author:id,name,role', 'author.candidateProfile'])->oldest('id')->get();
 
         return Inertia::render('conversations/Show', [
             'conversation' => [
                 'id' => $conversation->id,
-                'offer_title' => $conversation->invitation->jobOffer->title,
+                'offer_title' => $conversation->jobOffer()->title,
+                'is_team_chat' => $conversation->isTeamChat(),
                 'counterpart' => $this->inbox->counterpart($conversation, $user),
                 'pair_partner_name' => $this->inbox->pairPartnerName($conversation),
             ],
@@ -68,8 +69,8 @@ class ConversationController extends Controller
             'messages' => $messages->map(fn (Message $message): array => [
                 'id' => $message->id,
                 'body' => $message->body,
-                'author_name' => $message->author->name,
-                'is_mine' => $this->inbox->isOwnSide($message, $user, $candidateUserId),
+                'author_name' => $this->inbox->authorName($message, $user),
+                'is_mine' => $this->inbox->isOwnSide($message, $user),
                 'created_at' => $message->created_at->toIso8601String(),
             ])->values(),
         ]);

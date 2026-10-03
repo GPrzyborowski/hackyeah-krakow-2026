@@ -28,7 +28,7 @@ class MessageController extends Controller
         $this->inbox->markCounterpartMessagesRead($conversation, $request->user());
 
         $messages = $request->applyTo($conversation->messages()->getQuery())
-            ->with('author:id,name,role')
+            ->with(['author:id,name,role', 'author.candidateProfile'])
             ->latest('id')
             ->paginate(self::PER_PAGE)
             ->withQueryString();
@@ -42,7 +42,7 @@ class MessageController extends Controller
     public function store(StoreMessageRequest $request, Conversation $conversation): JsonResponse
     {
         $message = $this->inbox->post($conversation, $request->user(), $request->validated('body'));
-        $message->load('author:id,name,role');
+        $message->load(['author:id,name,role', 'author.candidateProfile']);
 
         return (new MessageResource($message))->response()->setStatusCode(201);
     }

@@ -127,9 +127,8 @@ function onHideToggle(value: boolean) {
                         </template>
                         <template v-else>
                             Po przyjęciu zaproszenia firma zobaczy: „Przerwa w
-                            karierze: {{
-                                gapNoteForm.career_gap_note || '…'
-                            }}”. Przed akceptacją – nigdy.
+                            karierze: {{ gapNoteForm.career_gap_note || '…' }}”.
+                            Przed akceptacją – nigdy.
                         </template>
                     </p>
                     <InputError

@@ -12,7 +12,8 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * Conversations opened by accepted invitations, for the candidate and for every member of the inviting company.
+ * Conversations opened by accepted invitations, for the candidate and for every member of the inviting company,
+ * plus the team chats of invited job-sharing pairs (company + members who accepted).
  */
 class ConversationController extends Controller
 {
@@ -34,7 +35,7 @@ class ConversationController extends Controller
     {
         Gate::authorize('view', $conversation);
 
-        $conversation->load(['invitation.jobOffer.company.approvedReviews', 'invitation.candidateProfile.user', 'invitation.jobSharePair.members.user']);
+        $conversation->load([...ConversationInbox::PRESENTATION_RELATIONS, 'invitation.jobOffer.company.approvedReviews', 'jobSharePair.jobOffer.company.approvedReviews', 'invitation.jobSharePair.members.user']);
 
         return new ConversationDetailResource($conversation);
     }

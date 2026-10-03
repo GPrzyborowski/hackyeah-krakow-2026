@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, Check, HeartHandshake, Sparkles, Star, X } from '@lucide/vue';
+import {
+    ArrowLeft,
+    Check,
+    HeartHandshake,
+    Sparkles,
+    Star,
+    X,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import {
     formatRating,
@@ -150,7 +157,8 @@ const conditions = computed(() => [
                             >Dofinansowanie żłobka</Chip
                         >
                         <Chip v-if="offer.nursery_distance_km != null"
-                            >Przedszkole {{ offer.nursery_distance_km }} km</Chip
+                            >Przedszkole
+                            {{ offer.nursery_distance_km }} km</Chip
                         >
                         <Chip
                             >Start od
@@ -176,7 +184,9 @@ const conditions = computed(() => [
                     </h2>
                     <p class="mt-2 text-sm">
                         <template
-                            v-if="offer.workday_starts_at && offer.workday_ends_at"
+                            v-if="
+                                offer.workday_starts_at && offer.workday_ends_at
+                            "
                         >
                             Dzień pracy
                             {{ formatHour(offer.workday_starts_at) }}–{{
@@ -213,10 +223,7 @@ const conditions = computed(() => [
                         <h3 class="mt-6 font-semibold text-brand-green">
                             Umiejętności
                         </h3>
-                        <div
-                            v-if="offer.required_skills.length"
-                            class="mt-3"
-                        >
+                        <div v-if="offer.required_skills.length" class="mt-3">
                             <p class="text-xs text-brand-green/80">Wymagane</p>
                             <div class="mt-1.5 flex flex-wrap gap-2">
                                 <Chip

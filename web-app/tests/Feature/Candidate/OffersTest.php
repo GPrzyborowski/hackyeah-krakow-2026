@@ -63,6 +63,19 @@ class OffersTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->has('offers', 1)->where('offers.0.id', $remoteFlexible->id));
     }
 
+    public function test_listing_exposes_the_parent_friendly_conditions_shown_as_card_chips(): void
+    {
+        $offer = $this->offer(['fixed_meeting_hours' => true, 'childcare_subsidy' => true, 'flexible_hours' => false]);
+
+        $this->actingAs($this->profile->user)
+            ->get(route('candidate.offers.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('offers.0.id', $offer->id)
+                ->where('offers.0.fixed_meeting_hours', true)
+                ->where('offers.0.childcare_subsidy', true)
+                ->where('offers.0.flexible_hours', false));
+    }
+
     public function test_nursery_nearby_filter_keeps_offers_with_a_nursery_within_three_km(): void
     {
         $nearby = $this->offer(['nursery_distance_km' => 2]);

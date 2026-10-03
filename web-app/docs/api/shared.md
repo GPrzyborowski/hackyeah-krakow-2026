@@ -22,7 +22,7 @@ Public endpoints never contain candidate data.
 
 ### GET /public/offers
 
-Published offers, newest first, no match score. Query (all optional, unknown values ignored):
+Published offers, newest first by default, no match score. Query (all optional, unknown values ignored):
 
 | Param | Example | Meaning |
 | --- | --- | --- |
@@ -31,9 +31,13 @@ Published offers, newest first, no match score. Query (all optional, unknown val
 | `work_mode[]` | `remote`, `hybrid`, `onsite` | Any of |
 | `fraction[]` | `1`, `3/4`, `3/5`, `1/2` | Employment fraction, any of |
 | `flexible` | `1` | Only flexible hours |
+| `childcare_subsidy` | `1` | Only offers with a nursery/kindergarten subsidy ("Dofinansowanie żłobka lub przedszkola") |
+| `with_reviews` | `1` | Only offers of companies with at least one approved parent review ("Firma z opiniami rodziców") |
 | `job_share` | `1` | Only job-sharing offers |
 | `nursery_nearby` | `1` | Only offers with a nursery/kindergarten at most 3 km from the workplace (`nursery_distance_km` set and `<= 3`) |
 | `verified_only` | `1` | Only offers of companies verified by MomJobs (badge "Zweryfikowana firma") |
+| `start_from` | `2027-09-01` | "Mogę zacząć od": offers starting no earlier than 30 days before this date (same tolerance as matching); invalid dates ignored |
+| `sort` | `rating` | `newest` (default, by published date), `rating` (best company rating, unrated last), `start_date` (soonest start first) |
 | `page` | `2` | Page (20 per page) |
 
 ```json
@@ -64,7 +68,7 @@ Published offers, newest first, no match score. Query (all optional, unknown val
   "links": { "first": "…?page=1", "last": "…?page=3", "prev": null, "next": "…?page=2" },
   "meta": {
     "current_page": 1, "last_page": 3, "per_page": 20, "total": 47,
-    "filters": { "q": "", "location": "", "work_mode": ["hybrid"], "fraction": [], "flexible": false, "nursery_nearby": false, "job_share": false, "verified_only": false }
+    "filters": { "q": "", "location": "", "work_mode": ["hybrid"], "fraction": [], "flexible": false, "childcare_subsidy": false, "nursery_nearby": false, "with_reviews": false, "job_share": false, "verified_only": false, "start_from": null, "sort": "newest" }
   }
 }
 ```
@@ -159,6 +163,14 @@ web (raw HTML stripped, `javascript:` links removed), plus up to 3 related artic
 A conversation exists once a candidate accepts an invitation. Participants: the candidate and **every member** of the
 inviting company. Anybody else gets 403.
 
+**Team chat ("Czat zespołu")** – when a job-sharing pair is invited, the first member's acceptance also opens one shared
+conversation for the pair (`is_team_chat: true`): the inviting company plus every pair member who has **accepted** her
+invitation (the other member joins when she accepts; until then she gets 403). It starts with the invitation message.
+Each member keeps her own 1:1 conversation with the company for private matters. In a team chat the company sees a
+member's full name and contact data only once she joined; members see each other only anonymously ("Ewa N.") – in the
+header and in `author_name`. `unread_count` is tracked per participant; a message's `read_at` is when the first other
+participant read it. Show a "Para job-sharing" chip on the list item and header.
+
 ### GET /conversations
 
 Your conversations, latest activity first, paginated.
@@ -168,6 +180,7 @@ Your conversations, latest activity first, paginated.
   "data": [{
     "id": 7,
     "counterpart_name": "Zielone Biuro",
+    "is_team_chat": false,
     "offer": { "id": 4, "title": "Specjalistka ds. kadr" },
     "last_message": { "id": 31, "excerpt": "Dzień dobry, zapraszamy…", "created_at": "2026-10-03T12:00:00+00:00" },
     "last_message_at": "2026-10-03T12:00:00+00:00",
@@ -179,6 +192,7 @@ Your conversations, latest activity first, paginated.
 ```
 
 `counterpart_name` is the company name for a candidate, the candidate's full name for an employer (revealed after acceptance).
+For a team chat it is `"Czat zespołu: Marta K. i Ewa N."` (an employer sees the full name of each member who joined).
 
 ### GET /conversations/{conversation}
 
@@ -189,6 +203,7 @@ Header of the thread.
   "data": {
     "id": 7,
     "offer": { "id": 4, "title": "Specjalistka ds. kadr" },
+    "is_team_chat": false,
     "counterpart": { "type": "company", "id": 2, "name": "Zielone Biuro", "verified": true, "rating": 4.6 },
     "pair_partner_name": null,
     "viewer_role": "candidate",
@@ -198,7 +213,24 @@ Header of the thread.
 ```
 
 For an employer `counterpart` is `{"type": "candidate", "name": "Marta Kowalska", "email": "marta@momjobs.test", "phone": "+48 600 100 200", "photo_url": "https://momjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d"}` (`phone` / `photo_url` may be `null`). Show the photo as the header avatar, or the name's initial without one.
-`pair_partner_name` is set when the invitation was for a job-sharing pair: the candidate's partner, anonymous ("Ewa N.").
+`pair_partner_name` is set when the invitation was for a job-sharing pair: the candidate's partner, anonymous ("Ewa N."); `null` in a team chat.
+
+For a team chat `counterpart` is (employer view; header "Czat zespołu: … · {offer.title}"):
+
+```json
+{
+  "type": "team",
+  "name": "Czat zespołu: Marta Kowalska i Ewa N.",
+  "company": { "id": 2, "name": "Zielone Biuro", "verified": true, "rating": 4.6 },
+  "members": [
+    { "name": "Marta Kowalska", "joined": true, "is_me": false, "email": "marta@momjobs.test", "phone": null, "photo_url": null },
+    { "name": "Ewa N.", "joined": false, "is_me": false, "email": null, "phone": null, "photo_url": null }
+  ]
+}
+```
+
+`email` / `phone` / `photo_url` are only given to the company and only for members who joined; a candidate always gets
+anonymous names and `null` contact data.
 
 Errors: 403 not a participant, 404 unknown id.
 
@@ -223,6 +255,7 @@ Polling: `?after_id=<last id you have>` (preferred) or `?since=<ISO 8601>`.
 ```
 
 `is_mine` is true for your side: your own messages as a candidate, any colleague's messages as an employer.
+In a team chat a candidate sees her partner's `author_name` anonymously ("Ewa N."); use `author_name` as the bubble speaker there.
 Errors: 403 not a participant, 422 invalid `since` / `after_id`.
 
 ### POST /conversations/{conversation}/messages

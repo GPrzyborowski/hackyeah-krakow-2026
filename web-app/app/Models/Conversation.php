@@ -7,11 +7,11 @@ use App\Enums\UserRole;
 use Carbon\CarbonImmutable;
 use Database\Factories\ConversationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 /**
  * Either a 1:1 chat opened by an accepted invitation (`invitation_id`) or the shared team chat of a job-sharing pair
@@ -84,10 +84,11 @@ class Conversation extends Model
     public function candidateParticipants(): Collection
     {
         if (! $this->isTeamChat()) {
-            return new Collection([$this->invitation->candidateProfile]);
+            return collect([$this->invitation->candidateProfile]);
         }
 
         return $this->jobSharePair->acceptedInvitations
+            ->toBase()
             ->sortBy('responded_at')
             ->map(fn (Invitation $invitation): CandidateProfile => $invitation->candidateProfile)
             ->values();

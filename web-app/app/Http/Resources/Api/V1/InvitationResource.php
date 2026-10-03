@@ -21,7 +21,7 @@ class InvitationResource extends JsonResource
     public function toArray(Request $request): array
     {
         $invitation = $this->resource;
-        $invitation->loadMissing(['jobOffer.company.approvedReviews', 'conversation', 'jobSharePair.members.user']);
+        $invitation->loadMissing(['jobOffer.company.approvedReviews', 'conversation', 'jobSharePair.members.user', 'jobSharePair.conversation']);
         $offer = $invitation->jobOffer;
         $company = $offer->company;
 
@@ -42,6 +42,7 @@ class InvitationResource extends JsonResource
                 'partner_name' => $invitation->jobSharePair->members
                     ->first(fn (CandidateProfile $member): bool => $member->id !== $invitation->candidate_profile_id)
                     ?->anonymousName(),
+                'team_conversation_id' => $invitation->status === InvitationStatus::Accepted ? $invitation->jobSharePair->conversation?->id : null,
             ] : null,
             'offer' => [
                 'id' => $offer->id,

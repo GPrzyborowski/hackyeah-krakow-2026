@@ -24,7 +24,7 @@ class MessageObserver implements ShouldHandleEventsAfterCommit
         $authorIsCandidate = $message->author->role === UserRole::Candidate;
 
         /** @var Collection<int, User> $candidates */
-        $candidates = $conversation->candidateParticipants()->map(fn (CandidateProfile $profile): User => $profile->user)->toBase();
+        $candidates = $conversation->candidateParticipants()->map(fn (CandidateProfile $profile): User => $profile->user);
 
         /** @var Collection<int, User> $recipients */
         $recipients = match (true) {

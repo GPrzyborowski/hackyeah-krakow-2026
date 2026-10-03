@@ -47,6 +47,7 @@ The candidate's own full profile, including private dates (never shown to employ
     "preferred_day_part_label": "Poranki",
     "privacy": {
       "show_availability_instead_of_gap": true,
+      "career_gap_note": "urlop macierzyński",
       "allow_direct_messages": false,
       "job_alerts_enabled": true,
       "hidden_from_company": { "id": 3, "name": "Obecny Pracodawca" }
@@ -133,7 +134,7 @@ Omitted `work_modes` / `employment_fractions` are saved as empty. Onboarding ste
 
 ### PATCH /candidate/profile/privacy
 
-Partial update; send only the toggles that changed: `show_availability_instead_of_gap` (bool), `allow_direct_messages` (bool – "Pozwól firmom pisać bez zaproszenia": companies may send her a short question without an invitation; she stays anonymous until she answers), `job_alerts_enabled` (bool, default `true` – "Wysyłaj mi nowe dopasowane oferty": a weekly Monday e-mail with up to 5 offers published in the last 7 days that match her at least 60% and that she can start in time; each offer is e-mailed once), `hidden_from_company_id` (nullable company id), `phone` (nullable string – Polish number: optional `+48`, 9 digits, spaces/dashes allowed; stored as `+48 600 100 200`; empty clears it; `422` `errors.phone` otherwise). UI copy: "Zdjęcie i telefon zobaczy tylko firma, której zaproszenie przyjmiesz."
+Partial update; send only the toggles that changed: `show_availability_instead_of_gap` (bool, default `true` – "Pokaż datę dostępności zamiast powodu przerwy": employers only see `available_from`; when `false` she opts in to show companies whose invitation she ACCEPTED the neutral line "Przerwa w karierze: {career_gap_note}" – never before acceptance), `career_gap_note` (nullable string, max 300, e.g. "urlop macierzyński"; private, trimmed, empty clears it; `422` `errors.career_gap_note` when too long), `allow_direct_messages` (bool – "Pozwól firmom pisać bez zaproszenia": companies may send her a short question without an invitation; she stays anonymous until she answers), `job_alerts_enabled` (bool, default `true` – "Wysyłaj mi nowe dopasowane oferty": a weekly Monday e-mail with up to 5 offers published in the last 7 days that match her at least 60% and that she can start in time; each offer is e-mailed once), `hidden_from_company_id` (nullable company id), `phone` (nullable string – Polish number: optional `+48`, 9 digits, spaces/dashes allowed; stored as `+48 600 100 200`; empty clears it; `422` `errors.phone` otherwise). UI copy: "Zdjęcie i telefon zobaczy tylko firma, której zaproszenie przyjmiesz."
 
 ### POST /candidate/profile/photo · DELETE /candidate/profile/photo
 
@@ -292,7 +293,7 @@ Paginated, pending first, then newest.
 }], "links": { … }, "meta": { … } }
 ```
 
-`status`: `pending` | `accepted` | `declined` | `withdrawn`. For job-sharing invitations `job_share_pair` is `{ "id": 9, "partner_name": "Anna N." }`.
+`status`: `pending` | `accepted` | `declined` | `withdrawn`. For job-sharing invitations `job_share_pair` is `{ "id": 9, "partner_name": "Anna N.", "team_conversation_id": 12 }` – `team_conversation_id` is the pair's shared team chat with the company ("Czat zespołu"), set once she accepted (`null` before).
 
 `kind`: `invitation` | `direct_message`. A `direct_message` ("Pytanie od firmy") is a question from a company sent without an invitation (only when `allow_direct_messages` is on). Show it with "Odpowiedz" (= `accept`: opens the conversation with the question as the first message and **reveals her full name and e-mail to the company** – say so in the UI: "Odpowiedź ujawni firmie Twoje imię, nazwisko i e-mail") and "Zignoruj" (= `decline`: she stays anonymous).
 

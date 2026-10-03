@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { MessageCircle } from '@lucide/vue';
+import { MessageCircle, UsersRound } from '@lucide/vue';
 import { computed } from 'vue';
 import { formatMessageTime } from '@/components/chat/format';
 import type { ConversationSummary } from '@/components/chat/types';
@@ -54,7 +54,14 @@ const emptyStateText = computed(() =>
                     <div
                         class="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-mint-soft text-lg font-bold text-brand-green"
                     >
-                        {{ conversation.counterpart_name.charAt(0) }}
+                        <UsersRound
+                            v-if="conversation.is_team_chat"
+                            class="size-5"
+                            aria-hidden="true"
+                        />
+                        <template v-else>{{
+                            conversation.counterpart_name.charAt(0)
+                        }}</template>
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-baseline justify-between gap-2">
@@ -75,9 +82,22 @@ const emptyStateText = computed(() =>
                             </span>
                         </div>
                         <p
-                            class="truncate text-xs font-medium text-brand-green/80"
+                            class="flex min-w-0 items-center gap-2 text-xs font-medium text-brand-green/80"
                         >
-                            {{ conversation.offer_title }}
+                            <span
+                                v-if="conversation.is_team_chat"
+                                class="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-peach/60 px-2 py-0.5 font-semibold text-brand-green"
+                                data-test="team-chat-chip"
+                            >
+                                <UsersRound
+                                    class="size-3 shrink-0"
+                                    aria-hidden="true"
+                                />
+                                Para job-sharing
+                            </span>
+                            <span class="truncate">{{
+                                conversation.offer_title
+                            }}</span>
                         </p>
                         <p
                             class="mt-1 truncate text-sm"

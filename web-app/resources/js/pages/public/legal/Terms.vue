@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3";
-import LegalPageShell from "@/components/legal/LegalPageShell.vue";
-import { contact, privacy } from "@/routes/public/legal";
+import { Link } from '@inertiajs/vue3';
+import LegalPageShell from '@/components/legal/LegalPageShell.vue';
+import { contact, privacy } from '@/routes/public/legal';
 
 defineProps<{
     contactEmail: string;

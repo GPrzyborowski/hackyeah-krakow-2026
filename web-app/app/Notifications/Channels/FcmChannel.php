@@ -4,6 +4,7 @@ namespace App\Notifications\Channels;
 
 use App\Models\DeviceToken;
 use App\Models\User;
+use App\Notifications\Concerns\SendsPush;
 use App\Services\Push\FcmAccessTokenProvider;
 use App\Services\Push\FcmServiceAccount;
 use Illuminate\Http\Client\ConnectionException;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Sends push notifications to every registered device of a user through the Firebase Cloud Messaging HTTP v1 API
  * (Android directly, iOS through APNs configured in Firebase). The notification must provide `toPush()`
- * (see {@see \App\Notifications\Concerns\SendsPush}). Without FCM configuration the channel does nothing.
+ * (see {@see SendsPush}). Without FCM configuration the channel does nothing.
  */
 class FcmChannel
 {
@@ -125,12 +126,14 @@ class FcmChannel
             return false;
         }
 
-        $errorCodes = collect($response->json('error.details', []))
-            ->pluck('errorCode')
-            ->push($response->json('error.status'))
-            ->filter(fn (mixed $code): bool => is_string($code));
+        $details = $response->json('error.details');
+        $errorCodes = [$response->json('error.status')];
 
-        return $errorCodes->intersect(self::STALE_TOKEN_ERRORS)->isNotEmpty();
+        foreach (is_array($details) ? $details : [] as $detail) {
+            $errorCodes[] = is_array($detail) ? ($detail['errorCode'] ?? null) : null;
+        }
+
+        return array_intersect($errorCodes, self::STALE_TOKEN_ERRORS) !== [];
     }
 
     private function logMissingConfigOnce(): void

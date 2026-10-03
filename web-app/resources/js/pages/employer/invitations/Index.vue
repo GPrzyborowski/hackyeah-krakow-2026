@@ -26,6 +26,7 @@ type InvitationRow = {
         phone?: string | null;
         photo_url?: string | null;
         headline?: string | null;
+        career_gap_note?: string | null;
     };
     conversation_url: string | null;
 };
@@ -169,6 +170,13 @@ const filters: { value: InvitationStatus | 'all'; label: string }[] = [
                             class="underline"
                             >{{ invitation.candidate.phone }}</a
                         >
+                    </p>
+                    <p
+                        v-if="invitation.candidate.career_gap_note"
+                        class="mt-1 text-sm text-brand-green/80"
+                    >
+                        Przerwa w karierze:
+                        {{ invitation.candidate.career_gap_note }}
                     </p>
                 </div>
                 <div class="flex shrink-0 flex-wrap items-center gap-2">

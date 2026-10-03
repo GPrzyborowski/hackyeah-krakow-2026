@@ -150,8 +150,8 @@ function confirmSkills() {
             class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand-yellow/40 p-3 text-sm text-brand-green"
         >
             <p>
-                Do zatwierdzenia: {{ unconfirmedCount }}. Pracodawcy widzą
-                tylko zatwierdzone umiejętności.
+                Do zatwierdzenia: {{ unconfirmedCount }}. Pracodawcy widzą tylko
+                zatwierdzone umiejętności.
             </p>
             <button
                 type="button"

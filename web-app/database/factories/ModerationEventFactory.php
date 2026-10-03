@@ -22,7 +22,7 @@ class ModerationEventFactory extends Factory
     {
         return [
             'user_id' => User::factory()->employer(),
-            'company_id' => fn (array $attributes): ?int => User::query()->find($attributes['user_id'])?->company_id,
+            'company_id' => fn (array $attributes): ?int => User::query()->whereKey($attributes['user_id'])->value('company_id'),
             'context' => ModerationContext::Invitation,
             'excerpt' => 'Czy planuje Pani kolejne dziecko?',
             'reason' => 'Pytania o plany rodzinne są niedozwolone.',

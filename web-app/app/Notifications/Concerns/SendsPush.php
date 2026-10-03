@@ -12,7 +12,7 @@ use App\Notifications\Channels\FcmChannel;
 trait SendsPush
 {
     /**
-     * @return array<string, mixed>
+     * @return array{kind: string, title: string, body: string|null, url: string}
      */
     abstract public function toArray(object $notifiable): array;
 
@@ -44,16 +44,14 @@ trait SendsPush
             ARRAY_FILTER_USE_BOTH,
         );
 
-        $body = $payload['body'] ?? null;
-
         return [
-            'title' => (string) ($payload['title'] ?? config('app.name')),
-            'body' => is_string($body) && $body !== '' ? $body : null,
+            'title' => $payload['title'],
+            'body' => $payload['body'] !== '' ? $payload['body'] : null,
             'data' => array_map(fn (mixed $value): string => (string) $value, [
-                'kind' => (string) ($payload['kind'] ?? ''),
-                'notification_id' => (string) ($this->id ?? ''),
+                'kind' => $payload['kind'],
+                'notification_id' => $this->id,
                 ...$targetIds,
-                'url' => (string) ($payload['url'] ?? ''),
+                'url' => $payload['url'],
             ]),
         ];
     }

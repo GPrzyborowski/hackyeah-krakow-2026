@@ -8,9 +8,9 @@ use App\Enums\WorkMode;
 use App\Models\CompanyReview;
 use App\Models\JobOffer;
 use App\Services\Matching\MatchScorer;
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 /**
  * Public, match-free search of published offers (web offers page and the mobile API).
