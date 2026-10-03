@@ -29,9 +29,12 @@ const isSignedIn = computed(() => Boolean(page.props.auth.user));
 const { hasTabs } = useMobileTabs();
 
 const navItems = computed<PublicNavItem[]>(() => [
-    { title: 'Oferty', href: offersIndex.url() },
-    { title: 'Blog', href: '/blog' },
-    { title: 'Asystent AI', href: '/assistant' },
+    { title: 'Jak to działa', href: `${home.url()}#jak-to-dziala` },
+    { title: 'Aplikuj w parze', href: `${home.url()}#job-sharing` },
+    {
+        title: 'Asystent AI',
+        href: isSignedIn.value ? '/assistant' : register.url(),
+    },
     {
         title: 'Dla pracodawców',
         href: register.url({ query: { role: 'employer' } }),
@@ -39,13 +42,15 @@ const navItems = computed<PublicNavItem[]>(() => [
 ]);
 
 const footerLinks: PublicNavItem[] = [
+    { title: 'Blog', href: '/blog' },
+    { title: 'Oferty pracy', href: offersIndex.url() },
     { title: 'Regulamin', href: legalTerms.url() },
     { title: 'Prywatność', href: legalPrivacy.url() },
     { title: 'Kontakt', href: legalContact.url() },
 ];
 
 const isActive = (href: string): boolean =>
-    !href.includes('?') && isCurrentOrParentUrl(href);
+    !href.includes('?') && !href.includes('#') && isCurrentOrParentUrl(href);
 
 const stopListening = router.on('navigate', () => {
     isMenuOpen.value = false;
