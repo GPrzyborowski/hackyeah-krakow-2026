@@ -23,7 +23,7 @@ class ProfilePageTest extends TestCase
         parent::setUp();
 
         $this->candidate = User::factory()->create(['name' => 'Marta Kowalska']);
-        $this->profile = CandidateProfile::factory()->published()->for($this->candidate)->create([
+        $this->profile = CandidateProfile::factory()->published()->pregnant()->for($this->candidate)->create([
             'available_from' => '2027-03-01',
             'due_date' => '2026-12-20',
             'career_gap_note' => 'urlop macierzyński',
@@ -86,6 +86,7 @@ class ProfilePageTest extends TestCase
     {
         $this->actingAs($this->candidate)
             ->put(route('candidate.profile.preferences'), [
+                'stage' => 'after_leave',
                 'available_from' => '2027-05-01',
                 'headline' => 'Rekruterka IT',
                 'work_modes' => ['remote'],

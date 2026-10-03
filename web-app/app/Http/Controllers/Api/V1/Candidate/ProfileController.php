@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Candidate;
 
+use App\Enums\CandidateStage;
 use App\Enums\DayPart;
 use App\Enums\EmploymentFraction;
 use App\Enums\WorkMode;
@@ -39,6 +40,7 @@ class ProfileController extends Controller
     public function options(): JsonResponse
     {
         return response()->json(['data' => [
+            'stages' => CandidateStage::options(),
             'work_modes' => collect(WorkMode::cases())->map(fn (WorkMode $mode): array => ['value' => $mode->value, 'label' => $mode->label()]),
             'employment_fractions' => collect(EmploymentFraction::cases())->map(fn (EmploymentFraction $fraction): array => ['value' => $fraction->value, 'label' => $fraction->label()]),
             'day_parts' => collect(DayPart::cases())->map(fn (DayPart $part): array => ['value' => $part->value, 'label' => $part->label()]),
@@ -117,7 +119,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Make the profile visible to employers (requires available_from and at least one confirmed skill).
+     * Make the profile visible to employers (requires the stage, available_from and at least one confirmed skill).
      *
      * @throws ValidationException
      */

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Link, useForm } from '@inertiajs/vue3';
-import { Lock } from '@lucide/vue';
+import { Baby, Briefcase, Lock } from '@lucide/vue';
 import { watch } from 'vue';
 import BrandSwitch from '@/components/candidate/BrandSwitch.vue';
 import type {
+    CandidateStage,
     OnboardingProfile,
     Option,
     PreviewData,
@@ -29,6 +30,7 @@ const emit = defineEmits<{
 }>();
 
 const form = useForm({
+    stage: props.profile.stage as CandidateStage | null,
     headline: props.profile.headline ?? '',
     years_of_experience: props.profile.years_of_experience as number | null,
     city: props.profile.city ?? '',
@@ -78,12 +80,32 @@ function submit() {
                 ? null
                 : data.years_of_experience,
         leave_starts_on: data.leave_starts_on || null,
-        due_date: data.due_date || null,
+        due_date: data.stage === 'pregnant' ? data.due_date || null : null,
     })).put(props.submitUrl ?? preferences.url(), {
         preserveScroll: true,
         onSuccess: () => emit('saved'),
     });
 }
+
+const stageChoices: {
+    value: CandidateStage;
+    title: string;
+    description: string;
+    icon: typeof Baby;
+}[] = [
+    {
+        value: 'pregnant',
+        title: 'Jestem w ciąży',
+        description: 'Planuję powrót do pracy po porodzie i urlopie.',
+        icon: Baby,
+    },
+    {
+        value: 'after_leave',
+        title: 'Jestem po urlopie macierzyńskim (lub na nim)',
+        description: 'Wracam do pracy albo przygotowuję się do powrotu.',
+        icon: Briefcase,
+    },
+];
 
 const dayParts: Option[] = [
     { value: 'morning', label: 'Poranki' },
@@ -106,6 +128,55 @@ const inputClass =
         <p class="mt-2 text-sm text-brand-green/80">
             Na tej podstawie dopasujemy oferty i pokażemy Cię właściwym firmom.
         </p>
+
+        <fieldset class="mt-6" aria-describedby="stage-note stage-error">
+            <legend class="text-base font-bold text-brand-green">
+                Gdzie teraz jesteś?
+            </legend>
+            <p
+                id="stage-note"
+                class="mt-1 flex items-center gap-1.5 text-xs text-brand-green/80"
+            >
+                <Lock class="size-3 shrink-0" aria-hidden="true" />
+                Tę informację widzisz tylko Ty – pracodawcy jej nie zobaczą.
+            </p>
+            <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                <label
+                    v-for="choice in stageChoices"
+                    :key="choice.value"
+                    class="flex cursor-pointer items-start gap-3 rounded-3xl border-2 p-4 transition-colors focus-within:ring-2 focus-within:ring-brand-green/40"
+                    :class="
+                        form.stage === choice.value
+                            ? 'border-brand-green bg-brand-mint-soft'
+                            : 'border-brand-line bg-white hover:bg-brand-cream'
+                    "
+                    :data-test="`stage-${choice.value}`"
+                >
+                    <input
+                        v-model="form.stage"
+                        type="radio"
+                        name="stage"
+                        :value="choice.value"
+                        required
+                        class="sr-only"
+                    />
+                    <component
+                        :is="choice.icon"
+                        class="mt-0.5 size-6 shrink-0 text-brand-green"
+                        aria-hidden="true"
+                    />
+                    <span>
+                        <span class="block font-bold text-brand-green">{{
+                            choice.title
+                        }}</span>
+                        <span class="block text-xs text-brand-green/80">{{
+                            choice.description
+                        }}</span>
+                    </span>
+                </label>
+            </div>
+            <InputError id="stage-error" :message="form.errors.stage" />
+        </fieldset>
 
         <div class="mt-6 grid gap-4 sm:grid-cols-2">
             <div class="sm:col-span-2">
@@ -264,7 +335,11 @@ const inputClass =
             <label
                 for="available_from"
                 class="text-base font-bold text-brand-green"
-                >Od kiedy możesz zacząć?</label
+                >{{
+                    form.stage === 'after_leave'
+                        ? 'Kiedy kończysz urlop – od kiedy możesz zacząć?'
+                        : 'Od kiedy możesz zacząć?'
+                }}</label
             >
             <input
                 id="available_from"
@@ -292,10 +367,14 @@ const inputClass =
                 >
             </h3>
             <p class="mt-1 text-xs text-brand-green/80">
-                Dane o ciąży są opcjonalne i prywatne. Nigdy nie pokazujemy ich
-                pracodawcom – służą tylko Twojemu kalendarzowi i przypomnieniom.
-                Podając je, wyrażasz zgodę na ich przetwarzanie (art. 9 RODO) –
-                możesz ją wycofać, usuwając daty.
+                {{
+                    form.stage === 'after_leave'
+                        ? 'Daty urlopu są opcjonalne i prywatne.'
+                        : 'Dane o ciąży są opcjonalne i prywatne.'
+                }}
+                Nigdy nie pokazujemy ich pracodawcom – służą tylko Twojemu
+                kalendarzowi i przypomnieniom. Podając je, wyrażasz zgodę na ich
+                przetwarzanie (art. 9 RODO) – możesz ją wycofać, usuwając daty.
                 <a
                     :href="privacy.url()"
                     target="_blank"
@@ -305,7 +384,7 @@ const inputClass =
                 >
             </p>
             <div class="mt-3 grid gap-4 sm:grid-cols-2">
-                <div>
+                <div v-if="form.stage !== 'after_leave'">
                     <label
                         for="due_date"
                         class="text-sm font-semibold text-brand-green"
@@ -328,7 +407,11 @@ const inputClass =
                     <label
                         for="leave_starts_on"
                         class="text-sm font-semibold text-brand-green"
-                        >Początek urlopu</label
+                        >{{
+                            form.stage === 'after_leave'
+                                ? 'Urlop od'
+                                : 'Początek urlopu'
+                        }}</label
                     >
                     <input
                         id="leave_starts_on"

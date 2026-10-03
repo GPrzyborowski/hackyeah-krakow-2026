@@ -30,6 +30,8 @@ class ProfilePresenter
             'phone' => $profile->phone,
             'photo_url' => $profile->photoUrl(),
             'ai_summary' => $profile->ai_summary,
+            'stage' => $profile->stage?->value,
+            'stage_label' => $profile->stage?->label(),
             'available_from' => $profile->available_from?->toDateString(),
             'leave_starts_on' => $profile->leave_starts_on?->toDateString(),
             'due_date' => $profile->due_date?->toDateString(),

@@ -11,7 +11,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * The candidate's own full profile, including her private return dates. Only ever returned to the candidate herself.
+ * The candidate's own full profile, including her private stage and return dates. Only ever returned to the candidate herself.
  * Never use it for employers – they get AnonymousCandidateResource.
  *
  * @property CandidateProfile $resource
@@ -37,6 +37,8 @@ class CandidateProfileResource extends JsonResource
             'phone' => $profile->phone,
             'photo_url' => $profile->photoUrl(forApi: true),
             'ai_summary' => $profile->ai_summary,
+            'stage' => $profile->stage?->value,
+            'stage_label' => $profile->stage?->label(),
             'available_from' => $profile->available_from?->toDateString(),
             'leave_starts_on' => $profile->leave_starts_on?->toDateString(),
             'due_date' => $profile->due_date?->toDateString(),

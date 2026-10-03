@@ -161,6 +161,7 @@ class ProfileTest extends TestCase
         Sanctum::actingAs($this->candidate);
 
         $this->putJson('/api/v1/candidate/profile/preferences', [
+            'stage' => 'pregnant',
             'headline' => 'Rekruterka IT',
             'work_modes' => ['hybrid'],
             'employment_fractions' => ['3/5'],
@@ -172,6 +173,9 @@ class ProfileTest extends TestCase
         ])
             ->assertOk()
             ->assertJsonPath('data.headline', 'Rekruterka IT')
+            ->assertJsonPath('data.stage', 'pregnant')
+            ->assertJsonPath('data.stage_label', 'W ciąży')
+            ->assertJsonPath('data.due_date', '2027-01-02')
             ->assertJsonPath('data.work_modes.0.value', 'hybrid')
             ->assertJsonPath('data.employment_fractions.0.value', '3/5')
             ->assertJsonPath('data.preferred_day_part_label', 'Poranki')
@@ -234,7 +238,7 @@ class ProfileTest extends TestCase
 
     public function test_publish_makes_the_profile_visible(): void
     {
-        $this->profile->update(['available_from' => '2027-09-01']);
+        $this->profile->update(['available_from' => '2027-09-01', 'stage' => 'after_leave']);
         $this->profile->skills()->attach(Skill::factory()->create(), ['source' => 'manual', 'confirmed_at' => now()]);
         Sanctum::actingAs($this->candidate);
 
@@ -247,7 +251,7 @@ class ProfileTest extends TestCase
 
     public function test_candidate_can_hide_and_show_her_profile(): void
     {
-        $this->profile->update(['available_from' => '2027-09-01', 'published_at' => now(), 'onboarding_step' => 4]);
+        $this->profile->update(['available_from' => '2027-09-01', 'stage' => 'after_leave', 'published_at' => now(), 'onboarding_step' => 4]);
         $this->profile->skills()->attach(Skill::factory()->create(), ['source' => 'manual', 'confirmed_at' => now()]);
         Sanctum::actingAs($this->candidate);
 

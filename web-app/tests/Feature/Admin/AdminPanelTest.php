@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Enums\ReviewStatus;
 use App\Models\Article;
+use App\Models\CandidateProfile;
 use App\Models\Company;
 use App\Models\CompanyReview;
 use App\Models\Invitation;
@@ -51,6 +52,25 @@ class AdminPanelTest extends TestCase
                 ->where('stats.job_share_pairs', 0)
                 ->has('stats.candidates')
                 ->has('stats.employers'));
+    }
+
+    public function test_dashboard_shows_candidate_counts_per_stage_without_personal_data(): void
+    {
+        CandidateProfile::factory()->count(2)->pregnant()->create();
+        CandidateProfile::factory()->count(3)->afterLeave()->create();
+        CandidateProfile::factory()->create(['stage' => null]);
+
+        $response = $this->actingAs($this->admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('stats.candidates_pregnant', 2)
+                ->where('stats.candidates_after_leave', 3)
+                ->where('stats.candidates_without_stage', 1));
+
+        foreach (CandidateProfile::query()->with('user')->get() as $profile) {
+            $response->assertDontSee($profile->user->email);
+        }
     }
 
     public function test_dashboard_shows_content_and_newsletter_counts(): void

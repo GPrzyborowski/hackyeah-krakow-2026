@@ -2,8 +2,10 @@
 
 namespace App\Services\Ai;
 
+use App\Enums\CandidateStage;
 use App\Models\Article;
 use App\Models\LegalSource;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -17,7 +19,7 @@ class LegalAssistant
     public const string DISCLAIMER = 'To informacja ogólna, a nie porada prawna. Przy sporze skontaktuj się z prawnikiem.';
 
     /**
-     * Example questions offered as one-tap chips.
+     * Example questions offered as one-tap chips when the asker has no stage (employers, profiles without a stage).
      *
      * @var list<string>
      */
@@ -26,6 +28,26 @@ class LegalAssistant
         'Urlop rodzicielski',
         'Powrót na część etatu',
         'Czy muszę mówić o ciąży na rozmowie?',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    private const array PREGNANT_SUGGESTIONS = [
+        'Czy muszę mówić o ciąży na rozmowie?',
+        'Zwolnienie lekarskie w ciąży',
+        'Ochrona przed zwolnieniem w ciąży',
+        'Zasiłek macierzyński',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    private const array AFTER_LEAVE_SUGGESTIONS = [
+        'Powrót na część etatu',
+        'Urlop rodzicielski a powrót',
+        'Przerwy na karmienie',
+        'Elastyczny czas pracy dla rodzica',
     ];
 
     private const string SYSTEM_PROMPT = <<<'PROMPT'
@@ -43,6 +65,30 @@ class LegalAssistant
         private readonly KnowledgeRetriever $retriever,
         private readonly ClaudeClient $claude,
     ) {}
+
+    /**
+     * One-tap example questions tailored to the candidate's private stage.
+     *
+     * @return list<string>
+     */
+    public static function suggestionsFor(?CandidateStage $stage): array
+    {
+        return match ($stage) {
+            CandidateStage::Pregnant => self::PREGNANT_SUGGESTIONS,
+            CandidateStage::AfterLeave => self::AFTER_LEAVE_SUGGESTIONS,
+            null => self::SUGGESTIONS,
+        };
+    }
+
+    /**
+     * Suggestions for the signed-in user: per stage for candidates, the general list for everyone else.
+     *
+     * @return list<string>
+     */
+    public static function suggestionsForUser(User $user): array
+    {
+        return self::suggestionsFor($user->isCandidate() ? $user->candidateProfile?->stage : null);
+    }
 
     public function answer(string $question): AssistantAnswer
     {

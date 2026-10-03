@@ -18,7 +18,7 @@ class AssistantFlowTest extends TestCase
     {
         Http::preventStrayRequests();
         $this->seed(ContentSeeder::class);
-        $candidate = CandidateProfile::factory()->published()->create();
+        $candidate = CandidateProfile::factory()->published()->pregnant()->create();
 
         $this->actingAs($candidate->user)
             ->get(route('assistant.index'))

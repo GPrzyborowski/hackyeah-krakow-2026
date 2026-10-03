@@ -83,6 +83,7 @@ class CandidateJourneyTest extends TestCase
         $this->assertEqualsCanonicalizing(['Rekrutacja IT', 'Onboarding'], $profile->confirmedSkills()->pluck('name')->all());
 
         $this->put(route('candidate.onboarding.preferences'), [
+            'stage' => 'pregnant',
             'headline' => 'Specjalistka ds. rekrutacji IT',
             'years_of_experience' => 6,
             'city' => 'Kraków',

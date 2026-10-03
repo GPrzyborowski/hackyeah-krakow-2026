@@ -22,7 +22,7 @@ All profile mutations return the updated **profile resource** (same as `GET /can
 
 ### GET /candidate/profile
 
-The candidate's own full profile, including private dates (never shown to employers).
+The candidate's own full profile, including her private stage and dates (never shown to employers).
 
 ```json
 {
@@ -36,6 +36,8 @@ The candidate's own full profile, including private dates (never shown to employ
     "phone": "+48 600 100 200",
     "photo_url": "https://mumjobs.test/api/v1/candidate-photos/12?v=1a2b3c4d",
     "ai_summary": "Rekruterka IT z 6-letnim doświadczeniem…",
+    "stage": "pregnant",
+    "stage_label": "W ciąży",
     "available_from": "2027-09-01",
     "leave_starts_on": "2026-12-01",
     "due_date": "2027-01-02",
@@ -67,6 +69,7 @@ The candidate's own full profile, including private dates (never shown to employ
 
 `phone` and `photo_url` are private contact data: employers get them only after she accepts their invitation. `photo_url` is `null` without a photo; load it with the bearer token (see `GET /candidate-photos/{profile}` in [shared.md](shared.md)).
 
+`stage` (private): `pregnant` | `after_leave` | `null` (only profiles created before the stage choice – ask her "Gdzie teraz jesteś?"). It is never shown to employers or other candidates and does not affect matching.
 `cv.status`: `uploaded` | `parsing` | `parsed` | `failed` | `null`. Only `confirmed` skills are visible to employers and used for matching. The CV file path and raw CV text are never returned.
 
 ### GET /candidate/profile/options
@@ -75,6 +78,7 @@ Choice lists for the profile forms.
 
 ```json
 { "data": {
+  "stages": [{ "value": "pregnant", "label": "W ciąży" }, { "value": "after_leave", "label": "Po urlopie macierzyńskim" }],
   "work_modes": [{ "value": "remote", "label": "Zdalnie" }, …],
   "employment_fractions": [{ "value": "1", "label": "Pełny etat" }, …],
   "day_parts": [{ "value": "morning", "label": "Poranki" }, …],
@@ -120,7 +124,8 @@ Confirm all remaining (AI-proposed) tags; onboarding step ≥ 2. `422` `errors.s
 
 | Field | Rules |
 | --- | --- |
-| `available_from` | **required**, date |
+| `stage` | **required**, `pregnant` \| `after_leave` (private – UI "Gdzie teraz jesteś?" with the note "Tę informację widzisz tylko Ty – pracodawcy jej nie zobaczą.") |
+| `available_from` | **required**, date (after leave: when the leave ends / she can start) |
 | `headline` | nullable string, max 120 |
 | `years_of_experience` | nullable int 0–50 |
 | `city` | nullable string, max 100 |
@@ -128,7 +133,8 @@ Confirm all remaining (AI-proposed) tags; onboarding step ≥ 2. `422` `errors.s
 | `employment_fractions[]` | `1` \| `3/4` \| `3/5` \| `1/2` |
 | `wants_flexible_hours`, `open_to_job_sharing` | boolean |
 | `preferred_day_part` | nullable `morning` \| `afternoon` \| `any` |
-| `leave_starts_on`, `due_date` | nullable date (private) |
+| `leave_starts_on` | nullable date (private; "Początek urlopu" / for after leave "Urlop od") |
+| `due_date` | nullable date (private; only for `pregnant` – hide it for `after_leave`, where it is cleared) |
 
 Omitted `work_modes` / `employment_fractions` are saved as empty. Onboarding step ≥ 3.
 
@@ -147,7 +153,7 @@ Throttle 20/min. Body: `ai_summary` (nullable string, max 400; empty clears it).
 
 ### POST /candidate/profile/publish
 
-Optional body: the privacy fields above. Publishes the profile (onboarding step 4). `422` with `errors.available_from` and/or `errors.skills` when the start date or a confirmed skill is missing.
+Optional body: the privacy fields above. Publishes the profile (onboarding step 4). `422` with `errors.stage`, `errors.available_from` and/or `errors.skills` when the stage, the start date or a confirmed skill is missing.
 
 ### POST /candidate/profile/visibility
 
@@ -177,20 +183,25 @@ Exactly what employers see before an invitation is accepted (anonymous allowlist
 
 ```json
 { "data": {
-  "greeting": { "first_name": "Marta" },
+  "greeting": { "first_name": "Marta", "stage_message": "Spokojnie zaplanuj powrót jeszcze przed porodem – …" },
   "profile": { "published": true, "onboarding_step": 4 },
   "calendar": {
+    "stage": "pregnant", "stage_label": "W ciąży",
+    "phases": ["pregnancy", "leave", "ready"],
     "pregnancy_week": 27, "due_date": "2027-01-02", "leave_starts_on": "2026-12-01",
     "available_from": "2027-09-01", "current_phase": "pregnancy"
   },
   "invitations": { "pending_count": 2, "company_names": ["Zielone Biuro", "Kamienica"] },
   "pair_invitations_count": 1,
   "saved_offers_count": 3,
-  "top_offers": [ /* 3 × offer card, see below */ ]
+  "top_offers": [ /* 3 × offer card, see below */ ],
+  "recommended_articles": [ /* up to 3 × article card, see shared.md */ ]
 } }
 ```
 
-`calendar.current_phase`: `pregnancy` | `leave` | `ready`; any date may be `null`. When `profile.published` is `false` the app should send the user to onboarding.
+The calendar depends on the private `stage`: pregnant – `phases` `pregnancy` → `leave` → `ready` (with `pregnancy_week`); after leave – `leave` → `return` → `ready` (`pregnancy_week` and `due_date` always `null`; `return` = start date within 60 days). `calendar.current_phase`: `pregnancy` | `leave` | `return` | `ready`; any date may be `null`. Without dates the phase follows the stage (`pregnancy` / `return`), and profiles without a stage fall back to `ready` – when `calendar.stage` is `null`, show a "Gdzie teraz jesteś?" card that leads to the preferences form.
+`greeting.stage_message` is a supporting line for her stage (`null` without one). `recommended_articles` are picked by stage – pregnant: "W ciąży", "Prawa", "CV i rozmowy"; after leave: "Powrót do pracy", "Urlop", "Prawa" (one per category first); newest articles without a stage.
+When `profile.published` is `false` the app should send the user to onboarding.
 
 ---
 

@@ -255,6 +255,7 @@ class OnboardingTest extends TestCase
 
         $this->actingAs($this->candidate)
             ->put(route('candidate.onboarding.preferences'), [
+                'stage' => 'pregnant',
                 'headline' => 'HR Business Partner',
                 'years_of_experience' => 6,
                 'city' => 'Poznań',
@@ -320,7 +321,7 @@ class OnboardingTest extends TestCase
 
     public function test_publish_makes_profile_visible_and_redirects_home(): void
     {
-        $this->profile->update(['available_from' => '2027-09-01', 'onboarding_step' => 3]);
+        $this->profile->update(['available_from' => '2027-09-01', 'stage' => 'pregnant', 'onboarding_step' => 3]);
         $this->profile->skills()->attach(Skill::factory()->create(), ['source' => 'ai', 'confirmed_at' => now()]);
 
         $this->actingAs($this->candidate)

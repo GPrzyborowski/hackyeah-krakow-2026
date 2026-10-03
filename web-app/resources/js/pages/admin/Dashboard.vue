@@ -21,6 +21,9 @@ const props = defineProps<{
         candidates: number;
         employers: number;
         admins: number;
+        candidates_pregnant: number;
+        candidates_after_leave: number;
+        candidates_without_stage: number;
         published_offers: number;
         pending_reviews: number;
         unverified_companies: number;
@@ -41,6 +44,21 @@ defineOptions({
 
 const tiles = computed(() => [
     { key: 'candidates', label: 'Kandydatki', value: props.stats.candidates },
+    {
+        key: 'candidates_pregnant',
+        label: 'Kandydatki w ciąży',
+        value: props.stats.candidates_pregnant,
+    },
+    {
+        key: 'candidates_after_leave',
+        label: 'Kandydatki po urlopie macierzyńskim',
+        value: props.stats.candidates_after_leave,
+    },
+    {
+        key: 'candidates_without_stage',
+        label: 'Kandydatki bez wybranego etapu',
+        value: props.stats.candidates_without_stage,
+    },
     { key: 'employers', label: 'Pracodawcy', value: props.stats.employers },
     {
         key: 'published_offers',

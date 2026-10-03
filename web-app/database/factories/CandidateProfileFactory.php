@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\CandidateStage;
 use App\Enums\EmploymentFraction;
 use App\Enums\WorkMode;
 use App\Models\CandidateProfile;
@@ -24,6 +25,7 @@ class CandidateProfileFactory extends Factory
             'user_id' => User::factory(),
             'headline' => fake()->jobTitle(),
             'years_of_experience' => fake()->numberBetween(1, 15),
+            'stage' => CandidateStage::AfterLeave,
             'city' => fake()->randomElement(['Kraków', 'Poznań', 'Warszawa']),
             'available_from' => now()->addMonths(fake()->numberBetween(1, 11))->startOfMonth(),
             'work_modes' => [WorkMode::Remote->value, WorkMode::Hybrid->value],
@@ -42,6 +44,29 @@ class CandidateProfileFactory extends Factory
             'onboarding_step' => 4,
             'ai_summary' => fake()->sentence(16),
             'published_at' => now(),
+        ]);
+    }
+
+    /**
+     * Indicate that the candidate is pregnant (with a private due date and leave start).
+     */
+    public function pregnant(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'stage' => CandidateStage::Pregnant,
+            'due_date' => now()->addWeeks(13)->startOfDay(),
+            'leave_starts_on' => now()->addWeeks(11)->startOfDay(),
+        ]);
+    }
+
+    /**
+     * Indicate that the candidate is on or after her maternity leave.
+     */
+    public function afterLeave(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'stage' => CandidateStage::AfterLeave,
+            'due_date' => null,
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\Candidate;
 
+use App\Enums\CandidateStage;
 use App\Enums\CvStatus;
 use App\Enums\SkillSource;
 use App\Http\Requests\Candidate\UpdateSummaryRequest;
@@ -114,7 +115,8 @@ class ProfileOnboarding
     }
 
     /**
-     * Step 3: work preferences and the private return calendar.
+     * Step 3: the private stage (pregnant / after leave), work preferences and the private return calendar.
+     * A candidate after her leave has no due date, so a previously stored one is removed.
      *
      * @param  array<string, mixed>  $preferences
      */
@@ -125,6 +127,10 @@ class ProfileOnboarding
             'work_modes' => $preferences['work_modes'] ?? [],
             'employment_fractions' => $preferences['employment_fractions'] ?? [],
         ]);
+
+        if ($profile->stage === CandidateStage::AfterLeave) {
+            $profile->due_date = null;
+        }
 
         $this->advanceTo($profile, 3);
     }
@@ -238,6 +244,10 @@ class ProfileOnboarding
     private function ensurePublishable(CandidateProfile $profile): void
     {
         $errors = [];
+
+        if ($profile->stage === null) {
+            $errors['stage'] = 'Wybierz w kroku 3, gdzie teraz jesteś (w ciąży czy po urlopie).';
+        }
 
         if ($profile->available_from === null) {
             $errors['available_from'] = 'Uzupełnij datę „Od kiedy możesz zacząć?” w kroku 3.';

@@ -483,10 +483,12 @@ Your chat history, newest first, paginated.
   "meta": {
     "current_page": 1, "…": "…",
     "disclaimer": "To informacja ogólna, a nie porada prawna. Przy sporze skontaktuj się z prawnikiem.",
-    "suggestions": ["Zasiłek macierzyński", "Urlop rodzicielski", "Powrót na część etatu", "Czy muszę mówić o ciąży na rozmowie?"]
+    "suggestions": ["Czy muszę mówić o ciąży na rozmowie?", "Zwolnienie lekarskie w ciąży", "Ochrona przed zwolnieniem w ciąży", "Zasiłek macierzyński"]
   }
 }
 ```
+
+`meta.suggestions` depend on the candidate's private stage – pregnant: questions about pregnancy at work; after leave: "Powrót na część etatu", "Urlop rodzicielski a powrót", "Przerwy na karmienie", …; employers and candidates without a stage get the general list.
 
 `role`: `user` | `assistant`. Article citation `url` is a web path – open the article in the app via
 `GET /articles/{slug}` (the slug is the last path segment).

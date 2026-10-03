@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CandidateStage;
 use App\Enums\CvStatus;
 use App\Enums\DayPart;
 use Carbon\CarbonImmutable;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $years_of_experience
  * @property string|null $city
  * @property string|null $ai_summary
+ * @property CandidateStage|null $stage
  * @property CarbonImmutable|null $available_from
  * @property CarbonImmutable|null $leave_starts_on
  * @property CarbonImmutable|null $due_date
@@ -45,7 +47,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $published_at
  */
 #[Fillable([
-    'headline', 'years_of_experience', 'city', 'ai_summary', 'available_from', 'leave_starts_on', 'due_date',
+    'headline', 'years_of_experience', 'city', 'ai_summary', 'stage', 'available_from', 'leave_starts_on', 'due_date',
     'work_modes', 'employment_fractions', 'wants_flexible_hours', 'open_to_job_sharing', 'preferred_day_part',
     'show_availability_instead_of_gap', 'career_gap_note', 'hidden_from_company_id', 'allow_direct_messages', 'job_alerts_enabled', 'onboarding_step',
     'cv_path', 'cv_original_name', 'cv_status', 'cv_text', 'suggested_positions', 'published_at',
@@ -227,6 +229,7 @@ class CandidateProfile extends Model
     protected function casts(): array
     {
         return [
+            'stage' => CandidateStage::class,
             'available_from' => 'date',
             'leave_starts_on' => 'date',
             'due_date' => 'date',

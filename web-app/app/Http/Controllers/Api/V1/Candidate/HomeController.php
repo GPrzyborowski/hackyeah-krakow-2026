@@ -7,9 +7,11 @@ use App\Enums\JobSharePairStatus;
 use App\Http\Controllers\Candidate\Concerns\PresentsOffers;
 use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\V1\ArticleResource;
 use App\Http\Resources\Api\V1\HomeResource;
 use App\Http\Resources\Api\V1\OfferResource;
 use App\Models\Invitation;
+use App\Services\Candidate\ArticleRecommendations;
 use App\Services\Candidate\ReturnCalendar;
 use App\Services\Matching\MatchScorer;
 use Illuminate\Http\Request;
@@ -21,10 +23,11 @@ class HomeController extends Controller
     private const int TOP_OFFERS = 3;
 
     /**
-     * Candidate home: return calendar, pending invitations and the best matching offers.
+     * Candidate home: stage-specific greeting, return calendar, pending invitations, the best matching offers
+     * and blog articles recommended for her stage.
      * An unpublished profile still gets a response; the app should send her to onboarding (profile.published = false).
      */
-    public function __invoke(Request $request, MatchScorer $matchScorer, ReturnCalendar $returnCalendar): HomeResource
+    public function __invoke(Request $request, MatchScorer $matchScorer, ReturnCalendar $returnCalendar, ArticleRecommendations $articleRecommendations): HomeResource
     {
         $profile = $this->candidateProfile($request)->load('user');
 
@@ -38,6 +41,7 @@ class HomeController extends Controller
 
         return new HomeResource([
             'first_name' => strtok($profile->user->name, ' ') ?: $profile->user->name,
+            'stage_message' => $profile->stage?->homeMessage(),
             'published' => $profile->isPublished(),
             'onboarding_step' => $profile->onboarding_step,
             'calendar' => $returnCalendar->forProfile($profile),
@@ -62,6 +66,7 @@ class HomeController extends Controller
                     in_array($row['offer']->id, $savedOfferIds, true),
                 ))
                 ->all()),
+            'recommended_articles' => ArticleResource::collection($articleRecommendations->forStage($profile->stage)),
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CandidateStage;
 use App\Enums\EmploymentFraction;
 use App\Enums\OfferStatus;
 use App\Enums\ReviewStatus;
@@ -149,6 +150,7 @@ class DemoPolishSeeder extends Seeder
     public function run(): void
     {
         $this->polishCandidateSummaries();
+        $this->splitCandidateStages();
         $this->polishExistingCompanies();
         $this->seedKrakowCompanies();
         $this->seedNurseryDistances();
@@ -220,6 +222,18 @@ class DemoPolishSeeder extends Seeder
 
             $profile->save();
         }
+    }
+
+    /**
+     * Splits generated candidates roughly 50/50 between pregnant and after leave (demo accounts keep their own stage).
+     */
+    private function splitCandidateStages(): void
+    {
+        CandidateProfile::query()
+            ->whereDoesntHave('user', fn ($query) => $query->where('email', 'like', '%@mumjobs.test'))
+            ->each(function (CandidateProfile $profile): void {
+                $profile->update(['stage' => $profile->id % 2 === 0 ? CandidateStage::AfterLeave : CandidateStage::Pregnant]);
+            });
     }
 
     private function looksLikeFakerText(?string $summary): bool

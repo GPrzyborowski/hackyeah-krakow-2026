@@ -1816,7 +1816,7 @@ paths:
                       - type: object
                         properties:
                           disclaimer: { type: string }
-                          suggestions: { type: array, items: { type: string } }
+                          suggestions: { type: array, items: { type: string }, description: 'One-tap example questions; for candidates they depend on her private stage (pregnant / after leave).' }
         '401': { $ref: '#/components/responses/Unauthorized' }
     post:
       tags: [Assistant]
@@ -2291,6 +2291,10 @@ components:
     DayPart:
       type: string
       enum: [morning, afternoon, any]
+    CandidateStage:
+      type: string
+      enum: [pregnant, after_leave]
+      description: 'Private stage: `pregnant` ("W ciąży") or `after_leave` ("Po urlopie macierzyńskim", also while on leave). Only ever returned to the candidate herself; never shown to employers or other candidates.'
     OfferStatus:
       type: string
       enum: [draft, published, closed]
@@ -2408,7 +2412,7 @@ components:
     # ---------- candidate
     CandidateProfile:
       type: object
-      description: The candidate's own full profile. Contains private fields (`full_name`, `leave_starts_on`, `due_date`, CV info) that are never shown to other users.
+      description: The candidate's own full profile. Contains private fields (`full_name`, `stage`, `leave_starts_on`, `due_date`, CV info) that are never shown to other users.
       properties:
         id: { type: integer }
         full_name: { type: string }
@@ -2419,6 +2423,8 @@ components:
         phone: { type: [string, 'null'], example: '+48 600 100 200', description: 'Private – revealed only to a company whose invitation she accepted.' }
         photo_url: { type: [string, 'null'], format: uri, description: 'Authorised endpoint `GET /candidate-photos/{profile}` (send the bearer token); `null` without a photo.' }
         ai_summary: { type: [string, 'null'] }
+        stage: { oneOf: [{ $ref: '#/components/schemas/CandidateStage' }, { type: 'null' }], description: 'Private. `null` only for profiles created before the stage choice – ask her to pick one.' }
+        stage_label: { type: [string, 'null'], example: W ciąży }
         available_from: { type: [string, 'null'], format: date }
         leave_starts_on: { type: [string, 'null'], format: date, description: 'Private.' }
         due_date: { type: [string, 'null'], format: date, description: 'Private.' }
@@ -2467,6 +2473,7 @@ components:
     ProfileOptions:
       type: object
       properties:
+        stages: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
         work_modes: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
         employment_fractions: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
         day_parts: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
@@ -2474,9 +2481,10 @@ components:
         skill_suggestions: { type: array, items: { type: string } }
     PreferencesRequest:
       type: object
-      required: [available_from]
+      required: [stage, available_from]
       properties:
-        available_from: { type: string, format: date }
+        stage: { $ref: '#/components/schemas/CandidateStage' }
+        available_from: { type: string, format: date, description: 'For `after_leave`: when her leave ends / she can start.' }
         headline: { type: [string, 'null'], maxLength: 120 }
         years_of_experience: { type: [integer, 'null'], minimum: 0, maximum: 50 }
         city: { type: [string, 'null'], maxLength: 100 }
@@ -2486,8 +2494,9 @@ components:
         open_to_job_sharing: { type: boolean }
         preferred_day_part: { oneOf: [{ $ref: '#/components/schemas/DayPart' }, { type: 'null' }] }
         leave_starts_on: { type: [string, 'null'], format: date, description: 'Private.' }
-        due_date: { type: [string, 'null'], format: date, description: 'Private.' }
+        due_date: { type: [string, 'null'], format: date, description: 'Private; only for `pregnant` – ignored and cleared for `after_leave`.' }
       example:
+        stage: pregnant
         available_from: '2027-09-01'
         headline: Specjalistka ds. rekrutacji IT
         years_of_experience: 6
@@ -2631,6 +2640,7 @@ components:
           type: object
           properties:
             first_name: { type: string }
+            stage_message: { type: [string, 'null'], description: 'Supporting line under the greeting for her stage; `null` without a stage.' }
         profile:
           type: object
           properties:
@@ -2638,13 +2648,16 @@ components:
             onboarding_step: { type: integer }
         calendar:
           type: object
-          description: Private return calendar (never shown to others).
+          description: 'Private return calendar (never shown to others). Pregnant: `pregnancy` -> `leave` -> `ready`; after leave: `leave` -> `return` -> `ready` (no pregnancy week).'
           properties:
-            pregnancy_week: { type: [integer, 'null'] }
-            due_date: { type: [string, 'null'], format: date }
+            stage: { oneOf: [{ $ref: '#/components/schemas/CandidateStage' }, { type: 'null' }], description: '`null` for older profiles – show a "Gdzie teraz jesteś?" prompt.' }
+            stage_label: { type: [string, 'null'] }
+            phases: { type: array, items: { type: string, enum: [pregnancy, leave, return, ready] }, description: 'The three phases to draw, in order.' }
+            pregnancy_week: { type: [integer, 'null'], description: 'Always `null` for `after_leave`.' }
+            due_date: { type: [string, 'null'], format: date, description: 'Always `null` for `after_leave`.' }
             leave_starts_on: { type: [string, 'null'], format: date }
             available_from: { type: [string, 'null'], format: date }
-            current_phase: { type: string, enum: [pregnancy, leave, ready] }
+            current_phase: { type: string, enum: [pregnancy, leave, return, ready], description: 'Without dates: `pregnancy` (pregnant), `return` (after leave), `ready` (no stage).' }
         invitations:
           type: object
           properties:
@@ -2656,6 +2669,11 @@ components:
           type: array
           maxItems: 3
           items: { $ref: '#/components/schemas/CandidateOffer' }
+        recommended_articles:
+          type: array
+          maxItems: 3
+          description: 'Blog articles for her stage – pregnant: W ciąży, Prawa, CV i rozmowy; after leave: Powrót do pracy, Urlop, Prawa; newest articles without a stage.'
+          items: { $ref: '#/components/schemas/Article' }
     CvAnalysis:
       type: object
       properties:

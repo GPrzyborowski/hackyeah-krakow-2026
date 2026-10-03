@@ -84,6 +84,7 @@ class JobShareOfferTest extends TestCase
 
         $this->actingAs($marta->user)
             ->put(route('candidate.onboarding.preferences'), [
+                'stage' => 'after_leave',
                 'available_from' => '2027-09-01',
                 'open_to_job_sharing' => true,
                 'preferred_day_part' => 'afternoon',

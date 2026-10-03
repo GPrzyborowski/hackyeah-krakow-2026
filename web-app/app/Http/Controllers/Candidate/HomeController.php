@@ -6,8 +6,10 @@ use App\Enums\InvitationStatus;
 use App\Enums\JobSharePairStatus;
 use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
 use App\Http\Controllers\Controller;
+use App\Models\Article;
 use App\Models\Invitation;
 use App\Models\JobOffer;
+use App\Services\Candidate\ArticleRecommendations;
 use App\Services\Candidate\ReturnCalendar;
 use App\Services\Matching\MatchResult;
 use App\Services\Matching\MatchScorer;
@@ -21,9 +23,10 @@ class HomeController extends Controller
     use ResolvesCandidateProfile;
 
     /**
-     * Candidate home: return calendar, pending invitations and the best matching offers.
+     * Candidate home: stage-specific greeting, return calendar, pending invitations, the best matching offers
+     * and blog articles for her stage.
      */
-    public function __invoke(Request $request, MatchScorer $matchScorer, ReturnCalendar $returnCalendar): Response|RedirectResponse
+    public function __invoke(Request $request, MatchScorer $matchScorer, ReturnCalendar $returnCalendar, ArticleRecommendations $articleRecommendations): Response|RedirectResponse
     {
         $profile = $this->candidateProfile($request)->load('user');
 
@@ -39,6 +42,7 @@ class HomeController extends Controller
 
         return Inertia::render('candidate/Home', [
             'firstName' => strtok($profile->user->name, ' ') ?: $profile->user->name,
+            'stageMessage' => $profile->stage?->homeMessage(),
             'calendar' => $returnCalendar->forProfile($profile),
             'invitations' => [
                 'pending_count' => $pendingInvitations->count(),
@@ -55,6 +59,15 @@ class HomeController extends Controller
             'topOffers' => $matchScorer->rankOffersFor($profile)
                 ->take(3)
                 ->map(fn (array $row): array => $this->presentTopOffer($row['offer'], $row['match'])),
+            'recommendedArticles' => $articleRecommendations->forStage($profile->stage)
+                ->map(fn (Article $article): array => [
+                    'id' => $article->id,
+                    'title' => $article->title,
+                    'slug' => $article->slug,
+                    'excerpt' => $article->excerpt,
+                    'category_label' => $article->category->label(),
+                    'reading_minutes' => $article->reading_minutes,
+                ]),
         ]);
     }
 

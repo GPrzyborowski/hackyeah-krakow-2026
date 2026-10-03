@@ -18,6 +18,7 @@ import type {
     OnboardingProfile,
     Option,
     ProfileSkill,
+    ReturnCalendar,
 } from '@/components/candidate/types';
 import InputError from '@/components/InputError.vue';
 import { cvAnalysis, profile as profileRoute } from '@/routes/candidate';
@@ -28,13 +29,7 @@ const props = defineProps<{
     fullName: string;
     profile: OnboardingProfile;
     skills: ProfileSkill[];
-    calendar: {
-        pregnancy_week: number | null;
-        due_date: string | null;
-        leave_starts_on: string | null;
-        available_from: string | null;
-        current_phase: 'pregnancy' | 'leave' | 'ready';
-    };
+    calendar: ReturnCalendar;
     skillSuggestions: string[];
     companies: { id: number; name: string }[];
     workModes: Option[];
@@ -49,7 +44,8 @@ defineOptions({
 
 const SUMMARY_MAX_LENGTH = 400;
 
-const editingPreferences = ref(false);
+// Profiles from before the stage choice open the editor at once, so the candidate can pick it.
+const editingPreferences = ref(props.profile.stage === null);
 const preferencesSection = ref<HTMLElement | null>(null);
 const togglingVisibility = ref(false);
 
@@ -98,6 +94,10 @@ const dayPartLabels: Record<string, string> = {
 };
 
 const preferenceRows = computed(() => [
+    {
+        label: 'Gdzie teraz jesteś (widzisz tylko Ty)',
+        value: props.profile.stage_label ?? 'Nie wybrano',
+    },
     {
         label: 'Od kiedy możesz zacząć',
         value: props.profile.available_from

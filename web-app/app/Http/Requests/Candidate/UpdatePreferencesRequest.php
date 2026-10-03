@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Candidate;
 
+use App\Enums\CandidateStage;
 use App\Enums\DayPart;
 use App\Enums\EmploymentFraction;
 use App\Enums\WorkMode;
@@ -17,6 +18,7 @@ class UpdatePreferencesRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'stage' => ['required', Rule::enum(CandidateStage::class)],
             'headline' => ['nullable', 'string', 'max:120'],
             'years_of_experience' => ['nullable', 'integer', 'min:0', 'max:50'],
             'city' => ['nullable', 'string', 'max:100'],
@@ -39,6 +41,7 @@ class UpdatePreferencesRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'stage.required' => 'Wybierz, gdzie teraz jesteś.',
             'available_from.required' => 'Podaj, od kiedy możesz zacząć pracę.',
         ];
     }

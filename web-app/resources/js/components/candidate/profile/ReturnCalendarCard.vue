@@ -2,50 +2,63 @@
 import { Lock } from '@lucide/vue';
 import { computed } from 'vue';
 import { formatShortDate } from '@/components/candidate/format';
+import type {
+    ReturnCalendar,
+    ReturnCalendarPhase,
+} from '@/components/candidate/types';
 
-type Phase = 'pregnancy' | 'leave' | 'ready';
-
-const props = defineProps<{
-    calendar: {
-        pregnancy_week: number | null;
-        due_date: string | null;
-        leave_starts_on: string | null;
-        available_from: string | null;
-        current_phase: Phase;
-    };
-}>();
+const props = withDefaults(
+    defineProps<{
+        calendar: ReturnCalendar;
+        editLabel?: string;
+    }>(),
+    { editLabel: 'Zmień daty' },
+);
 
 const emit = defineEmits<{ edit: [] }>();
 
-const phases = computed(() => [
-    {
-        key: 'pregnancy' as Phase,
-        bar: 'bg-brand-mint',
-        label: props.calendar.pregnancy_week
-            ? `${props.calendar.pregnancy_week}. tydzień`
-            : 'ciąża',
-    },
-    {
-        key: 'leave' as Phase,
-        bar: 'bg-brand-peach',
-        label: props.calendar.leave_starts_on
-            ? `urlop od ${formatShortDate(props.calendar.leave_starts_on)}`
-            : 'urlop',
-    },
-    {
-        key: 'ready' as Phase,
-        bar: 'bg-brand-yellow',
-        label: props.calendar.available_from
-            ? `gotowa ${formatShortDate(props.calendar.available_from)}`
-            : 'gotowa',
-    },
-]);
+const bars: Record<ReturnCalendarPhase, string> = {
+    pregnancy: 'bg-brand-mint',
+    leave: 'bg-brand-peach',
+    return: 'bg-brand-mint',
+    ready: 'bg-brand-yellow',
+};
+
+function labelFor(phase: ReturnCalendarPhase): string {
+    const { calendar } = props;
+
+    switch (phase) {
+        case 'pregnancy':
+            return calendar.pregnancy_week
+                ? `${calendar.pregnancy_week}. tydzień`
+                : 'ciąża';
+        case 'leave':
+            return calendar.leave_starts_on
+                ? `urlop od ${formatShortDate(calendar.leave_starts_on)}`
+                : 'urlop';
+        case 'return':
+            return 'powrót';
+        case 'ready':
+            return calendar.available_from
+                ? `gotowa ${formatShortDate(calendar.available_from)}`
+                : 'gotowa';
+    }
+}
+
+const phases = computed(() =>
+    props.calendar.phases.map((key) => ({
+        key,
+        bar: bars[key],
+        label: labelFor(key),
+    })),
+);
 </script>
 
 <template>
     <section
         class="rounded-3xl bg-brand-green p-6 text-white"
         aria-labelledby="return-calendar-heading"
+        data-test="return-calendar"
     >
         <div class="flex items-center justify-between gap-2">
             <h2 id="return-calendar-heading" class="text-lg font-bold">
@@ -55,6 +68,9 @@ const phases = computed(() => [
                 <Lock class="size-3" aria-hidden="true" /> widzisz tylko Ty
             </span>
         </div>
+        <p v-if="calendar.stage_label" class="mt-1 text-sm text-white/80">
+            {{ calendar.stage_label }}
+        </p>
         <div class="mt-4 grid grid-cols-3 gap-1.5">
             <div
                 v-for="phase in phases"
@@ -80,6 +96,9 @@ const phases = computed(() => [
                     'font-semibold text-white':
                         calendar.current_phase === phase.key,
                 }"
+                :aria-current="
+                    calendar.current_phase === phase.key ? 'step' : undefined
+                "
             >
                 {{ phase.label }}
             </span>
@@ -89,7 +108,7 @@ const phases = computed(() => [
             class="mt-4 text-xs text-white/80 underline underline-offset-4 hover:text-white"
             @click="emit('edit')"
         >
-            Zmień daty
+            {{ editLabel }}
         </button>
     </section>
 </template>

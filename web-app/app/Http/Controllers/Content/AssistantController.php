@@ -34,7 +34,7 @@ class AssistantController extends Controller
                 'content' => $message->content,
                 'citations' => $message->citations ?? [],
             ])->values(),
-            'suggestions' => LegalAssistant::SUGGESTIONS,
+            'suggestions' => LegalAssistant::suggestionsForUser($request->user()),
             'disclaimer' => LegalAssistant::DISCLAIMER,
         ]);
     }

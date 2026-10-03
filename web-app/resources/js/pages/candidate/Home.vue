@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { ArrowRight, Bookmark, Lock, Sparkles } from '@lucide/vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ArrowRight, BookOpen, Bookmark, Lock, Sparkles } from '@lucide/vue';
 import { computed } from 'vue';
 import PairController from '@/actions/App/Http/Controllers/JobSharing/PairController';
-import { formatShortDate, pluralize } from '@/components/candidate/format';
+import { pluralize } from '@/components/candidate/format';
 import MatchPill from '@/components/candidate/MatchPill.vue';
+import ReturnCalendarCard from '@/components/candidate/profile/ReturnCalendarCard.vue';
+import type { ReturnCalendar } from '@/components/candidate/types';
 import { index as assistantIndex } from '@/routes/assistant';
-import { cvAnalysis, home } from '@/routes/candidate';
+import { show as blogShow } from '@/routes/blog';
+import { cvAnalysis, home, profile as profileRoute } from '@/routes/candidate';
 import { index as invitationsIndex } from '@/routes/candidate/invitations';
 import {
     index as offersIndex,
@@ -14,17 +17,10 @@ import {
 } from '@/routes/candidate/offers';
 import { show as onboarding } from '@/routes/candidate/onboarding';
 
-type Phase = 'pregnancy' | 'leave' | 'ready';
-
 const props = defineProps<{
     firstName: string;
-    calendar: {
-        pregnancy_week: number | null;
-        due_date: string | null;
-        leave_starts_on: string | null;
-        available_from: string | null;
-        current_phase: Phase;
-    };
+    stageMessage: string | null;
+    calendar: ReturnCalendar;
     invitations: { pending_count: number; company_names: string[] };
     pairInvitationsCount?: number;
     savedOffersCount: number;
@@ -35,6 +31,14 @@ const props = defineProps<{
         work_mode_label: string;
         city: string | null;
         score: number;
+    }[];
+    recommendedArticles: {
+        id: number;
+        title: string;
+        slug: string;
+        excerpt: string;
+        category_label: string;
+        reading_minutes: number;
     }[];
 }>();
 
@@ -66,39 +70,25 @@ const subtitle = computed(() => {
     return `${amount} ${pluralize(count, 'firma', 'firmy', 'firm')} już Cię ${pluralize(count, 'zauważyła', 'zauważyły', 'zauważyło')}.`;
 });
 
-const phases = computed(() => {
-    const { calendar } = props;
-
-    return [
-        {
-            key: 'pregnancy' as Phase,
-            bar: 'bg-brand-mint',
-            label: calendar.pregnancy_week
-                ? `${calendar.pregnancy_week}. tydzień`
-                : 'ciąża',
-        },
-        {
-            key: 'leave' as Phase,
-            bar: 'bg-brand-peach',
-            label: calendar.leave_starts_on
-                ? `urlop od ${formatShortDate(calendar.leave_starts_on)}`
-                : 'urlop',
-        },
-        {
-            key: 'ready' as Phase,
-            bar: 'bg-brand-yellow',
-            label: calendar.available_from
-                ? `gotowa ${formatShortDate(calendar.available_from)}`
-                : 'gotowa',
-        },
-    ];
-});
-
 const hasPrivateDates = computed(
     () =>
         props.calendar.due_date !== null ||
         props.calendar.leave_starts_on !== null,
 );
+
+const calendarEditLabel = computed(() => {
+    if (hasPrivateDates.value) {
+        return 'Zmień daty';
+    }
+
+    return props.calendar.stage === 'after_leave'
+        ? 'Dodaj prywatne daty (urlop, powrót)'
+        : 'Dodaj prywatne daty (termin porodu, start urlopu)';
+});
+
+function editCalendar() {
+    router.visit(onboarding({ query: { step: 3 } }));
+}
 </script>
 
 <template>
@@ -111,52 +101,39 @@ const hasPrivateDates = computed(
             Cześć, {{ firstName }}. {{ subtitle }}
         </h1>
 
-        <section class="rounded-3xl bg-brand-green p-6 text-white">
-            <div class="flex items-center justify-between gap-2">
-                <h2 class="text-lg font-bold">Twój kalendarz powrotu</h2>
-                <span
-                    class="inline-flex items-center gap-1 text-xs text-white/80"
-                >
-                    <Lock class="size-3" /> widzisz tylko Ty
-                </span>
+        <p
+            v-if="stageMessage"
+            class="-mt-2 text-brand-green/80 md:text-lg"
+            data-test="stage-message"
+        >
+            {{ stageMessage }}
+        </p>
+
+        <Link
+            v-if="calendar.stage === null"
+            :href="profileRoute()"
+            class="flex items-center justify-between gap-4 rounded-3xl bg-brand-yellow p-6 text-brand-green transition hover:brightness-95"
+            data-test="stage-prompt-card"
+        >
+            <div class="min-w-0">
+                <h2 class="text-lg font-bold">Gdzie teraz jesteś?</h2>
+                <p class="text-sm">
+                    Powiedz nam, czy jesteś w ciąży, czy po urlopie
+                    macierzyńskim – dopasujemy kalendarz, porady i artykuły.
+                </p>
+                <p class="mt-1 inline-flex items-center gap-1 text-xs">
+                    <Lock class="size-3" aria-hidden="true" />
+                    Tę informację widzisz tylko Ty – pracodawcy jej nie zobaczą.
+                </p>
             </div>
-            <div class="mt-4 grid grid-cols-3 gap-1.5">
-                <div
-                    v-for="phase in phases"
-                    :key="phase.key"
-                    class="h-3 rounded-full"
-                    :class="[
-                        phase.bar,
-                        calendar.current_phase === phase.key
-                            ? 'ring-2 ring-white ring-offset-2 ring-offset-brand-green'
-                            : 'opacity-80',
-                    ]"
-                />
-            </div>
-            <div
-                class="mt-3 grid grid-cols-3 gap-1.5 text-xs text-white/80 sm:text-sm"
-            >
-                <span
-                    v-for="(phase, position) in phases"
-                    :key="phase.key"
-                    :class="{
-                        'text-center': position === 1,
-                        'text-right': position === 2,
-                        'font-semibold text-white':
-                            calendar.current_phase === phase.key,
-                    }"
-                >
-                    {{ phase.label }}
-                </span>
-            </div>
-            <Link
-                v-if="!hasPrivateDates"
-                :href="onboarding({ query: { step: 3 } })"
-                class="mt-4 inline-block text-xs text-white/70 underline underline-offset-4"
-            >
-                Dodaj prywatne daty (termin porodu, start urlopu)
-            </Link>
-        </section>
+            <ArrowRight class="size-5 shrink-0" aria-hidden="true" />
+        </Link>
+
+        <ReturnCalendarCard
+            :calendar="calendar"
+            :edit-label="calendarEditLabel"
+            @edit="editCalendar"
+        />
 
         <Link
             :href="invitationsIndex()"
@@ -290,6 +267,38 @@ const hasPrivateDates = computed(
                     class="py-3 text-sm text-brand-green/80"
                 >
                     Jeszcze nie ma opublikowanych ofert.
+                </li>
+            </ul>
+        </section>
+
+        <section
+            v-if="recommendedArticles.length"
+            class="rounded-3xl bg-white p-6 shadow-sm"
+            aria-labelledby="recommended-articles-heading"
+            data-test="recommended-articles"
+        >
+            <h2
+                id="recommended-articles-heading"
+                class="flex items-center gap-2 text-lg font-bold text-brand-green"
+            >
+                <BookOpen class="size-5" aria-hidden="true" />
+                Poczytaj dla siebie
+            </h2>
+            <ul class="mt-3 divide-y divide-brand-cream">
+                <li v-for="article in recommendedArticles" :key="article.id">
+                    <Link
+                        :href="blogShow(article.slug)"
+                        class="block py-3 text-brand-green hover:underline"
+                    >
+                        <span
+                            class="block text-xs font-semibold text-brand-green/80"
+                            >{{ article.category_label }} ·
+                            {{ article.reading_minutes }} min</span
+                        >
+                        <span class="block font-semibold">{{
+                            article.title
+                        }}</span>
+                    </Link>
                 </li>
             </ul>
         </section>

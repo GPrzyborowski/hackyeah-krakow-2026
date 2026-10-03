@@ -19,7 +19,7 @@ class HomeTest extends TestCase
     {
         Date::setTestNow('2026-10-03');
         $user = User::factory()->create(['name' => 'Marta Kowalska']);
-        $profile = CandidateProfile::factory()->published()->for($user)->create([
+        $profile = CandidateProfile::factory()->published()->pregnant()->for($user)->create([
             'due_date' => '2027-01-02',
             'leave_starts_on' => '2026-12-01',
             'available_from' => '2027-09-01',

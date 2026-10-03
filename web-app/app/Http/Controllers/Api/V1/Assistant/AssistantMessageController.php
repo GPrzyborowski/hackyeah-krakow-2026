@@ -27,7 +27,7 @@ class AssistantMessageController extends Controller
 
         return AssistantMessageResource::collection($messages)->additional(['meta' => [
             'disclaimer' => LegalAssistant::DISCLAIMER,
-            'suggestions' => LegalAssistant::SUGGESTIONS,
+            'suggestions' => LegalAssistant::suggestionsForUser($request->user()),
         ]]);
     }
 

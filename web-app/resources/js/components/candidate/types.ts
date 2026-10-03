@@ -2,6 +2,24 @@ import type { JobShareSummary } from '@/components/job-sharing/types';
 
 export type Option = { value: string; label: string };
 
+/**
+ * Private stage of the candidate – never shown to employers.
+ */
+export type CandidateStage = 'pregnant' | 'after_leave';
+
+export type ReturnCalendarPhase = 'pregnancy' | 'leave' | 'return' | 'ready';
+
+export type ReturnCalendar = {
+    stage: CandidateStage | null;
+    stage_label: string | null;
+    phases: ReturnCalendarPhase[];
+    pregnancy_week: number | null;
+    due_date: string | null;
+    leave_starts_on: string | null;
+    available_from: string | null;
+    current_phase: ReturnCalendarPhase;
+};
+
 export type MatchBreakdown = {
     score: number;
     matched_required: string[];
@@ -60,6 +78,8 @@ export type OnboardingProfile = {
     phone: string | null;
     photo_url: string | null;
     ai_summary: string | null;
+    stage: CandidateStage | null;
+    stage_label: string | null;
     available_from: string | null;
     leave_starts_on: string | null;
     due_date: string | null;

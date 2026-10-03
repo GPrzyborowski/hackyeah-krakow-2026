@@ -106,6 +106,7 @@ function submit(action: 'publish' | 'visibility') {
             </ul>
             <InputError class="mt-2" :message="errors.available_from" />
             <InputError class="mt-1" :message="errors.skills" />
+            <InputError class="mt-1" :message="errors.stage" />
 
             <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
                 <Link

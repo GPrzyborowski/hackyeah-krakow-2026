@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\CandidateStage;
 use App\Enums\InvitationStatus;
 use App\Enums\ReviewStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\CandidateProfile;
 use App\Models\Company;
 use App\Models\CompanyReview;
 use App\Models\Invitation;
@@ -23,16 +25,21 @@ class DashboardController extends Controller
 {
     /**
      * Platform overview with the numbers an administrator checks first.
+     * Candidate stages are shown only as aggregate counts – never per person.
      */
     public function __invoke(): Response
     {
         $usersByRole = User::query()->toBase()->selectRaw('role, count(*) as total')->groupBy('role')->pluck('total', 'role');
+        $profilesByStage = CandidateProfile::query()->toBase()->whereNotNull('stage')->selectRaw('stage, count(*) as total')->groupBy('stage')->pluck('total', 'stage');
 
         return Inertia::render('admin/Dashboard', [
             'stats' => [
                 'candidates' => (int) ($usersByRole[UserRole::Candidate->value] ?? 0),
                 'employers' => (int) ($usersByRole[UserRole::Employer->value] ?? 0),
                 'admins' => (int) ($usersByRole[UserRole::Admin->value] ?? 0),
+                'candidates_pregnant' => (int) ($profilesByStage[CandidateStage::Pregnant->value] ?? 0),
+                'candidates_after_leave' => (int) ($profilesByStage[CandidateStage::AfterLeave->value] ?? 0),
+                'candidates_without_stage' => CandidateProfile::query()->whereNull('stage')->count(),
                 'published_offers' => JobOffer::query()->published()->count(),
                 'unverified_companies' => Company::query()->whereNull('verified_at')->count(),
                 'pending_reviews' => CompanyReview::query()->where('status', ReviewStatus::Pending)->count(),

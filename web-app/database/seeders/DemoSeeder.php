@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\CandidateDecisionType;
+use App\Enums\CandidateStage;
 use App\Enums\DayPart;
 use App\Enums\EmploymentFraction;
 use App\Enums\JobSharePairStatus;
@@ -210,6 +211,7 @@ class DemoSeeder extends Seeder
             'years_of_experience' => 6,
             'city' => 'Poznań',
             'ai_summary' => 'Prowadziła rekrutacje techniczne w firmie programistycznej, wdrożyła proces onboardingu dla ponad 40 osób i zna prawo pracy w praktyce.',
+            'stage' => CandidateStage::Pregnant,
             'due_date' => '2027-01-23',
             'leave_starts_on' => '2027-01-09',
             'available_from' => '2027-09-01',
@@ -395,6 +397,7 @@ class DemoSeeder extends Seeder
         ]);
 
         $ewa = $this->jobSharingCandidate($skills, 'Ewa Nowak', 'ewa@mumjobs.test', 'Specjalistka ds. rekrutacji i onboardingu', DayPart::Afternoon, ['Rekrutacja IT', 'Onboarding', 'Employer branding', 'Szkolenia']);
+        $ewa->update(['stage' => CandidateStage::AfterLeave, 'leave_starts_on' => '2026-02-02']);
 
         $this->jobSharingCandidate($skills, 'Joanna Sikora', null, 'Rekruterka IT', DayPart::Afternoon, ['Rekrutacja IT', 'Employer branding', 'Język angielski']);
         $this->jobSharingCandidate($skills, 'Karolina Pawlak', null, 'HR generalistka', DayPart::Morning, ['Onboarding', 'Prawo pracy', 'Kadry i płace']);
