@@ -39,6 +39,13 @@ const form = useForm({
     flexible_hours: props.offer?.flexible_hours ?? false,
     fixed_meeting_hours: props.offer?.fixed_meeting_hours ?? false,
     childcare_subsidy: props.offer?.childcare_subsidy ?? false,
+    is_job_share:
+        props.offer?.is_job_share ??
+        (typeof window !== 'undefined' &&
+            new URLSearchParams(window.location.search).get('job_share') ===
+                '1'),
+    workday_starts_at: props.offer?.workday_starts_at ?? '08:00',
+    workday_ends_at: props.offer?.workday_ends_at ?? '16:00',
     required_skills: [...(props.offer?.required_skills ?? [])],
     nice_to_have_skills: [...(props.offer?.nice_to_have_skills ?? [])],
 });
@@ -218,6 +225,51 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             <Checkbox v-model="form.childcare_subsidy" />
                             Dofinansowanie żłobka lub przedszkola
                         </label>
+                    </div>
+                    <div
+                        class="mt-5 rounded-2xl bg-brand-mint-soft/60 p-4 text-sm text-brand-green"
+                    >
+                        <label class="flex items-center gap-3 font-semibold">
+                            <Checkbox
+                                v-model="form.is_job_share"
+                                data-test="job-share-toggle"
+                            />
+                            Oferta dla dwóch osób (job sharing)
+                        </label>
+                        <p class="mt-1 text-xs text-brand-green/70">
+                            Jedno stanowisko, dwie osoby dzielące dzień pracy.
+                            Kandydatki same dobiorą się w pary i zaproponują
+                            podział godzin.
+                        </p>
+                        <div
+                            v-if="form.is_job_share"
+                            class="mt-3 grid gap-4 sm:grid-cols-2"
+                        >
+                            <label :class="labelClass">
+                                Dzień pracy od
+                                <input
+                                    v-model="form.workday_starts_at"
+                                    type="time"
+                                    step="1800"
+                                    :class="fieldClass"
+                                />
+                                <InputError
+                                    :message="form.errors.workday_starts_at"
+                                />
+                            </label>
+                            <label :class="labelClass">
+                                Dzień pracy do
+                                <input
+                                    v-model="form.workday_ends_at"
+                                    type="time"
+                                    step="1800"
+                                    :class="fieldClass"
+                                />
+                                <InputError
+                                    :message="form.errors.workday_ends_at"
+                                />
+                            </label>
+                        </div>
                     </div>
                 </section>
 

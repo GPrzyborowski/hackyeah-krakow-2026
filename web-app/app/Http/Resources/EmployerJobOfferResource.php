@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Enums\SkillImportance;
 use App\Models\JobOffer;
 use App\Models\Skill;
+use App\Services\JobSharing\Workday;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -37,6 +38,7 @@ class EmployerJobOfferResource extends JsonResource
             'flexible_hours' => $this->resource->flexible_hours,
             'fixed_meeting_hours' => $this->resource->fixed_meeting_hours,
             'childcare_subsidy' => $this->resource->childcare_subsidy,
+            ...Workday::presentOffer($this->resource),
             'status' => $this->resource->status->value,
             'published_at' => $this->resource->published_at?->toIso8601String(),
             'required_skills' => $this->skillNames($skills, SkillImportance::Required),

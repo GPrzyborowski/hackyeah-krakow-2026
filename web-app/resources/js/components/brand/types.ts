@@ -1,3 +1,5 @@
+import type { JobShareSummary } from '@/components/job-sharing/types';
+
 export type RatingCategories = {
     return: number | null;
     flexibility: number | null;
@@ -46,6 +48,7 @@ export type PublicOffer = {
     fixed_meeting_hours?: boolean;
     childcare_subsidy?: boolean;
     is_parent_friendly?: boolean;
+    job_share?: JobShareSummary;
     company?: {
         id: number;
         name: string;

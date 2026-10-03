@@ -3,8 +3,11 @@
 namespace Database\Seeders;
 
 use App\Enums\CandidateDecisionType;
+use App\Enums\DayPart;
 use App\Enums\EmploymentFraction;
+use App\Enums\JobSharePairStatus;
 use App\Enums\OfferStatus;
+use App\Enums\ReviewStatus;
 use App\Enums\SkillImportance;
 use App\Enums\SkillSource;
 use App\Enums\UserRole;
@@ -78,6 +81,8 @@ class DemoSeeder extends Seeder
         $this->seedRandomCandidates($skills);
         $this->seedDemoRecruitment();
         $this->seedAdmin();
+        $this->seedPendingReviews();
+        $this->seedJobSharing($skills);
     }
 
     /**
@@ -320,5 +325,132 @@ class DemoSeeder extends Seeder
     private function seedAdmin(): void
     {
         User::factory()->admin()->create(['name' => 'Admin MomJobs', 'email' => 'admin@momjobs.test']);
+    }
+
+    /**
+     * Two reviews waiting for moderation, so the admin panel has something to approve.
+     */
+    private function seedPendingReviews(): void
+    {
+        $authors = User::query()->where('role', UserRole::Candidate)->where('email', '!=', 'marta@momjobs.test')->oldest('id')->limit(2)->get();
+        $reviews = [
+            ['Nadrzeczna Fintech', [5, 5, 4, '„Na rozmowie pytano tylko o doświadczenie, a powrót na 3/4 etatu ustaliłyśmy od ręki.”', 'Mama jednego dziecka, analityka']],
+            ['Północ Logistyka', [3, 2, 4, '„Ludzie życzliwi, ale elastyczne godziny są raczej na papierze.”', 'Mama dwójki, spedycja']],
+        ];
+
+        foreach ($authors as $index => $author) {
+            [$companyName, [$return, $flexibility, $noQuestions, $quote, $label]] = $reviews[$index];
+
+            CompanyReview::create([
+                'company_id' => Company::firstWhere('name', $companyName)->id,
+                'user_id' => $author->id,
+                'rating_return' => $return,
+                'rating_flexibility' => $flexibility,
+                'rating_no_pregnancy_questions' => $noQuestions,
+                'quote' => $quote,
+                'author_label' => $label,
+                'status' => ReviewStatus::Pending,
+            ]);
+        }
+    }
+
+    /**
+     * Job-sharing demo: a two-person offer at Zielone Biuro and the Marta + Ewa pair from the mockup,
+     * with the schedule accepted by Ewa only (Marta accepts and sends it during the demo).
+     *
+     * @param  Collection<string, Skill>  $skills
+     */
+    private function seedJobSharing($skills): void
+    {
+        $offer = JobOffer::create([
+            'company_id' => Company::firstWhere('name', 'Zielone Biuro')->id,
+            'title' => 'Specjalistka ds. rekrutacji – job sharing',
+            'city' => 'Poznań',
+            'work_mode' => WorkMode::Hybrid,
+            'employment_fraction' => EmploymentFraction::Half,
+            'salary_min' => 4500,
+            'salary_max' => 5800,
+            'start_date' => '2027-09-01',
+            'description' => 'Jedno stanowisko, dwie osoby po 4 godziny. Rekrutacje IT i onboarding nowych osób – jedna z Was prowadzi poranne spotkania, druga popołudniowe. Podział dnia ustalacie same.',
+            'flexible_hours' => true,
+            'fixed_meeting_hours' => true,
+            'childcare_subsidy' => true,
+            'is_job_share' => true,
+            'workday_starts_at' => '08:00',
+            'workday_ends_at' => '16:00',
+            'status' => OfferStatus::Published,
+            'published_at' => now(),
+        ]);
+        $offer->skills()->attach([
+            $skills['Rekrutacja IT']->id => ['importance' => SkillImportance::Required->value],
+            $skills['Onboarding']->id => ['importance' => SkillImportance::Required->value],
+            $skills['Employer branding']->id => ['importance' => SkillImportance::NiceToHave->value],
+        ]);
+
+        $marta = User::firstWhere('email', 'marta@momjobs.test')->candidateProfile;
+        $marta->update([
+            'open_to_job_sharing' => true,
+            'preferred_day_part' => DayPart::Morning,
+            'employment_fractions' => [EmploymentFraction::Half->value, EmploymentFraction::ThreeFifths->value, EmploymentFraction::ThreeQuarters->value],
+        ]);
+
+        $ewa = $this->jobSharingCandidate($skills, 'Ewa Nowak', 'ewa@momjobs.test', 'Specjalistka ds. rekrutacji i onboardingu', DayPart::Afternoon, ['Rekrutacja IT', 'Onboarding', 'Employer branding', 'Szkolenia']);
+
+        $this->jobSharingCandidate($skills, 'Joanna Sikora', null, 'Rekruterka IT', DayPart::Afternoon, ['Rekrutacja IT', 'Employer branding', 'Język angielski']);
+        $this->jobSharingCandidate($skills, 'Karolina Pawlak', null, 'HR generalistka', DayPart::Morning, ['Onboarding', 'Prawo pracy', 'Kadry i płace']);
+        $this->jobSharingCandidate($skills, 'Natalia Mazur', null, 'Specjalistka ds. employer brandingu', DayPart::Any, ['Rekrutacja IT', 'Onboarding', 'Social media']);
+
+        $pair = $offer->jobSharePairs()->create([
+            'status' => JobSharePairStatus::Formed,
+            'proposed_schedule' => [
+                ['candidate_profile_id' => $marta->id, 'starts_at' => '08:00', 'ends_at' => '12:00'],
+                ['candidate_profile_id' => $ewa->id, 'starts_at' => '12:00', 'ends_at' => '16:00'],
+            ],
+        ]);
+        $pair->members()->attach([
+            $marta->id => ['is_initiator' => true, 'accepted_at' => now()->subDays(2), 'schedule_confirmed_at' => null],
+            $ewa->id => ['is_initiator' => false, 'accepted_at' => now()->subDays(2), 'schedule_confirmed_at' => now()->subMinutes(30)],
+        ]);
+
+        $messages = [
+            [$marta->user, 'Mogę brać poranki. O 13:00 odbieram małą z żłobka.'],
+            [$ewa->user, 'Super, ja wolę popołudnia. Biorę 12:00–16:00.'],
+            [$marta->user, 'To zamieniamy się w środy, kiedy mam wizytę kontrolną?'],
+        ];
+
+        foreach ($messages as $index => [$author, $body]) {
+            $pair->messages()->create([
+                'user_id' => $author->id,
+                'body' => $body,
+                'created_at' => now()->subHours(count($messages) - $index),
+            ]);
+        }
+    }
+
+    /**
+     * @param  Collection<string, Skill>  $skills
+     * @param  list<string>  $skillNames
+     */
+    private function jobSharingCandidate($skills, string $name, ?string $email, string $headline, DayPart $dayPart, array $skillNames): CandidateProfile
+    {
+        $user = User::factory()->create(array_filter(['name' => $name, 'email' => $email]));
+
+        $profile = CandidateProfile::factory()->published()->create([
+            'user_id' => $user->id,
+            'headline' => $headline,
+            'years_of_experience' => 5,
+            'city' => 'Poznań',
+            'available_from' => '2027-08-01',
+            'work_modes' => [WorkMode::Hybrid->value, WorkMode::Remote->value],
+            'employment_fractions' => [EmploymentFraction::Half->value],
+            'open_to_job_sharing' => true,
+            'preferred_day_part' => $dayPart,
+        ]);
+
+        foreach ($skillNames as $skillName) {
+            $profile->skills()->attach($skills[$skillName]->id, ['source' => SkillSource::Manual->value, 'confirmed_at' => now()]);
+        }
+
+        return $profile;
     }
 }

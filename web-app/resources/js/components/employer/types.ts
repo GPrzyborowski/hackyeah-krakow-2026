@@ -20,6 +20,10 @@ export type EmployerOffer = {
     flexible_hours: boolean;
     fixed_meeting_hours: boolean;
     childcare_subsidy: boolean;
+    is_job_share: boolean;
+    workday_starts_at: string | null;
+    workday_ends_at: string | null;
+    hours_per_person: number | null;
     status: OfferStatus;
     published_at: string | null;
     required_skills: string[];
@@ -69,6 +73,8 @@ export type SwipeOffer = {
     work_mode_label: string;
     flexible_hours: boolean;
     fixed_meeting_hours: boolean;
+    is_job_share?: boolean;
+    submitted_pairs_count?: number;
 };
 
 export type SavedCandidate = {

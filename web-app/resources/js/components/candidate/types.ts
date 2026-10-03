@@ -1,3 +1,5 @@
+import type { JobShareSummary } from '@/components/job-sharing/types';
+
 export type Option = { value: string; label: string };
 
 export type MatchBreakdown = {
@@ -26,6 +28,7 @@ export type CandidateOffer = {
     published_at: string | null;
     is_parent_friendly: boolean;
     is_interested: boolean;
+    job_share?: JobShareSummary;
     match: MatchBreakdown;
     company: {
         id: number;
@@ -59,6 +62,7 @@ export type OnboardingProfile = {
     employment_fractions: string[];
     wants_flexible_hours: boolean;
     open_to_job_sharing: boolean;
+    preferred_day_part: 'morning' | 'afternoon' | 'any' | null;
     show_availability_instead_of_gap: boolean;
     hidden_from_company_id: number | null;
     allow_direct_messages: boolean;

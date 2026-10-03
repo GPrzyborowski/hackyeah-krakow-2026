@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Candidate;
 use App\Enums\InvitationStatus;
 use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
 use App\Http\Controllers\Controller;
+use App\Models\CandidateProfile;
 use App\Models\Invitation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class InvitationController extends Controller
     public function index(Request $request): Response
     {
         $invitations = $this->candidateProfile($request)->invitations()
-            ->with(['jobOffer.company.approvedReviews', 'conversation'])
+            ->with(['jobOffer.company.approvedReviews', 'conversation', 'jobSharePair.members.user'])
             ->orderByRaw('case when status = ? then 0 else 1 end', [InvitationStatus::Pending->value])
             ->latest()
             ->get();
@@ -36,6 +37,12 @@ class InvitationController extends Controller
                 'created_at' => $invitation->created_at->toIso8601String(),
                 'responded_at' => $invitation->responded_at?->toIso8601String(),
                 'conversation_id' => $invitation->conversation?->id,
+                'job_share_pair' => $invitation->jobSharePair ? [
+                    'id' => $invitation->jobSharePair->id,
+                    'partner_name' => $invitation->jobSharePair->members
+                        ->first(fn (CandidateProfile $member): bool => $member->id !== $invitation->candidate_profile_id)
+                        ?->anonymousName(),
+                ] : null,
                 'offer' => [
                     'id' => $invitation->jobOffer->id,
                     'title' => $invitation->jobOffer->title,

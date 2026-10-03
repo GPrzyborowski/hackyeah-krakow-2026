@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Candidate\Concerns;
 
 use App\Models\CompanyReview;
 use App\Models\JobOffer;
+use App\Services\JobSharing\Workday;
 use App\Services\Matching\MatchResult;
 
 trait PresentsOffers
@@ -35,6 +36,7 @@ trait PresentsOffers
             'flexible_hours' => $offer->flexible_hours,
             'fixed_meeting_hours' => $offer->fixed_meeting_hours,
             'childcare_subsidy' => $offer->childcare_subsidy,
+            'job_share' => Workday::presentOffer($offer),
             'published_at' => $offer->published_at?->toIso8601String(),
             'is_parent_friendly' => $offer->isParentFriendly(),
             'is_interested' => in_array($offer->id, $interestedOfferIds, true),

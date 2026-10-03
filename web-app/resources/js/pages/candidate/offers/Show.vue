@@ -18,6 +18,9 @@ import {
 import InterestButton from '@/components/candidate/InterestButton.vue';
 import MatchPill from '@/components/candidate/MatchPill.vue';
 import type { CandidateOffer } from '@/components/candidate/types';
+import JobShareChip from '@/components/job-sharing/JobShareChip.vue';
+import OfferJobSharePanel from '@/components/job-sharing/OfferJobSharePanel.vue';
+import type { OfferJobSharing } from '@/components/job-sharing/types';
 import { index } from '@/routes/candidate/offers';
 
 type Review = {
@@ -30,13 +33,19 @@ type Review = {
     rating_no_pregnancy_questions: number;
 };
 
-const { offer, availableFrom, reviews } = defineProps<{
+const {
+    offer,
+    availableFrom,
+    reviews,
+    jobSharing = null,
+} = defineProps<{
     offer: CandidateOffer & {
         description: string | null;
         company_description: string | null;
     };
     availableFrom: string | null;
     reviews: Review[];
+    jobSharing?: OfferJobSharing | null;
 }>();
 
 defineOptions({
@@ -94,6 +103,10 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                             <HeartHandshake class="size-3.5" /> Przyjazna
                             rodzicom
                         </Chip>
+                        <JobShareChip
+                            v-if="offer.job_share?.is_job_share"
+                            :hours-per-person="offer.job_share.hours_per_person"
+                        />
                         <Chip>{{ offer.employment_fraction_label }}</Chip>
                         <Chip>{{ offer.work_mode_label }}</Chip>
                         <Chip
@@ -116,6 +129,12 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                         />
                     </div>
                 </section>
+
+                <OfferJobSharePanel
+                    v-if="jobSharing"
+                    :offer-id="offer.id"
+                    :job-sharing="jobSharing"
+                />
 
                 <section class="rounded-3xl bg-white p-6 shadow-sm md:p-8">
                     <h2 class="text-xl font-bold text-brand-green">
@@ -174,7 +193,7 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                         class="flex flex-wrap items-center justify-between gap-2"
                     >
                         <h2 class="text-xl font-bold text-brand-green">
-                            Opinie rodziców o {{ offer.company.name }}
+                            Opinie rodziców o firmie {{ offer.company.name }}
                         </h2>
                         <span
                             v-if="offer.company.average_rating !== null"
@@ -206,7 +225,7 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                             class="rounded-2xl bg-brand-cream p-4"
                         >
                             <p v-if="review.quote" class="text-brand-green">
-                                „{{ review.quote }}”
+                                {{ review.quote }}
                             </p>
                             <p class="mt-2 text-xs text-brand-green/60">
                                 {{ review.author_label || 'Anonimowo' }} ·

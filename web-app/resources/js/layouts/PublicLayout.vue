@@ -3,7 +3,9 @@ import { Link, router, usePage } from '@inertiajs/vue3';
 import { Menu, X } from '@lucide/vue';
 import { computed, onUnmounted, ref } from 'vue';
 import BrandLogo from '@/components/brand/BrandLogo.vue';
+import MobileTabBar from '@/components/mobile/MobileTabBar.vue';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
+import { useMobileTabs } from '@/composables/useMobileTabs';
 import { dashboard, home, login, register } from '@/routes';
 import { index as offersIndex } from '@/routes/public/offers';
 
@@ -18,6 +20,7 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 const isMenuOpen = ref(false);
 
 const isSignedIn = computed(() => Boolean(page.props.auth.user));
+const { hasTabs } = useMobileTabs();
 
 const navItems = computed<PublicNavItem[]>(() => [
     { title: 'Oferty', href: offersIndex.url() },
@@ -157,7 +160,13 @@ onUnmounted(stopListening);
             <slot />
         </main>
 
-        <footer class="border-t border-brand-green/10">
+        <footer
+            class="border-t border-brand-green/10"
+            :class="{
+                'max-md:pb-[calc(5rem+env(safe-area-inset-bottom))]':
+                    isSignedIn && hasTabs,
+            }"
+        >
             <div
                 class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
             >
@@ -175,5 +184,7 @@ onUnmounted(stopListening);
                 </nav>
             </div>
         </footer>
+
+        <MobileTabBar v-if="isSignedIn" />
     </div>
 </template>

@@ -54,7 +54,7 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
     <Head :title="`Czat – ${conversation.counterpart.name}`" />
 
     <div
-        class="mx-auto flex h-[calc(100svh-5rem)] w-full max-w-3xl flex-col gap-4 p-4 md:p-8"
+        class="mx-auto flex h-[calc(100svh-9rem-env(safe-area-inset-bottom))] w-full max-w-3xl flex-col gap-4 p-4 md:h-[calc(100svh-5rem)] md:p-8"
     >
         <header
             class="flex items-center gap-4 rounded-3xl bg-white p-5 shadow-sm"

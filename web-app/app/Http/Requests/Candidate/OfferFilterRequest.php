@@ -25,6 +25,7 @@ class OfferFilterRequest extends FormRequest
             'flexible_hours' => ['nullable', 'boolean'],
             'childcare_subsidy' => ['nullable', 'boolean'],
             'with_reviews' => ['nullable', 'boolean'],
+            'job_share' => ['nullable', 'boolean'],
             'start_from' => ['nullable', 'date'],
             'sort' => ['nullable', Rule::in(['match', 'newest'])],
         ];

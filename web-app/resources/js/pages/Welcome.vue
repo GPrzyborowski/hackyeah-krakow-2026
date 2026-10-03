@@ -9,6 +9,8 @@ import type {
     PublicCompanySummary,
 } from '@/components/brand/types';
 import { dashboard, register } from '@/routes';
+import { index as candidateOffers } from '@/routes/candidate/offers';
+import { create as createOffer } from '@/routes/employer/offers';
 import { index as offersIndex } from '@/routes/public/offers';
 
 defineProps<{
@@ -18,6 +20,7 @@ defineProps<{
 
 const page = usePage();
 const isSignedIn = computed(() => Boolean(page.props.auth.user));
+const isEmployer = computed(() => page.props.auth.role === 'employer');
 
 const steps = [
     {
@@ -209,18 +212,14 @@ const pairChat = [
             </div>
         </section>
 
-        <!-- Job sharing (coming soon) -->
+        <!-- Job sharing -->
         <section class="bg-brand-mint-soft">
             <div
                 class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20"
             >
                 <div>
-                    <span
-                        class="inline-flex rounded-full bg-brand-yellow px-3 py-1 text-xs font-semibold text-brand-green"
-                        >Wkrótce</span
-                    >
                     <h2
-                        class="mt-4 text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
+                        class="text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
                     >
                         Job sharing: jedno stanowisko, dwie osoby po 4 godziny
                     </h2>
@@ -259,15 +258,21 @@ const pairChat = [
                     </div>
 
                     <div class="mt-6 flex flex-wrap gap-3">
-                        <span
-                            class="cursor-not-allowed rounded-full bg-brand-green/60 px-5 py-2.5 text-sm font-medium text-white"
-                            aria-disabled="true"
-                            >Znajdź partnerkę do pary</span
+                        <Link
+                            :href="candidateOffers({ query: { job_share: 1 } })"
+                            class="rounded-full bg-brand-green px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-green-soft"
+                            data-test="find-partner-cta"
+                            >Znajdź partnerkę do pary</Link
                         >
-                        <span
-                            class="cursor-not-allowed rounded-full border border-brand-green/40 px-5 py-2.5 text-sm font-medium text-brand-green/60"
-                            aria-disabled="true"
-                            >Dodaj ofertę dla dwóch osób</span
+                        <Link
+                            :href="
+                                isEmployer
+                                    ? createOffer({ query: { job_share: 1 } })
+                                    : register({ query: { role: 'employer' } })
+                            "
+                            class="rounded-full border border-brand-green px-5 py-2.5 text-sm font-medium text-brand-green transition hover:bg-white"
+                            data-test="job-share-offer-cta"
+                            >Dodaj ofertę dla dwóch osób</Link
                         >
                     </div>
                 </div>

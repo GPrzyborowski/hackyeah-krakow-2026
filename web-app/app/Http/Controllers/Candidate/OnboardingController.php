@@ -291,6 +291,7 @@ class OnboardingController extends Controller
             'employment_fractions' => $profile->employment_fractions ?? [],
             'wants_flexible_hours' => (bool) $profile->wants_flexible_hours,
             'open_to_job_sharing' => (bool) $profile->open_to_job_sharing,
+            'preferred_day_part' => $profile->preferred_day_part?->value,
             'show_availability_instead_of_gap' => $profile->show_availability_instead_of_gap ?? true,
             'hidden_from_company_id' => $profile->hidden_from_company_id,
             'allow_direct_messages' => (bool) $profile->allow_direct_messages,

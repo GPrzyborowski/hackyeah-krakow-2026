@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowRight, Lock } from '@lucide/vue';
 import { computed } from 'vue';
+import PairController from '@/actions/App/Http/Controllers/JobSharing/PairController';
 import { formatShortDate, pluralize } from '@/components/candidate/format';
 import MatchPill from '@/components/candidate/MatchPill.vue';
 import { index as assistantIndex } from '@/routes/assistant';
@@ -25,6 +26,7 @@ const props = defineProps<{
         current_phase: Phase;
     };
     invitations: { pending_count: number; company_names: string[] };
+    pairInvitationsCount?: number;
     topOffers: {
         id: number;
         title: string;
@@ -188,6 +190,28 @@ const hasPrivateDates = computed(
                         'nowych',
                     )
                 }}
+            </span>
+        </Link>
+
+        <Link
+            v-if="pairInvitationsCount"
+            :href="PairController.index()"
+            class="flex items-center justify-between gap-4 rounded-3xl bg-brand-mint-soft p-6 transition hover:shadow-md"
+            data-test="pair-invitations-card"
+        >
+            <div class="min-w-0">
+                <h2 class="text-lg font-bold text-brand-green">
+                    Zaproszenia do pary
+                </h2>
+                <p class="text-brand-green/70">
+                    Ktoś chce dzielić z Tobą stanowisko w job sharingu.
+                </p>
+            </div>
+            <span
+                class="shrink-0 rounded-full bg-brand-yellow px-4 py-1.5 text-sm font-semibold text-brand-green"
+            >
+                {{ pairInvitationsCount }}
+                {{ pluralize(pairInvitationsCount, 'nowe', 'nowe', 'nowych') }}
             </span>
         </Link>
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Employer;
 
 use App\Enums\EmploymentFraction;
 use App\Enums\InvitationStatus;
+use App\Enums\JobSharePairStatus;
 use App\Enums\OfferStatus;
 use App\Enums\SkillImportance;
 use App\Enums\WorkMode;
@@ -38,12 +39,14 @@ class JobOfferController extends Controller
 
         $offers = $company->jobOffers()
             ->with(['skills', 'invitations', 'company'])
+            ->withCount(['jobSharePairs as submitted_pairs_count' => fn ($query) => $query->where('status', JobSharePairStatus::Submitted)])
             ->orderByRaw('case status when ? then 0 when ? then 1 else 2 end', [OfferStatus::Published->value, OfferStatus::Draft->value])
             ->latest()
             ->get()
             ->map(fn (JobOffer $offer): array => [
                 ...(new EmployerJobOfferResource($offer))->resolve($request),
                 'statistics' => $this->offerStatistics($offer, $scorer),
+                'submitted_pairs_count' => (int) $offer->getAttribute('submitted_pairs_count'),
                 'is_parent_friendly' => $offer->salary_min !== null && $offer->salary_max !== null && $offer->flexible_hours && $hasApprovedReview,
             ]);
 
@@ -121,6 +124,9 @@ class JobOfferController extends Controller
                 'flexible_hours' => $request->boolean('flexible_hours'),
                 'fixed_meeting_hours' => $request->boolean('fixed_meeting_hours'),
                 'childcare_subsidy' => $request->boolean('childcare_subsidy'),
+                'is_job_share' => $request->boolean('is_job_share'),
+                'workday_starts_at' => $request->boolean('is_job_share') ? $request->validated('workday_starts_at') : null,
+                'workday_ends_at' => $request->boolean('is_job_share') ? $request->validated('workday_ends_at') : null,
                 'status' => $request->isPublishing() ? OfferStatus::Published : OfferStatus::Draft,
             ]);
 

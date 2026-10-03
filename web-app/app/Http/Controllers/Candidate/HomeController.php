@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Candidate;
 
 use App\Enums\InvitationStatus;
+use App\Enums\JobSharePairStatus;
 use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
 use App\Http\Controllers\Controller;
 use App\Models\CandidateProfile;
@@ -48,6 +49,10 @@ class HomeController extends Controller
                     ->unique()
                     ->values(),
             ],
+            'pairInvitationsCount' => $profile->jobSharePairs()
+                ->where('status', JobSharePairStatus::Forming)
+                ->wherePivotNull('accepted_at')
+                ->count(),
             'topOffers' => $matchScorer->rankOffersFor($profile)
                 ->take(3)
                 ->map(fn (array $row): array => $this->presentTopOffer($row['offer'], $row['match'])),

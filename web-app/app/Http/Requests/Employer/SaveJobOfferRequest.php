@@ -44,6 +44,9 @@ class SaveJobOfferRequest extends FormRequest
             'flexible_hours' => ['boolean'],
             'fixed_meeting_hours' => ['boolean'],
             'childcare_subsidy' => ['boolean'],
+            'is_job_share' => ['boolean'],
+            'workday_starts_at' => ['nullable', 'required_if_accepted:is_job_share', 'date_format:H:i'],
+            'workday_ends_at' => ['nullable', 'required_if_accepted:is_job_share', 'date_format:H:i', ...($this->filled('workday_starts_at') ? ['after:workday_starts_at'] : [])],
             'required_skills' => [$isPublishing ? 'required' : 'present', 'array', 'max:20'],
             'required_skills.*' => ['required', 'string', 'max:80'],
             'nice_to_have_skills' => ['present', 'array', 'max:20'],
@@ -60,6 +63,9 @@ class SaveJobOfferRequest extends FormRequest
             'required_skills.required' => 'Dodaj co najmniej jedną wymaganą umiejętność, aby opublikować ofertę.',
             'salary_max.gte' => 'Górna granica wynagrodzenia nie może być niższa od dolnej.',
             'start_date.after_or_equal' => 'Planowany start nie może być w przeszłości.',
+            'workday_starts_at.required_if_accepted' => 'Podaj, od której godziny trwa dzień pracy na tym stanowisku.',
+            'workday_ends_at.required_if_accepted' => 'Podaj, do której godziny trwa dzień pracy na tym stanowisku.',
+            'workday_ends_at.after' => 'Koniec dnia pracy musi być później niż początek.',
         ];
     }
 
@@ -77,6 +83,8 @@ class SaveJobOfferRequest extends FormRequest
             'employment_fraction' => 'wymiar etatu',
             'salary_min' => 'wynagrodzenie od',
             'salary_max' => 'wynagrodzenie do',
+            'workday_starts_at' => 'początek dnia pracy',
+            'workday_ends_at' => 'koniec dnia pracy',
         ];
     }
 

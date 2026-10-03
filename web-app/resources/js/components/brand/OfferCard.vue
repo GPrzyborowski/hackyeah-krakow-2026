@@ -8,6 +8,7 @@ import {
     formatShortDate,
 } from '@/components/brand/format';
 import type { PublicOffer } from '@/components/brand/types';
+import { jobShareLabel } from '@/components/job-sharing/format';
 import { register } from '@/routes';
 import { show as companyShow } from '@/routes/public/companies';
 
@@ -25,6 +26,9 @@ const salary = computed(() =>
 
 const chips = computed(() =>
     [
+        props.offer.job_share?.is_job_share
+            ? `Job sharing · ${jobShareLabel(props.offer.job_share.hours_per_person)}`
+            : null,
         props.offer.employment_fraction_label,
         props.offer.work_mode_label,
         props.offer.flexible_hours ? 'Elastyczne godziny' : null,

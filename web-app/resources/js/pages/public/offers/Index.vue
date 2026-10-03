@@ -15,6 +15,7 @@ type Filters = {
     work_mode: string[];
     fraction: string[];
     flexible: boolean;
+    job_share: boolean;
 };
 
 type Paginated<T> = {
@@ -44,6 +45,7 @@ const form = reactive<Filters>({
     work_mode: [...props.filters.work_mode],
     fraction: [...props.filters.fraction],
     flexible: props.filters.flexible,
+    job_share: props.filters.job_share,
 });
 
 const areFiltersOpen = ref(false);
@@ -54,7 +56,8 @@ const hasActiveFilters = computed(
         form.location !== '' ||
         form.work_mode.length > 0 ||
         form.fraction.length > 0 ||
-        form.flexible,
+        form.flexible ||
+        form.job_share,
 );
 
 function applyFilters(): void {
@@ -66,6 +69,7 @@ function applyFilters(): void {
             work_mode: form.work_mode.length ? form.work_mode : undefined,
             fraction: form.fraction.length ? form.fraction : undefined,
             flexible: form.flexible ? 1 : undefined,
+            job_share: form.job_share ? 1 : undefined,
         },
         { preserveState: true, preserveScroll: true, replace: true },
     );
@@ -77,6 +81,7 @@ function resetFilters(): void {
     form.work_mode = [];
     form.fraction = [];
     form.flexible = false;
+    form.job_share = false;
     applyFilters();
 }
 
@@ -213,6 +218,18 @@ const offerCountLabel = computed(() => {
                                 @change="applyFilters"
                             />
                             Elastyczne godziny
+                        </label>
+                        <label
+                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
+                        >
+                            <input
+                                v-model="form.job_share"
+                                type="checkbox"
+                                class="size-4 accent-brand-green"
+                                data-test="filter-job-share"
+                                @change="applyFilters"
+                            />
+                            Job sharing (dwie osoby)
                         </label>
                     </fieldset>
 

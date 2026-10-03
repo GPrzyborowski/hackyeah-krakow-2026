@@ -7,6 +7,7 @@ use App\Enums\WorkMode;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Public\Concerns\PresentsCompanyRatings;
 use App\Models\JobOffer;
+use App\Services\JobSharing\Workday;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -45,6 +46,7 @@ class OfferController extends Controller
             ->when($filters['work_mode'] !== [], fn (Builder $query) => $query->whereIn('work_mode', $filters['work_mode']))
             ->when($filters['fraction'] !== [], fn (Builder $query) => $query->whereIn('employment_fraction', $filters['fraction']))
             ->when($filters['flexible'], fn (Builder $query) => $query->where('flexible_hours', true))
+            ->when($filters['job_share'], fn (Builder $query) => $query->where('is_job_share', true))
             ->latest('published_at')
             ->latest('id')
             ->paginate(10)
@@ -62,7 +64,7 @@ class OfferController extends Controller
     /**
      * Normalise filters from the query string, silently dropping unknown values.
      *
-     * @return array{q: string, location: string, work_mode: list<string>, fraction: list<string>, flexible: bool}
+     * @return array{q: string, location: string, work_mode: list<string>, fraction: list<string>, flexible: bool, job_share: bool}
      */
     private function filters(Request $request): array
     {
@@ -77,6 +79,7 @@ class OfferController extends Controller
             'work_mode' => $values('work_mode', fn (string $value): bool => WorkMode::tryFrom($value) !== null),
             'fraction' => $values('fraction', fn (string $value): bool => EmploymentFraction::tryFrom($value) !== null),
             'flexible' => $request->boolean('flexible'),
+            'job_share' => $request->boolean('job_share'),
         ];
     }
 
@@ -101,6 +104,7 @@ class OfferController extends Controller
             'fixed_meeting_hours' => $offer->fixed_meeting_hours,
             'childcare_subsidy' => $offer->childcare_subsidy,
             'is_parent_friendly' => $offer->isParentFriendly(),
+            'job_share' => Workday::presentOffer($offer),
             'company' => [
                 'id' => $company->id,
                 'name' => $company->name,

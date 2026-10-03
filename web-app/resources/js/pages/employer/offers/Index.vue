@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { BadgeCheck, CalendarDays, MapPin, Plus, Users } from '@lucide/vue';
+import {
+    BadgeCheck,
+    CalendarDays,
+    MapPin,
+    Plus,
+    Users,
+    UsersRound,
+} from '@lucide/vue';
 import { computed, ref } from 'vue';
 import CandidateController from '@/actions/App/Http/Controllers/Employer/CandidateController';
 import JobOfferController from '@/actions/App/Http/Controllers/Employer/JobOfferController';
+import EmployerPairController from '@/actions/App/Http/Controllers/JobSharing/EmployerPairController';
 import {
     formatShortDate,
     formatSalaryRange,
@@ -14,10 +22,12 @@ import type {
     OfferStatistics,
     OfferStatus,
 } from '@/components/employer/types';
+import JobShareChip from '@/components/job-sharing/JobShareChip.vue';
 
 type OfferRow = EmployerOffer & {
     statistics: OfferStatistics;
     is_parent_friendly: boolean;
+    submitted_pairs_count: number;
 };
 
 const props = defineProps<{
@@ -182,6 +192,11 @@ function closeOffer(offer: OfferRow): void {
                 >
                     <BadgeCheck class="size-3.5" /> Przyjazna rodzicom
                 </p>
+                <JobShareChip
+                    v-if="offer.is_job_share"
+                    class="mt-2 w-fit"
+                    :hours-per-person="offer.hours_per_person"
+                />
 
                 <dl class="mt-4 grid grid-cols-3 gap-2 text-center">
                     <div class="rounded-2xl bg-brand-cream p-3">
@@ -231,6 +246,17 @@ function closeOffer(offer: OfferRow): void {
                             )
                         }}
                         do przejrzenia
+                    </Link>
+                    <Link
+                        v-if="
+                            offer.is_job_share && offer.status === 'published'
+                        "
+                        :href="EmployerPairController.index(offer.id)"
+                        class="inline-flex h-9 items-center gap-1.5 rounded-full bg-brand-yellow px-4 text-sm font-semibold text-brand-green hover:bg-brand-yellow/80"
+                        data-test="job-share-pairs-link"
+                    >
+                        <UsersRound class="size-4" />
+                        Pary job-sharing · {{ offer.submitted_pairs_count }}
                     </Link>
                     <Link
                         :href="JobOfferController.edit(offer.id)"

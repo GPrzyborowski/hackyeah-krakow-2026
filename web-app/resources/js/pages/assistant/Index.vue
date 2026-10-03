@@ -61,7 +61,7 @@ function ask(question?: string): void {
     <Head title="Asystent" />
 
     <div
-        class="mx-auto flex h-[calc(100svh-5rem)] w-full max-w-3xl flex-col gap-4 p-4 md:p-8"
+        class="mx-auto flex h-[calc(100svh-9rem-env(safe-area-inset-bottom))] w-full max-w-3xl flex-col gap-4 p-4 md:h-[calc(100svh-5rem)] md:p-8"
     >
         <header>
             <h1

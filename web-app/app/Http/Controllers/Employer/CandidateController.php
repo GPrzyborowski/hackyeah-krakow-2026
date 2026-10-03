@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Employer;
 
 use App\Enums\CandidateDecisionType;
+use App\Enums\JobSharePairStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Employer\Concerns\InteractsWithEmployerCompany;
 use App\Http\Resources\AnonymousCandidateResource;
@@ -68,6 +69,10 @@ class CandidateController extends Controller
                 'work_mode_label' => $offer->work_mode->label(),
                 'flexible_hours' => $offer->flexible_hours,
                 'fixed_meeting_hours' => $offer->fixed_meeting_hours,
+                'is_job_share' => $offer->is_job_share,
+                'submitted_pairs_count' => $offer->is_job_share
+                    ? $offer->jobSharePairs()->where('status', JobSharePairStatus::Submitted)->count()
+                    : 0,
             ],
             'candidate' => $current
                 ? (new AnonymousCandidateResource($current['candidate'], $current['match'], in_array($current['candidate']->id, $interestedIds, true)))->resolve($request)

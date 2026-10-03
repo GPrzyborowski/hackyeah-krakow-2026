@@ -15,13 +15,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $id
  * @property int $job_offer_id
  * @property int $candidate_profile_id
+ * @property int|null $job_share_pair_id
  * @property int|null $sent_by_user_id
  * @property string $message
  * @property InvitationStatus $status
  * @property CarbonImmutable|null $responded_at
  * @property CarbonImmutable $created_at
  */
-#[Fillable(['job_offer_id', 'candidate_profile_id', 'sent_by_user_id', 'message', 'status', 'responded_at'])]
+#[Fillable(['job_offer_id', 'candidate_profile_id', 'job_share_pair_id', 'sent_by_user_id', 'message', 'status', 'responded_at'])]
 class Invitation extends Model
 {
     /** @use HasFactory<InvitationFactory> */
@@ -41,6 +42,16 @@ class Invitation extends Model
     public function candidateProfile(): BelongsTo
     {
         return $this->belongsTo(CandidateProfile::class);
+    }
+
+    /**
+     * Set when the employer invited a whole job-sharing pair.
+     *
+     * @return BelongsTo<JobSharePair, $this>
+     */
+    public function jobSharePair(): BelongsTo
+    {
+        return $this->belongsTo(JobSharePair::class);
     }
 
     /**

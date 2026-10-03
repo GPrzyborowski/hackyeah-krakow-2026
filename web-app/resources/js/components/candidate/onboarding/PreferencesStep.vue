@@ -27,6 +27,10 @@ const form = useForm({
     employment_fractions: [...props.profile.employment_fractions],
     wants_flexible_hours: props.profile.wants_flexible_hours,
     open_to_job_sharing: props.profile.open_to_job_sharing,
+    preferred_day_part: (props.profile.preferred_day_part ?? 'any') as
+        | 'morning'
+        | 'afternoon'
+        | 'any',
     available_from: props.profile.available_from ?? '',
     leave_starts_on: props.profile.leave_starts_on ?? '',
     due_date: props.profile.due_date ?? '',
@@ -68,6 +72,12 @@ function submit() {
         due_date: data.due_date || null,
     })).put(preferences.url(), { preserveScroll: true });
 }
+
+const dayParts: Option[] = [
+    { value: 'morning', label: 'Poranki' },
+    { value: 'afternoon', label: 'Popołudnia' },
+    { value: 'any', label: 'Bez znaczenia' },
+];
 
 const inputClass =
     'mt-1 w-full rounded-2xl border border-brand-mint-soft bg-white px-3 py-2 text-sm text-brand-green outline-none focus:border-brand-mint';
@@ -191,6 +201,30 @@ const inputClass =
                 v-model="form.open_to_job_sharing"
                 label="Jestem otwarta na job sharing"
             />
+            <div v-if="form.open_to_job_sharing" class="py-3">
+                <label
+                    for="preferred_day_part"
+                    class="text-sm font-semibold text-brand-green"
+                    >Którą część dnia wolisz w parze?</label
+                >
+                <select
+                    id="preferred_day_part"
+                    v-model="form.preferred_day_part"
+                    :class="inputClass"
+                >
+                    <option
+                        v-for="dayPart in dayParts"
+                        :key="dayPart.value"
+                        :value="dayPart.value"
+                    >
+                        {{ dayPart.label }}
+                    </option>
+                </select>
+                <p class="mt-1 text-xs text-brand-green/70">
+                    Pomożemy dobrać partnerkę, która woli drugą połowę dnia.
+                </p>
+                <InputError :message="form.errors.preferred_day_part" />
+            </div>
         </div>
 
         <div class="mt-4 rounded-2xl bg-brand-yellow/40 p-4">

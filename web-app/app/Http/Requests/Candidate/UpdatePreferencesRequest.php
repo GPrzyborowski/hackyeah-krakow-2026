@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Candidate;
 
+use App\Enums\DayPart;
 use App\Enums\EmploymentFraction;
 use App\Enums\WorkMode;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -25,6 +26,7 @@ class UpdatePreferencesRequest extends FormRequest
             'employment_fractions.*' => [Rule::enum(EmploymentFraction::class)],
             'wants_flexible_hours' => ['boolean'],
             'open_to_job_sharing' => ['boolean'],
+            'preferred_day_part' => ['nullable', Rule::enum(DayPart::class)],
             'available_from' => ['required', 'date'],
             'leave_starts_on' => ['nullable', 'date'],
             'due_date' => ['nullable', 'date'],

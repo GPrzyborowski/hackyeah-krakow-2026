@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Bookmark, MessageSquare, PartyPopper, Plus, X } from '@lucide/vue';
+import {
+    Bookmark,
+    MessageSquare,
+    PartyPopper,
+    Plus,
+    UsersRound,
+    X,
+} from '@lucide/vue';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import CandidateController from '@/actions/App/Http/Controllers/Employer/CandidateController';
 import CandidateDecisionController from '@/actions/App/Http/Controllers/Employer/CandidateDecisionController';
 import InvitationController from '@/actions/App/Http/Controllers/Employer/InvitationController';
 import JobOfferController from '@/actions/App/Http/Controllers/Employer/JobOfferController';
+import EmployerPairController from '@/actions/App/Http/Controllers/JobSharing/EmployerPairController';
 import CandidateCard from '@/components/employer/CandidateCard.vue';
 import InviteDialog from '@/components/employer/InviteDialog.vue';
 import MatchPanel from '@/components/employer/MatchPanel.vue';
@@ -166,6 +174,25 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                     <Plus class="size-4" /> Nowe ogłoszenie
                 </Link>
             </nav>
+
+            <Link
+                v-if="currentOffer?.is_job_share"
+                :href="EmployerPairController.index(currentOffer.id)"
+                class="mt-4 flex flex-col gap-2 rounded-3xl bg-brand-yellow/60 p-4 text-brand-green transition hover:bg-brand-yellow sm:flex-row sm:items-center sm:justify-between"
+                data-test="job-share-pairs-banner"
+            >
+                <span class="flex items-center gap-2 text-sm">
+                    <UsersRound class="size-5 shrink-0" />
+                    <span
+                        ><strong>Oferta job sharing.</strong> Kandydatki mogą
+                        zgłaszać się parami z gotowym podziałem dnia.</span
+                    >
+                </span>
+                <span class="text-sm font-semibold whitespace-nowrap"
+                    >Pary job-sharing ·
+                    {{ currentOffer.submitted_pairs_count ?? 0 }} →</span
+                >
+            </Link>
 
             <div
                 class="mt-4 grid gap-5 lg:grid-cols-[15rem_minmax(0,1fr)_15rem]"

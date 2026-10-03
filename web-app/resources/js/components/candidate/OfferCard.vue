@@ -10,6 +10,7 @@ import {
 import InterestButton from '@/components/candidate/InterestButton.vue';
 import MatchPill from '@/components/candidate/MatchPill.vue';
 import type { CandidateOffer } from '@/components/candidate/types';
+import JobShareChip from '@/components/job-sharing/JobShareChip.vue';
 import { show } from '@/routes/candidate/offers';
 
 const { offer } = defineProps<{ offer: CandidateOffer }>();
@@ -53,6 +54,10 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
         </div>
 
         <div class="mt-4 flex flex-wrap gap-2">
+            <JobShareChip
+                v-if="offer.job_share?.is_job_share"
+                :hours-per-person="offer.job_share.hours_per_person"
+            />
             <Chip>{{ offer.employment_fraction_label }}</Chip>
             <Chip>{{ offer.work_mode_label }}</Chip>
             <Chip v-if="offer.flexible_hours">Elastyczne godziny</Chip>
@@ -72,7 +77,7 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
                         {{ formatRating(offer.company.average_rating) }} z 5
                     </span>
                     <template v-if="offer.company.first_review">
-                        · „{{ offer.company.first_review.quote }}”
+                        · {{ offer.company.first_review.quote }}
                         <span
                             v-if="offer.company.first_review.author_label"
                             class="text-brand-green/60"

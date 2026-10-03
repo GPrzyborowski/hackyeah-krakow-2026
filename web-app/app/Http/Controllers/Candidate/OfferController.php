@@ -11,6 +11,7 @@ use App\Http\Requests\Candidate\OfferFilterRequest;
 use App\Models\CompanyReview;
 use App\Models\JobOffer;
 use App\Models\OfferInterest;
+use App\Services\JobSharing\OfferJobSharePanel;
 use App\Services\Matching\MatchScorer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -54,6 +55,7 @@ class OfferController extends Controller
             ->when($request->boolean('flexible_hours'), fn (Builder $query) => $query->where('flexible_hours', true))
             ->when($request->boolean('childcare_subsidy'), fn (Builder $query) => $query->where('childcare_subsidy', true))
             ->when($request->boolean('with_reviews'), fn (Builder $query) => $query->whereHas('company.approvedReviews'))
+            ->when($request->boolean('job_share'), fn (Builder $query) => $query->where('is_job_share', true))
             ->when($startFrom, fn (Builder $query, string $date) => $query->whereDate(
                 'start_date',
                 '>=',
@@ -78,6 +80,7 @@ class OfferController extends Controller
                 'flexible_hours' => $request->boolean('flexible_hours'),
                 'childcare_subsidy' => $request->boolean('childcare_subsidy'),
                 'with_reviews' => $request->boolean('with_reviews'),
+                'job_share' => $request->boolean('job_share'),
                 'start_from' => $startFrom,
                 'sort' => $sort,
             ],
@@ -90,7 +93,7 @@ class OfferController extends Controller
     /**
      * A single published offer with the match breakdown and company reviews.
      */
-    public function show(Request $request, JobOffer $offer, MatchScorer $matchScorer): Response
+    public function show(Request $request, JobOffer $offer, MatchScorer $matchScorer, OfferJobSharePanel $jobSharePanel): Response
     {
         abort_unless($offer->isPublished(), 404);
 
@@ -106,6 +109,7 @@ class OfferController extends Controller
                 'company_description' => $offer->company->description,
             ],
             'availableFrom' => $profile->available_from?->toDateString(),
+            'jobSharing' => $jobSharePanel->present($profile, $offer),
             'reviews' => $offer->company->approvedReviews
                 ->sortByDesc('created_at')
                 ->values()

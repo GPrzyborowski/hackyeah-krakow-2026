@@ -3,7 +3,11 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { MessageCircle, ShieldCheck, Star } from '@lucide/vue';
 import { ref } from 'vue';
 import Chip from '@/components/candidate/Chip.vue';
-import { formatLongDate, formatRating } from '@/components/candidate/format';
+import {
+    formatLongDate,
+    formatRating,
+    pluralize,
+} from '@/components/candidate/format';
 import { accept, decline, index } from '@/routes/candidate/invitations';
 import { show as conversationShow } from '@/routes/conversations';
 import { show as offerShow } from '@/routes/candidate/offers';
@@ -15,6 +19,7 @@ type Invitation = {
     created_at: string;
     responded_at: string | null;
     conversation_id: number | null;
+    job_share_pair?: { id: number; partner_name: string | null } | null;
     offer: {
         id: number;
         title: string;
@@ -124,12 +129,32 @@ function respond(invitation: Invitation, action: 'accept' | 'decline') {
                         class="size-3.5 fill-brand-yellow text-brand-yellow"
                     />
                     {{ formatRating(invitation.company.average_rating) }} z 5 ·
-                    {{ invitation.company.reviews_count }} opinii rodziców
+                    {{ invitation.company.reviews_count }}
+                    {{
+                        pluralize(
+                            invitation.company.reviews_count,
+                            'opinia',
+                            'opinie',
+                            'opinii',
+                        )
+                    }}
+                    rodziców
                 </template>
                 <template v-else
                     >Firma nie ma jeszcze opinii rodziców.</template
                 >
             </p>
+
+            <div
+                v-if="invitation.job_share_pair"
+                class="mt-3 flex flex-wrap items-center gap-2 text-sm text-brand-green"
+            >
+                <Chip tone="peach">Zaproszenie dla Waszej pary</Chip>
+                <span v-if="invitation.job_share_pair.partner_name"
+                    >razem z {{ invitation.job_share_pair.partner_name }} ·
+                    każda z Was odpowiada osobno</span
+                >
+            </div>
 
             <blockquote
                 class="mt-4 rounded-2xl bg-brand-cream p-4 text-sm whitespace-pre-line text-brand-green"

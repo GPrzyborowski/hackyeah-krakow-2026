@@ -58,9 +58,7 @@ function toggleVisibility() {
 <template>
     <Head :title="profile.is_published ? 'Profil' : 'Stwórz profil'" />
 
-    <div
-        class="grid gap-6 p-4 md:p-8 lg:grid-cols-[14rem_minmax(0,1fr)_20rem] xl:grid-cols-[16rem_minmax(0,1fr)_22rem]"
-    >
+    <div class="grid gap-6 p-4 md:p-8 xl:grid-cols-[14rem_minmax(0,1fr)_20rem]">
         <aside class="flex flex-col gap-4">
             <OnboardingStepper
                 :step="step"

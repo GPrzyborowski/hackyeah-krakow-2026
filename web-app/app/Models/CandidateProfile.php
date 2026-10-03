@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CvStatus;
+use App\Enums\DayPart;
 use Carbon\CarbonImmutable;
 use Database\Factories\CandidateProfileFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property list<string>|null $employment_fractions
  * @property bool $wants_flexible_hours
  * @property bool $open_to_job_sharing
+ * @property DayPart|null $preferred_day_part
  * @property bool $show_availability_instead_of_gap
  * @property int|null $hidden_from_company_id
  * @property bool $allow_direct_messages
@@ -40,7 +42,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Fillable([
     'headline', 'years_of_experience', 'city', 'ai_summary', 'available_from', 'leave_starts_on', 'due_date',
-    'work_modes', 'employment_fractions', 'wants_flexible_hours', 'open_to_job_sharing',
+    'work_modes', 'employment_fractions', 'wants_flexible_hours', 'open_to_job_sharing', 'preferred_day_part',
     'show_availability_instead_of_gap', 'hidden_from_company_id', 'allow_direct_messages', 'onboarding_step',
     'cv_path', 'cv_original_name', 'cv_status', 'cv_text', 'suggested_positions', 'published_at',
 ])]
@@ -91,6 +93,16 @@ class CandidateProfile extends Model
     public function interests(): HasMany
     {
         return $this->hasMany(OfferInterest::class);
+    }
+
+    /**
+     * @return BelongsToMany<JobSharePair, $this>
+     */
+    public function jobSharePairs(): BelongsToMany
+    {
+        return $this->belongsToMany(JobSharePair::class, 'job_share_members')
+            ->withPivot(['is_initiator', 'accepted_at', 'schedule_confirmed_at'])
+            ->withTimestamps();
     }
 
     /**
@@ -153,6 +165,7 @@ class CandidateProfile extends Model
             'employment_fractions' => 'array',
             'wants_flexible_hours' => 'boolean',
             'open_to_job_sharing' => 'boolean',
+            'preferred_day_part' => DayPart::class,
             'show_availability_instead_of_gap' => 'boolean',
             'allow_direct_messages' => 'boolean',
             'cv_status' => CvStatus::class,
