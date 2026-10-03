@@ -30,8 +30,11 @@ const { hasTabs } = useMobileTabs();
 
 const navItems = computed<PublicNavItem[]>(() => [
     { title: 'Jak to działa', href: `${home.url()}#jak-to-dziala` },
-    { title: 'Job sharing', href: `${home.url()}#job-sharing` },
-    { title: 'Asystent AI', href: '/assistant' },
+    { title: 'Aplikuj w parze', href: `${home.url()}#job-sharing` },
+    {
+        title: 'Asystent AI',
+        href: isSignedIn.value ? '/assistant' : register.url(),
+    },
     {
         title: 'Dla pracodawców',
         href: register.url({ query: { role: 'employer' } }),
