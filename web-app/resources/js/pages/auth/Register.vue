@@ -124,7 +124,7 @@ defineOptions({
                     inputmode="numeric"
                     required
                     name="company_nip"
-                    placeholder="np. 526-025-09-95"
+                    placeholder="np. 123-456-32-18"
                 />
                 <InputError
                     id="company_nip-error"
