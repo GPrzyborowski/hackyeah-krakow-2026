@@ -2,16 +2,20 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CandidateDecisionType;
 use App\Enums\EmploymentFraction;
 use App\Enums\OfferStatus;
 use App\Enums\SkillImportance;
 use App\Enums\SkillSource;
 use App\Enums\UserRole;
 use App\Enums\WorkMode;
+use App\Models\CandidateDecision;
 use App\Models\CandidateProfile;
 use App\Models\Company;
 use App\Models\CompanyReview;
+use App\Models\Invitation;
 use App\Models\JobOffer;
+use App\Models\OfferInterest;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -72,6 +76,7 @@ class DemoSeeder extends Seeder
         $this->seedOffers($companies, $skills);
         $this->seedDemoCandidate($skills);
         $this->seedRandomCandidates($skills);
+        $this->seedDemoRecruitment();
         $this->seedAdmin();
     }
 
@@ -262,6 +267,54 @@ class DemoSeeder extends Seeder
                 $profile->skills()->attach($skills[$name]->id, ['source' => SkillSource::Manual->value, 'confirmed_at' => now()]);
             }
         }
+    }
+
+    /**
+     * Invitations and a conversation for Marta, so every demo screen has something to show.
+     */
+    private function seedDemoRecruitment(): void
+    {
+        $marta = User::firstWhere('email', 'marta@momjobs.test')->candidateProfile;
+        $recruiterOffer = JobOffer::firstWhere('title', 'Specjalistka ds. rekrutacji');
+        $projectOffer = JobOffer::firstWhere('title', 'Koordynatorka projektów');
+        $hrOffer = JobOffer::firstWhere('title', 'Specjalistka ds. HR');
+        $greenOfficeRecruiter = User::firstWhere('email', 'hr@zielonebiuro.test');
+        $studioRecruiter = User::firstWhere('email', 'rekrutacja@kamienica.test');
+
+        $acceptedInvitation = Invitation::create([
+            'job_offer_id' => $recruiterOffer->id,
+            'candidate_profile_id' => $marta->id,
+            'sent_by_user_id' => $greenOfficeRecruiter->id,
+            'message' => 'Dzień dobry! Szukamy specjalistki ds. rekrutacji IT na 3/5 etatu, zdalnie, 8 500–11 000 zł brutto. Godziny pracy ustalamy elastycznie. Chętnie porozmawiamy.',
+        ]);
+        CandidateDecision::create(['job_offer_id' => $recruiterOffer->id, 'candidate_profile_id' => $marta->id, 'decision' => CandidateDecisionType::Invited]);
+        $conversation = $acceptedInvitation->accept();
+
+        $messages = [
+            [$greenOfficeRecruiter, 'Dziękujemy za przyjęcie zaproszenia! Czy pasowałaby Pani krótka rozmowa online w przyszłym tygodniu?'],
+            [$marta->user, 'Dzień dobry, bardzo chętnie. Najlepiej pasują mi poranki, np. wtorek o 10:00.'],
+            [$greenOfficeRecruiter, 'Wtorek 10:00 jest super. Wyślę link do spotkania. Start planujemy od 1 września 2027.'],
+        ];
+
+        foreach ($messages as $index => [$author, $body]) {
+            $conversation->messages()->create([
+                'user_id' => $author->id,
+                'body' => $body,
+                'created_at' => now()->subHours(count($messages) - $index),
+            ]);
+        }
+
+        $conversation->update(['last_message_at' => now()->subHour()]);
+
+        Invitation::create([
+            'job_offer_id' => $projectOffer->id,
+            'candidate_profile_id' => $marta->id,
+            'sent_by_user_id' => $studioRecruiter->id,
+            'message' => 'Dzień dobry! Koordynujemy projekty wnętrzarskie, 3/4 etatu hybrydowo, spotkania zawsze przed 15:00. Czy chciałaby Pani porozmawiać?',
+        ]);
+        CandidateDecision::create(['job_offer_id' => $projectOffer->id, 'candidate_profile_id' => $marta->id, 'decision' => CandidateDecisionType::Invited]);
+
+        OfferInterest::create(['job_offer_id' => $hrOffer->id, 'candidate_profile_id' => $marta->id]);
     }
 
     private function seedAdmin(): void
