@@ -439,6 +439,7 @@ class DemoSeeder extends Seeder
             'user_id' => $user->id,
             'headline' => $headline,
             'years_of_experience' => 5,
+            'ai_summary' => 'Od pięciu lat pracuje w obszarach: '.implode(', ', $skillNames).'. Dobrze odnajduje się we współpracy z zespołem i chętnie dzieli obowiązki na stanowisku w modelu job sharing.',
             'city' => 'Poznań',
             'available_from' => '2027-08-01',
             'work_modes' => [WorkMode::Hybrid->value, WorkMode::Remote->value],
