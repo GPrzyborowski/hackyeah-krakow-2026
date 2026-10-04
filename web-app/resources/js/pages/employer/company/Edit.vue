@@ -108,7 +108,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
                             inputmode="numeric"
                             :class="fieldClass"
                             :value="props.company.nip ?? ''"
-                            placeholder="np. 123-456-32-18"
+                            placeholder="np. 1234563218"
                         />
                         <InputError id="nip-error" :message="errors.nip" />
                     </label>
