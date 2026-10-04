@@ -129,7 +129,7 @@ class NotificationDispatchTest extends TestCase
             $this->profile->user,
             InvitationReceived::class,
             fn (InvitationReceived $notification): bool => $notification->invitation->is($invitation)
-                && $notification->toArray($this->profile->user)['title'] === 'Firma Zielone Biuro zaprasza Waszą parę job-sharing do rozmowy o stanowisku Księgowa',
+                && $notification->toArray($this->profile->user)['title'] === 'Firma Zielone Biuro zaprasza Waszą parę job sharing do rozmowy o stanowisku Księgowa',
         );
     }
 

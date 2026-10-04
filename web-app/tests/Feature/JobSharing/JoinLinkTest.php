@@ -152,13 +152,13 @@ class JoinLinkTest extends TestCase
     public static function unusableLinks(): array
     {
         return [
-            'expired' => ['expired', 'Ten link do pary wygasł. Poproś koleżankę o nowy.'],
-            'used' => ['used', 'Ktoś już dołączył do pary z tego linku.'],
+            'expired' => ['expired', 'Ten link wygasł. Poproś koleżankę o nowy link.'],
+            'used' => ['used', 'Ktoś już dołączył do pary z tego linku. Poproś koleżankę o nowy link.'],
             'own link' => ['own link', 'To Twój link. Wyślij go koleżance, z którą chcesz aplikować w parze.'],
-            'pair cancelled' => ['pair cancelled', 'Ta para została rozwiązana albo ma już komplet, więc link nie działa.'],
-            'pair full' => ['pair full', 'Ta para ma już drugą osobę.'],
-            'offer closed' => ['offer closed', 'Ta oferta nie przyjmuje już zgłoszeń par.'],
-            'already paired' => ['already paired', 'Masz już parę do tej oferty. Żeby dołączyć do tej, najpierw rozwiąż tamtą.'],
+            'pair cancelled' => ['pair cancelled', 'Ta para została rozwiązana albo jest już pełna, więc link nie działa.'],
+            'pair full' => ['pair full', 'Do tej pary dołączyła już druga osoba.'],
+            'offer closed' => ['offer closed', 'Ta oferta nie przyjmuje już zgłoszeń od par.'],
+            'already paired' => ['already paired', 'Masz już parę w tej ofercie. Żeby dołączyć do innej, najpierw rozwiąż obecną w zakładce „Aplikuj w parze”.'],
         ];
     }
 
@@ -201,7 +201,7 @@ class JoinLinkTest extends TestCase
         $this->get(route('job-sharing.join.show', str_repeat('x', 64)))
             ->assertInertia(fn (Assert $page) => $page
                 ->where('state', 'invalid')
-                ->where('problem', 'Ten link do pary jest nieprawidłowy. Poproś koleżankę o nowy.')
+                ->where('problem', 'Ten link do pary jest nieprawidłowy. Poproś koleżankę o nowy link.')
                 ->where('preview', null));
     }
 
@@ -215,7 +215,7 @@ class JoinLinkTest extends TestCase
             ->get(route('job-sharing.join.show', $link->token))
             ->assertInertia(fn (Assert $page) => $page
                 ->where('state', 'invalid')
-                ->where('problem', 'Do pary mogą dołączyć tylko kandydatki. Zaloguj się na konto kandydatki.'));
+                ->where('problem', 'Do pary mogą dołączyć tylko kandydatki. Wyloguj się i zaloguj na konto kandydatki.'));
 
         $this->actingAs($employer)->post(route('job-sharing.join.store', $link->token))->assertForbidden();
     }
@@ -287,7 +287,7 @@ class JoinLinkTest extends TestCase
         $this->assertTrue($link->pair->hasMember($ewa));
         $this->actingAs($this->sharer([], 'Anna Zielińska')->user)
             ->get(route('job-sharing.join.show', $link->token))
-            ->assertInertia(fn (Assert $page) => $page->where('problem', 'Ta para ma już drugą osobę.'));
+            ->assertInertia(fn (Assert $page) => $page->where('problem', 'Do tej pary dołączyła już druga osoba.'));
     }
 
     /**

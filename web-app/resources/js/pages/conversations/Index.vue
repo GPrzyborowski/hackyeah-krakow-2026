@@ -93,7 +93,7 @@ const emptyStateText = computed(() =>
                                     class="size-3 shrink-0"
                                     aria-hidden="true"
                                 />
-                                Para job-sharing
+                                Para job sharing
                             </span>
                             <span class="truncate">{{
                                 conversation.offer_title

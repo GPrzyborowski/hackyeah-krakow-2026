@@ -34,7 +34,7 @@ class PairHiredForCompany extends Notification
 
         return [
             'kind' => 'pair_hired_company',
-            'title' => "Para job-sharing {$names} przyjęła zaproszenie na stanowisko {$this->pair->jobOffer->title}",
+            'title' => "Para job sharing {$names} przyjęła zaproszenie na stanowisko {$this->pair->jobOffer->title}",
             'body' => 'Obie osoby zaakceptowały zaproszenie – para jest zatrudniona.',
             'url' => route('employer.offers.job-share-pairs.index', $this->pair->job_offer_id, absolute: false),
             'job_share_pair_id' => $this->pair->id,

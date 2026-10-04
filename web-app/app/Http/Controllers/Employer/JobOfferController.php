@@ -94,7 +94,7 @@ class JobOfferController extends Controller
 
         $closeJobOffer->handle($offer);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Oferta została zamknięta.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Ogłoszenie zostało zamknięte.']);
 
         return to_route('employer.offers.index');
     }
@@ -114,7 +114,7 @@ class JobOfferController extends Controller
     private function redirectAfterSave(JobOffer $offer, SaveJobOfferRequest $request): RedirectResponse
     {
         if ($request->isPublishing()) {
-            Inertia::flash('toast', ['type' => 'success', 'message' => 'Oferta opublikowana. Oto pasujące kandydatki.']);
+            Inertia::flash('toast', ['type' => 'success', 'message' => 'Ogłoszenie opublikowane. Oto pasujące kandydatki.']);
 
             return to_route('employer.candidates.index', ['offer' => $offer->id]);
         }

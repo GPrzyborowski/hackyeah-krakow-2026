@@ -57,7 +57,7 @@ class InvitationReceived extends Notification
             return 'Nowe pytanie od firmy';
         }
 
-        return $this->invitation->job_share_pair_id !== null ? 'Zaproszenie do rozmowy dla Waszej pary job-sharing' : 'Nowe zaproszenie do rozmowy';
+        return $this->invitation->job_share_pair_id !== null ? 'Zaproszenie do rozmowy dla Waszej pary job sharing' : 'Nowe zaproszenie do rozmowy';
     }
 
     private function title(): string
@@ -69,7 +69,7 @@ class InvitationReceived extends Notification
         }
 
         if ($this->invitation->job_share_pair_id !== null) {
-            return "Firma {$offer->company->name} zaprasza Waszą parę job-sharing do rozmowy o stanowisku {$offer->title}";
+            return "Firma {$offer->company->name} zaprasza Waszą parę job sharing do rozmowy o stanowisku {$offer->title}";
         }
 
         return "Firma {$offer->company->name} zaprasza Cię do rozmowy o stanowisku {$offer->title}";

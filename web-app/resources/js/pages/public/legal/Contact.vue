@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Clock, Mail, ShieldCheck } from '@lucide/vue';
+import { Mail } from '@lucide/vue';
 import LegalPageShell from '@/components/legal/LegalPageShell.vue';
 import { privacy, terms } from '@/routes/public/legal';
 
@@ -11,7 +11,7 @@ defineProps<{
 const faq: { question: string; answer: string }[] = [
     {
         question: 'Czy pracodawca zobaczy, że jestem w ciąży?',
-        answer: 'Nie. Termin porodu i daty urlopu są opcjonalne i prywatne – służą tylko Twojemu kalendarzowi powrotu. Pracodawca widzi jedynie datę „Dostępna od”.',
+        answer: 'Nie. To, czy jesteś w ciąży albo na urlopie, widzisz tylko Ty. Firma widzi datę „Dostępna od”.',
     },
     {
         question: 'Kiedy firma pozna moje imię i dane kontaktowe?',
@@ -23,11 +23,11 @@ const faq: { question: string; answer: string }[] = [
     },
     {
         question: 'Jak usunąć konto i dane?',
-        answer: 'W ustawieniach konta. Usunięcie konta kasuje profil, CV i daty z kalendarza powrotu.',
+        answer: 'W ustawieniach konta. Usunięcie konta kasuje profil i CV.',
     },
     {
         question: 'Jak zgłosić nieodpowiednie ogłoszenie lub zachowanie firmy?',
-        answer: 'Napisz do nas e-mail z nazwą firmy i opisem sytuacji. Każde zgłoszenie sprawdzamy.',
+        answer: 'Napisz do nas e-mail z nazwą firmy i opisem sytuacji.',
     },
 ];
 </script>
@@ -38,25 +38,13 @@ const faq: { question: string; answer: string }[] = [
         lead="Napisz do nas, jeśli masz pytanie albo coś w serwisie nie działa."
     >
         <h2>Napisz do nas</h2>
-        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:max-w-sm">
             <div class="rounded-2xl bg-brand-cream p-4">
                 <Mail class="size-5" aria-hidden="true" />
                 <p class="mt-2! text-xs text-brand-green/80">E-mail</p>
                 <p class="mt-0.5! font-semibold break-all select-all">
                     {{ contactEmail }}
                 </p>
-            </div>
-            <div class="rounded-2xl bg-brand-cream p-4">
-                <Clock class="size-5" aria-hidden="true" />
-                <p class="mt-2! text-xs text-brand-green/80">Czas odpowiedzi</p>
-                <p class="mt-0.5! font-semibold">do 2 dni roboczych</p>
-            </div>
-            <div class="rounded-2xl bg-brand-cream p-4">
-                <ShieldCheck class="size-5" aria-hidden="true" />
-                <p class="mt-2! text-xs text-brand-green/80">
-                    Sprawy danych osobowych
-                </p>
-                <p class="mt-0.5! font-semibold">ten sam adres, do 30 dni</p>
             </div>
         </div>
 

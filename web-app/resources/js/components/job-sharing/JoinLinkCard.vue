@@ -42,8 +42,8 @@ function createLink(): void {
 
 function shareLink(link: JoinLink): void {
     void share({
-        title: 'Aplikujmy razem w parze',
-        text: `Zapraszam Cię do pary job-sharing w ofercie „${offerTitle}” w mumjobs.`,
+        title: 'Aplikujmy razem na jeden etat',
+        text: `Zapraszam Cię do wspólnej aplikacji na ofertę „${offerTitle}” w mumjobs. Dzielimy jeden etat na dwie osoby.`,
         url: link.url,
     }).catch(() => undefined);
 }
@@ -59,7 +59,7 @@ function shareLink(link: JoinLink): void {
         <template v-if="joinLink">
             <p class="mt-1 text-sm text-brand-green/80">
                 Wyślij ten link osobie, z którą chcesz dzielić etat. Po
-                założeniu konta lub zalogowaniu dołączy do Twojej pary.
+                założeniu konta lub zalogowaniu dołączy do Ciebie w parze.
             </p>
             <div class="mt-3 flex flex-col gap-2 sm:flex-row">
                 <label class="sr-only" for="join-link-url">Link do pary</label>
@@ -94,8 +94,9 @@ function shareLink(link: JoinLink): void {
                 </div>
             </div>
             <p class="mt-2 text-xs text-brand-green/80" aria-live="polite">
-                Link ważny do {{ formatLongDate(joinLink.expires_at) }}. Działa
-                dla jednej osoby.
+                Link jest ważny do
+                {{ formatLongDate(joinLink.expires_at) }} i działa dla jednej
+                osoby.
             </p>
         </template>
 
@@ -112,7 +113,7 @@ function shareLink(link: JoinLink): void {
                 data-test="create-join-link"
                 @click="createLink"
             >
-                <Link2 class="size-4" /> Zaproś koleżankę linkiem
+                <Link2 class="size-4" /> Utwórz link
             </button>
         </template>
     </div>

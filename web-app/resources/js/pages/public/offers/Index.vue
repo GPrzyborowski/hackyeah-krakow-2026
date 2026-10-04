@@ -663,8 +663,8 @@ const offerCountLabel = computed(() => {
                                 id="offer-start-from-hint"
                                 class="mt-1.5 text-xs text-brand-green/80"
                             >
-                                Mogę zacząć od tej daty. Pokazujemy oferty, do
-                                których zdążysz (do 30 dni po starcie).
+                                Pokażemy oferty ze startem nie wcześniej niż 30
+                                dni przed tą datą.
                             </p>
                         </div>
                     </details>
@@ -773,7 +773,7 @@ const offerCountLabel = computed(() => {
                     class="mt-3 rounded-3xl bg-white p-8 text-center text-sm text-brand-green"
                 >
                     <p class="font-semibold">
-                        Nie znalazłyśmy ofert pasujących do tych filtrów.
+                        Brak ofert dla tych filtrów. Zmień albo wyczyść filtry.
                     </p>
                     <button
                         v-if="hasActiveFilters"

@@ -29,8 +29,8 @@ class AskAssistantRequest extends FormRequest
     {
         return [
             'question.required' => 'Napisz pytanie.',
-            'question.min' => 'Pytanie jest za krótkie.',
-            'question.max' => 'Pytanie może mieć maksymalnie :max znaków.',
+            'question.min' => 'Napisz pytanie, które ma co najmniej 3 znaki.',
+            'question.max' => 'Skróć pytanie do :max znaków.',
         ];
     }
 }

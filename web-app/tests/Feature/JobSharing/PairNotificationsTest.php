@@ -39,7 +39,7 @@ class PairNotificationsTest extends TestCase
                 $data = $notification->toArray($ewa->user);
 
                 return $channels === ['mail', 'database']
-                    && $data['title'] === 'Marta K. zaprasza Cię do pary job-sharing na stanowisko Rekruterka IT'
+                    && $data['title'] === 'Marta K. zaprasza Cię do pary job sharing na stanowisko Rekruterka IT'
                     && $data['url'] === route('job-sharing.pairs.show', $pair, absolute: false)
                     && $notification->toMail($ewa->user)->actionUrl === route('job-sharing.pairs.show', $pair);
             },
@@ -62,7 +62,7 @@ class PairNotificationsTest extends TestCase
             $marta->user,
             PairInvitationAccepted::class,
             fn (PairInvitationAccepted $notification, array $channels): bool => $channels === ['database']
-                && str_starts_with($notification->toArray($marta->user)['title'], 'Ewa N. przyjęła zaproszenie do pary job-sharing'),
+                && str_starts_with($notification->toArray($marta->user)['title'], 'Ewa N. przyjęła zaproszenie do pary job sharing'),
         );
         Notification::assertNotSentTo($ewa->user, PairInvitationAccepted::class);
     }
@@ -96,7 +96,7 @@ class PairNotificationsTest extends TestCase
             ])
             ->assertSessionHasNoErrors();
 
-        $expectedTitle = "Firma {$employer->company->name} zaprasza Waszą parę job-sharing do rozmowy o stanowisku {$offer->title}";
+        $expectedTitle = "Firma {$employer->company->name} zaprasza Waszą parę job sharing do rozmowy o stanowisku {$offer->title}";
         Notification::assertSentTo(
             [$marta->user, $ewa->user],
             InvitationReceived::class,

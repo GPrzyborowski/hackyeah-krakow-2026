@@ -70,12 +70,13 @@ function ask(question?: string): void {
             <h1
                 class="text-3xl font-extrabold tracking-tight text-brand-green md:text-4xl"
             >
-                Asystent
+                Asystent AI
             </h1>
             <p class="mt-1 text-sm text-brand-green/80">
-                Pytaj o urlopy, zasiłki i swoje prawa w pracy. Pod każdą
-                odpowiedzią znajdziesz przepis albo tekst z bloga, na którym
-                się opiera.
+                Odpowiada na pytania o ciążę, urlopy, zasiłki i powrót do
+                pracy na podstawie przepisów i tekstów z bloga. Pod każdą
+                odpowiedzią pokazuje źródło. To informacja ogólna, a nie
+                porada prawna.
             </p>
         </header>
 
@@ -97,7 +98,7 @@ function ask(question?: string): void {
                 >
                     <Sparkles class="size-6" aria-hidden="true" />
                 </div>
-                <p class="font-semibold">Zapytaj o swoje prawa.</p>
+                <p class="font-semibold">Masz pytanie o ciążę albo powrót do pracy?</p>
                 <p class="text-sm text-brand-green/80">
                     Np. czy musisz mówić o ciąży na rozmowie, ile trwa urlop
                     rodzicielski albo jak wrócić na część etatu.

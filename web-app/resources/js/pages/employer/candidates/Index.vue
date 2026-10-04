@@ -211,7 +211,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
         <template v-else>
             <nav
                 class="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:px-0"
-                aria-label="Oferty"
+                aria-label="Ogłoszenia"
             >
                 <Link
                     v-for="offer in offers"
@@ -258,12 +258,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                 <span class="flex items-center gap-2 text-sm">
                     <UsersRound class="size-5 shrink-0" aria-hidden="true" />
                     <span
-                        ><strong>Oferta job sharing.</strong> Kandydatki mogą
+                        ><strong>Ogłoszenie job sharing.</strong> Kandydatki mogą
                         zgłaszać się parami z gotowym podziałem dnia.</span
                     >
                 </span>
                 <span class="text-sm font-semibold whitespace-nowrap"
-                    >Pary job-sharing ·
+                    >Pary job sharing ·
                     {{ currentOffer.submitted_pairs_count ?? 0 }} →</span
                 >
             </Link>
@@ -496,7 +496,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                         </p>
                         <p class="mt-1 max-w-sm text-sm text-brand-green/80">
                             Nowe osoby pojawią się tu, gdy ich profil będzie
-                            pasował do oferty. Możesz też wrócić do zapisanych
+                            pasował do ogłoszenia. Możesz też wrócić do zapisanych
                             na później albo poszerzyć tagi w ogłoszeniu.
                         </p>
                         <Link

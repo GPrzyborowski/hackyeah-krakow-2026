@@ -20,15 +20,15 @@ enum JoinLinkProblem: string
     public function message(): string
     {
         return match ($this) {
-            self::Invalid => 'Ten link do pary jest nieprawidłowy. Poproś koleżankę o nowy.',
-            self::Expired => 'Ten link do pary wygasł. Poproś koleżankę o nowy.',
-            self::Used => 'Ktoś już dołączył do pary z tego linku.',
-            self::NotCandidate => 'Do pary mogą dołączyć tylko kandydatki. Zaloguj się na konto kandydatki.',
+            self::Invalid => 'Ten link do pary jest nieprawidłowy. Poproś koleżankę o nowy link.',
+            self::Expired => 'Ten link wygasł. Poproś koleżankę o nowy link.',
+            self::Used => 'Ktoś już dołączył do pary z tego linku. Poproś koleżankę o nowy link.',
+            self::NotCandidate => 'Do pary mogą dołączyć tylko kandydatki. Wyloguj się i zaloguj na konto kandydatki.',
             self::OwnLink => 'To Twój link. Wyślij go koleżance, z którą chcesz aplikować w parze.',
-            self::PairClosed => 'Ta para została rozwiązana albo ma już komplet, więc link nie działa.',
-            self::PairFull => 'Ta para ma już drugą osobę.',
-            self::OfferClosed => 'Ta oferta nie przyjmuje już zgłoszeń par.',
-            self::AlreadyPaired => 'Masz już parę do tej oferty. Żeby dołączyć do tej, najpierw rozwiąż tamtą.',
+            self::PairClosed => 'Ta para została rozwiązana albo jest już pełna, więc link nie działa.',
+            self::PairFull => 'Do tej pary dołączyła już druga osoba.',
+            self::OfferClosed => 'Ta oferta nie przyjmuje już zgłoszeń od par.',
+            self::AlreadyPaired => 'Masz już parę w tej ofercie. Żeby dołączyć do innej, najpierw rozwiąż obecną w zakładce „Aplikuj w parze”.',
         };
     }
 }

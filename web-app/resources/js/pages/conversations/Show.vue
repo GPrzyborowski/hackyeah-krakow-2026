@@ -112,7 +112,7 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                     data-test="team-chat-chip"
                 >
                     <UsersRound class="size-3.5 shrink-0" aria-hidden="true" />
-                    Para job-sharing
+                    Para job sharing
                 </span>
                 <VerifiedCompanyBadge
                     v-if="
@@ -129,7 +129,7 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 >
                     <UsersRound class="size-3.5 shrink-0" />
                     <span class="truncate"
-                        >Para job-sharing z
+                        >Para job sharing z
                         {{ conversation.pair_partner_name }}</span
                     >
                 </span>
@@ -224,7 +224,7 @@ function submitOnEnter(event: KeyboardEvent, submit: () => void): void {
                 class="m-auto max-w-sm text-center text-sm text-brand-green/80"
             >
                 <template v-if="conversation.is_team_chat">
-                    To wspólny czat firmy i Waszej pary job-sharing. Każda z Was
+                    To wspólny czat firmy i Waszej pary job sharing. Każda z Was
                     dołącza po przyjęciu zaproszenia.
                 </template>
                 <template v-else-if="viewerRole === 'employer'">

@@ -62,7 +62,7 @@ const perks = computed(() =>
     [
         props.offer.flexible_hours ? 'Elastyczne godziny' : null,
         props.offer.fixed_meeting_hours ? 'Spotkania przed 15:00' : null,
-        props.offer.childcare_subsidy ? 'Dofinansowanie żłobka' : null,
+        props.offer.childcare_subsidy ? 'Dofinansowanie żłobka lub przedszkola' : null,
         props.offer.nursery_distance_km != null
             ? `Przedszkole ${props.offer.nursery_distance_km} km`
             : null,

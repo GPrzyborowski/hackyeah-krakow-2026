@@ -33,7 +33,7 @@ class EmployerPairResource extends JsonResource
                 JobSharePairStatus::Invited => 'Zaproszona',
                 JobSharePairStatus::Rejected => 'Odrzucona',
                 JobSharePairStatus::Hired => 'Zatrudniona',
-                JobSharePairStatus::Declined => 'Odrzucona przez członkinię',
+                JobSharePairStatus::Declined => 'Odrzucona przez jedną z kandydatek',
                 default => null,
             },
             'submitted_at' => $pair->submitted_at?->toIso8601String(),

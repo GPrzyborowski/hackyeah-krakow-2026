@@ -104,7 +104,7 @@ class JobSharingJoinLinkTest extends TestCase
         Sanctum::actingAs($ewa->user);
         $this->postJson("/api/v1/job-sharing/join/{$token}")
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['join_link' => 'Ten link do pary wygasł. Poproś koleżankę o nowy.']);
+            ->assertJsonValidationErrors(['join_link' => 'Ten link wygasł. Poproś koleżankę o nowy link.']);
 
         $this->assertFalse(JobSharePair::sole()->hasMember($ewa));
     }

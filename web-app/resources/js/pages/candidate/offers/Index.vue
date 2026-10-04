@@ -593,8 +593,8 @@ function resetFilters(): void {
                                 id="start_from-hint"
                                 class="mt-1.5 text-xs text-brand-green/80"
                             >
-                                Mogę zacząć od tej daty. Pokazujemy oferty, do
-                                których zdążysz (do 30 dni po starcie).
+                                Pokażemy oferty ze startem nie wcześniej niż 30
+                                dni przed tą datą.
                             </p>
                         </div>
                     </details>
@@ -713,11 +713,16 @@ function resetFilters(): void {
                     class="rounded-3xl bg-white p-8 text-center text-brand-green"
                 >
                     <p class="font-semibold">
-                        Brak ofert dla wybranych filtrów.
+                        Brak ofert dla tych filtrów. Zmień albo wyczyść filtry.
                     </p>
-                    <p class="mt-1 text-sm text-brand-green/80">
-                        Spróbuj zmienić datę startu albo usuń część filtrów.
-                    </p>
+                    <button
+                        v-if="hasActiveFilters"
+                        type="button"
+                        class="mt-3 underline underline-offset-2"
+                        @click="resetFilters"
+                    >
+                        Wyczyść filtry
+                    </button>
                 </div>
             </section>
         </div>

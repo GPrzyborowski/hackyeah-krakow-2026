@@ -43,7 +43,7 @@ defineProps<{
             v-if="candidate.is_interested"
             class="mt-4 inline-flex items-center gap-1.5 rounded-full bg-brand-peach/40 px-3 py-1 text-xs font-semibold text-brand-green"
         >
-            <Sparkles class="size-3.5" /> Zainteresowana Twoją ofertą
+            <Sparkles class="size-3.5" /> Zainteresowana Twoim ogłoszeniem
         </p>
 
         <div

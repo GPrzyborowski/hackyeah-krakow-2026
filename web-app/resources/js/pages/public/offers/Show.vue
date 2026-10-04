@@ -166,7 +166,7 @@ const conditions = computed(() => [
                             >Spotkania przed 15:00</Chip
                         >
                         <Chip v-if="offer.childcare_subsidy"
-                            >Dofinansowanie żłobka</Chip
+                            >Dofinansowanie żłobka lub przedszkola</Chip
                         >
                         <Chip v-if="offer.nursery_distance_km != null"
                             >Przedszkole

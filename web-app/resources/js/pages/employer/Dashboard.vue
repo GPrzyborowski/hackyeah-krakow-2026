@@ -183,7 +183,7 @@ const tiles = computed(() => [
         icon: MessageCircle,
     },
     {
-        label: 'Opublikowane oferty',
+        label: 'Opublikowane ogłoszenia',
         value: String(props.stats.published_offers_count),
         hint: 'stanowiska, do których zapraszasz',
         icon: Briefcase,
@@ -205,7 +205,7 @@ function todoTitle(item: TodoItem): string {
         case 'candidates_to_review':
             return `${item.count} ${pluralize(item.count, 'kandydatka czeka', 'kandydatki czekają', 'kandydatek czeka')} na przegląd`;
         case 'offer_incomplete':
-            return 'Uzupełnij ofertę';
+            return 'Uzupełnij ogłoszenie';
         case 'no_approved_reviews':
             return 'Zbierz pierwszą opinię o firmie';
     }
@@ -220,7 +220,7 @@ function todoDescription(item: TodoItem): string {
         case 'offer_incomplete':
             return `${item.offer_title}: ${item.hints.map((hint) => hintLabels[hint] ?? hint).join(', ')}`;
         case 'no_approved_reviews':
-            return 'Bez zatwierdzonej opinii żadna oferta nie dostanie odznaki „Przyjazna rodzicom”.';
+            return 'Bez zatwierdzonej opinii żadne ogłoszenie nie dostanie odznaki „Przyjazna rodzicom”.';
         default:
             return item.offer_title ?? '';
     }
@@ -281,7 +281,7 @@ const activityIcons: Record<string, typeof Mail> = {
                 :href="JobOfferController.create()"
                 class="inline-flex items-center gap-2 rounded-full border border-brand-green px-5 py-2.5 text-sm font-semibold text-brand-green transition hover:bg-white"
             >
-                <Plus class="size-4" aria-hidden="true" /> Dodaj ofertę
+                <Plus class="size-4" aria-hidden="true" /> Dodaj ogłoszenie
             </Link>
         </header>
 
@@ -400,14 +400,14 @@ const activityIcons: Record<string, typeof Mail> = {
                 v-else
                 class="rounded-2xl bg-white/70 p-4 text-sm text-brand-green/80"
             >
-                Zaznacz „Oferta dla wielu osób” przy stanowisku, a kandydatki
+                Zaznacz „Ogłoszenie dla wielu osób” przy stanowisku, a kandydatki
                 zgłoszą się do niego w parach.
                 <Link
                     :href="
                         JobOfferController.create({ query: { job_share: 1 } })
                     "
                     class="font-semibold underline underline-offset-4"
-                    >Dodaj ofertę dla wielu osób</Link
+                    >Dodaj ogłoszenie dla wielu osób</Link
                 >
             </p>
         </section>
@@ -459,9 +459,9 @@ const activityIcons: Record<string, typeof Mail> = {
                             {{
                                 pluralize(
                                     stats.parent_friendly.total,
-                                    'oferty',
-                                    'ofert',
-                                    'ofert',
+                                    'ogłoszenia',
+                                    'ogłoszeń',
+                                    'ogłoszeń',
                                 )
                             }}</span
                         >
@@ -472,7 +472,7 @@ const activityIcons: Record<string, typeof Mail> = {
                         :aria-valuenow="stats.parent_friendly.count"
                         aria-valuemin="0"
                         :aria-valuemax="stats.parent_friendly.total"
-                        aria-label="Oferty z odznaką Przyjazna rodzicom"
+                        aria-label="Ogłoszenia z odznaką Przyjazna rodzicom"
                     >
                         <div
                             class="h-full rounded-full bg-brand-green"
@@ -522,7 +522,7 @@ const activityIcons: Record<string, typeof Mail> = {
                     v-if="!funnel.length"
                     class="mt-4 rounded-2xl bg-brand-cream p-4 text-sm text-brand-green/80"
                 >
-                    Nie masz jeszcze opublikowanych ofert.
+                    Nie masz jeszcze opublikowanych ogłoszeń.
                     <Link
                         :href="JobOfferController.create()"
                         class="font-semibold underline underline-offset-4"
@@ -539,7 +539,7 @@ const activityIcons: Record<string, typeof Mail> = {
                         <thead>
                             <tr class="border-b border-brand-mint-soft">
                                 <th scope="col" class="py-2 pr-3 font-semibold">
-                                    Oferta
+                                    Ogłoszenie
                                 </th>
                                 <th
                                     v-for="stage in stages"

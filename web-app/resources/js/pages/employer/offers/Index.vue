@@ -95,7 +95,7 @@ function closeOffer(offer: OfferRow): void {
                     Twoje ogłoszenia
                 </h1>
                 <p class="mt-2 text-sm text-brand-green/80">
-                    Publikuj oferty i przeglądaj kandydatki, które mogą zacząć w
+                    Publikuj ogłoszenia i przeglądaj kandydatki, które mogą zacząć w
                     Twoim terminie.
                 </p>
             </div>
@@ -115,7 +115,7 @@ function closeOffer(offer: OfferRow): void {
         >
             <Hourglass class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <p>
-                Twoja firma czeka na weryfikację NIP. Potem przy ofertach pojawi
+                Twoja firma czeka na weryfikację NIP. Potem przy ogłoszeniach pojawi
                 się odznaka „Zweryfikowana firma”.
             </p>
         </div>
@@ -150,7 +150,7 @@ function closeOffer(offer: OfferRow): void {
                 Nie masz tu jeszcze ogłoszeń
             </p>
             <p class="mt-1 text-sm text-brand-green/80">
-                Dodaj ofertę, a pokażemy Ci pasujące kandydatki.
+                Dodaj ogłoszenie, a pokażemy Ci pasujące kandydatki.
             </p>
         </div>
 
@@ -274,7 +274,7 @@ function closeOffer(offer: OfferRow): void {
                         data-test="job-share-pairs-link"
                     >
                         <UsersRound class="size-4" />
-                        Pary job-sharing · {{ offer.submitted_pairs_count }}
+                        Pary job sharing · {{ offer.submitted_pairs_count }}
                     </Link>
                     <Link
                         :href="JobOfferController.edit(offer.id)"
@@ -295,7 +295,7 @@ function closeOffer(offer: OfferRow): void {
                             v-else
                             class="inline-flex items-center gap-2 text-sm text-brand-green"
                         >
-                            Zamknąć ofertę?
+                            Zamknąć ogłoszenie?
                             <button
                                 type="button"
                                 class="rounded-full bg-brand-peach px-3 py-1 font-semibold"

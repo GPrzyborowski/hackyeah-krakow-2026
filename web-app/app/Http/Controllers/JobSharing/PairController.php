@@ -148,7 +148,7 @@ class PairController extends Controller
 
         $pair = $lifecycle->invite($this->candidateProfile($request), $offer, $request->integer('partner_id'));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Zaproszenie do pary wysłane. Możecie już pisać na czacie pary.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Zaproszenie wysłane. Czat pary otworzy się, gdy partnerka dołączy.']);
 
         return to_route('job-sharing.pairs.show', $pair);
     }

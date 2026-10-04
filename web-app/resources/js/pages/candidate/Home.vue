@@ -106,7 +106,7 @@ const subtitle = computed(() => {
                 <h2 class="text-lg font-bold">Gdzie teraz jesteś?</h2>
                 <p class="text-sm">
                     Powiedz nam, czy jesteś w ciąży, czy po urlopie
-                    macierzyńskim, a dopasujemy kalendarz i artykuły.
+                    macierzyńskim, a dobierzemy artykuły i pytania do asystenta.
                 </p>
                 <p class="mt-1 inline-flex items-center gap-1 text-xs">
                     <Lock class="size-3" aria-hidden="true" />
@@ -170,7 +170,7 @@ const subtitle = computed(() => {
                     {{
                         pairInvitationsCount
                             ? 'Zaproszenia do pary'
-                            : 'Job sharing'
+                            : 'Aplikuj w parze'
                     }}
                 </h2>
                 <p class="text-brand-green/80">
@@ -306,9 +306,9 @@ const subtitle = computed(() => {
             class="flex items-center justify-between gap-4 rounded-3xl bg-brand-peach p-6 text-brand-green transition hover:brightness-95"
         >
             <div>
-                <h2 class="text-lg font-bold">Masz pytanie o swoje prawa?</h2>
+                <h2 class="text-lg font-bold">Masz pytanie o urlop albo zasiłek?</h2>
                 <p class="text-sm">
-                    Zapytaj asystenta. Do każdej odpowiedzi poda źródło.
+                    Zapytaj asystenta AI. Do każdej odpowiedzi poda źródło.
                 </p>
             </div>
             <ArrowRight class="size-5 shrink-0" />

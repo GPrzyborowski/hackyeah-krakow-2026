@@ -35,7 +35,7 @@ const rows = computed(() => [
 
 <template>
     <section class="rounded-3xl bg-brand-green p-6 text-white shadow-sm">
-        <h2 class="text-lg font-semibold">Dopasowanie do oferty</h2>
+        <h2 class="text-lg font-semibold">Dopasowanie do ogłoszenia</h2>
         <ul class="mt-4 space-y-2.5 text-sm">
             <li
                 v-for="row in rows"
@@ -57,13 +57,13 @@ const rows = computed(() => [
         </ul>
         <div class="mt-4 border-t border-white/15 pt-4 text-sm text-white/85">
             <template v-if="match.start_date_compatible">
-                Termin startu zgodny z ofertą:
+                Termin startu zgodny z ogłoszeniem:
                 <strong class="text-white">{{
                     formatShortDate(offerStartDate)
                 }}</strong>
             </template>
             <template v-else>
-                Termin startu może się nie pokrywać z ofertą ({{
+                Termin startu może się nie pokrywać z ogłoszeniem ({{
                     formatShortDate(offerStartDate)
                 }}).
             </template>

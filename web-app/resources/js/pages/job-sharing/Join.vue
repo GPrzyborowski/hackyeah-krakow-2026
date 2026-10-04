@@ -82,12 +82,12 @@ defineProps<{
                         "
                         >Dzień pracy trwa od
                         {{ formatHour(preview.offer.workday_starts_at) }} do
-                        {{ formatHour(preview.offer.workday_ends_at) }}, a Wy
-                        same ustalacie, która bierze którą część.</template
+                        {{ formatHour(preview.offer.workday_ends_at) }}. Wy same
+                        ustalacie, która bierze którą część.</template
                     >
                     Po dołączeniu otworzy się czat pary. Firma zobaczy Was
-                    razem, anonimowo, dopiero gdy wyślecie jej ustalony podział
-                    dnia.
+                    razem i anonimowo dopiero wtedy, gdy wyślecie jej ustalony
+                    podział dnia.
                 </p>
             </template>
 
@@ -109,7 +109,7 @@ defineProps<{
                 :href="home()"
                 class="self-start text-sm font-semibold underline underline-offset-2"
             >
-                Przejdź do mumjobs
+                Wróć na stronę główną
             </Link>
         </section>
 
@@ -120,6 +120,10 @@ defineProps<{
             <p class="text-sm">
                 Żeby dołączyć, załóż konto kandydatki albo zaloguj się. Potem
                 wrócisz na tę stronę.
+            </p>
+            <p class="text-sm">
+                Firma zobaczy Waszą parę dopiero wtedy, gdy opublikujesz
+                profil.
             </p>
             <div class="flex flex-col gap-2 sm:flex-row">
                 <Link
@@ -149,8 +153,8 @@ defineProps<{
             class="flex flex-col gap-3 rounded-3xl bg-brand-mint-soft p-6 text-brand-green"
         >
             <p class="text-sm">
-                Po dołączeniu Twój profil zostanie oznaczony jako otwarty na job
-                sharing.
+                Dołączając, włączasz w profilu opcję „Jestem otwarta na job
+                sharing”.
             </p>
             <InputError :message="errors.join_link" />
             <button

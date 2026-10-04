@@ -2,7 +2,6 @@
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import {
     ArrowRight,
-    Lock,
     Mail,
     Send,
     Sparkles,
@@ -114,7 +113,7 @@ const pairChat = [
                         drugą mamą.
                     </h1>
                     <p class="mt-6 max-w-lg text-base text-brand-green/80">
-                        Tu nie ma tablicy ogłoszeń ani wysyłania CV w ciemno.
+                        Nie musisz rozsyłać CV w ciemno.
                     </p>
                     <ul
                         class="mt-6 grid max-w-lg grid-cols-1 gap-3 sm:grid-cols-2"
@@ -168,54 +167,48 @@ const pairChat = [
                     </p>
                 </div>
 
-                <!-- Return calendar demo -->
+                <!-- Anonymous profile demo -->
                 <div
                     class="rounded-3xl bg-brand-green p-5 text-white shadow-xl sm:p-7"
-                    aria-label="Przykładowy kalendarz powrotu"
+                    aria-label="Przykładowy profil i zaproszenia"
                 >
-                    <h2 class="text-xl font-semibold">
-                        Twój kalendarz powrotu
-                    </h2>
+                    <h2 class="text-xl font-semibold">Tak widzi Cię firma</h2>
                     <p class="mt-1 text-xs text-white/70">
-                        Firmy widzą tylko datę, od której możesz pracować, i
-                        piszą z wyprzedzeniem.
+                        Firma widzi umiejętności i datę, od której możesz
+                        zacząć. Imię i kontakt dostaje, gdy przyjmiesz
+                        zaproszenie.
                     </p>
 
                     <div
-                        class="mt-5 flex h-2.5 gap-1 overflow-hidden rounded-full"
+                        class="mt-5 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-brand-green"
                     >
-                        <div class="w-[30%] rounded-full bg-brand-mint" />
-                        <div class="w-[40%] rounded-full bg-brand-peach" />
-                        <div class="w-[30%] rounded-full bg-brand-yellow" />
-                    </div>
-                    <div
-                        class="mt-3 grid grid-cols-3 gap-2 text-[11px] leading-tight break-words"
-                    >
-                        <div>
-                            <p class="font-semibold">
-                                Ciąża
-                                <Lock
-                                    class="inline size-2.5 align-[-1px]"
-                                    aria-label="tylko dla Ciebie"
-                                />
+                        <span
+                            class="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-mint text-sm font-semibold"
+                            >M</span
+                        >
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold">Marta K.</p>
+                            <p class="text-[11px] text-brand-green/80">
+                                Specjalistka ds. HR
                             </p>
-                            <p class="text-white/80">dziś: 24. tydzień</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold">
-                                Urlop macierzyński
-                                <Lock
-                                    class="inline size-2.5 align-[-1px]"
-                                    aria-label="tylko dla Ciebie"
-                                />
-                            </p>
-                            <p class="text-white/80">od 14 mar 2027</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold">Gotowa · widzą firmy</p>
-                            <p class="text-white/80">od 1 wrz 2027</p>
+                            <div class="mt-2 flex flex-wrap gap-1.5">
+                                <span
+                                    v-for="skill in [
+                                        'Rekrutacja',
+                                        'Onboarding',
+                                        'Prawo pracy',
+                                    ]"
+                                    :key="skill"
+                                    class="rounded-full bg-brand-cream px-2.5 py-0.5 text-[11px]"
+                                    >{{ skill }}</span
+                                >
+                            </div>
                         </div>
                     </div>
+                    <span
+                        class="mt-3 inline-block rounded-full bg-brand-yellow px-3 py-1 text-[11px] font-medium text-brand-green"
+                        >Dostępna od 1 wrz 2027</span
+                    >
 
                     <p
                         class="mt-6 flex items-center gap-1.5 text-xs font-semibold text-brand-yellow"
@@ -288,8 +281,8 @@ const pairChat = [
                             <h3
                                 class="mt-2 max-w-xl text-2xl leading-tight font-semibold"
                             >
-                                Przeglądasz anonimowe profile i sam wybierasz,
-                                do kogo napisać.
+                                Przeglądasz anonimowe profile i wybierasz, do
+                                kogo napisać.
                             </h3>
                         </div>
                         <Link
@@ -337,13 +330,12 @@ const pairChat = [
                         Aplikuj w parze na jedno stanowisko
                     </h2>
                     <p class="mt-4 max-w-lg text-sm text-brand-green/80">
-                        Każda z Was pracuje część dnia, więc resztę możesz
-                        poświęcić domowi i dziecku, a firma ma obsadzone
-                        stanowisko od rana do popołudnia. Wybierz ofertę dla
-                        wielu osób, zaproś partnerkę albo przyjmij jej
-                        zaproszenie, ustalcie podział dnia i wyślijcie parę do
-                        firmy. Firma zobaczy Was dopiero wtedy, gdy obie się
-                        zgodzicie.
+                        Każda z Was pracuje część dnia, a firma ma obsadzone
+                        stanowisko na cały etat. Wybierz ofertę dla wielu
+                        osób i zaproś partnerkę linkiem albo przyjmij jej
+                        zaproszenie. Potem ustalcie podział dnia i wyślijcie
+                        zgłoszenie. Firma zobaczy Was dopiero wtedy, gdy obie
+                        się zgodzicie.
                     </p>
 
                     <div class="mt-6 rounded-3xl bg-white p-5">
@@ -388,7 +380,7 @@ const pairChat = [
                             "
                             class="rounded-full border border-brand-green px-5 py-2.5 text-sm font-medium text-brand-green transition hover:bg-white"
                             data-test="job-share-offer-cta"
-                            >Dodaj ofertę dla wielu osób</Link
+                            >Dodaj ogłoszenie dla wielu osób</Link
                         >
                     </div>
                 </div>
@@ -457,12 +449,12 @@ const pairChat = [
                     <h2
                         class="text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
                     >
-                        Zapytaj o swoje prawa i dostań odpowiedź ze źródłem
+                        Masz pytanie o ciążę albo powrót do pracy?
                     </h2>
                     <p class="mt-4 max-w-lg text-sm text-brand-green/80">
-                        Asystent AI zna Kodeks pracy, przepisy o urlopach i
-                        zasiłkach oraz artykuły z bloga. Przy każdej odpowiedzi
-                        pokazuje, skąd ją wziął.
+                        Asystent AI odpowiada na podstawie wybranych
+                        przepisów i tekstów z bloga. Przy każdej odpowiedzi
+                        pokazuje źródło.
                     </p>
                     <Link
                         :href="assistantHref"
@@ -482,17 +474,16 @@ const pairChat = [
                         <p
                             class="max-w-[85%] rounded-2xl bg-brand-green px-4 py-2.5 text-sm text-white"
                         >
-                            Czy pracodawca może zapytać mnie o ciążę na
-                            rozmowie?
+                            Czy muszę mówić o ciąży na rozmowie?
                         </p>
                     </div>
                     <div
                         class="mt-3 max-w-[90%] rounded-2xl bg-brand-cream px-4 py-3 text-sm text-brand-green"
                     >
                         <p>
-                            Nie. Pytanie o ciążę nie mieści się w katalogu
-                            danych, których pracodawca może wymagać od
-                            kandydata. Możesz odmówić odpowiedzi.
+                            Nie musisz. Pracodawca nie może wymagać od
+                            kandydatki takich informacji, więc możesz odmówić
+                            odpowiedzi.
                         </p>
                         <Link
                             :href="assistantHref"

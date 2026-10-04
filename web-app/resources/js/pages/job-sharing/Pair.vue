@@ -610,7 +610,7 @@ const inputClass =
                     </p>
                     <p v-else-if="pair.status === 'declined'">
                         Jedna z Was odrzuciła zaproszenie pracodawcy, więc para
-                        nie przejdzie dalej. Pozostałe zaproszenie zostało
+                        nie przejdzie dalej. Drugie zaproszenie zostało
                         wycofane.
                     </p>
                     <p v-else-if="pair.status === 'invited'">

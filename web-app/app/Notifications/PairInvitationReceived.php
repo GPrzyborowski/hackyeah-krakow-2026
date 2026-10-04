@@ -29,7 +29,7 @@ class PairInvitationReceived extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Zaproszenie do pary job-sharing')
+            ->subject('Zaproszenie do pary job sharing')
             ->greeting('Cześć!')
             ->line($this->title())
             ->line('Zajrzyj na stronę pary, napisz do partnerki na czacie i zdecyduj, czy dołączasz.')
@@ -52,6 +52,6 @@ class PairInvitationReceived extends Notification
 
     private function title(): string
     {
-        return "{$this->initiator->anonymousName()} zaprasza Cię do pary job-sharing na stanowisko {$this->pair->jobOffer->title}";
+        return "{$this->initiator->anonymousName()} zaprasza Cię do pary job sharing na stanowisko {$this->pair->jobOffer->title}";
     }
 }

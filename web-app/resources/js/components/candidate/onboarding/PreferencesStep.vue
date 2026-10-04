@@ -89,7 +89,7 @@ const stageChoices: {
     },
     {
         value: 'after_leave',
-        title: 'Jestem po urlopie macierzyńskim (lub na nim)',
+        title: 'Jestem na urlopie macierzyńskim lub po nim',
         description: 'Wracam do pracy albo przygotowuję się do powrotu.',
         icon: Briefcase,
     },

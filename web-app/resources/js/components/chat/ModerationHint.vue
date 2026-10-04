@@ -17,6 +17,9 @@ defineProps<{
         <div class="space-y-1">
             <p class="font-semibold">
                 Nie wysłano: czat blokuje pytania o ciążę i plany rodzinne.
+                <template v-if="!suggestion">
+                    Napisz o stanowisku, godzinach pracy albo terminie startu.
+                </template>
             </p>
             <p v-if="reason">{{ reason }}</p>
             <p v-if="suggestion" class="text-brand-green/80">

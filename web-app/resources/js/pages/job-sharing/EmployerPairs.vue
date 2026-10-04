@@ -58,7 +58,7 @@ const statusLabels: Partial<Record<PairStatus, string>> = {
     invited: 'Zaproszona',
     rejected: 'Odrzucona',
     hired: 'Zatrudniona',
-    declined: 'Odrzucona przez członkinię',
+    declined: 'Odrzucona przez jedną z kandydatek',
 };
 
 const tones: ScheduleBarBlock['tone'][] = ['peach', 'yellow'];
@@ -142,17 +142,17 @@ const sections = computed(() =>
 </script>
 
 <template>
-    <Head :title="`Pary job-sharing – ${offer.title}`" />
+    <Head :title="`Pary job sharing – ${offer.title}`" />
 
     <div class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
         <Link
             :href="CandidateController.index({ query: { offer: offer.id } })"
             class="inline-flex items-center gap-1 text-sm text-brand-green/80 hover:text-brand-green"
         >
-            <ArrowLeft class="size-4" /> Kandydatki do oferty
+            <ArrowLeft class="size-4" /> Kandydatki do ogłoszenia
         </Link>
         <h1 class="mt-2 text-3xl font-bold text-brand-green sm:text-4xl">
-            Pary job-sharing
+            Pary job sharing
         </h1>
         <p class="mt-2 max-w-2xl text-sm text-brand-green/80">
             {{ offer.title }} · dzień pracy

@@ -29,7 +29,7 @@ enum JobSharePairStatus: string
             self::Rejected => 'Pracodawca odrzucił parę',
             self::Cancelled => 'Para rozwiązana',
             self::Hired => 'Zatrudnione',
-            self::Declined => 'Odrzucone przez członkinię',
+            self::Declined => 'Odrzucone przez jedną z Was',
         };
     }
 }

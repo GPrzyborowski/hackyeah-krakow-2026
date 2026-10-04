@@ -150,6 +150,6 @@ class JobSharePairTest extends TestCase
 
         $labels = collect($response->json('data'))->pluck('status_label', 'id');
         $this->assertSame('Zatrudniona', $labels[$hired->id]);
-        $this->assertSame('Odrzucona przez członkinię', $labels[$declined->id]);
+        $this->assertSame('Odrzucona przez jedną z kandydatek', $labels[$declined->id]);
     }
 }

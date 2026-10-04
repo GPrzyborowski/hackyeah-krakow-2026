@@ -28,7 +28,7 @@ enum OfferCategory: string
             self::Administration => 'Administracja i biuro',
             self::Sales => 'Sprzedaż',
             self::Education => 'Edukacja',
-            self::Design => 'Projektowanie i kreatywne',
+            self::Design => 'Projektowanie i branże kreatywne',
             self::Other => 'Inne',
         };
     }

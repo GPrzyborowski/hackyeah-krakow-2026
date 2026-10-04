@@ -37,7 +37,7 @@ export const pairStatusLabels: Record<PairStatus, string> = {
     rejected: 'Pracodawca odrzucił parę',
     cancelled: 'Para rozwiązana',
     hired: 'Zatrudnione',
-    declined: 'Odrzucone przez członkinię',
+    declined: 'Odrzucone przez jedną z Was',
 };
 
 export type JoinLink = {

@@ -27,7 +27,7 @@ class PairScheduleController extends Controller
 
         $this->lifecycle->saveSchedule($pair, $request->blocks());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Podział zapisany. Teraz obie zaakceptujcie go.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Podział zapisany. Teraz każda z Was musi go zaakceptować.']);
 
         return back();
     }
@@ -55,7 +55,7 @@ class PairScheduleController extends Controller
 
         $this->lifecycle->submit($pair);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Wysłane! Pracodawca zobaczy Was jako parę – nadal anonimowo.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Wysłane do firmy. Firma zobaczy Was jako parę, nadal anonimowo.']);
 
         return back();
     }

@@ -32,7 +32,7 @@ class PairInvitationAccepted extends Notification
     {
         return [
             'kind' => 'pair_invitation_accepted',
-            'title' => "{$this->partner->anonymousName()} przyjęła zaproszenie do pary job-sharing na stanowisko {$this->pair->jobOffer->title}",
+            'title' => "{$this->partner->anonymousName()} przyjęła zaproszenie do pary job sharing na stanowisko {$this->pair->jobOffer->title}",
             'body' => 'Ustalcie razem podział dnia pracy.',
             'url' => route('job-sharing.pairs.show', $this->pair, absolute: false),
             'job_share_pair_id' => $this->pair->id,

@@ -101,7 +101,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
             {{ pageTitle }}
         </h1>
         <p class="mt-2 max-w-xl text-sm text-brand-green/80">
-            Opisz ofertę i wybierz tagi. Na ich podstawie pokażemy Ci
+            Opisz ogłoszenie i wybierz tagi. Na ich podstawie pokażemy Ci
             kandydatki, które pasują i mogą zacząć w Twoim terminie.
         </p>
 
@@ -390,7 +390,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             class="mt-1 block text-xs font-normal text-brand-green/80"
                         >
                             Podaj odległość od miejsca pracy – kandydatki mogą
-                            filtrować oferty po tej informacji
+                            filtrować ogłoszenia po tej informacji
                         </span>
                         <InputError
                             id="nursery_distance_km-error"
@@ -405,7 +405,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                                 v-model="form.is_job_share"
                                 data-test="job-share-toggle"
                             />
-                            Oferta dla wielu osób (job sharing)
+                            Ogłoszenie dla wielu osób (job sharing)
                         </label>
                         <p class="mt-1 text-xs text-brand-green/80">
                             Jedno stanowisko, dwie osoby dzielące dzień pracy.
