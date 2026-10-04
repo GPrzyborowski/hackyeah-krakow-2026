@@ -185,7 +185,7 @@ function toggleVisibility() {
                         {{ fullName }}
                     </h1>
                     <p class="mt-1 text-sm text-brand-green/80">
-                        {{ subtitle || 'Uzupełnij stanowisko i staż' }}
+                        {{ subtitle || 'Uzupełnij stanowisko i miasto' }}
                     </p>
                     <p
                         class="mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
