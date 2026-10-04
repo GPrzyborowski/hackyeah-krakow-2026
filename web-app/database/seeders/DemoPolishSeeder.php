@@ -141,6 +141,7 @@ class DemoPolishSeeder extends Seeder
         'Wiślany Bank – Centrum Usług Wspólnych' => 4,
         'Koszyk Online' => 3,
         'Fundacja Dobry Start' => 1,
+        'Przychodnia Rodzinna Pod Kopcem' => 1,
     ];
 
     /**
@@ -291,7 +292,7 @@ class DemoPolishSeeder extends Seeder
     }
 
     /**
-     * Four Kraków companies with employer accounts, approved reviews and published offers.
+     * Five Kraków companies with employer accounts, approved reviews and published offers.
      */
     private function seedKrakowCompanies(): void
     {
@@ -555,6 +556,47 @@ class DemoPolishSeeder extends Seeder
                         'description' => 'Wsparcie koordynatorów programów w sprawach kadrowych, wdrażanie nowych pracowników i organizacja szkoleń wewnętrznych. Stałe godziny pracy, w biurze 2 dni w tygodniu.',
                         'required' => ['HR Business Partnering', 'Prawo pracy'],
                         'nice' => ['Onboarding', 'Szkolenia'],
+                    ],
+                ],
+            ],
+            [
+                'name' => 'Przychodnia Rodzinna Pod Kopcem',
+                'nip_prefix' => '679318542',
+                'email' => 'kadry@podkopcem.test',
+                'recruiter' => 'Beata Zając',
+                'description' => 'Przychodnia POZ na Dębnikach z poradnią pediatryczną i gabinetem zabiegowym, około 9 tysięcy pacjentów. Grafik układamy na miesiąc z góry, a osoby z małymi dziećmi mają pierwszeństwo przy wyborze porannych zmian. Pielęgniarki i rejestratorki pracują na zmianach 7:00–12:00 albo 12:00–17:00.',
+                'reviews' => [
+                    [4, 4, 5, '„Po macierzyńskim dostałam same poranne zmiany, tak jak prosiłam. Grypowy luty to inna historia – wtedy wszyscy biorą nadgodziny.”', 'Mama jednego dziecka, pielęgniarka'],
+                    [5, 3, 5, '„Kierowniczka pamięta, kto ma dzieci w żłobku, i nie wpisuje nam zmian do 17:00. Zamiany grafiku tylko przez nią, bywa z tym kłopot.”', 'Mama dwójki, rejestracja'],
+                ],
+                'offers' => [
+                    [
+                        'title' => 'Pielęgniarka w gabinecie zabiegowym',
+                        'category' => OfferCategory::Health,
+                        'mode' => WorkMode::Onsite,
+                        'fraction' => EmploymentFraction::ThreeFifths,
+                        'salary' => [6800, 8000],
+                        'start' => '2027-09-01',
+                        'flexible' => false,
+                        'meetings' => true,
+                        'childcare' => true,
+                        'description' => 'Pobieranie krwi, iniekcje, szczepienia dzieci i dorosłych oraz zmiana opatrunków w gabinecie zabiegowym. Praca na porannej zmianie 7:00–12:00 od poniedziałku do piątku, bez dyżurów nocnych i weekendowych. Wymagane prawo wykonywania zawodu pielęgniarki.',
+                        'required' => ['Pobieranie krwi', 'Szczepienia', 'Iniekcje'],
+                        'nice' => ['Elektroniczna dokumentacja medyczna'],
+                    ],
+                    [
+                        'title' => 'Rejestratorka medyczna',
+                        'category' => OfferCategory::Health,
+                        'mode' => WorkMode::Onsite,
+                        'fraction' => EmploymentFraction::Half,
+                        'salary' => [4600, 5300],
+                        'start' => '2027-10-01',
+                        'flexible' => true,
+                        'meetings' => true,
+                        'childcare' => true,
+                        'description' => 'Rejestracja pacjentów telefonicznie i na miejscu, wystawianie e-skierowań do wydruku, pilnowanie grafiku lekarzy i poradni pediatrycznej. Pół etatu na porannej albo popołudniowej zmianie do wyboru, zamiany grafiku z drugą rejestratorką możliwe w ramach tygodnia.',
+                        'required' => ['Obsługa pacjenta', 'Rejestracja medyczna'],
+                        'nice' => ['Elektroniczna dokumentacja medyczna', 'Obsługa centrali telefonicznej'],
                     ],
                 ],
             ],
