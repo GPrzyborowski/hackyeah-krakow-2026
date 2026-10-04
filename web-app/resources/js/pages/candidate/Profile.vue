@@ -12,7 +12,6 @@ import ContactDetailsCard from '@/components/candidate/onboarding/ContactDetails
 import PreferencesStep from '@/components/candidate/onboarding/PreferencesStep.vue';
 import PrivacySettings from '@/components/candidate/onboarding/PrivacySettings.vue';
 import ProfilePreviewCard from '@/components/candidate/onboarding/ProfilePreviewCard.vue';
-import ReturnCalendarCard from '@/components/candidate/profile/ReturnCalendarCard.vue';
 import SkillTagsEditor from '@/components/candidate/profile/SkillTagsEditor.vue';
 import type {
     OnboardingProfile,
@@ -339,8 +338,6 @@ function toggleVisibility() {
                     </dl>
                 </section>
             </div>
-
-            <ReturnCalendarCard :calendar="calendar" @edit="editPreferences" />
 
             <section
                 class="rounded-3xl bg-white p-6 shadow-sm"

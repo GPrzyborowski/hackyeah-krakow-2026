@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import {
     ArrowRight,
     BookOpen,
@@ -13,7 +13,6 @@ import { computed } from 'vue';
 import PairController from '@/actions/App/Http/Controllers/JobSharing/PairController';
 import { pluralize } from '@/components/candidate/format';
 import MatchPill from '@/components/candidate/MatchPill.vue';
-import ReturnCalendarCard from '@/components/candidate/profile/ReturnCalendarCard.vue';
 import type { ReturnCalendar } from '@/components/candidate/types';
 import { index as assistantIndex } from '@/routes/assistant';
 import { show as blogShow } from '@/routes/blog';
@@ -77,26 +76,6 @@ const subtitle = computed(() => {
 
     return `${amount} ${pluralize(count, 'firma', 'firmy', 'firm')} już Cię ${pluralize(count, 'zauważyła', 'zauważyły', 'zauważyło')}.`;
 });
-
-const hasPrivateDates = computed(
-    () =>
-        props.calendar.due_date !== null ||
-        props.calendar.leave_starts_on !== null,
-);
-
-const calendarEditLabel = computed(() => {
-    if (hasPrivateDates.value) {
-        return 'Zmień daty';
-    }
-
-    return props.calendar.stage === 'after_leave'
-        ? 'Dodaj prywatne daty (urlop, powrót)'
-        : 'Dodaj prywatne daty (termin porodu, start urlopu)';
-});
-
-function editCalendar() {
-    router.visit(onboarding({ query: { step: 3 } }));
-}
 </script>
 
 <template>
@@ -216,12 +195,6 @@ function editCalendar() {
                 aria-hidden="true"
             />
         </Link>
-
-        <ReturnCalendarCard
-            :calendar="calendar"
-            :edit-label="calendarEditLabel"
-            @edit="editCalendar"
-        />
 
         <Link
             :href="cvAnalysis()"
