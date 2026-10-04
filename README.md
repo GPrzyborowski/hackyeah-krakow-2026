@@ -1,6 +1,6 @@
-# mumjobs
+# MumJobs
 
-mumjobs helps women get back to work after maternity leave. We built it at HackYeah 2026.
+MumJobs helps women get back to work after maternity leave. We built it at HackYeah 2026.
 
 ![mumjobs landing page](web-app/docs/screenshots/landing.png)
 
