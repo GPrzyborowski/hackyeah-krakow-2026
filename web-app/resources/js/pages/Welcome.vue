@@ -244,12 +244,6 @@ const pairChat = [
                             >
                         </li>
                     </ul>
-                    <p
-                        class="mt-3 rounded-2xl bg-white/10 px-4 py-3 text-[11px] text-white/80"
-                    >
-                        Firma nie zobaczy Twoich danych, dopóki się nie
-                        zgodzisz.
-                    </p>
                 </div>
             </div>
         </section>
