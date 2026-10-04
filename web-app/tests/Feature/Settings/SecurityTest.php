@@ -16,6 +16,7 @@ class SecurityTest extends TestCase
     public function test_security_page_is_displayed()
     {
         $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+        $this->enableTwoFactorChallenge();
 
         Features::twoFactorAuthentication([
             'confirm' => true,
@@ -75,6 +76,20 @@ class SecurityTest extends TestCase
                 ->where('canManageTwoFactor', false)
                 ->missing('twoFactorEnabled')
                 ->missing('requiresConfirmation'),
+            );
+    }
+
+    public function test_security_page_hides_two_factor_while_the_challenge_is_switched_off()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->withSession(['auth.password_confirmed_at' => time()])
+            ->get(route('security.edit'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('canManageTwoFactor', false)
+                ->missing('twoFactorEnabled'),
             );
     }
 

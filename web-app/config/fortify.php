@@ -1,5 +1,8 @@
 <?php
 
+use Laravel\Fortify\Actions\AttemptToAuthenticate;
+use Laravel\Fortify\Actions\CanonicalizeUsername;
+use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
 use Laravel\Fortify\Features;
 
 return [
@@ -125,6 +128,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Two-Factor Challenge
+    |--------------------------------------------------------------------------
+    |
+    | Switched off for the hackathon demo: logins (web and API) skip the code
+    | even for users who set up 2FA, and the settings page hides 2FA. The 2FA
+    | feature itself stays registered so its routes and frontend still build.
+    |
+    */
+
+    'two_factor_challenge' => (bool) env('FORTIFY_TWO_FACTOR_CHALLENGE', false),
+
+    'pipelines' => [
+        'login' => env('FORTIFY_TWO_FACTOR_CHALLENGE', false) ? null : [
+            CanonicalizeUsername::class,
+            AttemptToAuthenticate::class,
+            PrepareAuthenticatedSession::class,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Register View Routes
     |--------------------------------------------------------------------------
     |
@@ -167,12 +191,11 @@ return [
         Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
-        // Two-factor authentication is switched off for the hackathon demo.
-        // Features::twoFactorAuthentication([
-        //     'confirm' => true,
-        //     'confirmPassword' => true,
-        //     // 'window' => 0
-        // ]),
+        Features::twoFactorAuthentication([
+            'confirm' => true,
+            'confirmPassword' => true,
+            // 'window' => 0
+        ]),
         Features::passkeys([
             'confirmPassword' => true,
         ]),

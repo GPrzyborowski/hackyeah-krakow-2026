@@ -19,7 +19,7 @@ class SecurityController extends Controller
     public function edit(TwoFactorAuthenticationRequest $request): Response
     {
         $props = [
-            'canManageTwoFactor' => Features::canManageTwoFactorAuthentication(),
+            'canManageTwoFactor' => Features::canManageTwoFactorAuthentication() && config('fortify.two_factor_challenge'),
             'canManagePasskeys' => Features::canManagePasskeys(),
             'passkeys' => Features::canManagePasskeys()
                 ? $request->user()
@@ -40,7 +40,7 @@ class SecurityController extends Controller
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
         ];
 
-        if (Features::canManageTwoFactorAuthentication()) {
+        if (Features::canManageTwoFactorAuthentication() && config('fortify.two_factor_challenge')) {
             $request->ensureStateIsValid();
 
             $props['twoFactorEnabled'] = $request->user()->hasEnabledTwoFactorAuthentication();

@@ -8,7 +8,6 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
-use Laravel\Fortify\Features;
 use Laravel\Sanctum\Sanctum;
 use PragmaRX\Google2FA\Google2FA;
 use Tests\TestCase;
@@ -94,7 +93,7 @@ class AuthTest extends TestCase
 
     public function test_login_requires_a_two_factor_code_when_2fa_is_enabled(): void
     {
-        $this->enableTwoFactorFeature();
+        $this->enableTwoFactorChallenge();
         $user = $this->userWithTwoFactor();
 
         $this->postJson('/api/v1/auth/login', $this->credentials($user))
@@ -111,7 +110,7 @@ class AuthTest extends TestCase
 
     public function test_login_with_a_valid_totp_code_returns_a_token(): void
     {
-        $this->enableTwoFactorFeature();
+        $this->enableTwoFactorChallenge();
         $user = $this->userWithTwoFactor();
         $code = (new Google2FA)->getCurrentOtp(decrypt($user->two_factor_secret));
 
@@ -122,7 +121,7 @@ class AuthTest extends TestCase
 
     public function test_a_recovery_code_logs_in_once(): void
     {
-        $this->enableTwoFactorFeature();
+        $this->enableTwoFactorChallenge();
         $user = $this->userWithTwoFactor();
 
         $this->postJson('/api/v1/auth/login', [...$this->credentials($user), 'recovery_code' => 'recovery-code-1'])->assertOk();
@@ -133,7 +132,7 @@ class AuthTest extends TestCase
         $this->assertNotContains('recovery-code-1', $user->refresh()->recoveryCodes());
     }
 
-    public function test_login_skips_the_two_factor_code_while_the_feature_is_disabled(): void
+    public function test_login_skips_the_two_factor_code_while_the_challenge_is_switched_off(): void
     {
         $user = $this->userWithTwoFactor();
 
@@ -245,14 +244,6 @@ class AuthTest extends TestCase
         }
 
         $this->getJson('/api/v1/auth/me')->assertTooManyRequests();
-    }
-
-    private function enableTwoFactorFeature(): void
-    {
-        config()->set('fortify.features', [
-            ...config('fortify.features'),
-            Features::twoFactorAuthentication(['confirm' => true, 'confirmPassword' => true]),
-        ]);
     }
 
     private function userWithTwoFactor(): User

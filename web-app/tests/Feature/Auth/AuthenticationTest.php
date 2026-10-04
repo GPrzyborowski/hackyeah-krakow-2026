@@ -35,6 +35,7 @@ class AuthenticationTest extends TestCase
     public function test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()
     {
         $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+        $this->enableTwoFactorChallenge();
 
         Features::twoFactorAuthentication([
             'confirm' => true,
@@ -51,6 +52,18 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(route('two-factor.login'));
         $response->assertSessionHas('login.id', $user->id);
         $this->assertGuest();
+    }
+
+    public function test_users_with_two_factor_enabled_log_in_without_a_code_while_the_challenge_is_switched_off()
+    {
+        $user = User::factory()->withTwoFactor()->create();
+
+        $this->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertSessionMissing('login.id');
+
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_users_can_not_authenticate_with_invalid_password()

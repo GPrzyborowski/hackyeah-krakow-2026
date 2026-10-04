@@ -13,4 +13,13 @@ abstract class TestCase extends BaseTestCase
             $this->markTestSkipped($message ?? "Fortify feature [{$feature}] is not enabled.");
         }
     }
+
+    /**
+     * Turn the 2FA login challenge back on (it is switched off for the demo) so its flow can be tested.
+     */
+    protected function enableTwoFactorChallenge(): void
+    {
+        config()->set('fortify.two_factor_challenge', true);
+        config()->set('fortify.pipelines.login', null);
+    }
 }
