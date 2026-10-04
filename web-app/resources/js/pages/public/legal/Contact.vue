@@ -22,10 +22,6 @@ const faq: { question: string; answer: string }[] = [
         answer: 'Dla kandydatek serwis jest bezpłatny.',
     },
     {
-        question: 'Co dzieje się z moim CV?',
-        answer: 'CV analizuje model AI Claude (Anthropic) jako nasz podmiot przetwarzający. Wyciąga umiejętności i przygotowuje podsumowanie, które możesz poprawić. Dane nie służą do trenowania modeli.',
-    },
-    {
         question: 'Jak usunąć konto i dane?',
         answer: 'W ustawieniach konta. Usunięcie konta kasuje profil, CV i daty z kalendarza powrotu.',
     },
