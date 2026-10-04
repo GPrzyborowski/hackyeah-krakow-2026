@@ -81,7 +81,7 @@ const relatedColors = ['bg-brand-mint', 'bg-brand-yellow', 'bg-brand-peach'];
             <h2 class="text-xl font-semibold text-brand-green">
                 Przeczytaj też
             </h2>
-            <div class="mt-4 grid gap-6 sm:grid-cols-3">
+            <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <Link
                     v-for="(item, position) in related"
                     :key="item.id"

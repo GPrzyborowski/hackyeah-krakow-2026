@@ -269,7 +269,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
             </Link>
 
             <div
-                class="mt-4 grid gap-5 lg:grid-cols-[15rem_minmax(0,1fr)_15rem]"
+                class="mt-4 grid grid-cols-1 gap-5 lg:grid-cols-[15rem_minmax(0,1fr)_15rem]"
             >
                 <aside class="order-3 lg:order-1">
                     <section class="rounded-3xl bg-white p-5 shadow-sm">

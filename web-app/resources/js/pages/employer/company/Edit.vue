@@ -74,7 +74,9 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
             Te informacje zobaczą kandydatki przy Twoich ofertach.
         </p>
 
-        <div class="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div
+            class="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]"
+        >
             <Form
                 v-bind="CompanyController.update.form()"
                 class="space-y-4 rounded-3xl bg-white p-6 shadow-sm"
@@ -83,7 +85,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
                 <h2 class="text-xl font-semibold text-brand-green">
                     Dane firmy
                 </h2>
-                <div class="grid gap-4 sm:grid-cols-2">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <label :class="labelClass">
                         Nazwa firmy
                         <input
@@ -201,7 +203,7 @@ const labelClass = 'block text-xs font-semibold text-brand-green';
                 Nie ma jeszcze zatwierdzonych opinii. Pierwsza opinia rodzica
                 jest jednym z warunków odznaki „przyjazna rodzicom”.
             </p>
-            <div v-else class="mt-3 grid gap-4 md:grid-cols-2">
+            <div v-else class="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <article
                     v-for="review in reviews"
                     :key="review.id"

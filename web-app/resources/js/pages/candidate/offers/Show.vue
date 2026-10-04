@@ -74,7 +74,7 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
             <ArrowLeft class="size-4" /> Wszystkie oferty
         </Link>
 
-        <div class="grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_22rem]">
             <div class="flex min-w-0 flex-col gap-6">
                 <section class="rounded-3xl bg-white p-6 shadow-sm md:p-8">
                     <div
@@ -162,7 +162,7 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
 
                     <h3 class="mt-6 font-bold text-brand-green">Warunki</h3>
                     <ul
-                        class="mt-3 grid gap-2 text-sm text-brand-green sm:grid-cols-2"
+                        class="mt-3 grid grid-cols-1 gap-2 text-sm text-brand-green sm:grid-cols-2"
                     >
                         <li
                             v-for="condition in [

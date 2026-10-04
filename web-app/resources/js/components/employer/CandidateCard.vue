@@ -99,7 +99,7 @@ function experienceLabel(years: number | null): string | null {
             </div>
         </div>
 
-        <dl class="mt-5 grid gap-2 sm:grid-cols-3">
+        <dl class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
             <div class="rounded-2xl border border-brand-green/15 p-3">
                 <dt class="text-[11px] text-brand-green/80">Dostępna od</dt>
                 <dd class="text-sm font-bold text-brand-green">

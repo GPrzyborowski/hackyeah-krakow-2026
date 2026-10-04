@@ -75,7 +75,7 @@ function chipClass(isActive: boolean): string {
         <Link
             v-if="featured"
             :href="show(featured.slug)"
-            class="group mt-8 grid overflow-hidden rounded-3xl md:grid-cols-2"
+            class="group mt-8 grid grid-cols-1 overflow-hidden rounded-3xl md:grid-cols-2"
             data-test="featured-article"
         >
             <div
@@ -116,7 +116,7 @@ function chipClass(isActive: boolean): string {
 
         <div
             v-if="articles.length"
-            class="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
+            class="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
         >
             <Link
                 v-for="(article, position) in articles"

@@ -112,7 +112,7 @@ const conditions = computed(() => [
             <ArrowLeft class="size-4" /> Wszystkie oferty
         </Link>
 
-        <div class="mt-4 grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <div class="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_22rem]">
             <div class="flex min-w-0 flex-col gap-6">
                 <section class="rounded-3xl bg-white p-6 sm:p-8">
                     <h1
@@ -179,9 +179,7 @@ const conditions = computed(() => [
                     class="rounded-3xl bg-brand-mint-soft p-6 text-brand-green sm:p-8"
                     data-test="job-share-info"
                 >
-                    <h2 class="text-xl font-semibold">
-                        Aplikuj w parze
-                    </h2>
+                    <h2 class="text-xl font-semibold">Aplikuj w parze</h2>
                     <p class="mt-2 text-sm">
                         <template
                             v-if="
@@ -254,7 +252,7 @@ const conditions = computed(() => [
 
                     <h3 class="mt-6 font-semibold text-brand-green">Warunki</h3>
                     <ul
-                        class="mt-3 grid gap-2 text-sm text-brand-green sm:grid-cols-2"
+                        class="mt-3 grid grid-cols-1 gap-2 text-sm text-brand-green sm:grid-cols-2"
                     >
                         <li
                             v-for="condition in conditions"
@@ -304,7 +302,10 @@ const conditions = computed(() => [
                     >
                         Firma nie ma jeszcze opinii rodziców.
                     </p>
-                    <div v-else class="mt-4 grid gap-3 md:grid-cols-2">
+                    <div
+                        v-else
+                        class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2"
+                    >
                         <figure
                             v-for="review in reviews"
                             :key="review.id"

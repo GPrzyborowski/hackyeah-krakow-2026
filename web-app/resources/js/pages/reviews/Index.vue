@@ -57,7 +57,7 @@ defineOptions({
             </h2>
             <ul
                 v-if="reviewableCompanies.length"
-                class="mt-3 grid gap-3 sm:grid-cols-2"
+                class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2"
             >
                 <li
                     v-for="company in reviewableCompanies"
@@ -97,7 +97,10 @@ defineOptions({
 
         <section>
             <h2 class="text-xl font-semibold text-brand-green">Twoje opinie</h2>
-            <div v-if="reviews.length" class="mt-3 grid gap-4 md:grid-cols-2">
+            <div
+                v-if="reviews.length"
+                class="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2"
+            >
                 <ReviewCard
                     v-for="review in reviews"
                     :key="review.id"

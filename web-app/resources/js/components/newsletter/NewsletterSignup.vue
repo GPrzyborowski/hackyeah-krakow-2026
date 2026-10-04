@@ -5,7 +5,7 @@ import { store } from '@/routes/newsletter';
 
 <template>
     <section
-        class="grid gap-6 rounded-3xl bg-brand-green p-8 text-white md:grid-cols-2 md:items-center md:p-10"
+        class="grid grid-cols-1 gap-6 rounded-3xl bg-brand-green p-8 text-white md:grid-cols-2 md:items-center md:p-10"
         data-test="newsletter-signup"
     >
         <div>

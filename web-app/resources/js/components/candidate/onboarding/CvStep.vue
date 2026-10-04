@@ -388,7 +388,7 @@ function confirmAndContinue() {
             Twoje CV.
         </p>
 
-        <div class="mt-8 flex items-center justify-between gap-3">
+        <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
             <Link
                 v-if="profile.is_published"
                 :href="home()"

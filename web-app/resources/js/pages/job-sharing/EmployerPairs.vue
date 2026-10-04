@@ -220,7 +220,7 @@ const sections = computed(() =>
                     </span>
                 </div>
 
-                <div class="mt-4 grid gap-4 md:grid-cols-2">
+                <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div
                         v-for="(member, index) in pair.members"
                         :key="member.id"
@@ -286,7 +286,9 @@ const sections = computed(() =>
                     </div>
                 </div>
 
-                <div class="mt-5 grid gap-5 md:grid-cols-[1fr_16rem]">
+                <div
+                    class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-[1fr_16rem]"
+                >
                     <div>
                         <p class="text-sm font-semibold text-brand-green">
                             Podział dnia

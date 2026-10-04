@@ -134,7 +134,7 @@ const parentFilters: {
             </button>
         </form>
 
-        <div class="grid gap-6 lg:grid-cols-[16rem_1fr]">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr]">
             <aside>
                 <button
                     type="button"

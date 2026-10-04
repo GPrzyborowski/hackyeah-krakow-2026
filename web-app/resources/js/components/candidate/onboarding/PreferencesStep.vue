@@ -140,7 +140,7 @@ const inputClass =
                 <Lock class="size-3 shrink-0" aria-hidden="true" />
                 Widzisz to tylko Ty.
             </p>
-            <div class="mt-3 grid gap-3 sm:grid-cols-2">
+            <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <label
                     v-for="choice in stageChoices"
                     :key="choice.value"
@@ -178,7 +178,7 @@ const inputClass =
             <InputError id="stage-error" :message="form.errors.stage" />
         </fieldset>
 
-        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+        <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="sm:col-span-2">
                 <label
                     for="headline"
@@ -383,7 +383,7 @@ const inputClass =
                     >Polityka prywatności</a
                 >
             </p>
-            <div class="mt-3 grid gap-4 sm:grid-cols-2">
+            <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div v-if="form.stage !== 'after_leave'">
                     <label
                         for="due_date"
@@ -431,7 +431,7 @@ const inputClass =
             </div>
         </div>
 
-        <div class="mt-8 flex items-center justify-between gap-3">
+        <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
             <button
                 v-if="submitUrl"
                 type="button"

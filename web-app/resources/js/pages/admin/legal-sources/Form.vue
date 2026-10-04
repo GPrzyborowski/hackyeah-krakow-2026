@@ -87,7 +87,7 @@ const hintClass = 'mt-1 block font-normal text-brand-green/80';
             class="mt-6 space-y-5 rounded-3xl bg-white p-6 shadow-sm"
             @submit.prevent="submit"
         >
-            <div class="grid gap-4 sm:grid-cols-[2fr_1fr]">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-[2fr_1fr]">
                 <label :class="labelClass">
                     Akt prawny
                     <input

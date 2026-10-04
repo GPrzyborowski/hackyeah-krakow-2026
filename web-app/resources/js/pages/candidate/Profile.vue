@@ -173,7 +173,7 @@ function toggleVisibility() {
     <Head title="Mój profil" />
 
     <div
-        class="mx-auto grid w-full max-w-6xl gap-6 p-4 md:p-8 xl:grid-cols-[minmax(0,1fr)_22rem]"
+        class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 p-4 md:p-8 xl:grid-cols-[minmax(0,1fr)_22rem]"
     >
         <div class="flex min-w-0 flex-col gap-6">
             <section
@@ -185,7 +185,7 @@ function toggleVisibility() {
                     :photo-url="profile.photo_url"
                     size="lg"
                 />
-                <div class="min-w-0 flex-1">
+                <div class="min-w-0 flex-1 basis-48">
                     <h1
                         id="profile-heading"
                         class="text-3xl font-extrabold tracking-tight text-brand-green"
@@ -323,7 +323,7 @@ function toggleVisibility() {
                             Edytuj<span class="sr-only"> preferencje</span>
                         </button>
                     </div>
-                    <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+                    <dl class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div
                             v-for="row in preferenceRows"
                             :key="row.label"

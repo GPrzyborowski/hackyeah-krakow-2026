@@ -42,7 +42,7 @@ const faq: { question: string; answer: string }[] = [
         lead="Napisz do nas, jeśli masz pytanie albo coś w serwisie nie działa."
     >
         <h2>Napisz do nas</h2>
-        <div class="mt-4 grid gap-4 sm:grid-cols-3">
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="rounded-2xl bg-brand-cream p-4">
                 <Mail class="size-5" aria-hidden="true" />
                 <p class="mt-2! text-xs text-brand-green/80">E-mail</p>

@@ -56,7 +56,7 @@ const categories = Object.keys(ratingCategoryLabels) as Array<
             <ArrowLeft class="size-4" /> Wszystkie oferty
         </Link>
 
-        <div class="mt-4 grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <div class="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_22rem]">
             <section class="rounded-3xl bg-white p-6 sm:p-8">
                 <h1
                     class="text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
@@ -112,7 +112,7 @@ const categories = Object.keys(ratingCategoryLabels) as Array<
             <h2 class="text-2xl font-semibold tracking-tight text-brand-green">
                 Opinie rodziców
             </h2>
-            <div class="mt-4 grid gap-4 md:grid-cols-2">
+            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <figure
                     v-for="review in reviews"
                     :key="review.id"

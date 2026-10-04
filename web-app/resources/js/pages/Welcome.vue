@@ -116,7 +116,9 @@ const pairChat = [
                     <p class="mt-6 max-w-lg text-base text-brand-green/80">
                         Tu nie ma tablicy ogłoszeń ani wysyłania CV w ciemno.
                     </p>
-                    <ul class="mt-6 grid max-w-lg gap-3 sm:grid-cols-2">
+                    <ul
+                        class="mt-6 grid max-w-lg grid-cols-1 gap-3 sm:grid-cols-2"
+                    >
                         <li class="rounded-2xl bg-white p-4 text-brand-green">
                             <p
                                 class="flex items-center gap-2 text-sm font-semibold"
@@ -260,7 +262,7 @@ const pairChat = [
                 >
                     Odwrócona rekrutacja: to firmy wysyłają zaproszenia
                 </h2>
-                <ol class="mt-10 grid gap-4 md:grid-cols-3">
+                <ol class="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3">
                     <li
                         v-for="(step, index) in steps"
                         :key="step.title"
@@ -311,7 +313,7 @@ const pairChat = [
                             }}</Link
                         >
                     </div>
-                    <ol class="mt-6 grid gap-3 md:grid-cols-3">
+                    <ol class="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
                         <li
                             v-for="(step, index) in employerSteps"
                             :key="step.title"
@@ -529,7 +531,7 @@ const pairChat = [
                 </h2>
                 <div
                     v-if="companies.length"
-                    class="mt-10 grid gap-4 md:grid-cols-3"
+                    class="mt-10 grid grid-cols-1 gap-4 md:grid-cols-3"
                 >
                     <CompanyRatingCard
                         v-for="company in companies"
@@ -564,7 +566,9 @@ const pairChat = [
                     Wszystkie teksty <ArrowRight class="size-4" />
                 </Link>
             </div>
-            <div class="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+            <div
+                class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3"
+            >
                 <ArticleCard
                     v-for="article in articles"
                     :key="article.id"

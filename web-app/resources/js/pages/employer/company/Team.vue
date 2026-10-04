@@ -56,7 +56,9 @@ const fieldClass =
             {{ company.name }} i mogą zapraszać kolejne osoby.
         </p>
 
-        <div class="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div
+            class="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]"
+        >
             <section
                 class="rounded-3xl bg-white p-6 shadow-sm"
                 aria-labelledby="members-heading"

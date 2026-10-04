@@ -154,7 +154,7 @@ function closeOffer(offer: OfferRow): void {
             </p>
         </div>
 
-        <div v-else class="mt-6 grid gap-4 md:grid-cols-2">
+        <div v-else class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
             <article
                 v-for="offer in visibleOffers"
                 :key="offer.id"

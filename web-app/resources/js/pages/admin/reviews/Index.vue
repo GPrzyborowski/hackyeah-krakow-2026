@@ -91,7 +91,10 @@ function reviewSubtitle(review: ModeratedReview): string {
             </Link>
         </nav>
 
-        <div v-if="reviews.length" class="grid gap-4 md:grid-cols-2">
+        <div
+            v-if="reviews.length"
+            class="grid grid-cols-1 gap-4 md:grid-cols-2"
+        >
             <ReviewCard
                 v-for="review in reviews"
                 :key="review.id"

@@ -309,7 +309,7 @@ const inputClass =
             </div>
         </section>
 
-        <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem]">
+        <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_24rem]">
             <section
                 class="flex h-[32rem] flex-col gap-3 rounded-3xl bg-white p-4 shadow-sm md:h-[36rem]"
             >

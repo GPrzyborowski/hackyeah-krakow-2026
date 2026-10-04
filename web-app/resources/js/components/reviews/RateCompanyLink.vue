@@ -12,7 +12,7 @@ defineProps<{ companyId: number }>();
 <template>
     <Link
         :href="create(companyId)"
-        class="inline-flex items-center gap-1.5 rounded-full border border-brand-green px-4 py-1.5 text-sm font-semibold text-brand-green transition hover:bg-brand-cream"
+        class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-brand-green px-4 py-1.5 text-sm font-semibold whitespace-nowrap text-brand-green transition hover:bg-brand-cream"
         data-test="rate-company-link"
     >
         <Star class="size-4" /> Oceń firmę

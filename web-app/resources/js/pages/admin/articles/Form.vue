@@ -170,7 +170,7 @@ const tabClass = (isActive: boolean): string =>
         </h1>
 
         <form
-            class="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]"
+            class="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]"
             @submit.prevent="submit"
         >
             <div class="space-y-5">

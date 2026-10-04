@@ -96,7 +96,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
         </p>
 
         <form
-            class="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]"
+            class="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]"
             @submit.prevent="submit(isPublished ? 'publish' : 'draft')"
         >
             <div class="space-y-5">
@@ -104,7 +104,9 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                     <h2 class="text-xl font-semibold text-brand-green">
                         Podstawy
                     </h2>
-                    <div class="mt-4 grid gap-4 sm:grid-cols-[2fr_1fr]">
+                    <div
+                        class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-[2fr_1fr]"
+                    >
                         <label :class="labelClass">
                             Nazwa stanowiska
                             <input
@@ -141,7 +143,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             />
                         </label>
                     </div>
-                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <label :class="labelClass">
                             Tryb pracy
                             <select
@@ -206,7 +208,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                     <h2 class="text-xl font-semibold text-brand-green">
                         Warunki
                     </h2>
-                    <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <label :class="labelClass">
                             Wymiar etatu
                             <select
@@ -336,7 +338,7 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                         </p>
                         <div
                             v-if="form.is_job_share"
-                            class="mt-3 grid gap-4 sm:grid-cols-2"
+                            class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2"
                         >
                             <label :class="labelClass">
                                 Dzień pracy od

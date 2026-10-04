@@ -186,7 +186,7 @@ const offerCountLabel = computed(() => {
             </button>
         </form>
 
-        <div class="mt-6 grid gap-6 lg:grid-cols-[16rem_1fr]">
+        <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr]">
             <aside>
                 <button
                     type="button"

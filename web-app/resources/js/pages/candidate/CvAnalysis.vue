@@ -108,7 +108,7 @@ defineOptions({
                 <span class="truncate">{{ cvFileName ?? headline }}</span>
             </p>
 
-            <dl class="mt-6 grid gap-3 sm:grid-cols-3">
+            <dl class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div class="rounded-2xl bg-white/10 p-4">
                     <dt class="text-sm text-white/85">
                         Oferty z dopasowaniem od
@@ -138,7 +138,7 @@ defineOptions({
             </dl>
         </section>
 
-        <div class="grid gap-6 md:grid-cols-2">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <section class="rounded-3xl bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-bold text-brand-green">
                     Twoje mocne strony

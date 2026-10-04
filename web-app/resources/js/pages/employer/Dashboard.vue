@@ -492,7 +492,7 @@ const activityIcons: Record<string, typeof Mail> = {
             </ul>
         </section>
 
-        <div class="grid gap-5 lg:grid-cols-5">
+        <div class="grid grid-cols-1 gap-5 lg:grid-cols-5">
             <section
                 class="rounded-3xl bg-white p-6 shadow-sm lg:col-span-3"
                 aria-labelledby="funnel-heading"

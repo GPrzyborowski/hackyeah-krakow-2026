@@ -137,7 +137,7 @@ const sections = computed(() => [
             Panel administratora
         </h1>
 
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Link
                 v-for="section in sections"
                 :key="section.key"
