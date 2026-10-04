@@ -3,11 +3,7 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { Eye, EyeOff, FileText, Pencil, Sparkles } from '@lucide/vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import CandidateAvatar from '@/components/candidate/CandidateAvatar.vue';
-import {
-    formatFileSize,
-    formatShortDate,
-    pluralize,
-} from '@/components/candidate/format';
+import { formatFileSize, formatShortDate } from '@/components/candidate/format';
 import ContactDetailsCard from '@/components/candidate/onboarding/ContactDetailsCard.vue';
 import PreferencesStep from '@/components/candidate/onboarding/PreferencesStep.vue';
 import PrivacySettings from '@/components/candidate/onboarding/PrivacySettings.vue';
@@ -69,9 +65,6 @@ const confirmedSkillNames = computed(() =>
 const subtitle = computed(() =>
     [
         props.profile.headline,
-        props.profile.years_of_experience !== null
-            ? `${props.profile.years_of_experience} ${pluralize(props.profile.years_of_experience, 'rok', 'lata', 'lat')} doświadczenia`
-            : null,
         props.profile.city,
     ]
         .filter(Boolean)
@@ -399,7 +392,6 @@ function toggleVisibility() {
             <ProfilePreviewCard
                 :anonymous-name="profile.anonymous_name"
                 :headline="profile.headline"
-                :years-of-experience="profile.years_of_experience"
                 :summary="profile.ai_summary"
                 :skills="confirmedSkillNames"
                 :available-from="profile.available_from"

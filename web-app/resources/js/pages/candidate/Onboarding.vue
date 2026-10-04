@@ -43,7 +43,6 @@ const preview = computed<PreviewData>(
     () =>
         previewOverrides.value ?? {
             headline: props.profile.headline,
-            years_of_experience: props.profile.years_of_experience,
             available_from: props.profile.available_from,
         },
 );
@@ -119,7 +118,6 @@ function toggleVisibility() {
             <ProfilePreviewCard
                 :anonymous-name="profile.anonymous_name"
                 :headline="preview.headline"
-                :years-of-experience="preview.years_of_experience"
                 :summary="profile.ai_summary"
                 :skills="skills.map((skill) => skill.name)"
                 :available-from="preview.available_from"

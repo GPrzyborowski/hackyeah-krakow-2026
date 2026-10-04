@@ -104,6 +104,5 @@ export type OnboardingProfile = {
 
 export type PreviewData = {
     headline: string | null;
-    years_of_experience: number | null;
     available_from: string | null;
 };

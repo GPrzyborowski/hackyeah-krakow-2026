@@ -31,7 +31,6 @@ const emit = defineEmits<{
 const form = useForm({
     stage: props.profile.stage as CandidateStage | null,
     headline: props.profile.headline ?? '',
-    years_of_experience: props.profile.years_of_experience as number | null,
     city: props.profile.city ?? '',
     work_modes: [...props.profile.work_modes],
     employment_fractions: [...props.profile.employment_fractions],
@@ -47,15 +46,10 @@ const form = useForm({
 });
 
 watch(
-    () => [form.headline, form.years_of_experience, form.available_from],
+    () => [form.headline, form.available_from],
     () =>
         emit('preview', {
             headline: form.headline || null,
-            years_of_experience:
-                form.years_of_experience === null ||
-                String(form.years_of_experience) === ''
-                    ? null
-                    : Number(form.years_of_experience),
             available_from: form.available_from || null,
         }),
 );
@@ -73,11 +67,6 @@ function toggleValue(list: string[], value: string) {
 function submit() {
     form.transform((data) => ({
         ...data,
-        years_of_experience:
-            data.years_of_experience === null ||
-            String(data.years_of_experience) === ''
-                ? null
-                : data.years_of_experience,
         leave_starts_on: data.leave_starts_on || null,
         due_date: data.stage === 'pregnant' ? data.due_date || null : null,
     })).put(props.submitUrl ?? preferences.url(), {

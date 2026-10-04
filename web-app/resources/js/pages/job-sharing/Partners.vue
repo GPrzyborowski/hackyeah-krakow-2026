@@ -17,7 +17,6 @@ type Partner = {
     anonymous_name: string;
     initial: string;
     headline: string | null;
-    years_of_experience: number | null;
     available_from: string | null;
     preferred_day_part: 'morning' | 'afternoon' | 'any' | null;
     preferred_day_part_label: string | null;
@@ -176,18 +175,6 @@ function dayPartText(partner: Partner): string | null {
                         </div>
                         <p class="mt-0.5 text-sm text-brand-green/80">
                             {{ partner.headline ?? 'Bez podanego stanowiska' }}
-                            <template v-if="partner.years_of_experience">
-                                · {{ partner.years_of_experience }}
-                                {{
-                                    pluralize(
-                                        partner.years_of_experience,
-                                        'rok',
-                                        'lata',
-                                        'lat',
-                                    )
-                                }}
-                                doświadczenia</template
-                            >
                         </p>
                     </div>
                     <MatchPill :score="partner.score" prefix="Dopasowanie " />

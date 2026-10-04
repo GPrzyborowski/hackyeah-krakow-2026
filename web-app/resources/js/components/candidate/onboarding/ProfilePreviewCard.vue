@@ -1,26 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { formatShortDate, pluralize } from '@/components/candidate/format';
+import { formatShortDate } from '@/components/candidate/format';
 
 const props = defineProps<{
     anonymousName: string;
     headline: string | null;
-    yearsOfExperience: number | null;
     summary: string | null;
     skills: string[];
     availableFrom: string | null;
 }>();
 
-const subtitle = computed(() =>
-    [
-        props.headline,
-        props.yearsOfExperience !== null
-            ? `${props.yearsOfExperience} ${pluralize(props.yearsOfExperience, 'rok', 'lata', 'lat')}`
-            : null,
-    ]
-        .filter(Boolean)
-        .join(' · '),
-);
 </script>
 
 <template>
@@ -36,7 +24,7 @@ const subtitle = computed(() =>
                 <div class="min-w-0">
                     <p class="text-lg font-bold">{{ anonymousName }}</p>
                     <p class="truncate text-xs text-brand-green/80">
-                        {{ subtitle || 'Uzupełnij stanowisko i staż' }}
+                        {{ headline || 'Uzupełnij stanowisko' }}
                     </p>
                 </div>
             </div>
