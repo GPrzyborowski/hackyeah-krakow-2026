@@ -185,12 +185,15 @@ onUnmounted(stopListening);
                 <p class="text-brand-green/80">
                     mumjobs · praca dla przyszłych i obecnych mam
                 </p>
-                <nav class="flex gap-5 font-medium" aria-label="Stopka">
+                <nav
+                    class="flex flex-wrap gap-x-5 gap-y-2 font-medium"
+                    aria-label="Stopka"
+                >
                     <Link
                         v-for="link in footerLinks"
                         :key="link.title"
                         :href="link.href"
-                        class="hover:underline"
+                        class="whitespace-nowrap hover:underline"
                         >{{ link.title }}</Link
                     >
                 </nav>

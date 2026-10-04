@@ -103,7 +103,9 @@ const pairChat = [
         <section
             class="mx-auto max-w-6xl px-4 pt-8 pb-16 sm:px-6 lg:px-8 lg:pt-14 lg:pb-24"
         >
-            <div class="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+            <div
+                class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14"
+            >
                 <div>
                     <h1
                         class="text-4xl leading-[1.05] font-semibold tracking-tight text-brand-green sm:text-5xl lg:text-6xl"
@@ -185,27 +187,23 @@ const pairChat = [
                         <div class="w-[30%] rounded-full bg-brand-yellow" />
                     </div>
                     <div
-                        class="mt-3 grid grid-cols-3 gap-2 text-[11px] leading-tight"
+                        class="mt-3 grid grid-cols-3 gap-2 text-[11px] leading-tight break-words"
                     >
                         <div>
-                            <p
-                                class="inline-flex items-center gap-1 font-semibold"
-                            >
+                            <p class="font-semibold">
                                 Ciąża
                                 <Lock
-                                    class="size-2.5"
+                                    class="inline size-2.5 align-[-1px]"
                                     aria-label="tylko dla Ciebie"
                                 />
                             </p>
                             <p class="text-white/80">dziś: 24. tydzień</p>
                         </div>
                         <div>
-                            <p
-                                class="inline-flex items-center gap-1 font-semibold"
-                            >
+                            <p class="font-semibold">
                                 Urlop macierzyński
                                 <Lock
-                                    class="size-2.5"
+                                    class="inline size-2.5 align-[-1px]"
                                     aria-label="tylko dla Ciebie"
                                 />
                             </p>
@@ -229,11 +227,11 @@ const pairChat = [
                             class="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 text-brand-green"
                         >
                             <div class="min-w-0">
-                                <p class="truncate text-sm font-semibold">
+                                <p class="text-sm font-semibold sm:truncate">
                                     {{ item.company }} zaprasza na rozmowę
                                 </p>
                                 <p
-                                    class="truncate text-[11px] text-brand-green/80"
+                                    class="text-[11px] text-brand-green/80 sm:truncate"
                                 >
                                     {{ item.title }} · {{ item.meta }}
                                 </p>
@@ -247,8 +245,8 @@ const pairChat = [
                     <p
                         class="mt-3 rounded-2xl bg-white/10 px-4 py-3 text-[11px] text-white/80"
                     >
-                        Przyjmujesz albo odrzucasz. Firma nie zobaczy Twoich
-                        danych, dopóki się nie zgodzisz.
+                        Firma nie zobaczy Twoich danych, dopóki się nie
+                        zgodzisz.
                     </p>
                 </div>
             </div>
@@ -334,7 +332,7 @@ const pairChat = [
         <!-- Job sharing -->
         <section id="job-sharing" class="scroll-mt-4 bg-brand-mint-soft">
             <div
-                class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20"
+                class="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20"
             >
                 <div>
                     <h2
@@ -345,10 +343,11 @@ const pairChat = [
                     <p class="mt-4 max-w-lg text-sm text-brand-green/80">
                         Każda z Was pracuje część dnia, więc resztę możesz
                         poświęcić domowi i dziecku, a firma ma obsadzone
-                        stanowisko od rana do popołudnia. Wybierz ofertę dla wielu osób, zaproś
-                        partnerkę albo przyjmij jej zaproszenie, ustalcie
-                        podział dnia i wyślijcie parę do firmy. Firma zobaczy
-                        Was dopiero wtedy, gdy obie się zgodzicie.
+                        stanowisko od rana do popołudnia. Wybierz ofertę dla
+                        wielu osób, zaproś partnerkę albo przyjmij jej
+                        zaproszenie, ustalcie podział dnia i wyślijcie parę do
+                        firmy. Firma zobaczy Was dopiero wtedy, gdy obie się
+                        zgodzicie.
                     </p>
 
                     <div class="mt-6 rounded-3xl bg-white p-5">
@@ -457,7 +456,7 @@ const pairChat = [
 
         <!-- Assistant teaser -->
         <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-            <div class="grid items-center gap-10 lg:grid-cols-2">
+            <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
                 <div>
                     <h2
                         class="text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
@@ -580,7 +579,7 @@ const pairChat = [
                 class="flex flex-col gap-6 rounded-3xl bg-brand-green px-6 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-12"
             >
                 <h2
-                    class="max-w-md text-3xl leading-tight font-semibold tracking-tight text-white"
+                    class="max-w-md text-2xl leading-tight font-semibold tracking-tight text-white sm:text-3xl"
                 >
                     Wypełnij profil raz. Zaproszenia od firm i propozycje
                     wspólnego etatu przyjdą do Ciebie.
