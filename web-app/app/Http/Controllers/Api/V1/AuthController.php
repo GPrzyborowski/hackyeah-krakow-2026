@@ -14,6 +14,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
+use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -38,7 +39,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Exchange credentials for a token. Users with confirmed 2FA must also send `code` (TOTP) or `recovery_code`;
+     * Exchange credentials for a token. While the 2FA feature is enabled, users with confirmed 2FA must also send `code` (TOTP) or `recovery_code`;
      * admins are refused (the admin panel is browser-only).
      */
     public function login(LoginRequest $request, TwoFactorAuthenticationProvider $twoFactorProvider): JsonResponse
@@ -54,7 +55,7 @@ class AuthController extends Controller
 
         abort_if($user->role === UserRole::Admin, Response::HTTP_FORBIDDEN, 'Panel administratora jest dostępny tylko w przeglądarce.');
 
-        if ($user->hasEnabledTwoFactorAuthentication() && ! $this->passesTwoFactorChallenge($user, $request, $twoFactorProvider)) {
+        if (Features::enabled(Features::twoFactorAuthentication()) && $user->hasEnabledTwoFactorAuthentication() && ! $this->passesTwoFactorChallenge($user, $request, $twoFactorProvider)) {
             $message = $request->filled('code') || $request->filled('recovery_code')
                 ? 'Podany kod uwierzytelniania dwuskładnikowego jest nieprawidłowy.'
                 : 'Podaj kod z aplikacji uwierzytelniającej lub kod odzyskiwania.';
