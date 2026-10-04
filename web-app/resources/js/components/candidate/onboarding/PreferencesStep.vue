@@ -11,7 +11,6 @@ import type {
 } from '@/components/candidate/types';
 import InputError from '@/components/InputError.vue';
 import { preferences, show } from '@/routes/candidate/onboarding';
-import { privacy } from '@/routes/public/legal';
 
 const props = defineProps<{
     profile: OnboardingProfile;
@@ -334,78 +333,6 @@ const inputClass =
                 id="available_from-error"
                 :message="form.errors.available_from"
             />
-        </div>
-
-        <div class="mt-4 rounded-2xl border border-brand-mint-soft p-4">
-            <h3 class="flex items-center gap-2 font-bold text-brand-green">
-                <Lock class="size-4" /> Twój kalendarz powrotu
-                <span class="text-xs font-normal text-brand-green/80"
-                    >(opcjonalnie)</span
-                >
-            </h3>
-            <p class="mt-1 text-xs text-brand-green/80">
-                {{
-                    form.stage === 'after_leave'
-                        ? 'Daty urlopu są opcjonalne i prywatne.'
-                        : 'Dane o ciąży są opcjonalne i prywatne.'
-                }}
-                Nigdy nie pokazujemy ich pracodawcom – służą tylko Twojemu
-                kalendarzowi i przypomnieniom. Podając je, wyrażasz zgodę na ich
-                przetwarzanie (art. 9 RODO). Możesz ją wycofać, usuwając daty.
-                <a
-                    :href="privacy.url()"
-                    target="_blank"
-                    rel="noopener"
-                    class="font-semibold underline underline-offset-2"
-                    >Polityka prywatności</a
-                >
-            </p>
-            <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div v-if="form.stage !== 'after_leave'">
-                    <label
-                        for="due_date"
-                        class="text-sm font-semibold text-brand-green"
-                        >Termin porodu</label
-                    >
-                    <input
-                        id="due_date"
-                        :aria-invalid="form.errors.due_date ? true : undefined"
-                        aria-describedby="due_date-error"
-                        v-model="form.due_date"
-                        type="date"
-                        :class="inputClass"
-                    />
-                    <InputError
-                        id="due_date-error"
-                        :message="form.errors.due_date"
-                    />
-                </div>
-                <div>
-                    <label
-                        for="leave_starts_on"
-                        class="text-sm font-semibold text-brand-green"
-                        >{{
-                            form.stage === 'after_leave'
-                                ? 'Urlop od'
-                                : 'Początek urlopu'
-                        }}</label
-                    >
-                    <input
-                        id="leave_starts_on"
-                        :aria-invalid="
-                            form.errors.leave_starts_on ? true : undefined
-                        "
-                        aria-describedby="leave_starts_on-error"
-                        v-model="form.leave_starts_on"
-                        type="date"
-                        :class="inputClass"
-                    />
-                    <InputError
-                        id="leave_starts_on-error"
-                        :message="form.errors.leave_starts_on"
-                    />
-                </div>
-            </div>
         </div>
 
         <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
