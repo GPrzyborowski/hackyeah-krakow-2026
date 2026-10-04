@@ -413,7 +413,7 @@ const pairChat = [
                         </div>
                         <div>
                             <p class="text-sm font-semibold text-brand-green">
-                                Czat pary: Marta i Ewa
+                                Marta i Ewa · jeden etat na dwie
                             </p>
                             <p class="text-[11px] text-brand-green/80">
                                 Specjalistka ds. rekrutacji · Zielone Biuro
