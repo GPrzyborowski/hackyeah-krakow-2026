@@ -87,11 +87,14 @@ function isActive(item: NavItem): boolean {
                             as-child
                             :is-active="isActive(item)"
                             :tooltip="item.title"
-                            class="h-11 gap-3 rounded-full px-4 text-[15px] font-medium text-brand-green hover:bg-brand-mint-soft hover:text-brand-green data-[active=true]:bg-brand-green data-[active=true]:font-semibold data-[active=true]:text-white dark:text-neutral-200 dark:hover:bg-white/10 dark:data-[active=true]:bg-brand-mint dark:data-[active=true]:text-brand-green [&>svg]:size-5"
+                            class="h-11 gap-3 rounded-full px-4 text-[15px] font-medium text-brand-green hover:bg-brand-mint-soft hover:text-brand-green data-[active=true]:bg-brand-green data-[active=true]:font-semibold data-[active=true]:text-white dark:text-neutral-200 dark:hover:bg-white/10 dark:data-[active=true]:bg-brand-mint dark:data-[active=true]:text-brand-green group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! [&>svg]:size-5"
                         >
                             <Link :href="item.href">
                                 <component :is="item.icon" />
-                                <span>{{ item.title }}</span>
+                                <span
+                                    class="group-data-[collapsible=icon]:hidden"
+                                    >{{ item.title }}</span
+                                >
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
