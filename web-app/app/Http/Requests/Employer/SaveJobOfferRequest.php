@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Employer;
 
+use App\Enums\ContractType;
 use App\Enums\EmploymentFraction;
 use App\Enums\ModerationContext;
 use App\Enums\OfferCategory;
@@ -43,6 +44,8 @@ class SaveJobOfferRequest extends FormRequest
             'start_date' => ['required', 'date', ...($isPublishing ? ['after_or_equal:today'] : [])],
             'description' => ['nullable', 'string', 'max:5000'],
             'employment_fraction' => ['required', Rule::enum(EmploymentFraction::class)],
+            'contract_types' => [...($this->isMobileApi() ? ['nullable'] : ['required']), 'array', 'min:1'],
+            'contract_types.*' => ['required', Rule::enum(ContractType::class)],
             'salary_min' => ['nullable', 'integer', 'min:0', 'max:1000000'],
             'salary_max' => ['nullable', 'integer', 'min:0', 'max:1000000', ...($this->filled('salary_min') ? ['gte:salary_min'] : [])],
             'flexible_hours' => ['boolean'],
@@ -65,6 +68,8 @@ class SaveJobOfferRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'contract_types.required' => 'Wybierz co najmniej jedną formę zatrudnienia.',
+            'contract_types.min' => 'Wybierz co najmniej jedną formę zatrudnienia.',
             'required_skills.required' => 'Dodaj co najmniej jedną wymaganą umiejętność, aby opublikować ofertę.',
             'salary_max.gte' => 'Górna granica wynagrodzenia nie może być niższa od dolnej.',
             'start_date.after_or_equal' => 'Planowany start nie może być w przeszłości.',
@@ -87,6 +92,8 @@ class SaveJobOfferRequest extends FormRequest
             'start_date' => 'planowany start',
             'description' => 'opis stanowiska',
             'employment_fraction' => 'wymiar etatu',
+            'contract_types' => 'forma zatrudnienia',
+            'contract_types.*' => 'forma zatrudnienia',
             'salary_min' => 'wynagrodzenie od',
             'salary_max' => 'wynagrodzenie do',
             'nursery_distance_km' => 'odległość do żłobka lub przedszkola',
@@ -123,7 +130,7 @@ class SaveJobOfferRequest extends FormRequest
     }
 
     /**
-     * The mobile API keeps `category` optional so app versions without the field can still save offers.
+     * The mobile API keeps `category` and `contract_types` optional so app versions without the field can still save offers.
      */
     public function isMobileApi(): bool
     {

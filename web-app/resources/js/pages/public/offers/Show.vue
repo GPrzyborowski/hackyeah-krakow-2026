@@ -152,6 +152,12 @@ const conditions = computed(() => [
                             :hours-per-person="offer.job_share.hours_per_person"
                         />
                         <Chip>{{ offer.employment_fraction_label }}</Chip>
+                        <Chip
+                            v-for="label in offer.contract_type_labels"
+                            :key="label"
+                            data-test="offer-contract-type"
+                            >{{ label }}</Chip
+                        >
                         <Chip>{{ offer.work_mode_label }}</Chip>
                         <Chip v-if="offer.flexible_hours"
                             >Elastyczne godziny</Chip

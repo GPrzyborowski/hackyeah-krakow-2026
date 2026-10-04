@@ -15,6 +15,8 @@ export type EmployerOffer = {
     work_mode_label: string;
     employment_fraction: string;
     employment_fraction_label: string;
+    contract_types: string[];
+    contract_type_labels: string[];
     salary_min: number | null;
     salary_max: number | null;
     start_date: string;

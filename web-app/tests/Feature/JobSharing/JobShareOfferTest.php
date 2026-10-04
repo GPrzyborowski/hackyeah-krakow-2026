@@ -105,6 +105,7 @@ class JobShareOfferTest extends TestCase
             'title' => 'Specjalistka ds. rekrutacji – job sharing',
             'city' => 'Poznań',
             'category' => 'hr',
+            'contract_types' => ['employment'],
             'work_mode' => 'hybrid',
             'start_date' => '2027-09-01',
             'description' => 'Jedno stanowisko, dwie osoby.',

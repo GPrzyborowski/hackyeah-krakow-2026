@@ -53,6 +53,25 @@ class PublicOfferTest extends TestCase
             ->assertJsonPath('data.category', 'it');
     }
 
+    public function test_guest_filters_offers_by_contract_type_and_sees_the_labels(): void
+    {
+        $company = Company::factory()->create();
+        $mandateOffer = JobOffer::factory()->published()->for($company)->create(['contract_types' => ['employment', 'mandate']]);
+        JobOffer::factory()->published()->for($company)->create(['contract_types' => ['employment']]);
+
+        $this->getJson('/api/v1/public/offers?contract_type[]=mandate&contract_type[]=bogus')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $mandateOffer->id)
+            ->assertJsonPath('data.0.contract_types', ['employment', 'mandate'])
+            ->assertJsonPath('data.0.contract_type_labels', ['Umowa o pracę', 'Umowa zlecenie'])
+            ->assertJsonPath('meta.filters.contract_type', ['mandate']);
+
+        $this->getJson("/api/v1/public/offers/{$mandateOffer->id}")
+            ->assertOk()
+            ->assertJsonPath('data.contract_types', ['employment', 'mandate']);
+    }
+
     public function test_guest_filters_offers_with_a_nursery_nearby_and_sees_the_distance(): void
     {
         $company = Company::factory()->create();

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Candidate;
 
+use App\Enums\ContractType;
 use App\Enums\EmploymentFraction;
 use App\Enums\OfferCategory;
 use App\Enums\SkillImportance;
@@ -82,6 +83,26 @@ class OffersTest extends TestCase
         $this->actingAs($this->profile->user)
             ->get(route('candidate.offers.index', ['categories' => ['astronomy']]))
             ->assertSessionHasErrors('categories.0');
+    }
+
+    public function test_contract_type_filter_keeps_offers_with_any_of_the_chosen_types(): void
+    {
+        $mandate = $this->offer(['contract_types' => ['employment', 'mandate']]);
+        $this->offer(['contract_types' => ['employment']]);
+
+        $this->actingAs($this->profile->user)
+            ->get(route('candidate.offers.index', ['contract_types' => ['mandate']]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers', 1)
+                ->where('offers.0.id', $mandate->id)
+                ->where('offers.0.contract_type_labels', ['Umowa o pracę', 'Umowa zlecenie'])
+                ->where('filters.contract_types', ['mandate'])
+                ->has('contractTypes', count(ContractType::cases())));
+
+        $this->actingAs($this->profile->user)
+            ->get(route('candidate.offers.index', ['contract_types' => ['b2b']]))
+            ->assertSessionHasErrors('contract_types.0');
     }
 
     public function test_listing_exposes_the_parent_friendly_conditions_shown_as_card_chips(): void

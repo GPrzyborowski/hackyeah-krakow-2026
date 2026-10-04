@@ -940,6 +940,12 @@
                                     "disabled": true
                                 },
                                 {
+                                    "key": "contract_types[]",
+                                    "value": "employment",
+                                    "description": "Contract type, any of",
+                                    "disabled": true
+                                },
+                                {
                                     "key": "flexible_hours",
                                     "value": "1",
                                     "description": "",
@@ -1558,7 +1564,7 @@
                         "description": "Create an offer (draft or publish)\n\nUnknown skill names are created. Title and description are moderated.",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"action\": \"publish\",\n    \"title\": \"Specjalistka ds. rekrutacji\",\n    \"city\": \"Kraków\",\n    \"work_mode\": \"hybrid\",\n    \"start_date\": \"2027-09-01\",\n    \"description\": \"Prowadzenie procesów rekrutacyjnych.\",\n    \"employment_fraction\": \"3/5\",\n    \"salary_min\": 8500,\n    \"salary_max\": 11000,\n    \"flexible_hours\": true,\n    \"fixed_meeting_hours\": false,\n    \"childcare_subsidy\": true,\n    \"is_job_share\": false,\n    \"required_skills\": [\n        \"Rekrutacja IT\"\n    ],\n    \"nice_to_have_skills\": [\n        \"Onboarding\"\n    ]\n}",
+                            "raw": "{\n    \"action\": \"publish\",\n    \"title\": \"Specjalistka ds. rekrutacji\",\n    \"city\": \"Kraków\",\n    \"work_mode\": \"hybrid\",\n    \"start_date\": \"2027-09-01\",\n    \"description\": \"Prowadzenie procesów rekrutacyjnych.\",\n    \"employment_fraction\": \"3/5\",\n    \"contract_types\": [\n        \"employment\"\n    ],\n    \"salary_min\": 8500,\n    \"salary_max\": 11000,\n    \"flexible_hours\": true,\n    \"fixed_meeting_hours\": false,\n    \"childcare_subsidy\": true,\n    \"is_job_share\": false,\n    \"required_skills\": [\n        \"Rekrutacja IT\"\n    ],\n    \"nice_to_have_skills\": [\n        \"Onboarding\"\n    ]\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -1621,7 +1627,7 @@
                         "description": "Update an offer\n\nSame body as create; skills are replaced.",
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"action\": \"publish\",\n    \"title\": \"Specjalistka ds. rekrutacji\",\n    \"city\": \"Kraków\",\n    \"work_mode\": \"hybrid\",\n    \"start_date\": \"2027-09-01\",\n    \"description\": \"Prowadzenie procesów rekrutacyjnych.\",\n    \"employment_fraction\": \"3/5\",\n    \"salary_min\": 8500,\n    \"salary_max\": 11000,\n    \"flexible_hours\": true,\n    \"fixed_meeting_hours\": false,\n    \"childcare_subsidy\": true,\n    \"is_job_share\": false,\n    \"required_skills\": [\n        \"Rekrutacja IT\"\n    ],\n    \"nice_to_have_skills\": [\n        \"Onboarding\"\n    ]\n}",
+                            "raw": "{\n    \"action\": \"publish\",\n    \"title\": \"Specjalistka ds. rekrutacji\",\n    \"city\": \"Kraków\",\n    \"work_mode\": \"hybrid\",\n    \"start_date\": \"2027-09-01\",\n    \"description\": \"Prowadzenie procesów rekrutacyjnych.\",\n    \"employment_fraction\": \"3/5\",\n    \"contract_types\": [\n        \"employment\"\n    ],\n    \"salary_min\": 8500,\n    \"salary_max\": 11000,\n    \"flexible_hours\": true,\n    \"fixed_meeting_hours\": false,\n    \"childcare_subsidy\": true,\n    \"is_job_share\": false,\n    \"required_skills\": [\n        \"Rekrutacja IT\"\n    ],\n    \"nice_to_have_skills\": [\n        \"Onboarding\"\n    ]\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -2051,6 +2057,12 @@
                                     "key": "fraction[]",
                                     "value": "1",
                                     "description": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "contract_type[]",
+                                    "value": "employment",
+                                    "description": "Contract type (\"Forma zatrudnienia\"), any of; unknown values ignored",
                                     "disabled": true
                                 },
                                 {

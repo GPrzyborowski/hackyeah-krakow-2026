@@ -41,6 +41,7 @@ class EmployerToCandidateTest extends TestCase
                 'action' => 'publish',
                 'title' => 'Specjalistka ds. rekrutacji IT',
                 'category' => 'hr',
+                'contract_types' => ['employment'],
                 'city' => 'Kraków',
                 'work_mode' => 'hybrid',
                 'start_date' => '2027-09-01',

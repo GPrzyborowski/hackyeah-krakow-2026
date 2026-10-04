@@ -23,7 +23,7 @@ class OfferSearch
     /**
      * Normalised filters; "start_from" defaults to the candidate's availability unless explicitly sent (even empty).
      *
-     * @return array{q: string, location: string, categories: list<string>, work_modes: list<string>, employment_fractions: list<string>, flexible_hours: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, verified_only: bool, job_share: bool, saved: bool, start_from: string|null, sort: string}
+     * @return array{q: string, location: string, categories: list<string>, work_modes: list<string>, employment_fractions: list<string>, contract_types: list<string>, flexible_hours: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, verified_only: bool, job_share: bool, saved: bool, start_from: string|null, sort: string}
      */
     public function filtersFrom(OfferFilterRequest $request, CandidateProfile $profile): array
     {
@@ -35,6 +35,7 @@ class OfferSearch
             'categories' => array_values($filters['categories'] ?? []),
             'work_modes' => array_values($filters['work_modes'] ?? []),
             'employment_fractions' => array_values($filters['employment_fractions'] ?? []),
+            'contract_types' => array_values(array_unique($filters['contract_types'] ?? [])),
             'flexible_hours' => $request->boolean('flexible_hours'),
             'childcare_subsidy' => $request->boolean('childcare_subsidy'),
             'nursery_nearby' => $request->boolean('nursery_nearby'),
@@ -50,7 +51,7 @@ class OfferSearch
     }
 
     /**
-     * @param  array{q: string, location: string, categories: list<string>, work_modes: list<string>, employment_fractions: list<string>, flexible_hours: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, verified_only: bool, job_share: bool, saved: bool, start_from: string|null, sort: string}  $filters
+     * @param  array{q: string, location: string, categories: list<string>, work_modes: list<string>, employment_fractions: list<string>, contract_types: list<string>, flexible_hours: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, verified_only: bool, job_share: bool, saved: bool, start_from: string|null, sort: string}  $filters
      * @return Collection<int, array{offer: JobOffer, match: MatchResult}>
      */
     public function rank(CandidateProfile $profile, array $filters): Collection
@@ -72,6 +73,7 @@ class OfferSearch
             ->when($filters['categories'], fn (Builder $query, array $categories) => $query->whereIn('category', $categories))
             ->when($filters['work_modes'], fn (Builder $query, array $modes) => $query->whereIn('work_mode', $modes))
             ->when($filters['employment_fractions'], fn (Builder $query, array $fractions) => $query->whereIn('employment_fraction', $fractions))
+            ->when($filters['contract_types'], fn (Builder $query, array $types) => $query->withAnyContractType($types))
             ->when($filters['flexible_hours'], fn (Builder $query) => $query->where('flexible_hours', true))
             ->when($filters['childcare_subsidy'], fn (Builder $query) => $query->where('childcare_subsidy', true))
             ->when($filters['nursery_nearby'], fn (Builder $query) => $query->withNurseryNearby())

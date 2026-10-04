@@ -2,6 +2,7 @@
 
 namespace App\Actions\Employer;
 
+use App\Enums\ContractType;
 use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Enums\SkillImportance;
@@ -37,6 +38,12 @@ class SaveJobOffer
                 $offer->category = OfferCategory::Other;
             }
 
+            if ($request->validated('contract_types') !== null) {
+                $offer->contract_types = $this->contractTypeValues($request->validated('contract_types'));
+            } elseif (! $offer->exists) {
+                $offer->contract_types = [ContractType::EmploymentContract->value];
+            }
+
             if ($request->isPublishing() && $offer->published_at === null) {
                 $offer->published_at = now();
             }
@@ -57,5 +64,19 @@ class SaveJobOffer
         });
 
         return $offer;
+    }
+
+    /**
+     * Selected contract types, de-duplicated and kept in enum order.
+     *
+     * @param  list<string>  $selected
+     * @return list<string>
+     */
+    private function contractTypeValues(array $selected): array
+    {
+        return array_values(array_map(
+            fn (ContractType $type): string => $type->value,
+            array_filter(ContractType::cases(), fn (ContractType $type): bool => in_array($type->value, $selected, true)),
+        ));
     }
 }

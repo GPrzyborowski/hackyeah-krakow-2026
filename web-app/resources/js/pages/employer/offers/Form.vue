@@ -17,6 +17,7 @@ const props = defineProps<{
     categories: SelectOption[];
     workModes: SelectOption[];
     employmentFractions: SelectOption[];
+    contractTypes: SelectOption[];
 }>();
 
 defineOptions({
@@ -36,6 +37,7 @@ const form = useForm({
     start_date: props.offer?.start_date ?? '',
     description: props.offer?.description ?? '',
     employment_fraction: props.offer?.employment_fraction ?? '3/5',
+    contract_types: [...(props.offer?.contract_types ?? ['employment'])],
     salary_min: (props.offer?.salary_min ?? null) as number | null,
     salary_max: (props.offer?.salary_max ?? null) as number | null,
     flexible_hours: props.offer?.flexible_hours ?? false,
@@ -54,6 +56,12 @@ const form = useForm({
     required_skills: [...(props.offer?.required_skills ?? [])],
     nice_to_have_skills: [...(props.offer?.nice_to_have_skills ?? [])],
 });
+
+function toggleContractType(value: string, checked: boolean): void {
+    form.contract_types = checked
+        ? [...form.contract_types, value]
+        : form.contract_types.filter((type) => type !== value);
+}
 
 const isPublished = computed(() => props.offer?.status === 'published');
 const pageTitle = computed(() =>
@@ -301,6 +309,46 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             />
                         </label>
                     </div>
+                    <fieldset
+                        class="mt-5"
+                        :aria-invalid="
+                            form.errors.contract_types ? true : undefined
+                        "
+                        aria-describedby="contract_types-error"
+                        data-test="offer-contract-types"
+                    >
+                        <legend :class="labelClass">Forma zatrudnienia</legend>
+                        <div
+                            class="mt-2 flex flex-wrap gap-x-6 gap-y-3 text-sm text-brand-green"
+                        >
+                            <label
+                                v-for="contractType in contractTypes"
+                                :key="contractType.value"
+                                class="flex items-center gap-3"
+                            >
+                                <Checkbox
+                                    :model-value="
+                                        form.contract_types.includes(
+                                            contractType.value,
+                                        )
+                                    "
+                                    :data-test="`offer-contract-type-${contractType.value}`"
+                                    @update:model-value="
+                                        (checked) =>
+                                            toggleContractType(
+                                                contractType.value,
+                                                checked === true,
+                                            )
+                                    "
+                                />
+                                {{ contractType.label }}
+                            </label>
+                        </div>
+                        <InputError
+                            id="contract_types-error"
+                            :message="form.errors.contract_types"
+                        />
+                    </fieldset>
                     <div class="mt-5 space-y-3 text-sm text-brand-green">
                         <label class="flex items-center gap-3">
                             <Checkbox v-model="form.flexible_hours" />

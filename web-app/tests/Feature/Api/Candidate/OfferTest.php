@@ -57,9 +57,9 @@ class OfferTest extends TestCase
         $skill = $this->skill('Rekrutacja IT');
         $candidate = $this->candidate([$skill]);
         $remote = $this->publishedOffer(Company::factory()->create(), [$skill]);
-        $remote->update(['work_mode' => WorkMode::Remote, 'employment_fraction' => EmploymentFraction::Half, 'category' => OfferCategory::It]);
+        $remote->update(['work_mode' => WorkMode::Remote, 'employment_fraction' => EmploymentFraction::Half, 'category' => OfferCategory::It, 'contract_types' => ['employment', 'mandate']]);
         $saved = $this->publishedOffer(Company::factory()->create(), [$skill]);
-        $saved->update(['category' => OfferCategory::Sales]);
+        $saved->update(['category' => OfferCategory::Sales, 'contract_types' => ['employment']]);
         $candidate->savedOffers()->attach($saved);
         Sanctum::actingAs($candidate->user);
 
@@ -75,6 +75,14 @@ class OfferTest extends TestCase
             ->assertJsonPath('data.0.category', 'it')
             ->assertJsonPath('data.0.category_label', 'IT i technologie')
             ->assertJsonPath('meta.filters.categories', ['it']);
+
+        $this->getJson('/api/v1/candidate/offers?'.http_build_query(['contract_types' => ['mandate']]))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $remote->id)
+            ->assertJsonPath('data.0.contract_types', ['employment', 'mandate'])
+            ->assertJsonPath('data.0.contract_type_labels', ['Umowa o pracę', 'Umowa zlecenie'])
+            ->assertJsonPath('meta.filters.contract_types', ['mandate']);
 
         $this->getJson('/api/v1/candidate/offers?saved=1')
             ->assertOk()

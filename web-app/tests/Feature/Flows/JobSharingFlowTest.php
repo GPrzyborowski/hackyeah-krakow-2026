@@ -36,6 +36,7 @@ class JobSharingFlowTest extends TestCase
                 'action' => 'publish',
                 'title' => 'Specjalistka HR (job sharing)',
                 'category' => 'hr',
+                'contract_types' => ['employment'],
                 'city' => 'Kraków',
                 'work_mode' => 'hybrid',
                 'start_date' => '2027-09-01',

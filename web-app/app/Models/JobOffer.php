@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ContractType;
 use App\Enums\EmploymentFraction;
 use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $city
  * @property WorkMode $work_mode
  * @property EmploymentFraction $employment_fraction
+ * @property list<string>|null $contract_types
  * @property int|null $salary_min
  * @property int|null $salary_max
  * @property CarbonImmutable $start_date
@@ -40,7 +42,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $published_at
  */
 #[Fillable([
-    'title', 'category', 'city', 'work_mode', 'employment_fraction', 'salary_min', 'salary_max', 'start_date', 'description',
+    'title', 'category', 'city', 'work_mode', 'employment_fraction', 'contract_types', 'salary_min', 'salary_max', 'start_date', 'description',
     'flexible_hours', 'fixed_meeting_hours', 'childcare_subsidy', 'nursery_distance_km', 'is_job_share', 'workday_starts_at', 'workday_ends_at',
     'status', 'published_at',
 ])]
@@ -136,9 +138,64 @@ class JobOffer extends Model
         $query->whereNotNull('nursery_distance_km')->where('nursery_distance_km', '<=', self::NURSERY_NEARBY_MAX_KM);
     }
 
+    /**
+     * Offers that include at least one of the given contract types (rows without any stored count as an employment contract).
+     *
+     * @param  Builder<JobOffer>  $query
+     * @param  list<string>  $types
+     */
+    public function scopeWithAnyContractType(Builder $query, array $types): void
+    {
+        $query->where(function (Builder $query) use ($types): void {
+            foreach ($types as $type) {
+                $query->orWhereJsonContains('contract_types', $type);
+            }
+
+            if (in_array(ContractType::EmploymentContract->value, $types, true)) {
+                $query->orWhereNull('contract_types');
+            }
+        });
+    }
+
     public function isPublished(): bool
     {
         return $this->status === OfferStatus::Published;
+    }
+
+    /**
+     * Contract types in enum order; offers without any stored (legacy rows) fall back to an employment contract.
+     *
+     * @return list<ContractType>
+     */
+    public function contractTypes(): array
+    {
+        $stored = array_map(
+            fn (string $value): ?ContractType => ContractType::tryFrom($value),
+            $this->contract_types ?? [],
+        );
+
+        $types = array_values(array_filter(
+            ContractType::cases(),
+            fn (ContractType $type): bool => in_array($type, $stored, true),
+        ));
+
+        return $types === [] ? [ContractType::EmploymentContract] : $types;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function contractTypeValues(): array
+    {
+        return array_map(fn (ContractType $type): string => $type->value, $this->contractTypes());
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function contractTypeLabels(): array
+    {
+        return array_map(fn (ContractType $type): string => $type->label(), $this->contractTypes());
     }
 
     /**
@@ -175,6 +232,7 @@ class JobOffer extends Model
             'category' => OfferCategory::class,
             'work_mode' => WorkMode::class,
             'employment_fraction' => EmploymentFraction::class,
+            'contract_types' => 'array',
             'start_date' => 'date',
             'flexible_hours' => 'boolean',
             'fixed_meeting_hours' => 'boolean',

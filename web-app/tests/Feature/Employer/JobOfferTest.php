@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Employer;
 
+use App\Enums\ContractType;
 use App\Enums\InvitationStatus;
 use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
@@ -154,6 +155,40 @@ class JobOfferTest extends TestCase
         $this->assertSame(0, JobOffer::count());
     }
 
+    public function test_employer_saves_both_contract_types_and_sees_them_in_the_edit_form()
+    {
+        $employer = $this->employer();
+
+        $this->actingAs($employer)->post('/employer/offers', $this->payload(['contract_types' => ['mandate', 'employment']]))
+            ->assertSessionHasNoErrors();
+
+        $offer = JobOffer::sole();
+        $this->assertSame(['employment', 'mandate'], $offer->contract_types);
+
+        $this->actingAs($employer)
+            ->get("/employer/offers/{$offer->id}/edit")
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('offer.contract_types', ['employment', 'mandate'])
+                ->where('offer.contract_type_labels', ['Umowa o pracę', 'Umowa zlecenie'])
+                ->has('contractTypes', count(ContractType::cases())));
+    }
+
+    public function test_at_least_one_known_contract_type_is_required()
+    {
+        $employer = $this->employer();
+
+        $this->actingAs($employer)->post('/employer/offers', $this->payload(['contract_types' => null]))
+            ->assertSessionHasErrors('contract_types');
+
+        $this->actingAs($employer)->post('/employer/offers', $this->payload(['contract_types' => []]))
+            ->assertSessionHasErrors('contract_types');
+
+        $this->actingAs($employer)->post('/employer/offers', $this->payload(['contract_types' => ['b2b']]))
+            ->assertSessionHasErrors('contract_types.0');
+
+        $this->assertSame(0, JobOffer::count());
+    }
+
     public function test_description_asking_about_family_plans_is_rejected()
     {
         $this->actingAs($this->employer())
@@ -263,6 +298,7 @@ class JobOfferTest extends TestCase
             'title' => 'Specjalistka ds. rekrutacji',
             'city' => 'Poznań',
             'category' => 'hr',
+            'contract_types' => ['employment'],
             'work_mode' => 'hybrid',
             'start_date' => '2027-09-01',
             'description' => 'Prowadzenie procesów rekrutacyjnych w zespołach IT.',

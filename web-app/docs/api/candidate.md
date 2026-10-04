@@ -218,6 +218,7 @@ Published offers ranked by match (same filters as the web list). Query parameter
 | `categories[]` | industry: `it`, `health`, `hr`, `finance`, `marketing`, `customer_service`, `administration`, `sales`, `education`, `design`, `other` |
 | `work_modes[]` | `remote`, `hybrid`, `onsite` |
 | `employment_fractions[]` | `1`, `3/4`, `3/5`, `1/2` |
+| `contract_types[]` | `employment` (umowa o pracę), `mandate` (umowa zlecenie); offers with any of them |
 | `flexible_hours`, `childcare_subsidy`, `with_reviews`, `job_share`, `saved` | `1` to enable |
 | `nursery_nearby` | `1` = only offers with a nursery/kindergarten at most 3 km from the workplace (`nursery_distance_km` set and `<= 3`) |
 | `verified_only` | `1` = only offers of companies verified by mumjobs ("Tylko zweryfikowane firmy") |
@@ -233,6 +234,7 @@ Offer card (also used in `home.top_offers`). `company.verified` = the company's 
   "category": "hr", "category_label": "HR i rekrutacja",
   "work_mode": "hybrid", "work_mode_label": "Hybrydowo",
   "employment_fraction": "3/5", "employment_fraction_label": "3/5 etatu",
+  "contract_types": ["employment"], "contract_type_labels": ["Umowa o pracę"],
   "salary_min": 6000, "salary_max": 8000, "start_date": "2027-09-01",
   "flexible_hours": true, "fixed_meeting_hours": false, "childcare_subsidy": true,
   "nursery_distance_km": 2,
@@ -250,7 +252,7 @@ Offer card (also used in `home.top_offers`). `company.verified` = the company's 
 }
 ```
 
-The list response adds `meta.filters` (the effective filters, incl. the defaulted `start_from`), `meta.has_confirmed_skills`, `meta.work_modes`, `meta.employment_fractions` and `meta.categories` (filter choices, `{ value, label }`).
+The list response adds `meta.filters` (the effective filters, incl. the defaulted `start_from`), `meta.has_confirmed_skills`, `meta.work_modes`, `meta.employment_fractions`, `meta.categories` and `meta.contract_types` (filter choices, `{ value, label }`).
 
 ### GET /candidate/offers/{offer}
 

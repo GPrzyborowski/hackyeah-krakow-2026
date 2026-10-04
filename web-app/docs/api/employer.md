@@ -185,6 +185,7 @@ candidates never appear here.
   "city": "Poznań",
   "work_mode": "hybrid", "work_mode_label": "Hybrydowo",
   "employment_fraction": "3/5", "employment_fraction_label": "3/5 etatu",
+  "contract_types": ["employment", "mandate"], "contract_type_labels": ["Umowa o pracę", "Umowa zlecenie"],
   "salary_min": 8500, "salary_max": 11000,
   "start_date": "2027-09-01",
   "description": "Prowadzenie procesów rekrutacyjnych…",
@@ -223,6 +224,7 @@ Throttle 20/min (moderated write). Body (same rules as the web form):
 | `start_date` | required date; when publishing not in the past |
 | `description` | optional, max 5000, moderated |
 | `employment_fraction` | required: `1`, `3/4`, `3/5`, `1/2` |
+| `contract_types` | optional (at least one required in the web form): array of `employment` (umowa o pracę), `mandate` (umowa zlecenie); when sent, at least one item. When omitted, a new offer gets `["employment"]` and an update keeps the current value |
 | `salary_min`, `salary_max` | optional integers; `salary_max >= salary_min` |
 | `flexible_hours`, `fixed_meeting_hours`, `childcare_subsidy`, `is_job_share` | booleans |
 | `nursery_distance_km` | optional integer 0–50: km from the workplace to the nearest nursery/kindergarten (candidates filter by it). Ignored (stored as `null`) for `work_mode=remote` |

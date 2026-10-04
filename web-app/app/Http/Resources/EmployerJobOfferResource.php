@@ -33,6 +33,8 @@ class EmployerJobOfferResource extends JsonResource
             'work_mode_label' => $this->resource->work_mode->label(),
             'employment_fraction' => $this->resource->employment_fraction->value,
             'employment_fraction_label' => $this->resource->employment_fraction->label(),
+            'contract_types' => $this->resource->contractTypeValues(),
+            'contract_type_labels' => $this->resource->contractTypeLabels(),
             'salary_min' => $this->resource->salary_min,
             'salary_max' => $this->resource->salary_max,
             'start_date' => $this->resource->start_date->toDateString(),

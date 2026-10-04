@@ -2,6 +2,7 @@
 
 namespace App\Services\Offers;
 
+use App\Enums\ContractType;
 use App\Enums\EmploymentFraction;
 use App\Enums\OfferCategory;
 use App\Enums\ReviewStatus;
@@ -26,7 +27,7 @@ class PublicOfferSearch
     /**
      * Normalise filters from the query string, silently dropping unknown values.
      *
-     * @return array{q: string, location: string, category: list<string>, work_mode: list<string>, fraction: list<string>, flexible: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, job_share: bool, verified_only: bool, start_from: string|null, sort: string}
+     * @return array{q: string, location: string, category: list<string>, work_mode: list<string>, fraction: list<string>, contract_type: list<string>, flexible: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, job_share: bool, verified_only: bool, start_from: string|null, sort: string}
      */
     public function filters(Request $request): array
     {
@@ -41,6 +42,7 @@ class PublicOfferSearch
             'category' => $values('category', fn (string $value): bool => OfferCategory::tryFrom($value) !== null),
             'work_mode' => $values('work_mode', fn (string $value): bool => WorkMode::tryFrom($value) !== null),
             'fraction' => $values('fraction', fn (string $value): bool => EmploymentFraction::tryFrom($value) !== null),
+            'contract_type' => $values('contract_type', fn (string $value): bool => ContractType::tryFrom($value) !== null),
             'flexible' => $request->boolean('flexible'),
             'childcare_subsidy' => $request->boolean('childcare_subsidy'),
             'nursery_nearby' => $request->boolean('nursery_nearby'),
@@ -69,7 +71,7 @@ class PublicOfferSearch
     /**
      * Published offers matching the filters, sorted (newest first by default), with the company and its approved reviews loaded.
      *
-     * @param  array{q: string, location: string, category: list<string>, work_mode: list<string>, fraction: list<string>, flexible: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, job_share: bool, verified_only: bool, start_from: string|null, sort: string}  $filters
+     * @param  array{q: string, location: string, category: list<string>, work_mode: list<string>, fraction: list<string>, contract_type: list<string>, flexible: bool, childcare_subsidy: bool, nursery_nearby: bool, with_reviews: bool, job_share: bool, verified_only: bool, start_from: string|null, sort: string}  $filters
      * @return Builder<JobOffer>
      */
     public function query(array $filters): Builder
@@ -96,6 +98,7 @@ class PublicOfferSearch
             ->when($filters['category'] !== [], fn (Builder $query) => $query->whereIn('category', $filters['category']))
             ->when($filters['work_mode'] !== [], fn (Builder $query) => $query->whereIn('work_mode', $filters['work_mode']))
             ->when($filters['fraction'] !== [], fn (Builder $query) => $query->whereIn('employment_fraction', $filters['fraction']))
+            ->when($filters['contract_type'] !== [], fn (Builder $query) => $query->withAnyContractType($filters['contract_type']))
             ->when($filters['flexible'], fn (Builder $query) => $query->where('flexible_hours', true))
             ->when($filters['childcare_subsidy'], fn (Builder $query) => $query->where('childcare_subsidy', true))
             ->when($filters['nursery_nearby'], fn (Builder $query) => $query->withNurseryNearby())

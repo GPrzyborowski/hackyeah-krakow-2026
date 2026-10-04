@@ -35,6 +35,8 @@ class PublicOfferPresenter
             'work_mode_label' => $offer->work_mode->label(),
             'employment_fraction' => $offer->employment_fraction->value,
             'employment_fraction_label' => $offer->employment_fraction->label(),
+            'contract_types' => $offer->contractTypeValues(),
+            'contract_type_labels' => $offer->contractTypeLabels(),
             'salary_min' => $offer->salary_min,
             'salary_max' => $offer->salary_max,
             'start_date' => $offer->start_date->toDateString(),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Candidate;
 
+use App\Enums\ContractType;
 use App\Enums\EmploymentFraction;
 use App\Enums\OfferCategory;
 use App\Enums\WorkMode;
@@ -25,6 +26,8 @@ class OfferFilterRequest extends FormRequest
             'work_modes.*' => [Rule::enum(WorkMode::class)],
             'employment_fractions' => ['nullable', 'array'],
             'employment_fractions.*' => [Rule::enum(EmploymentFraction::class)],
+            'contract_types' => ['nullable', 'array'],
+            'contract_types.*' => [Rule::enum(ContractType::class)],
             'flexible_hours' => ['nullable', 'boolean'],
             'childcare_subsidy' => ['nullable', 'boolean'],
             'nursery_nearby' => ['nullable', 'boolean'],

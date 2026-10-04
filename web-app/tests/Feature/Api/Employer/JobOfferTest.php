@@ -135,6 +135,36 @@ class JobOfferTest extends TestCase
             ->assertJsonValidationErrors('category');
     }
 
+    public function test_contract_types_are_optional_for_older_app_versions_and_default_to_employment(): void
+    {
+        $employer = $this->employer();
+        Sanctum::actingAs($employer);
+
+        $this->postJson('/api/v1/employer/offers', $this->payload())
+            ->assertCreated()
+            ->assertJsonPath('data.contract_types', ['employment'])
+            ->assertJsonPath('data.contract_type_labels', ['Umowa o pracę']);
+
+        $offer = JobOffer::sole();
+
+        $this->putJson("/api/v1/employer/offers/{$offer->id}", $this->payload(['contract_types' => ['mandate']]))
+            ->assertOk()
+            ->assertJsonPath('data.contract_types', ['mandate'])
+            ->assertJsonPath('data.contract_type_labels', ['Umowa zlecenie']);
+
+        $this->putJson("/api/v1/employer/offers/{$offer->id}", $this->payload())
+            ->assertOk()
+            ->assertJsonPath('data.contract_types', ['mandate']);
+
+        $this->putJson("/api/v1/employer/offers/{$offer->id}", $this->payload(['contract_types' => []]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('contract_types');
+
+        $this->putJson("/api/v1/employer/offers/{$offer->id}", $this->payload(['contract_types' => ['b2b']]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('contract_types.0');
+    }
+
     public function test_employer_publishes_a_job_share_offer(): void
     {
         Sanctum::actingAs($this->employer());

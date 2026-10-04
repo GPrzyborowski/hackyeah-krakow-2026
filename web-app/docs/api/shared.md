@@ -31,6 +31,7 @@ Published offers, newest first by default, no match score. Query (all optional, 
 | `category[]` | `it`, `health`, … (see below) | Industry ("Branża"), any of |
 | `work_mode[]` | `remote`, `hybrid`, `onsite` | Any of |
 | `fraction[]` | `1`, `3/4`, `3/5`, `1/2` | Employment fraction, any of |
+| `contract_type[]` | `employment`, `mandate` | Contract type ("Forma zatrudnienia"), offers with any of them |
 | `flexible` | `1` | Only flexible hours |
 | `childcare_subsidy` | `1` | Only offers with a nursery/kindergarten subsidy ("Dofinansowanie żłobka lub przedszkola") |
 | `with_reviews` | `1` | Only offers of companies with at least one approved parent review ("Firma z opiniami rodziców") |
@@ -53,6 +54,8 @@ Published offers, newest first by default, no match score. Query (all optional, 
     "work_mode_label": "Hybrydowo",
     "employment_fraction": "3/5",
     "employment_fraction_label": "3/5 etatu",
+    "contract_types": ["employment"],
+    "contract_type_labels": ["Umowa o pracę"],
     "salary_min": 6500,
     "salary_max": 8000,
     "start_date": "2027-09-01",
@@ -71,12 +74,14 @@ Published offers, newest first by default, no match score. Query (all optional, 
   "links": { "first": "…?page=1", "last": "…?page=3", "prev": null, "next": "…?page=2" },
   "meta": {
     "current_page": 1, "last_page": 3, "per_page": 20, "total": 47,
-    "filters": { "q": "", "location": "", "category": [], "work_mode": ["hybrid"], "fraction": [], "flexible": false, "childcare_subsidy": false, "nursery_nearby": false, "with_reviews": false, "job_share": false, "verified_only": false, "start_from": null, "sort": "newest" }
+    "filters": { "q": "", "location": "", "category": [], "work_mode": ["hybrid"], "fraction": [], "contract_type": [], "flexible": false, "childcare_subsidy": false, "nursery_nearby": false, "with_reviews": false, "job_share": false, "verified_only": false, "start_from": null, "sort": "newest" }
   }
 }
 ```
 
 Every offer has exactly one industry: `category` (value) and `category_label` (Polish label). Values: `it`, `health`, `hr`, `finance`, `marketing`, `customer_service`, `administration`, `sales`, `education`, `design`, `other` ("IT i technologie", "Medycyna i zdrowie", "HR i rekrutacja", "Finanse i księgowość", "Marketing i komunikacja", "Obsługa klienta", "Administracja i biuro", "Sprzedaż", "Edukacja", "Projektowanie i kreatywne", "Inne"). The same two fields are on the offer detail and on the offers of `GET /public/companies/{company}`.
+
+Every offer has one or more contract types ("Forma zatrudnienia"): `contract_types` (values, list) and `contract_type_labels` (Polish labels, same order). Values: `employment` ("Umowa o pracę"), `mandate` ("Umowa zlecenie"). Offers created before the field existed report `["employment"]`. The same two fields are on the offer detail and on the offers of `GET /public/companies/{company}`.
 
 ### GET /public/offers/{offer}
 
@@ -117,7 +122,7 @@ Company profile with **approved** reviews only (anonymous) and published offers.
     }],
     "offers": [{
       "id": 4, "title": "…", "category": "hr", "category_label": "HR i rekrutacja", "city": "Kraków", "work_mode": "hybrid", "work_mode_label": "Hybrydowo",
-      "employment_fraction_label": "3/5 etatu", "salary_min": 6500, "salary_max": 8000, "start_date": "2027-09-01",
+      "employment_fraction_label": "3/5 etatu", "contract_types": ["employment"], "contract_type_labels": ["Umowa o pracę"], "salary_min": 6500, "salary_max": 8000, "start_date": "2027-09-01",
       "flexible_hours": true, "fixed_meeting_hours": false, "childcare_subsidy": true, "is_job_share": false
     }]
   }

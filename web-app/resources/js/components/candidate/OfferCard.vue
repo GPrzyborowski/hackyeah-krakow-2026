@@ -5,6 +5,7 @@ import {
     CalendarDays,
     Check,
     Clock,
+    FileText,
     HeartHandshake,
     MapPin,
     Star,
@@ -96,6 +97,15 @@ const perks = computed(() =>
             <Chip tone="mint">
                 <Clock class="size-3.5" aria-hidden="true" />
                 {{ offer.employment_fraction_label }}
+            </Chip>
+            <Chip
+                v-for="label in offer.contract_type_labels"
+                :key="label"
+                tone="mint"
+                data-test="offer-card-contract-type"
+            >
+                <FileText class="size-3.5" aria-hidden="true" />
+                {{ label }}
             </Chip>
             <Chip tone="mint">
                 <MapPin class="size-3.5" aria-hidden="true" />

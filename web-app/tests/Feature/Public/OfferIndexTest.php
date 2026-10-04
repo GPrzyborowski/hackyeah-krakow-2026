@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Public;
 
+use App\Enums\ContractType;
 use App\Enums\EmploymentFraction;
 use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
@@ -12,6 +13,7 @@ use App\Models\CompanyReview;
 use App\Models\JobOffer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -98,6 +100,37 @@ class OfferIndexTest extends TestCase
                 ->where('offers.data.1.id', $itOffer->id)
                 ->where('filters.category', [OfferCategory::It->value, OfferCategory::Health->value])
                 ->has('categories', count(OfferCategory::cases())),
+            );
+    }
+
+    public function test_offers_can_be_filtered_by_any_of_the_chosen_contract_types(): void
+    {
+        $mandateOnly = JobOffer::factory()->published()->create(['contract_types' => ['mandate'], 'published_at' => now()]);
+        $both = JobOffer::factory()->published()->create(['contract_types' => ['employment', 'mandate'], 'published_at' => now()->subDay()]);
+        $employmentOnly = JobOffer::factory()->published()->create(['contract_types' => ['employment'], 'published_at' => now()->subDays(2)]);
+        $legacy = JobOffer::factory()->published()->create(['published_at' => now()->subDays(3)]);
+        DB::table('job_offers')->where('id', $legacy->id)->update(['contract_types' => null]);
+
+        $this->get(route('public.offers.index', ['contract_type' => [ContractType::Mandate->value, 'invalid']]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers.data', 2)
+                ->where('offers.data.0.id', $mandateOnly->id)
+                ->where('offers.data.0.contract_types', ['mandate'])
+                ->where('offers.data.0.contract_type_labels', ['Umowa zlecenie'])
+                ->where('offers.data.1.id', $both->id)
+                ->where('filters.contract_type', [ContractType::Mandate->value])
+                ->has('contractTypes', count(ContractType::cases())),
+            );
+
+        $this->get(route('public.offers.index', ['contract_type' => [ContractType::EmploymentContract->value]]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers.data', 3)
+                ->where('offers.data.0.id', $both->id)
+                ->where('offers.data.1.id', $employmentOnly->id)
+                ->where('offers.data.2.id', $legacy->id)
+                ->where('offers.data.2.contract_type_labels', ['Umowa o pracę']),
             );
     }
 

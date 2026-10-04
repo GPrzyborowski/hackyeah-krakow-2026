@@ -5,6 +5,7 @@ import {
     CalendarDays,
     Check,
     Clock,
+    FileText,
     Heart,
     MapPin,
     Star,
@@ -45,6 +46,10 @@ const facts = computed(() =>
               }
             : null,
         { icon: Clock, label: props.offer.employment_fraction_label },
+        ...(props.offer.contract_type_labels ?? []).map((label) => ({
+            icon: FileText,
+            label,
+        })),
         { icon: MapPin, label: props.offer.work_mode_label },
         {
             icon: CalendarDays,

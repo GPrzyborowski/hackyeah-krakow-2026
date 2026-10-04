@@ -22,6 +22,7 @@ type Filters = {
     categories: string[];
     work_modes: string[];
     employment_fractions: string[];
+    contract_types: string[];
     flexible_hours: boolean;
     childcare_subsidy: boolean;
     nursery_nearby: boolean;
@@ -39,6 +40,7 @@ const props = defineProps<{
     categories: Option[];
     workModes: Option[];
     employmentFractions: Option[];
+    contractTypes: Option[];
     hasConfirmedSkills: boolean;
 }>();
 
@@ -53,6 +55,7 @@ const form = reactive<Filters>({
     categories: [...props.filters.categories],
     work_modes: [...props.filters.work_modes],
     employment_fractions: [...props.filters.employment_fractions],
+    contract_types: [...props.filters.contract_types],
 });
 const showFiltersOnMobile = ref(false);
 
@@ -66,6 +69,9 @@ function apply() {
             work_modes: form.work_modes.length ? form.work_modes : undefined,
             employment_fractions: form.employment_fractions.length
                 ? form.employment_fractions
+                : undefined,
+            contract_types: form.contract_types.length
+                ? form.contract_types
                 : undefined,
             flexible_hours: form.flexible_hours ? 1 : undefined,
             childcare_subsidy: form.childcare_subsidy ? 1 : undefined,
@@ -112,13 +118,14 @@ const sectionCounts = computed(() => ({
     category: form.categories.length,
     workMode: form.work_modes.length,
     fraction: form.employment_fractions.length,
+    contractType: form.contract_types.length,
     parents: countToggles(parentFilters),
     company: countToggles(companyFilters),
     start: form.start_from ? 1 : 0,
 }));
 
 /**
- * Sections start expanded when they hold an active filter; industry, work mode and fraction are always open.
+ * Sections start expanded when they hold an active filter; industry, work mode, fraction and contract type are always open.
  */
 const initiallyOpen = {
     parents: sectionCounts.value.parents > 0,
@@ -182,6 +189,17 @@ const activeChips = computed(() => {
         }),
     );
 
+    form.contract_types.forEach((value) =>
+        chips.push({
+            key: `contract_type-${value}`,
+            label: labelFor(props.contractTypes, value),
+            clear: () =>
+                (form.contract_types = form.contract_types.filter(
+                    (contractType) => contractType !== value,
+                )),
+        }),
+    );
+
     [...parentFilters, ...companyFilters]
         .filter((toggle) => form[toggle.key])
         .forEach((toggle) =>
@@ -221,6 +239,7 @@ function resetFilters(): void {
     form.categories = [];
     form.work_modes = [];
     form.employment_fractions = [];
+    form.contract_types = [];
     form.flexible_hours = false;
     form.childcare_subsidy = false;
     form.nursery_nearby = false;
@@ -421,6 +440,43 @@ function resetFilters(): void {
                                     @change="apply"
                                 />
                                 {{ fraction.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details open class="group/section rounded-2xl">
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Forma zatrudnienia
+                                <span
+                                    v-if="sectionCounts.contractType"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.contractType }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Forma zatrudnienia</legend>
+                            <label
+                                v-for="contractType in contractTypes"
+                                :key="contractType.value"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form.contract_types"
+                                    type="checkbox"
+                                    :value="contractType.value"
+                                    class="size-4 shrink-0 accent-brand-green"
+                                    :data-test="`filter-contract-type-${contractType.value}`"
+                                    @change="apply"
+                                />
+                                {{ contractType.label }}
                             </label>
                         </fieldset>
                     </details>

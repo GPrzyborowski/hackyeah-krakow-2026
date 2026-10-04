@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\CandidateStage;
+use App\Enums\ContractType;
 use App\Enums\EmploymentFraction;
 use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
@@ -332,7 +333,7 @@ class DemoPolishSeeder extends Seeder
     }
 
     /**
-     * @param  array{title: string, category: OfferCategory, mode: WorkMode, fraction: EmploymentFraction, salary: array{int, int}, start: string, flexible: bool, meetings: bool, childcare: bool, description: string, required: list<string>, nice: list<string>}  $definition
+     * @param  array{title: string, category: OfferCategory, contract_types: list<ContractType>, mode: WorkMode, fraction: EmploymentFraction, salary: array{int, int}, start: string, flexible: bool, meetings: bool, childcare: bool, description: string, required: list<string>, nice: list<string>}  $definition
      */
     private function createOffer(Company $company, array $definition): void
     {
@@ -342,6 +343,7 @@ class DemoPolishSeeder extends Seeder
             'city' => 'Kraków',
             'work_mode' => $definition['mode'],
             'employment_fraction' => $definition['fraction'],
+            'contract_types' => array_map(fn (ContractType $type): string => $type->value, $definition['contract_types']),
             'salary_min' => $definition['salary'][0],
             'salary_max' => $definition['salary'][1],
             'start_date' => $definition['start'],
@@ -392,7 +394,7 @@ class DemoPolishSeeder extends Seeder
     }
 
     /**
-     * @return list<array{name: string, nip_prefix: string, email: string, recruiter: string, description: string, reviews: list<array{int, int, int, string, string}>, offers: list<array{title: string, category: OfferCategory, mode: WorkMode, fraction: EmploymentFraction, salary: array{int, int}, start: string, flexible: bool, meetings: bool, childcare: bool, description: string, required: list<string>, nice: list<string>}>}>
+     * @return list<array{name: string, nip_prefix: string, email: string, recruiter: string, description: string, reviews: list<array{int, int, int, string, string}>, offers: list<array{title: string, category: OfferCategory, contract_types: list<ContractType>, mode: WorkMode, fraction: EmploymentFraction, salary: array{int, int}, start: string, flexible: bool, meetings: bool, childcare: bool, description: string, required: list<string>, nice: list<string>}>}>
      */
     private function krakowCompanies(): array
     {
@@ -411,6 +413,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'Specjalistka ds. rekrutacji IT',
                         'category' => OfferCategory::Hr,
+                        'contract_types' => [ContractType::EmploymentContract],
                         'mode' => WorkMode::Hybrid,
                         'fraction' => EmploymentFraction::ThreeQuarters,
                         'salary' => [9500, 12500],
@@ -425,6 +428,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'Koordynatorka projektów IT',
                         'category' => OfferCategory::It,
+                        'contract_types' => [ContractType::EmploymentContract],
                         'mode' => WorkMode::Remote,
                         'fraction' => EmploymentFraction::ThreeFifths,
                         'salary' => [9000, 11500],
@@ -452,6 +456,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'Specjalistka ds. kadr i płac',
                         'category' => OfferCategory::Hr,
+                        'contract_types' => [ContractType::EmploymentContract],
                         'mode' => WorkMode::Hybrid,
                         'fraction' => EmploymentFraction::Full,
                         'salary' => [8500, 10500],
@@ -466,6 +471,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'Księgowa ds. rozrachunków',
                         'category' => OfferCategory::Finance,
+                        'contract_types' => [ContractType::EmploymentContract],
                         'mode' => WorkMode::Hybrid,
                         'fraction' => EmploymentFraction::ThreeQuarters,
                         'salary' => [8000, 10000],
@@ -480,6 +486,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'Analityczka danych – raportowanie',
                         'category' => OfferCategory::It,
+                        'contract_types' => [ContractType::EmploymentContract],
                         'mode' => WorkMode::Remote,
                         'fraction' => EmploymentFraction::ThreeQuarters,
                         'salary' => [12000, 15500],
@@ -506,6 +513,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'Specjalistka ds. marketingu',
                         'category' => OfferCategory::Marketing,
+                        'contract_types' => [ContractType::Mandate],
                         'mode' => WorkMode::Remote,
                         'fraction' => EmploymentFraction::ThreeFifths,
                         'salary' => [7500, 9500],
@@ -520,6 +528,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'Konsultantka obsługi klienta',
                         'category' => OfferCategory::CustomerService,
+                        'contract_types' => [ContractType::EmploymentContract, ContractType::Mandate],
                         'mode' => WorkMode::Remote,
                         'fraction' => EmploymentFraction::Half,
                         'salary' => [4200, 5200],
@@ -546,6 +555,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'HR Business Partner',
                         'category' => OfferCategory::Hr,
+                        'contract_types' => [ContractType::EmploymentContract],
                         'mode' => WorkMode::Hybrid,
                         'fraction' => EmploymentFraction::ThreeQuarters,
                         'salary' => [8000, 10000],
@@ -573,6 +583,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'Pielęgniarka w gabinecie zabiegowym',
                         'category' => OfferCategory::Health,
+                        'contract_types' => [ContractType::EmploymentContract],
                         'mode' => WorkMode::Onsite,
                         'fraction' => EmploymentFraction::ThreeFifths,
                         'salary' => [6800, 8000],
@@ -587,6 +598,7 @@ class DemoPolishSeeder extends Seeder
                     [
                         'title' => 'Rejestratorka medyczna',
                         'category' => OfferCategory::Health,
+                        'contract_types' => [ContractType::EmploymentContract, ContractType::Mandate],
                         'mode' => WorkMode::Onsite,
                         'fraction' => EmploymentFraction::Half,
                         'salary' => [4600, 5300],

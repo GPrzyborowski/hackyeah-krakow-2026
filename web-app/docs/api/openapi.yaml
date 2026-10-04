@@ -544,6 +544,12 @@ paths:
           style: form
           explode: true
           schema: { type: array, items: { $ref: '#/components/schemas/EmploymentFraction' } }
+        - name: 'contract_types[]'
+          in: query
+          style: form
+          explode: true
+          description: 'Contract type, any of'
+          schema: { type: array, items: { $ref: '#/components/schemas/ContractType' } }
         - { name: flexible_hours, in: query, schema: { $ref: '#/components/schemas/QueryFlag' } }
         - { name: childcare_subsidy, in: query, schema: { $ref: '#/components/schemas/QueryFlag' } }
         - { name: nursery_nearby, in: query, description: 'Only offers with a nursery nearby', schema: { $ref: '#/components/schemas/QueryFlag' } }
@@ -580,6 +586,7 @@ paths:
                           work_modes: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
                           employment_fractions: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
                           categories: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+                          contract_types: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '422': { $ref: '#/components/responses/ValidationFailed' }
@@ -1276,6 +1283,12 @@ paths:
           style: form
           explode: true
           schema: { type: array, items: { $ref: '#/components/schemas/EmploymentFraction' } }
+        - name: 'contract_type[]'
+          in: query
+          style: form
+          explode: true
+          description: 'Contract type ("Forma zatrudnienia"), any of; unknown values ignored'
+          schema: { type: array, items: { $ref: '#/components/schemas/ContractType' } }
         - { name: flexible, in: query, description: 'Only flexible hours', schema: { $ref: '#/components/schemas/QueryFlag' } }
         - { name: childcare_subsidy, in: query, description: 'Only offers with a nursery/kindergarten subsidy ("Dofinansowanie żłobka lub przedszkola")', schema: { $ref: '#/components/schemas/QueryFlag' } }
         - { name: nursery_nearby, in: query, description: 'Only offers with a nursery nearby', schema: { $ref: '#/components/schemas/QueryFlag' } }
@@ -1311,6 +1324,7 @@ paths:
                               category: { type: array, items: { type: string } }
                               work_mode: { type: array, items: { type: string } }
                               fraction: { type: array, items: { type: string } }
+                              contract_type: { type: array, items: { type: string } }
                               flexible: { type: boolean }
                               childcare_subsidy: { type: boolean }
                               nursery_nearby: { type: boolean }
@@ -2302,6 +2316,10 @@ components:
       type: string
       description: 'Industry ("Branża"), exactly one per offer.'
       enum: [it, health, hr, finance, marketing, customer_service, administration, sales, education, design, other]
+    ContractType:
+      type: string
+      description: 'Contract type ("Forma zatrudnienia"): `employment` = umowa o pracę, `mandate` = umowa zlecenie. An offer has one or more.'
+      enum: [employment, mandate]
     EmploymentFraction:
       type: string
       enum: ['1', '3/4', '3/5', '1/2']
@@ -2575,6 +2593,8 @@ components:
         work_mode_label: { type: string }
         employment_fraction: { $ref: '#/components/schemas/EmploymentFraction' }
         employment_fraction_label: { type: string }
+        contract_types: { type: array, minItems: 1, items: { $ref: '#/components/schemas/ContractType' } }
+        contract_type_labels: { type: array, items: { type: string }, example: ['Umowa o pracę'] }
         salary_min: { type: [integer, 'null'] }
         salary_max: { type: [integer, 'null'] }
         start_date: { type: string, format: date }
@@ -2644,6 +2664,7 @@ components:
         categories: { type: array, items: { type: string } }
         work_modes: { type: array, items: { type: string } }
         employment_fractions: { type: array, items: { type: string } }
+        contract_types: { type: array, items: { type: string } }
         flexible_hours: { type: boolean }
         childcare_subsidy: { type: boolean }
         nursery_nearby: { type: boolean }
@@ -2963,6 +2984,8 @@ components:
         work_mode_label: { type: string }
         employment_fraction: { $ref: '#/components/schemas/EmploymentFraction' }
         employment_fraction_label: { type: string }
+        contract_types: { type: array, minItems: 1, items: { $ref: '#/components/schemas/ContractType' } }
+        contract_type_labels: { type: array, items: { type: string }, example: ['Umowa o pracę'] }
         salary_min: { type: [integer, 'null'] }
         salary_max: { type: [integer, 'null'] }
         start_date: { type: string, format: date }
@@ -2999,6 +3022,11 @@ components:
         start_date: { type: string, format: date, description: 'When publishing not in the past.' }
         description: { type: [string, 'null'], maxLength: 5000, description: 'Moderated.' }
         employment_fraction: { $ref: '#/components/schemas/EmploymentFraction' }
+        contract_types:
+          type: [array, 'null']
+          minItems: 1
+          items: { $ref: '#/components/schemas/ContractType' }
+          description: 'Optional in the API (at least one required in the web form). Omitted: a new offer gets `[employment]`, an update keeps the current value.'
         salary_min: { type: [integer, 'null'], minimum: 0, maximum: 1000000 }
         salary_max: { type: [integer, 'null'], minimum: 0, maximum: 1000000, description: '>= salary_min' }
         flexible_hours: { type: boolean }
@@ -3018,6 +3046,7 @@ components:
         start_date: '2027-09-01'
         description: Prowadzenie procesów rekrutacyjnych.
         employment_fraction: '3/5'
+        contract_types: [employment]
         salary_min: 8500
         salary_max: 11000
         flexible_hours: true
@@ -3164,6 +3193,8 @@ components:
         work_mode_label: { type: string }
         employment_fraction: { $ref: '#/components/schemas/EmploymentFraction' }
         employment_fraction_label: { type: string }
+        contract_types: { type: array, minItems: 1, items: { $ref: '#/components/schemas/ContractType' } }
+        contract_type_labels: { type: array, items: { type: string }, example: ['Umowa o pracę'] }
         salary_min: { type: [integer, 'null'] }
         salary_max: { type: [integer, 'null'] }
         start_date: { type: string, format: date }
@@ -3238,6 +3269,8 @@ components:
               work_mode: { $ref: '#/components/schemas/WorkMode' }
               work_mode_label: { type: string }
               employment_fraction_label: { type: string }
+              contract_types: { type: array, minItems: 1, items: { $ref: '#/components/schemas/ContractType' } }
+              contract_type_labels: { type: array, items: { type: string }, example: ['Umowa o pracę'] }
               salary_min: { type: [integer, 'null'] }
               salary_max: { type: [integer, 'null'] }
               start_date: { type: string, format: date }
