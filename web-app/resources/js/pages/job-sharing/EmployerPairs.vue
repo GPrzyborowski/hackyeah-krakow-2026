@@ -247,11 +247,6 @@ const sections = computed(() =>
                                 </p>
                                 <p class="text-sm text-brand-green/80">
                                     {{ member.headline ?? '—' }}
-                                    <template v-if="member.years_of_experience">
-                                        ·
-                                        {{ member.years_of_experience }} l.
-                                        doświadczenia</template
-                                    >
                                 </p>
                                 <p class="text-xs text-brand-green/80">
                                     Dostępna od

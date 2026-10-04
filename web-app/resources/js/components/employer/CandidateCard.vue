@@ -6,25 +6,6 @@ import type { AnonymousCandidate } from '@/components/employer/types';
 defineProps<{
     candidate: AnonymousCandidate;
 }>();
-
-function experienceLabel(years: number | null): string | null {
-    if (years === null) {
-        return null;
-    }
-
-    if (years === 1) {
-        return '1 rok doświadczenia';
-    }
-
-    const lastDigit = years % 10;
-    const lastTwoDigits = years % 100;
-    const isFew =
-        lastDigit >= 2 &&
-        lastDigit <= 4 &&
-        (lastTwoDigits < 12 || lastTwoDigits > 14);
-
-    return `${years} ${isFew ? 'lata' : 'lat'} doświadczenia`;
-}
 </script>
 
 <template>
@@ -43,15 +24,11 @@ function experienceLabel(years: number | null): string | null {
                 <h2 class="text-2xl font-bold text-brand-green">
                     {{ candidate.anonymous_name }}
                 </h2>
-                <p class="text-sm text-brand-green/80">
-                    {{
-                        [
-                            candidate.headline,
-                            experienceLabel(candidate.years_of_experience),
-                        ]
-                            .filter(Boolean)
-                            .join(' · ')
-                    }}
+                <p
+                    v-if="candidate.headline"
+                    class="text-sm text-brand-green/80"
+                >
+                    {{ candidate.headline }}
                 </p>
             </div>
             <span
