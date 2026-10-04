@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\Content\PublicOfferController;
 use App\Http\Controllers\Api\V1\Conversations\ConversationController;
 use App\Http\Controllers\Api\V1\Conversations\MessageController;
 use App\Http\Controllers\Api\V1\Device\DeviceTokenController;
+use App\Http\Controllers\Api\V1\JobSharing\JoinController;
+use App\Http\Controllers\Api\V1\JobSharing\JoinLinkController;
 use App\Http\Controllers\Api\V1\JobSharing\PairController;
 use App\Http\Controllers\Api\V1\JobSharing\PairMessageController;
 use App\Http\Controllers\Api\V1\JobSharing\PairScheduleController;
@@ -28,6 +30,10 @@ Route::prefix('public')->name('public.')->group(function () {
 
 Route::get('articles', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('articles/{article:slug}', [ArticleController::class, 'show'])->name('articles.show');
+
+Route::get('job-sharing/join/{token}', [JoinController::class, 'show'])
+    ->middleware('throttle:30,1,api-job-sharing-join')
+    ->name('job-sharing.join.show');
 
 Route::middleware(['auth:sanctum', 'throttle:120,1,api-user'])->group(function () {
     Route::get('conversations', [ConversationController::class, 'index'])->name('conversations.index');
@@ -59,6 +65,12 @@ Route::middleware(['auth:sanctum', 'throttle:120,1,api-user'])->group(function (
             Route::post('offers/{offer}/pairs', [PairController::class, 'store'])
                 ->middleware('throttle:20,1,api-job-sharing-pairs')
                 ->name('pairs.store');
+            Route::post('offers/{offer}/invite-link', [JoinLinkController::class, 'store'])
+                ->middleware('throttle:20,1,api-job-sharing-join-links')
+                ->name('invite-links.store');
+            Route::post('join/{token}', [JoinController::class, 'store'])
+                ->middleware('throttle:30,1,api-job-sharing-join')
+                ->name('join.store');
 
             Route::get('pairs/{pair}', [PairController::class, 'show'])->name('pairs.show');
             Route::post('pairs/{pair}/accept', [PairController::class, 'accept'])->name('pairs.accept');

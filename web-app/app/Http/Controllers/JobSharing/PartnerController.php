@@ -6,6 +6,7 @@ use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
 use App\Http\Controllers\Controller;
 use App\Models\JobOffer;
 use App\Models\Skill;
+use App\Services\JobSharing\PairJoinLinks;
 use App\Services\JobSharing\PartnerFinder;
 use App\Services\JobSharing\Workday;
 use Illuminate\Http\Request;
@@ -20,13 +21,15 @@ class PartnerController extends Controller
      * Anonymous list of candidates who could share the offer's position with the signed-in candidate.
      * Only data employers may see is exposed: first name + surname initial, headline, experience, confirmed skills.
      */
-    public function index(Request $request, JobOffer $offer, PartnerFinder $finder): Response
+    public function index(Request $request, JobOffer $offer, PartnerFinder $finder, PairJoinLinks $joinLinks): Response
     {
         abort_unless($offer->is_job_share && $offer->isPublished(), 404);
 
         $profile = $this->candidateProfile($request);
         $offer->load(['company', 'skills']);
         $activePair = $finder->activePairFor($profile, $offer);
+        $waitingPair = $joinLinks->waitingPairFor($profile, $offer);
+        $joinLink = $waitingPair !== null ? $joinLinks->usableLinkFor($waitingPair, $profile) : null;
         $offerSkillNames = $offer->skills->pluck('name')->all();
 
         $partners = $profile->isPublished() ? $finder->partnersFor($profile, $offer) : collect();
@@ -42,7 +45,9 @@ class PartnerController extends Controller
             ],
             'myDayPartLabel' => $profile->preferred_day_part?->label(),
             'isProfilePublished' => $profile->isPublished(),
-            'activePairId' => $activePair?->id,
+            'activePairId' => $waitingPair === null ? $activePair?->id : null,
+            'waitingPairId' => $waitingPair?->id,
+            'joinLink' => $joinLink !== null ? $joinLinks->presentLink($joinLink) : null,
             'partners' => $partners->map(fn (array $row): array => [
                 'id' => $row['candidate']->id,
                 'anonymous_name' => $row['candidate']->anonymousName(),

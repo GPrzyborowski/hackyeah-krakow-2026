@@ -4,6 +4,7 @@ namespace App\Http\Resources\Api\V1;
 
 use App\Models\CandidateProfile;
 use App\Models\JobSharePair;
+use App\Services\JobSharing\PairJoinLinks;
 use App\Services\JobSharing\PairPresenter;
 use App\Services\JobSharing\Workday;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Gate;
 
 /**
  * A job-sharing pair as seen by one of its members: offer, both members (anonymous: first name + surname initial),
- * the day split and what the viewer may do. Messages come from the pair messages endpoint.
+ * the day split, the initiator's invite link while nobody else is in the pair, and what the viewer may do. Messages come from the pair messages endpoint.
  *
  * @property JobSharePair $resource
  */
@@ -29,7 +30,10 @@ class PairResource extends JsonResource
         $members = $presenter->members($pair);
         $offer = $pair->jobOffer;
         $workday = Workday::forOffer($offer);
-        $viewerProfileId = $request->user()?->candidateProfile?->id;
+        $viewerProfile = $request->user()?->candidateProfile;
+        $viewerProfileId = $viewerProfile?->id;
+        $joinLinks = app(PairJoinLinks::class);
+        $inviteLink = $viewerProfile !== null ? $joinLinks->usableLinkFor($pair, $viewerProfile) : null;
 
         return [
             'id' => $pair->id,
@@ -61,6 +65,7 @@ class PairResource extends JsonResource
                 'has_confirmed_schedule' => $presenter->hasConfirmedSchedule($member),
             ])->values()->all(),
             'schedule' => $presenter->schedule($pair, $members),
+            'invite_link' => $inviteLink !== null ? $joinLinks->presentLink($inviteLink) : null,
             'can' => [
                 'respond' => Gate::allows('respond', $pair),
                 'chat' => Gate::allows('chat', $pair),

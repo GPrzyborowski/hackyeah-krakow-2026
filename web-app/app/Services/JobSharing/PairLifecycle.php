@@ -6,6 +6,7 @@ use App\Enums\JobSharePairStatus;
 use App\Models\CandidateProfile;
 use App\Models\JobOffer;
 use App\Models\JobSharePair;
+use App\Models\JobSharePairInvitation;
 use App\Notifications\PairInvitationAccepted;
 use App\Notifications\PairInvitationReceived;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,7 @@ class PairLifecycle
         private readonly PartnerFinder $finder,
         private readonly PairPresenter $presenter,
         private readonly ScheduleValidator $scheduleValidator,
+        private readonly PairJoinLinks $joinLinks,
     ) {}
 
     /**
@@ -34,7 +36,9 @@ class PairLifecycle
             throw ValidationException::withMessages(['partner_id' => 'Najpierw opublikuj swój profil, aby zaprosić kogoś do pary.']);
         }
 
-        if ($this->finder->activePairFor($profile, $offer) !== null) {
+        $waitingPair = $this->joinLinks->waitingPairFor($profile, $offer);
+
+        if ($waitingPair === null && $this->finder->activePairFor($profile, $offer) !== null) {
             throw ValidationException::withMessages(['partner_id' => 'Masz już parę do tej oferty.']);
         }
 
@@ -44,7 +48,13 @@ class PairLifecycle
             throw ValidationException::withMessages(['partner_id' => 'Ta osoba nie może już dołączyć do pary w tej ofercie.']);
         }
 
-        $pair = DB::transaction(function () use ($offer, $profile, $partner): JobSharePair {
+        $pair = DB::transaction(function () use ($offer, $profile, $partner, $waitingPair): JobSharePair {
+            if ($waitingPair !== null) {
+                $waitingPair->members()->attach($partner->id, ['is_initiator' => false, 'accepted_at' => null]);
+
+                return $waitingPair;
+            }
+
             $pair = $offer->jobSharePairs()->create(['status' => JobSharePairStatus::Forming]);
 
             $pair->members()->attach([
@@ -56,6 +66,74 @@ class PairLifecycle
         });
 
         $partner->user->notify(new PairInvitationReceived($pair, $profile));
+
+        return $pair;
+    }
+
+    /**
+     * A link the candidate shares with a friend to join her pair for the offer. Starts the pair (forming, with her
+     * as the only member) when she has none yet and reuses a link that still works instead of creating another one.
+     *
+     * @throws ValidationException
+     */
+    public function createJoinLink(CandidateProfile $profile, JobOffer $offer): JobSharePairInvitation
+    {
+        if (! $profile->isPublished()) {
+            throw ValidationException::withMessages(['join_link' => 'Najpierw opublikuj swój profil, aby zaprosić kogoś do pary.']);
+        }
+
+        $waitingPair = $this->joinLinks->waitingPairFor($profile, $offer);
+
+        if ($waitingPair === null && $this->finder->activePairFor($profile, $offer) !== null) {
+            throw ValidationException::withMessages(['join_link' => 'Masz już parę do tej oferty.']);
+        }
+
+        return DB::transaction(function () use ($profile, $offer, $waitingPair): JobSharePairInvitation {
+            $pair = $waitingPair;
+
+            if ($pair === null) {
+                $pair = $offer->jobSharePairs()->create(['status' => JobSharePairStatus::Forming]);
+                $pair->members()->attach($profile->id, ['is_initiator' => true, 'accepted_at' => now()]);
+            }
+
+            $usableLink = $pair->joinLinks()->usable()->latest('id')->first();
+
+            return $usableLink ?? $pair->joinLinks()->create([
+                'token' => JobSharePairInvitation::generateToken(),
+                'invited_by_candidate_profile_id' => $profile->id,
+                'expires_at' => now()->addDays(JobSharePairInvitation::VALID_DAYS),
+            ]);
+        });
+    }
+
+    /**
+     * A friend joins the pair through the link: no skill matching (the initiator chose her), but the pair must still
+     * be forming with a free place and she must not have another pair for the offer. The link is used up, she becomes
+     * open to job sharing and the initiator is notified.
+     *
+     * @throws ValidationException
+     */
+    public function joinByLink(CandidateProfile $profile, JobSharePairInvitation $invitation): JobSharePair
+    {
+        $pair = DB::transaction(function () use ($profile, $invitation): JobSharePair {
+            $pair = JobSharePair::query()->lockForUpdate()->findOrFail($invitation->job_share_pair_id);
+            $invitation->refresh()->setRelation('pair', $pair);
+
+            $problem = $this->joinLinks->problemWith($invitation, $profile->user);
+
+            if ($problem !== null) {
+                throw ValidationException::withMessages(['join_link' => $problem->message()]);
+            }
+
+            $pair->members()->attach($profile->id, ['is_initiator' => false, 'accepted_at' => now()]);
+            $pair->update(['status' => JobSharePairStatus::Formed]);
+            $profile->update(['open_to_job_sharing' => true]);
+            $invitation->update(['accepted_by_candidate_profile_id' => $profile->id, 'accepted_at' => now()]);
+
+            return $pair;
+        });
+
+        $invitation->invitedBy->user->notify(new PairInvitationAccepted($pair, $profile));
 
         return $pair;
     }

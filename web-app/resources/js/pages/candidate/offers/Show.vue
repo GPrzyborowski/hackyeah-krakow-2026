@@ -159,6 +159,7 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                 <OfferJobSharePanel
                     v-if="jobSharing"
                     :offer-id="offer.id"
+                    :offer-title="offer.title"
                     :job-sharing="jobSharing"
                 />
 

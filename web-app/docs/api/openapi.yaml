@@ -1645,6 +1645,70 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationFailed' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+  /job-sharing/offers/{offer}/invite-link:
+    post:
+      tags: [Job sharing]
+      operationId: jobSharingCreateInviteLink
+      summary: Create a link to invite a friend to your pair
+      description: |
+        Returns a link (web page `/job-sharing/join/{token}`) she shares with a friend, e.g. via the system share sheet.
+        Starts a pair in `forming` with you as the only member when you have none for the offer; a link that still works
+        is reused (`200`), a new one is `201`. Valid for 7 days and for one person; it stops working when someone joins,
+        you invite someone else from the partners list, or the pair is cancelled. `404` unless a published job-sharing
+        offer; `422` on `join_link` when your profile is not published or you already have a pair for the offer
+        (other than one still waiting for a partner). Throttle 20/min.
+      parameters:
+        - $ref: '#/components/parameters/OfferId'
+      responses:
+        '200': { $ref: '#/components/responses/PairInviteLink' }
+        '201': { $ref: '#/components/responses/PairInviteLink' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /job-sharing/join/{token}:
+    get:
+      tags: [Job sharing]
+      operationId: jobSharingJoinPreview
+      summary: Preview an invite link to a pair
+      description: |
+        Public – a bearer token is optional. Shows the offer and the inviter (first name + surname initial) and whether
+        the caller can join. `can_join` is true only for a signed-in candidate; a guest with a working link gets
+        `requires_sign_in: true`. Otherwise `reason` explains why not. `404` for an unknown token. Throttle 30/min.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/PairInviteToken'
+      responses:
+        '200':
+          description: Preview.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/PairInvitePreview' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    post:
+      tags: [Job sharing]
+      operationId: jobSharingJoinByLink
+      summary: Join a pair through an invite link
+      description: |
+        Candidates only. You become an accepted member, `status` → `formed`, your profile becomes open to job sharing and
+        the inviter is notified. No skill matching is required. `404` for an unknown token; `422` on `join_link` with the
+        same reasons as `reason_message` in the preview (expired, used, own link, pair closed or full, offer closed,
+        you already have a pair for the offer). Throttle 30/min.
+      parameters:
+        - $ref: '#/components/parameters/PairInviteToken'
+      responses:
+        '200': { $ref: '#/components/responses/Pair' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
   /job-sharing/pairs/{pair}:
     get:
       tags: [Job sharing]
@@ -2152,6 +2216,12 @@ components:
       required: true
       description: Job-share pair id.
       schema: { type: integer }
+    PairInviteToken:
+      name: token
+      in: path
+      required: true
+      description: 64-character token from the invite link.
+      schema: { type: string }
     SkillId:
       name: skill
       in: path
@@ -2247,6 +2317,20 @@ components:
             required: [data]
             properties:
               data: { $ref: '#/components/schemas/Pair' }
+    PairInviteLink:
+      description: The invite link.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                allOf:
+                  - $ref: '#/components/schemas/PairInviteLink'
+                  - type: object
+                    properties:
+                      pair_id: { type: integer }
 
   schemas:
     # ---------- shared primitives
@@ -2641,6 +2725,11 @@ components:
                     status: { $ref: '#/components/schemas/PairStatus' }
                     partner_name: { type: [string, 'null'] }
                     awaiting_my_answer: { type: boolean }
+                    is_waiting_for_partner: { type: boolean, description: 'Her own pair with nobody else in it yet (e.g. after creating an invite link).' }
+                can_create_join_link: { type: boolean, description: 'Show "Zaproś koleżankę linkiem" (`POST /job-sharing/offers/{offer}/invite-link`).' }
+                join_link:
+                  description: Her invite link that still works, if any.
+                  oneOf: [{ $ref: '#/components/schemas/PairInviteLink' }, { type: 'null' }]
             reviews:
               type: array
               description: Approved, anonymous reviews of the company, newest first.
@@ -3501,6 +3590,42 @@ components:
             send_message: { type: boolean, description: 'May post to the chat: only while the pair is forming, formed, submitted, invited or hired.' }
             plan_schedule: { type: boolean }
             cancel: { type: boolean }
+        invite_link:
+          description: Only for the initiator while nobody else is in the pair (status `forming`) and a link still works.
+          oneOf: [{ $ref: '#/components/schemas/PairInviteLink' }, { type: 'null' }]
+    PairInviteLink:
+      type: object
+      properties:
+        url: { type: string, format: uri, example: 'https://mumjobs.pl/job-sharing/join/AbC…' }
+        token: { type: string }
+        expires_at: { type: string, format: date-time }
+    PairInvitePreview:
+      type: object
+      properties:
+        offer:
+          type: object
+          properties:
+            id: { type: integer }
+            title: { type: string }
+            company: { type: string }
+            city: { type: [string, 'null'] }
+            work_mode_label: { type: string }
+            employment_fraction_label: { type: string }
+            workday_starts_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }] }
+            workday_ends_at: { oneOf: [{ $ref: '#/components/schemas/Time' }, { type: 'null' }] }
+            hours_per_person: { type: [number, 'null'] }
+        inviter:
+          type: object
+          properties:
+            first_name: { type: string }
+            display_name: { type: string, description: 'First name + surname initial.' }
+        expires_at: { type: string, format: date-time }
+        can_join: { type: boolean }
+        requires_sign_in: { type: boolean, description: 'Guest with a working link: sign in or register as a candidate, then join.' }
+        reason:
+          type: [string, 'null']
+          enum: [expired, used, not_candidate, own_link, pair_closed, pair_full, offer_closed, already_paired, null]
+        reason_message: { type: [string, 'null'], description: 'Polish message to show instead of the join button.' }
     PairMessage:
       type: object
       properties:

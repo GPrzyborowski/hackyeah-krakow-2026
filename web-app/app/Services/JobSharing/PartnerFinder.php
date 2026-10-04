@@ -50,7 +50,9 @@ class PartnerFinder
      */
     public function partnersFor(CandidateProfile $searcher, JobOffer $offer): Collection
     {
-        if (! $offer->is_job_share || ! $offer->isPublished() || $this->activePairFor($searcher, $offer) !== null) {
+        $activePair = $this->activePairFor($searcher, $offer);
+
+        if (! $offer->is_job_share || ! $offer->isPublished() || ($activePair !== null && ! $this->isWaitingForPartner($activePair))) {
             return collect();
         }
 
@@ -70,6 +72,16 @@ class PartnerFinder
             ->partition(fn (array $row): bool => $row['is_interested']);
 
         return $interested->concat($others)->values();
+    }
+
+    /**
+     * Still forming and nobody else is in the pair yet (not even an invited partner who has not answered),
+     * e.g. the initiator created a link for a friend and keeps looking.
+     */
+    public function isWaitingForPartner(JobSharePair $pair): bool
+    {
+        return $pair->status === JobSharePairStatus::Forming
+            && $pair->members()->count() < JobSharePair::MAX_MEMBERS;
     }
 
     public function isPossiblePartner(CandidateProfile $searcher, JobOffer $offer, CandidateProfile $partner): bool

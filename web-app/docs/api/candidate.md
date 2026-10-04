@@ -263,7 +263,9 @@ Offer card plus:
 "job_sharing": {
   "workday_starts_at": "08:00", "workday_ends_at": "16:00", "hours_per_person": 4,
   "is_open_to_job_sharing": true,
-  "pair": { "id": 9, "status": "forming", "partner_name": "Anna N.", "awaiting_my_answer": true }
+  "pair": { "id": 9, "status": "forming", "partner_name": "Anna N.", "awaiting_my_answer": true, "is_waiting_for_partner": false },
+  "can_create_join_link": false,
+  "join_link": null
 },
 "reviews": [{
   "id": 1, "quote": "…", "author_label": "Mama bliźniaków", "rating": 4.7,
@@ -273,6 +275,9 @@ Offer card plus:
 ```
 
 `job_sharing` is `null` for regular offers; `pair` is `null` when she is not in a pair for this offer. `404` for unpublished offers.
+`is_waiting_for_partner` marks her own pair with nobody else in it yet. `can_create_join_link` shows the
+"Zaproś koleżankę linkiem" button (`POST /job-sharing/offers/{offer}/invite-link`, see [shared.md](shared.md));
+`join_link` (`{url, token, expires_at}`) is her link that still works.
 
 ### POST /candidate/offers/{offer}/interest · DELETE /candidate/offers/{offer}/interest
 

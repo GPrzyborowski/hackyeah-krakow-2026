@@ -179,7 +179,11 @@ function respond(pair: PairItem, action: 'accept' | 'decline'): void {
                         {{ pair.offer.title }} · {{ pair.offer.company }}
                     </p>
                     <p class="text-sm text-brand-green/80">
-                        Para z {{ pair.partner?.display_name ?? '—' }}
+                        {{
+                            pair.partner
+                                ? `Para z ${pair.partner.display_name}`
+                                : 'Czeka na drugą osobę – wyślij link koleżance'
+                        }}
                     </p>
                 </div>
                 <span class="flex items-center gap-2">

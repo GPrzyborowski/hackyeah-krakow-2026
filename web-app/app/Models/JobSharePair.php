@@ -87,6 +87,16 @@ class JobSharePair extends Model
     }
 
     /**
+     * Shareable links with which the initiator invites a friend to join the pair.
+     *
+     * @return HasMany<JobSharePairInvitation, $this>
+     */
+    public function joinLinks(): HasMany
+    {
+        return $this->hasMany(JobSharePairInvitation::class);
+    }
+
+    /**
      * The shared team chat of the employer and the members who accepted, opened by the first acceptance.
      *
      * @return HasOne<Conversation, $this>

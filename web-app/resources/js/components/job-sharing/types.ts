@@ -40,6 +40,12 @@ export const pairStatusLabels: Record<PairStatus, string> = {
     declined: 'Odrzucone przez członkinię',
 };
 
+export type JoinLink = {
+    url: string;
+    token: string;
+    expires_at: string;
+};
+
 export type OfferJobSharing = {
     workday_starts_at: string | null;
     workday_ends_at: string | null;
@@ -50,5 +56,8 @@ export type OfferJobSharing = {
         status: PairStatus;
         partner_name: string | null;
         awaiting_my_answer: boolean;
+        is_waiting_for_partner: boolean;
     } | null;
+    can_create_join_link: boolean;
+    join_link: JoinLink | null;
 };

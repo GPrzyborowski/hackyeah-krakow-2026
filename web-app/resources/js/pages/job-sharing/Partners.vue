@@ -7,7 +7,8 @@ import Chip from '@/components/candidate/Chip.vue';
 import { formatShortDate, pluralize } from '@/components/candidate/format';
 import MatchPill from '@/components/candidate/MatchPill.vue';
 import JobShareChip from '@/components/job-sharing/JobShareChip.vue';
-import type { JobShareSummary } from '@/components/job-sharing/types';
+import JoinLinkCard from '@/components/job-sharing/JoinLinkCard.vue';
+import type { JobShareSummary, JoinLink } from '@/components/job-sharing/types';
 import InputError from '@/components/InputError.vue';
 import { show as offerShow } from '@/routes/candidate/offers';
 import { show as onboarding } from '@/routes/candidate/onboarding';
@@ -38,6 +39,8 @@ const props = defineProps<{
     myDayPartLabel: string | null;
     isProfilePublished: boolean;
     activePairId: number | null;
+    waitingPairId: number | null;
+    joinLink: JoinLink | null;
     partners: Partner[];
 }>();
 
@@ -144,6 +147,21 @@ function dayPartText(partner: Partner): string | null {
         </div>
 
         <template v-else>
+            <JoinLinkCard
+                class="shadow-sm"
+                :offer-id="offer.id"
+                :offer-title="offer.title"
+                :join-link="joinLink"
+            />
+            <p v-if="waitingPairId" class="text-sm text-brand-green/80">
+                Twoja para czeka na drugą osobę.
+                <Link
+                    :href="PairController.show(waitingPairId)"
+                    class="font-semibold text-brand-green underline"
+                    >Przejdź do pary</Link
+                >
+            </p>
+
             <InputError :message="error ?? undefined" />
 
             <p class="text-sm font-semibold text-brand-green">

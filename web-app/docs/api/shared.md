@@ -8,7 +8,7 @@ Auth column: **public** = no token; **auth** = any signed-in user (candidate or 
 | --- | --- |
 | Public | `GET /public/offers`, `GET /public/offers/{id}`, `GET /public/companies/{id}`, `GET /articles`, `GET /articles/{slug}` |
 | Conversations | `GET /conversations`, `GET /conversations/{id}`, `GET|POST /conversations/{id}/messages` |
-| Job sharing | `GET /job-sharing`, `GET /job-sharing/offers/{id}/partners`, `POST /job-sharing/offers/{id}/pairs`, `GET /job-sharing/pairs/{id}`, `POST …/accept|decline|cancel`, `GET|POST …/messages`, `PUT …/schedule`, `POST …/schedule/confirm`, `POST …/submit` |
+| Job sharing | `GET /job-sharing`, `GET /job-sharing/offers/{id}/partners`, `POST /job-sharing/offers/{id}/pairs`, `POST /job-sharing/offers/{id}/invite-link`, `GET|POST /job-sharing/join/{token}`, `GET /job-sharing/pairs/{id}`, `POST …/accept|decline|cancel`, `GET|POST …/messages`, `PUT …/schedule`, `POST …/schedule/confirm`, `POST …/submit` |
 | Assistant | `GET|POST /assistant/messages` |
 | Notifications | `GET /notifications`, `GET /notifications/unread-count`, `POST /notifications/{id}/read`, `POST /notifications/read-all` |
 | Reviews | `GET /reviews`, `POST /reviews/companies/{id}`, `PUT /reviews/{id}` |
@@ -377,6 +377,55 @@ Errors: 404 offer not a published job-sharing offer; 422 `partner_id` – missin
 published ("Najpierw opublikuj swój profil…"), you already have a pair for the offer, or the person is no longer
 available.
 
+### POST /job-sharing/offers/{offer}/invite-link
+
+"Zaproś koleżankę linkiem". Throttle: 20/min. No body. Creates a pair in `forming` with you as the only member when you
+have none for the offer, plus a link valid for 7 days. A link that still works is reused (`200`); a new one is `201`:
+
+```json
+{ "data": { "url": "https://mumjobs.pl/job-sharing/join/AbC…", "token": "AbC…", "expires_at": "2026-10-11T10:00:00+00:00", "pair_id": 5 } }
+```
+
+Share `url` (system share sheet / copy). It opens the web page, so it works for friends without the app or an account.
+One link = one person: it stops working when someone joins, when you invite someone from the partners list (the pair
+then has its second person) or when the pair is cancelled. While you wait, the partners list still works and inviting
+someone from it reuses the same pair. Errors: 404 offer not a published job-sharing offer; 422 `join_link` – your
+profile is not published, or you already have a pair for the offer.
+
+### GET /job-sharing/join/{token}
+
+Public (bearer token optional), throttle 30/min. Preview for the deep link / join screen. 404 for an unknown token.
+
+```json
+{
+  "data": {
+    "offer": {
+      "id": 9, "title": "Rekruterka IT", "company": "Kamienica", "city": "Kraków",
+      "work_mode_label": "Hybrydowo", "employment_fraction_label": "Pełny etat",
+      "workday_starts_at": "08:00", "workday_ends_at": "16:00", "hours_per_person": 4
+    },
+    "inviter": { "first_name": "Marta", "display_name": "Marta K." },
+    "expires_at": "2026-10-11T10:00:00+00:00",
+    "can_join": true,
+    "requires_sign_in": false,
+    "reason": null,
+    "reason_message": null
+  }
+}
+```
+
+`can_join` is true only for a signed-in candidate who may join. A guest with a working link gets
+`requires_sign_in: true` (sign in or register as a candidate, then call the preview again). Otherwise `reason` is one
+of `expired`, `used`, `not_candidate`, `own_link`, `pair_closed`, `pair_full`, `offer_closed`, `already_paired`, and
+`reason_message` is the Polish text to show instead of the button.
+
+### POST /job-sharing/join/{token}
+
+Candidates only, throttle 30/min, no body → `200 {"data": <pair>}`. You join as an accepted member, `status` →
+`formed`, your profile becomes open to job sharing (`open_to_job_sharing: true`) and the inviter is notified
+(`pair_invitation_accepted`). No skill matching – the inviter chose you. 404 unknown token; 422 `join_link` with the
+same messages as `reason_message`.
+
 ### Pair resource – GET /job-sharing/pairs/{pair}
 
 Members only (including an invited partner who has not answered yet); others get 403.
@@ -406,12 +455,14 @@ Members only (including an invited partner who has not answered yet); others get
       { "candidate_profile_id": 12, "starts_at": "08:00", "ends_at": "12:00" },
       { "candidate_profile_id": 14, "starts_at": "12:00", "ends_at": "16:00" }
     ],
-    "can": { "respond": false, "chat": true, "send_message": true, "plan_schedule": true, "cancel": true }
+    "can": { "respond": false, "chat": true, "send_message": true, "plan_schedule": true, "cancel": true },
+    "invite_link": null
   }
 }
 ```
 
-Members are ordered initiator first. `schedule` is the saved proposal, or a suggested even split (respecting preferred
+`invite_link` (`{url, token, expires_at}`) is set only for the initiator while nobody else is in the pair and a link
+still works – show it with "Kopiuj link" / "Udostępnij". Members are ordered initiator first. `schedule` is the saved proposal, or a suggested even split (respecting preferred
 parts of the day) when nothing is saved yet (`has_saved_schedule: false`). Use `can.*` to show buttons.
 
 ### POST /job-sharing/pairs/{pair}/accept · /decline · /cancel

@@ -10,6 +10,7 @@ use App\Models\CandidateProfile;
 use App\Models\JobOffer;
 use App\Models\JobShareMessage;
 use App\Models\JobSharePair;
+use App\Services\JobSharing\PairJoinLinks;
 use App\Services\JobSharing\PairLifecycle;
 use App\Services\JobSharing\PairPresenter;
 use App\Services\JobSharing\PartnerFinder;
@@ -73,7 +74,7 @@ class PairController extends Controller
     /**
      * Pair page: partner, offer, private chat and the split of the workday.
      */
-    public function show(Request $request, JobSharePair $pair): Response
+    public function show(Request $request, JobSharePair $pair, PairJoinLinks $joinLinks): Response
     {
         Gate::authorize('view', $pair);
 
@@ -82,6 +83,8 @@ class PairController extends Controller
         $members = $this->presenter->members($pair);
         $workday = Workday::forOffer($pair->jobOffer);
         $isAccepted = $this->isAcceptedMember($pair, $profile);
+        $isWaitingForPartner = $isAccepted && $members->count() < JobSharePair::MAX_MEMBERS && $pair->status === JobSharePairStatus::Forming;
+        $joinLink = $isWaitingForPartner ? $joinLinks->usableLinkFor($pair, $profile) : null;
 
         $messages = $isAccepted
             ? $pair->messages()->with('author:id,name')->oldest('id')->get()
@@ -93,7 +96,9 @@ class PairController extends Controller
                 'status' => $pair->status->value,
                 'submitted_at' => $pair->submitted_at?->toIso8601String(),
                 'has_saved_schedule' => $pair->proposed_schedule !== null,
+                'is_waiting_for_partner' => $isWaitingForPartner,
             ],
+            'joinLink' => $joinLink !== null ? $joinLinks->presentLink($joinLink) : null,
             'offer' => [
                 'id' => $pair->jobOffer->id,
                 'title' => $pair->jobOffer->title,

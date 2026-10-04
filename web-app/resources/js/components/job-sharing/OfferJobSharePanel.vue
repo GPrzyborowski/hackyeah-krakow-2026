@@ -8,13 +8,15 @@ import {
     formatHours,
     midpoint,
 } from '@/components/job-sharing/format';
+import JoinLinkCard from '@/components/job-sharing/JoinLinkCard.vue';
 import ScheduleBar from '@/components/job-sharing/ScheduleBar.vue';
 import { pairStatusLabels } from '@/components/job-sharing/types';
 import type { OfferJobSharing } from '@/components/job-sharing/types';
 import { show as onboarding } from '@/routes/candidate/onboarding';
 
-const { offerId, jobSharing } = defineProps<{
+const { offerId, offerTitle, jobSharing } = defineProps<{
     offerId: number;
+    offerTitle: string;
     jobSharing: OfferJobSharing;
 }>();
 
@@ -71,11 +73,24 @@ const middle = midpoint(startsAt, endsAt);
             class="mt-5 flex flex-col gap-3 rounded-3xl bg-white p-5 sm:flex-row sm:items-center sm:justify-between"
         >
             <div>
-                <p class="font-semibold text-brand-green">
+                <p
+                    v-if="jobSharing.pair.is_waiting_for_partner"
+                    class="font-semibold text-brand-green"
+                >
+                    Twoja para czeka na drugą osobę
+                </p>
+                <p v-else class="font-semibold text-brand-green">
                     Twoja para:
                     {{ jobSharing.pair.partner_name ?? 'partnerka' }}
                 </p>
-                <p class="text-sm text-brand-green/80">
+                <p
+                    v-if="jobSharing.pair.is_waiting_for_partner"
+                    class="text-sm text-brand-green/80"
+                >
+                    Wyślij link koleżance albo zaproś kogoś z listy osób do
+                    pary.
+                </p>
+                <p v-else class="text-sm text-brand-green/80">
                     {{
                         jobSharing.pair.awaiting_my_answer
                             ? 'Zaprasza Cię do pary – odpowiedz na zaproszenie.'
@@ -91,7 +106,10 @@ const middle = midpoint(startsAt, endsAt);
             </Link>
         </div>
 
-        <div v-else class="mt-5 flex flex-wrap items-center gap-3">
+        <div
+            v-if="!jobSharing.pair || jobSharing.pair.is_waiting_for_partner"
+            class="mt-5 flex flex-wrap items-center gap-3"
+        >
             <Link
                 :href="PartnerController.index(offerId)"
                 class="inline-flex items-center gap-1.5 rounded-full bg-brand-green px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-soft"
@@ -111,5 +129,13 @@ const middle = midpoint(startsAt, endsAt);
                 >, aby inne osoby mogły Cię znaleźć.
             </p>
         </div>
+
+        <JoinLinkCard
+            v-if="jobSharing.can_create_join_link"
+            class="mt-5"
+            :offer-id="offerId"
+            :offer-title="offerTitle"
+            :join-link="jobSharing.join_link"
+        />
     </section>
 </template>

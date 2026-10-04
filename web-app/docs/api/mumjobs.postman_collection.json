@@ -2527,6 +2527,85 @@
                     }
                 },
                 {
+                    "id": "jobSharingCreateInviteLink",
+                    "name": "Create a link to invite a friend to your pair",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/job-sharing/offers/{{offerId}}/invite-link",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "job-sharing",
+                                "offers",
+                                "{{offerId}}",
+                                "invite-link"
+                            ]
+                        },
+                        "description": "Create a link to invite a friend to your pair\n\nReturns a link (web page `/job-sharing/join/{token}`) she shares with a friend, e.g. via the system share sheet.\nStarts a pair in `forming` with you as the only member when you have none for the offer; a link that still works\nis reused (`200`), a new one is `201`. Valid for 7 days and for one person; it stops working when someone joins,\nyou invite someone else from the partners list, or the pair is cancelled. `404` unless a published job-sharing\noffer; `422` on `join_link` when your profile is not published or you already have a pair for the offer\n(other than one still waiting for a partner). Throttle 20/min."
+                    }
+                },
+                {
+                    "id": "jobSharingJoinPreview",
+                    "name": "Preview an invite link to a pair",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/job-sharing/join/{{deviceToken}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "job-sharing",
+                                "join",
+                                "{{deviceToken}}"
+                            ]
+                        },
+                        "description": "Preview an invite link to a pair\n\nPublic – a bearer token is optional. Shows the offer and the inviter (first name + surname initial) and whether\nthe caller can join. `can_join` is true only for a signed-in candidate; a guest with a working link gets\n`requires_sign_in: true`. Otherwise `reason` explains why not. `404` for an unknown token. Throttle 30/min.",
+                        "auth": {
+                            "type": "noauth"
+                        }
+                    }
+                },
+                {
+                    "id": "jobSharingJoinByLink",
+                    "name": "Join a pair through an invite link",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/job-sharing/join/{{deviceToken}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "job-sharing",
+                                "join",
+                                "{{deviceToken}}"
+                            ]
+                        },
+                        "description": "Join a pair through an invite link\n\nCandidates only. You become an accepted member, `status` → `formed`, your profile becomes open to job sharing and\nthe inviter is notified. No skill matching is required. `404` for an unknown token; `422` on `join_link` with the\nsame reasons as `reason_message` in the preview (expired, used, own link, pair closed or full, offer closed,\nyou already have a pair for the offer). Throttle 30/min."
+                    }
+                },
+                {
                     "id": "jobSharingPair",
                     "name": "A pair",
                     "request": {

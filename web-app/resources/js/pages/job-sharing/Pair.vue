@@ -11,14 +11,17 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import PairController from '@/actions/App/Http/Controllers/JobSharing/PairController';
 import PairMessageController from '@/actions/App/Http/Controllers/JobSharing/PairMessageController';
 import PairScheduleController from '@/actions/App/Http/Controllers/JobSharing/PairScheduleController';
+import PartnerController from '@/actions/App/Http/Controllers/JobSharing/PartnerController';
 import Chip from '@/components/candidate/Chip.vue';
 import ChatBubble from '@/components/chat/ChatBubble.vue';
 import { formatBubbleTime } from '@/components/chat/format';
 import InputError from '@/components/InputError.vue';
 import { formatHour } from '@/components/job-sharing/format';
+import JoinLinkCard from '@/components/job-sharing/JoinLinkCard.vue';
 import ScheduleBar from '@/components/job-sharing/ScheduleBar.vue';
 import { pairStatusLabels } from '@/components/job-sharing/types';
 import type {
+    JoinLink,
     PairStatus,
     ScheduleBarBlock,
     ScheduleBlock,
@@ -44,7 +47,9 @@ const props = defineProps<{
         status: PairStatus;
         submitted_at: string | null;
         has_saved_schedule: boolean;
+        is_waiting_for_partner: boolean;
     };
+    joinLink: JoinLink | null;
     offer: {
         id: number;
         title: string;
@@ -82,7 +87,9 @@ defineOptions({
     },
 });
 
-usePoll(4000, { only: ['messages', 'members', 'pair', 'schedule', 'can'] });
+usePoll(4000, {
+    only: ['messages', 'members', 'pair', 'schedule', 'can', 'joinLink'],
+});
 
 const tones: ScheduleBarBlock['tone'][] = ['peach', 'yellow'];
 
@@ -307,6 +314,32 @@ const inputClass =
                     Dołączam do pary
                 </button>
             </div>
+        </section>
+
+        <section
+            v-if="pair.is_waiting_for_partner"
+            class="flex flex-col gap-4 rounded-3xl bg-brand-mint-soft p-6 text-brand-green"
+            data-test="pair-waiting"
+        >
+            <div>
+                <p class="text-lg font-bold">Czekasz na drugą osobę do pary</p>
+                <p class="text-sm text-brand-green/80">
+                    Gdy dołączy, otworzy się czat pary i ustalicie podział dnia.
+                </p>
+            </div>
+            <JoinLinkCard
+                v-if="offer.is_published"
+                :offer-id="offer.id"
+                :offer-title="offer.title"
+                :join-link="joinLink"
+            />
+            <Link
+                v-if="offer.is_published"
+                :href="PartnerController.index(offer.id)"
+                class="self-start text-sm font-semibold underline underline-offset-2"
+            >
+                Albo znajdź partnerkę wśród osób otwartych na job sharing
+            </Link>
         </section>
 
         <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_24rem]">
