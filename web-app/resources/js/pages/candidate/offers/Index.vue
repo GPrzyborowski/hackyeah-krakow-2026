@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Bookmark, Search, SlidersHorizontal, Sparkles } from '@lucide/vue';
-import { reactive, ref } from 'vue';
+import {
+    Bookmark,
+    ChevronDown,
+    Search,
+    SlidersHorizontal,
+    Sparkles,
+    X,
+} from '@lucide/vue';
+import { computed, reactive, ref } from 'vue';
+import { formatShortDate } from '@/components/candidate/format';
 import OfferCard from '@/components/candidate/OfferCard.vue';
 import type { CandidateOffer, Option } from '@/components/candidate/types';
 import { cvAnalysis } from '@/routes/candidate';
@@ -11,6 +19,7 @@ import { show as onboarding } from '@/routes/candidate/onboarding';
 type Filters = {
     q: string;
     location: string;
+    categories: string[];
     work_modes: string[];
     employment_fractions: string[];
     flexible_hours: boolean;
@@ -27,6 +36,7 @@ type Filters = {
 const props = defineProps<{
     offers: CandidateOffer[];
     filters: Filters;
+    categories: Option[];
     workModes: Option[];
     employmentFractions: Option[];
     hasConfirmedSkills: boolean;
@@ -38,7 +48,12 @@ defineOptions({
     },
 });
 
-const form = reactive<Filters>({ ...props.filters });
+const form = reactive<Filters>({
+    ...props.filters,
+    categories: [...props.filters.categories],
+    work_modes: [...props.filters.work_modes],
+    employment_fractions: [...props.filters.employment_fractions],
+});
 const showFiltersOnMobile = ref(false);
 
 function apply() {
@@ -47,6 +62,7 @@ function apply() {
         {
             q: form.q || undefined,
             location: form.location || undefined,
+            categories: form.categories.length ? form.categories : undefined,
             work_modes: form.work_modes.length ? form.work_modes : undefined,
             employment_fractions: form.employment_fractions.length
                 ? form.employment_fractions
@@ -65,26 +81,155 @@ function apply() {
     );
 }
 
-const parentFilters: {
-    key:
-        | 'flexible_hours'
-        | 'childcare_subsidy'
-        | 'nursery_nearby'
-        | 'with_reviews'
-        | 'verified_only'
-        | 'job_share';
-    label: string;
-}[] = [
+type ToggleFilter =
+    | 'flexible_hours'
+    | 'childcare_subsidy'
+    | 'nursery_nearby'
+    | 'with_reviews'
+    | 'verified_only'
+    | 'job_share';
+
+const parentFilters: { key: ToggleFilter; label: string }[] = [
     { key: 'flexible_hours', label: 'Elastyczne godziny' },
     { key: 'nursery_nearby', label: 'Żłobek lub przedszkole w pobliżu' },
     {
         key: 'childcare_subsidy',
         label: 'Dofinansowanie żłobka lub przedszkola',
     },
-    { key: 'with_reviews', label: 'Firma z opiniami rodziców' },
-    { key: 'verified_only', label: 'Tylko zweryfikowane firmy' },
     { key: 'job_share', label: 'Job sharing (dwie osoby)' },
 ];
+
+const companyFilters: { key: ToggleFilter; label: string }[] = [
+    { key: 'with_reviews', label: 'Firma z opiniami rodziców' },
+    { key: 'verified_only', label: 'Tylko zweryfikowane firmy' },
+];
+
+function countToggles(toggles: { key: ToggleFilter }[]): number {
+    return toggles.filter((toggle) => form[toggle.key]).length;
+}
+
+const sectionCounts = computed(() => ({
+    category: form.categories.length,
+    workMode: form.work_modes.length,
+    fraction: form.employment_fractions.length,
+    parents: countToggles(parentFilters),
+    company: countToggles(companyFilters),
+    start: form.start_from ? 1 : 0,
+}));
+
+/**
+ * Sections start expanded when they hold an active filter; industry, work mode and fraction are always open.
+ */
+const initiallyOpen = {
+    parents: sectionCounts.value.parents > 0,
+    company: sectionCounts.value.company > 0,
+    start: sectionCounts.value.start > 0,
+};
+
+function labelFor(options: Option[], value: string): string {
+    return options.find((option) => option.value === value)?.label ?? value;
+}
+
+const activeChips = computed(() => {
+    const chips: { key: string; label: string; clear: () => void }[] = [];
+
+    if (form.q) {
+        chips.push({
+            key: 'q',
+            label: `„${form.q}”`,
+            clear: () => (form.q = ''),
+        });
+    }
+
+    if (form.location) {
+        chips.push({
+            key: 'location',
+            label: form.location,
+            clear: () => (form.location = ''),
+        });
+    }
+
+    form.categories.forEach((value) =>
+        chips.push({
+            key: `category-${value}`,
+            label: labelFor(props.categories, value),
+            clear: () =>
+                (form.categories = form.categories.filter(
+                    (category) => category !== value,
+                )),
+        }),
+    );
+
+    form.work_modes.forEach((value) =>
+        chips.push({
+            key: `work_mode-${value}`,
+            label: labelFor(props.workModes, value),
+            clear: () =>
+                (form.work_modes = form.work_modes.filter(
+                    (mode) => mode !== value,
+                )),
+        }),
+    );
+
+    form.employment_fractions.forEach((value) =>
+        chips.push({
+            key: `fraction-${value}`,
+            label: labelFor(props.employmentFractions, value),
+            clear: () =>
+                (form.employment_fractions = form.employment_fractions.filter(
+                    (fraction) => fraction !== value,
+                )),
+        }),
+    );
+
+    [...parentFilters, ...companyFilters]
+        .filter((toggle) => form[toggle.key])
+        .forEach((toggle) =>
+            chips.push({
+                key: toggle.key,
+                label: toggle.label,
+                clear: () => (form[toggle.key] = false),
+            }),
+        );
+
+    if (form.start_from) {
+        chips.push({
+            key: 'start_from',
+            label: `Start od ${formatShortDate(form.start_from)}`,
+            clear: () => (form.start_from = null),
+        });
+    }
+
+    return chips;
+});
+
+const activeFilterCount = computed(() => activeChips.value.length);
+
+const hasActiveFilters = computed(() => activeFilterCount.value > 0);
+
+function removeChip(clear: () => void): void {
+    clear();
+    apply();
+}
+
+/**
+ * Clears every filter except the "Zapisane" view and the sort order.
+ */
+function resetFilters(): void {
+    form.q = '';
+    form.location = '';
+    form.categories = [];
+    form.work_modes = [];
+    form.employment_fractions = [];
+    form.flexible_hours = false;
+    form.childcare_subsidy = false;
+    form.nursery_nearby = false;
+    form.with_reviews = false;
+    form.verified_only = false;
+    form.job_share = false;
+    form.start_from = null;
+    apply();
+}
 </script>
 
 <template>
@@ -135,108 +280,268 @@ const parentFilters: {
         </form>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr]">
-            <aside>
+            <aside class="lg:sticky lg:top-6 lg:self-start">
                 <button
                     type="button"
-                    class="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-brand-green shadow-sm lg:hidden"
+                    class="flex w-full items-center justify-between rounded-full bg-white px-5 py-3 text-sm font-semibold text-brand-green shadow-sm lg:hidden"
+                    :aria-expanded="showFiltersOnMobile"
+                    aria-controls="candidate-offer-filters"
                     @click="showFiltersOnMobile = !showFiltersOnMobile"
                 >
-                    <SlidersHorizontal class="size-4" /> Filtry
+                    <span class="flex items-center gap-2">
+                        Filtry
+                        <span
+                            v-if="activeFilterCount"
+                            class="rounded-full bg-brand-green px-2 py-0.5 text-xs text-white"
+                            >{{ activeFilterCount }}</span
+                        >
+                    </span>
+                    <SlidersHorizontal class="size-4" />
                 </button>
+
                 <div
-                    class="space-y-6 rounded-3xl bg-white p-5 shadow-sm lg:block"
+                    id="candidate-offer-filters"
+                    class="mt-2 rounded-3xl bg-white p-2 text-sm text-brand-green shadow-sm lg:mt-0 lg:block"
                     :class="showFiltersOnMobile ? 'block' : 'hidden'"
                 >
-                    <h2
-                        class="hidden text-lg font-bold text-brand-green lg:block"
-                    >
-                        Filtry
-                    </h2>
-
-                    <fieldset class="space-y-2">
-                        <legend
-                            class="mb-2 text-sm font-semibold text-brand-green"
+                    <div class="flex items-center justify-between px-3 pt-3 pb-1">
+                        <h2 class="text-lg font-bold">Filtry</h2>
+                        <button
+                            v-if="hasActiveFilters"
+                            type="button"
+                            class="text-xs font-medium underline underline-offset-2"
+                            @click="resetFilters"
                         >
-                            Tryb pracy
-                        </legend>
-                        <label
-                            v-for="mode in workModes"
-                            :key="mode.value"
-                            class="flex items-center gap-2 text-sm text-brand-green"
-                        >
-                            <input
-                                v-model="form.work_modes"
-                                type="checkbox"
-                                :value="mode.value"
-                                class="size-4 accent-brand-green"
-                                @change="apply"
-                            />
-                            {{ mode.label }}
-                        </label>
-                    </fieldset>
-
-                    <fieldset class="space-y-2">
-                        <legend
-                            class="mb-2 text-sm font-semibold text-brand-green"
-                        >
-                            Wymiar etatu
-                        </legend>
-                        <label
-                            v-for="fraction in employmentFractions"
-                            :key="fraction.value"
-                            class="flex items-center gap-2 text-sm text-brand-green"
-                        >
-                            <input
-                                v-model="form.employment_fractions"
-                                type="checkbox"
-                                :value="fraction.value"
-                                class="size-4 accent-brand-green"
-                                @change="apply"
-                            />
-                            {{ fraction.label }}
-                        </label>
-                    </fieldset>
-
-                    <fieldset class="space-y-2">
-                        <legend
-                            class="mb-2 text-sm font-semibold text-brand-green"
-                        >
-                            Dla rodziców
-                        </legend>
-                        <label
-                            v-for="filter in parentFilters"
-                            :key="filter.key"
-                            class="flex items-center gap-2 text-sm text-brand-green"
-                        >
-                            <input
-                                v-model="form[filter.key]"
-                                type="checkbox"
-                                class="size-4 accent-brand-green"
-                                @change="apply"
-                            />
-                            {{ filter.label }}
-                        </label>
-                    </fieldset>
-
-                    <div class="space-y-2">
-                        <label
-                            for="start_from"
-                            class="block text-sm font-semibold text-brand-green"
-                        >
-                            Mogę zacząć od
-                        </label>
-                        <input
-                            id="start_from"
-                            v-model="form.start_from"
-                            type="date"
-                            class="w-full rounded-2xl border border-brand-mint-soft px-3 py-2 text-sm text-brand-green"
-                            @change="apply"
-                        />
-                        <p class="text-xs text-brand-green/80">
-                            Pokazujemy oferty, do których zdążysz (do 30 dni po
-                            starcie).
-                        </p>
+                            Wyczyść
+                        </button>
                     </div>
+
+                    <details open class="group/section rounded-2xl">
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Branża
+                                <span
+                                    v-if="sectionCounts.category"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.category }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Branża</legend>
+                            <label
+                                v-for="category in categories"
+                                :key="category.value"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form.categories"
+                                    type="checkbox"
+                                    :value="category.value"
+                                    class="size-4 shrink-0 accent-brand-green"
+                                    :data-test="`filter-category-${category.value}`"
+                                    @change="apply"
+                                />
+                                {{ category.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details open class="group/section rounded-2xl">
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Tryb pracy
+                                <span
+                                    v-if="sectionCounts.workMode"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.workMode }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Tryb pracy</legend>
+                            <label
+                                v-for="mode in workModes"
+                                :key="mode.value"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form.work_modes"
+                                    type="checkbox"
+                                    :value="mode.value"
+                                    class="size-4 shrink-0 accent-brand-green"
+                                    @change="apply"
+                                />
+                                {{ mode.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details open class="group/section rounded-2xl">
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Wymiar etatu
+                                <span
+                                    v-if="sectionCounts.fraction"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.fraction }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Wymiar etatu</legend>
+                            <label
+                                v-for="fraction in employmentFractions"
+                                :key="fraction.value"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form.employment_fractions"
+                                    type="checkbox"
+                                    :value="fraction.value"
+                                    class="size-4 shrink-0 accent-brand-green"
+                                    @change="apply"
+                                />
+                                {{ fraction.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details
+                        :open="initiallyOpen.parents"
+                        class="group/section rounded-2xl"
+                    >
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Dla rodziców
+                                <span
+                                    v-if="sectionCounts.parents"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.parents }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Dla rodziców</legend>
+                            <label
+                                v-for="filter in parentFilters"
+                                :key="filter.key"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form[filter.key]"
+                                    type="checkbox"
+                                    class="size-4 shrink-0 accent-brand-green"
+                                    @change="apply"
+                                />
+                                {{ filter.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details
+                        :open="initiallyOpen.company"
+                        class="group/section rounded-2xl"
+                    >
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Firma
+                                <span
+                                    v-if="sectionCounts.company"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.company }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Firma</legend>
+                            <label
+                                v-for="filter in companyFilters"
+                                :key="filter.key"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form[filter.key]"
+                                    type="checkbox"
+                                    class="size-4 shrink-0 accent-brand-green"
+                                    @change="apply"
+                                />
+                                {{ filter.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details
+                        :open="initiallyOpen.start"
+                        class="group/section rounded-2xl"
+                    >
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Termin startu
+                                <span
+                                    v-if="sectionCounts.start"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.start }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <div class="px-3 pb-3">
+                            <label for="start_from" class="sr-only"
+                                >Mogę zacząć od</label
+                            >
+                            <input
+                                id="start_from"
+                                v-model="form.start_from"
+                                type="date"
+                                class="w-full rounded-2xl border border-brand-mint-soft px-3 py-2 text-sm text-brand-green"
+                                aria-describedby="start_from-hint"
+                                @change="apply"
+                            />
+                            <p
+                                id="start_from-hint"
+                                class="mt-1.5 text-xs text-brand-green/80"
+                            >
+                                Mogę zacząć od tej daty. Pokazujemy oferty, do
+                                których zdążysz (do 30 dni po starcie).
+                            </p>
+                        </div>
+                    </details>
                 </div>
             </aside>
 
@@ -270,6 +575,33 @@ const parentFilters: {
                         }}
                     </Link>
                 </div>
+
+                <ul
+                    v-if="activeChips.length"
+                    class="flex flex-wrap items-center gap-2"
+                    aria-label="Aktywne filtry"
+                >
+                    <li v-for="chip in activeChips" :key="chip.key">
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 rounded-full bg-brand-green px-3 py-1.5 text-xs font-medium text-white transition hover:bg-brand-green-soft"
+                            @click="removeChip(chip.clear)"
+                        >
+                            {{ chip.label }}
+                            <X class="size-3.5" aria-hidden="true" />
+                            <span class="sr-only">– usuń filtr</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            class="px-2 text-xs font-medium text-brand-green underline underline-offset-2"
+                            @click="resetFilters"
+                        >
+                            Wyczyść wszystko
+                        </button>
+                    </li>
+                </ul>
 
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <div class="flex flex-wrap items-center gap-3">

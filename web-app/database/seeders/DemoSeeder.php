@@ -7,6 +7,7 @@ use App\Enums\CandidateStage;
 use App\Enums\DayPart;
 use App\Enums\EmploymentFraction;
 use App\Enums\JobSharePairStatus;
+use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Enums\ReviewStatus;
 use App\Enums\SkillImportance;
@@ -148,32 +149,33 @@ class DemoSeeder extends Seeder
     private function seedOffers(array $companies, $skills): void
     {
         $offers = [
-            ['Zielone Biuro', 'Specjalistka ds. rekrutacji', 'Poznań', WorkMode::Remote, EmploymentFraction::ThreeFifths, 8500, 11000, '2027-09-01', true, true, false,
+            ['Zielone Biuro', 'Specjalistka ds. rekrutacji', OfferCategory::Hr, 'Poznań', WorkMode::Remote, EmploymentFraction::ThreeFifths, 8500, 11000, '2027-09-01', true, true, false,
                 'Prowadzenie procesów rekrutacyjnych w zespołach IT, współpraca z menedżerami, onboarding nowych osób.',
                 ['Rekrutacja IT', 'Onboarding', 'Prawo pracy'], ['Employer branding', 'Excel']],
-            ['Zielone Biuro', 'Specjalistka ds. HR', 'Poznań', WorkMode::Remote, EmploymentFraction::ThreeFifths, 8000, 10500, '2027-09-01', true, true, true,
+            ['Zielone Biuro', 'Specjalistka ds. HR', OfferCategory::Hr, 'Poznań', WorkMode::Remote, EmploymentFraction::ThreeFifths, 8000, 10500, '2027-09-01', true, true, true,
                 'Obsługa procesów kadrowych, wsparcie menedżerów i rozwój programów szkoleniowych.',
                 ['Kadry i płace', 'Prawo pracy'], ['Szkolenia', 'Excel']],
-            ['Kamienica Studio', 'Koordynatorka projektów', 'Poznań', WorkMode::Hybrid, EmploymentFraction::ThreeQuarters, 9000, 12500, '2027-09-15', true, true, false,
+            ['Kamienica Studio', 'Koordynatorka projektów', OfferCategory::Design, 'Poznań', WorkMode::Hybrid, EmploymentFraction::ThreeQuarters, 9000, 12500, '2027-09-15', true, true, false,
                 'Koordynacja projektów wnętrzarskich, kontakt z klientami i podwykonawcami. Spotkania przed 15:00.',
                 ['Zarządzanie projektami', 'Komunikacja z klientem'], ['Jira', 'Scrum']],
-            ['Nadrzeczna Fintech', 'Specjalistka ds. obsługi klienta', 'Kraków', WorkMode::Remote, EmploymentFraction::Half, 6200, 7800, '2027-08-01', false, true, false,
+            ['Nadrzeczna Fintech', 'Specjalistka ds. obsługi klienta', OfferCategory::CustomerService, 'Kraków', WorkMode::Remote, EmploymentFraction::Half, 6200, 7800, '2027-08-01', false, true, false,
                 'Wsparcie klientów aplikacji płatniczej przez czat i e-mail. Grafik ustalany z miesięcznym wyprzedzeniem.',
                 ['Obsługa klienta', 'Język angielski'], ['Komunikacja z klientem']],
-            ['Biuro Rachunkowe Warta', 'Księgowa', 'Swarzędz', WorkMode::Hybrid, EmploymentFraction::Full, 7000, 9000, '2027-09-01', false, false, true,
+            ['Biuro Rachunkowe Warta', 'Księgowa', OfferCategory::Finance, 'Swarzędz', WorkMode::Hybrid, EmploymentFraction::Full, 7000, 9000, '2027-09-01', false, false, true,
                 'Prowadzenie pełnej księgowości dla klientów biura. Przedszkole 2 km od biura.',
                 ['Księgowość', 'Rozliczenia VAT'], ['Optima', 'Excel']],
-            ['Północ Logistyka', 'Specjalistka ds. kadr i płac', 'Gdańsk', WorkMode::Onsite, EmploymentFraction::Full, 7500, 9500, '2027-07-01', false, false, false,
+            ['Północ Logistyka', 'Specjalistka ds. kadr i płac', OfferCategory::Hr, 'Gdańsk', WorkMode::Onsite, EmploymentFraction::Full, 7500, 9500, '2027-07-01', false, false, false,
                 'Naliczanie wynagrodzeń, dokumentacja kadrowa i kontakt z ZUS.',
                 ['Kadry i płace', 'Prawo pracy'], ['Excel', 'SAP']],
-            ['Nadrzeczna Fintech', 'Analityczka danych', 'Kraków', WorkMode::Remote, EmploymentFraction::ThreeQuarters, 11000, 15000, '2027-10-01', true, true, true,
+            ['Nadrzeczna Fintech', 'Analityczka danych', OfferCategory::It, 'Kraków', WorkMode::Remote, EmploymentFraction::ThreeQuarters, 11000, 15000, '2027-10-01', true, true, true,
                 'Raportowanie i analiza danych produktowych, współpraca z zespołem produktu.',
                 ['Analiza danych', 'SQL'], ['Excel', 'Język angielski']],
         ];
 
-        foreach ($offers as [$companyName, $title, $city, $mode, $fraction, $min, $max, $start, $flexible, $meetings, $childcare, $description, $required, $niceToHave]) {
+        foreach ($offers as [$companyName, $title, $category, $city, $mode, $fraction, $min, $max, $start, $flexible, $meetings, $childcare, $description, $required, $niceToHave]) {
             $offer = JobOffer::create([
                 'title' => $title,
+                'category' => $category,
                 'city' => $city,
                 'work_mode' => $mode,
                 'employment_fraction' => $fraction,
@@ -367,6 +369,7 @@ class DemoSeeder extends Seeder
         $offer = JobOffer::create([
             'company_id' => Company::firstWhere('name', 'Zielone Biuro')->id,
             'title' => 'Specjalistka ds. rekrutacji – job sharing',
+            'category' => OfferCategory::Hr,
             'city' => 'Poznań',
             'work_mode' => WorkMode::Hybrid,
             'employment_fraction' => EmploymentFraction::Half,

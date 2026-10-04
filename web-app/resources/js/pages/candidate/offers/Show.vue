@@ -81,8 +81,14 @@ const ratingCategories: { key: keyof Review; label: string }[] = [
                         class="flex flex-wrap items-start justify-between gap-3"
                     >
                         <div>
+                            <p
+                                class="text-xs font-semibold tracking-wide text-brand-green/70 uppercase"
+                                data-test="offer-category"
+                            >
+                                {{ offer.category_label }}
+                            </p>
                             <h1
-                                class="text-3xl font-extrabold tracking-tight text-brand-green md:text-4xl"
+                                class="mt-1 text-3xl font-extrabold tracking-tight text-brand-green md:text-4xl"
                             >
                                 {{ offer.title }}
                             </h1>

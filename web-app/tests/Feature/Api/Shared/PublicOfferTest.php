@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\Shared;
 
+use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Enums\WorkMode;
 use App\Models\Company;
@@ -31,6 +32,25 @@ class PublicOfferTest extends TestCase
             ->assertJsonPath('meta.filters.work_mode', ['remote'])
             ->assertJsonPath('meta.total', 1)
             ->assertJsonMissingPath('data.0.score');
+    }
+
+    public function test_guest_filters_offers_by_category_and_sees_its_label(): void
+    {
+        $company = Company::factory()->create();
+        $itOffer = JobOffer::factory()->published()->for($company)->create(['category' => OfferCategory::It]);
+        JobOffer::factory()->published()->for($company)->create(['category' => OfferCategory::Education]);
+
+        $this->getJson('/api/v1/public/offers?category[]=it&category[]=bogus')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $itOffer->id)
+            ->assertJsonPath('data.0.category', 'it')
+            ->assertJsonPath('data.0.category_label', 'IT i technologie')
+            ->assertJsonPath('meta.filters.category', ['it']);
+
+        $this->getJson("/api/v1/public/offers/{$itOffer->id}")
+            ->assertOk()
+            ->assertJsonPath('data.category', 'it');
     }
 
     public function test_guest_filters_offers_with_a_nursery_nearby_and_sees_the_distance(): void

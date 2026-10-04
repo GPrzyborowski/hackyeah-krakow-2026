@@ -3,6 +3,7 @@
 namespace Tests\Feature\Candidate;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\SkillImportance;
 use App\Enums\WorkMode;
 use App\Models\CandidateProfile;
@@ -61,6 +62,26 @@ class OffersTest extends TestCase
         $this->actingAs($this->profile->user)
             ->get(route('candidate.offers.index', ['location' => 'zdalnie']))
             ->assertInertia(fn (Assert $page) => $page->has('offers', 1)->where('offers.0.id', $remoteFlexible->id));
+    }
+
+    public function test_category_filter_keeps_only_offers_from_the_chosen_industries(): void
+    {
+        $itOffer = $this->offer(['category' => OfferCategory::It]);
+        $this->offer(['category' => OfferCategory::Sales]);
+
+        $this->actingAs($this->profile->user)
+            ->get(route('candidate.offers.index', ['categories' => ['it']]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers', 1)
+                ->where('offers.0.id', $itOffer->id)
+                ->where('offers.0.category_label', 'IT i technologie')
+                ->where('filters.categories', ['it'])
+                ->has('categories', count(OfferCategory::cases())));
+
+        $this->actingAs($this->profile->user)
+            ->get(route('candidate.offers.index', ['categories' => ['astronomy']]))
+            ->assertSessionHasErrors('categories.0');
     }
 
     public function test_listing_exposes_the_parent_friendly_conditions_shown_as_card_chips(): void

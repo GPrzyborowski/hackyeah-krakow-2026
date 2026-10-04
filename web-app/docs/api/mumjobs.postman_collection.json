@@ -922,6 +922,12 @@
                                     "disabled": true
                                 },
                                 {
+                                    "key": "categories[]",
+                                    "value": "it",
+                                    "description": "",
+                                    "disabled": true
+                                },
+                                {
                                     "key": "work_modes[]",
                                     "value": "remote",
                                     "description": "",
@@ -2027,6 +2033,12 @@
                                     "key": "location",
                                     "value": "Kraków",
                                     "description": "City contains; a value containing \"zdal\" also matches remote offers",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "category[]",
+                                    "value": "it",
+                                    "description": "Industry, any of; unknown values ignored",
                                     "disabled": true
                                 },
                                 {

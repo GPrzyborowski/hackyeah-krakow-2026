@@ -37,6 +37,8 @@ export type PublicArticleSummary = {
 export type PublicOffer = {
     id: number;
     title: string;
+    category?: string;
+    category_label: string;
     city: string | null;
     work_mode?: string;
     work_mode_label: string;

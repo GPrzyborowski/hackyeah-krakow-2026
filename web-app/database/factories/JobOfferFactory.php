@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Enums\WorkMode;
 use App\Models\Company;
@@ -26,6 +27,7 @@ class JobOfferFactory extends Factory
         return [
             'company_id' => Company::factory(),
             'title' => fake()->jobTitle(),
+            'category' => fake()->randomElement(OfferCategory::cases()),
             'city' => fake()->randomElement(['Kraków', 'Poznań', 'Warszawa']),
             'work_mode' => fake()->randomElement(WorkMode::cases()),
             'employment_fraction' => fake()->randomElement(EmploymentFraction::cases()),

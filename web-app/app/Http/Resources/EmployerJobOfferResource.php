@@ -26,6 +26,8 @@ class EmployerJobOfferResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'title' => $this->resource->title,
+            'category' => $this->resource->category->value,
+            'category_label' => $this->resource->category->label(),
             'city' => $this->resource->city,
             'work_mode' => $this->resource->work_mode->value,
             'work_mode_label' => $this->resource->work_mode->label(),

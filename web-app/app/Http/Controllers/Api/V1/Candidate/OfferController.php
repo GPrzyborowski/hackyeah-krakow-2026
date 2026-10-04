@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Candidate;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\WorkMode;
 use App\Http\Controllers\Candidate\Concerns\PresentsOffers;
 use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
@@ -54,6 +55,7 @@ class OfferController extends Controller
             'has_confirmed_skills' => $profile->confirmedSkills()->exists(),
             'work_modes' => collect(WorkMode::cases())->map(fn (WorkMode $mode): array => ['value' => $mode->value, 'label' => $mode->label()]),
             'employment_fractions' => collect(EmploymentFraction::cases())->map(fn (EmploymentFraction $fraction): array => ['value' => $fraction->value, 'label' => $fraction->label()]),
+            'categories' => collect(OfferCategory::cases())->map(fn (OfferCategory $category): array => ['value' => $category->value, 'label' => $category->label()]),
         ]]);
     }
 

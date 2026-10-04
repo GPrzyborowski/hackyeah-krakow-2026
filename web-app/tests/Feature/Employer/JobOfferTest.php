@@ -3,6 +3,7 @@
 namespace Tests\Feature\Employer;
 
 use App\Enums\InvitationStatus;
+use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Models\Company;
 use App\Models\CompanyReview;
@@ -122,6 +123,37 @@ class JobOfferTest extends TestCase
         $this->assertSame(1, JobOffer::count());
     }
 
+    public function test_employer_saves_the_offer_category_and_sees_it_in_the_edit_form()
+    {
+        $employer = $this->employer();
+
+        $this->actingAs($employer)->post('/employer/offers', $this->payload(['category' => 'it']))
+            ->assertSessionHasNoErrors();
+
+        $offer = JobOffer::sole();
+        $this->assertSame(OfferCategory::It, $offer->category);
+
+        $this->actingAs($employer)
+            ->get("/employer/offers/{$offer->id}/edit")
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('offer.category', 'it')
+                ->where('offer.category_label', 'IT i technologie')
+                ->has('categories', count(OfferCategory::cases())));
+    }
+
+    public function test_offer_category_is_required_and_must_be_a_known_industry()
+    {
+        $employer = $this->employer();
+
+        $this->actingAs($employer)->post('/employer/offers', $this->payload(['category' => null]))
+            ->assertSessionHasErrors('category');
+
+        $this->actingAs($employer)->post('/employer/offers', $this->payload(['category' => 'astronomy']))
+            ->assertSessionHasErrors('category');
+
+        $this->assertSame(0, JobOffer::count());
+    }
+
     public function test_description_asking_about_family_plans_is_rejected()
     {
         $this->actingAs($this->employer())
@@ -230,6 +262,7 @@ class JobOfferTest extends TestCase
             'action' => 'draft',
             'title' => 'Specjalistka ds. rekrutacji',
             'city' => 'Poznań',
+            'category' => 'hr',
             'work_mode' => 'hybrid',
             'start_date' => '2027-09-01',
             'description' => 'Prowadzenie procesów rekrutacyjnych w zespołach IT.',

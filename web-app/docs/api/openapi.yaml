@@ -529,6 +529,11 @@ paths:
       parameters:
         - { name: q, in: query, description: 'Text in title or skill names', schema: { type: string, maxLength: 100 } }
         - { name: location, in: query, description: 'City substring; a value containing "zdaln" means remote offers', schema: { type: string, maxLength: 100 } }
+        - name: 'categories[]'
+          in: query
+          style: form
+          explode: true
+          schema: { type: array, items: { $ref: '#/components/schemas/OfferCategory' } }
         - name: 'work_modes[]'
           in: query
           style: form
@@ -574,6 +579,7 @@ paths:
                           has_confirmed_skills: { type: boolean }
                           work_modes: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
                           employment_fractions: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
+                          categories: { type: array, items: { $ref: '#/components/schemas/LabeledValue' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '422': { $ref: '#/components/responses/ValidationFailed' }
@@ -1254,6 +1260,12 @@ paths:
       parameters:
         - { name: q, in: query, description: 'Title, company name or skill contains', schema: { type: string } }
         - { name: location, in: query, description: 'City contains; a value containing "zdal" also matches remote offers', schema: { type: string } }
+        - name: 'category[]'
+          in: query
+          style: form
+          explode: true
+          description: 'Industry, any of; unknown values ignored'
+          schema: { type: array, items: { $ref: '#/components/schemas/OfferCategory' } }
         - name: 'work_mode[]'
           in: query
           style: form
@@ -1296,6 +1308,7 @@ paths:
                             properties:
                               q: { type: string }
                               location: { type: string }
+                              category: { type: array, items: { type: string } }
                               work_mode: { type: array, items: { type: string } }
                               fraction: { type: array, items: { type: string } }
                               flexible: { type: boolean }
@@ -2285,6 +2298,10 @@ components:
     WorkMode:
       type: string
       enum: [remote, hybrid, onsite]
+    OfferCategory:
+      type: string
+      description: 'Industry ("Branża"), exactly one per offer.'
+      enum: [it, health, hr, finance, marketing, customer_service, administration, sales, education, design, other]
     EmploymentFraction:
       type: string
       enum: ['1', '3/4', '3/5', '1/2']
@@ -2551,6 +2568,8 @@ components:
       properties:
         id: { type: integer }
         title: { type: string }
+        category: { $ref: '#/components/schemas/OfferCategory' }
+        category_label: { type: string, example: 'HR i rekrutacja' }
         city: { type: [string, 'null'] }
         work_mode: { $ref: '#/components/schemas/WorkMode' }
         work_mode_label: { type: string }
@@ -2622,6 +2641,7 @@ components:
       properties:
         q: { type: string }
         location: { type: string }
+        categories: { type: array, items: { type: string } }
         work_modes: { type: array, items: { type: string } }
         employment_fractions: { type: array, items: { type: string } }
         flexible_hours: { type: boolean }
@@ -2936,6 +2956,8 @@ components:
       properties:
         id: { type: integer }
         title: { type: string }
+        category: { $ref: '#/components/schemas/OfferCategory' }
+        category_label: { type: string, example: 'HR i rekrutacja' }
         city: { type: [string, 'null'] }
         work_mode: { $ref: '#/components/schemas/WorkMode' }
         work_mode_label: { type: string }
@@ -2969,6 +2991,9 @@ components:
       properties:
         action: { type: string, enum: [draft, publish] }
         title: { type: string, maxLength: 255, description: 'Moderated.' }
+        category:
+          oneOf: [{ $ref: '#/components/schemas/OfferCategory' }, { type: 'null' }]
+          description: 'Optional in the API (required in the web form). Omitted: a new offer gets `other`, an update keeps the current value.'
         city: { type: [string, 'null'], maxLength: 255 }
         work_mode: { $ref: '#/components/schemas/WorkMode' }
         start_date: { type: string, format: date, description: 'When publishing not in the past.' }
@@ -3132,6 +3157,8 @@ components:
       properties:
         id: { type: integer }
         title: { type: string }
+        category: { $ref: '#/components/schemas/OfferCategory' }
+        category_label: { type: string, example: 'HR i rekrutacja' }
         city: { type: [string, 'null'] }
         work_mode: { $ref: '#/components/schemas/WorkMode' }
         work_mode_label: { type: string }
@@ -3205,6 +3232,8 @@ components:
             properties:
               id: { type: integer }
               title: { type: string }
+              category: { $ref: '#/components/schemas/OfferCategory' }
+              category_label: { type: string, example: 'HR i rekrutacja' }
               city: { type: [string, 'null'] }
               work_mode: { $ref: '#/components/schemas/WorkMode' }
               work_mode_label: { type: string }

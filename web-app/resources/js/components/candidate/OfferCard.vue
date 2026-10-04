@@ -48,6 +48,12 @@ const perks = computed(() =>
     <article class="rounded-3xl bg-white p-5 shadow-sm md:p-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
             <div class="min-w-0 flex-1">
+                <p
+                    class="mb-1 text-xs font-semibold tracking-wide text-brand-green/70 uppercase"
+                    data-test="offer-card-category"
+                >
+                    {{ offer.category_label }}
+                </p>
                 <div class="flex flex-wrap items-center gap-2">
                     <Link
                         :href="detailHref"

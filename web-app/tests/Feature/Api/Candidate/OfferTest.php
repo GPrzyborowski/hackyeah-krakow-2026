@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\Candidate;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\WorkMode;
 use App\Models\Company;
 use App\Models\CompanyReview;
@@ -56,8 +57,9 @@ class OfferTest extends TestCase
         $skill = $this->skill('Rekrutacja IT');
         $candidate = $this->candidate([$skill]);
         $remote = $this->publishedOffer(Company::factory()->create(), [$skill]);
-        $remote->update(['work_mode' => WorkMode::Remote, 'employment_fraction' => EmploymentFraction::Half]);
+        $remote->update(['work_mode' => WorkMode::Remote, 'employment_fraction' => EmploymentFraction::Half, 'category' => OfferCategory::It]);
         $saved = $this->publishedOffer(Company::factory()->create(), [$skill]);
+        $saved->update(['category' => OfferCategory::Sales]);
         $candidate->savedOffers()->attach($saved);
         Sanctum::actingAs($candidate->user);
 
@@ -65,6 +67,14 @@ class OfferTest extends TestCase
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $remote->id);
+
+        $this->getJson('/api/v1/candidate/offers?'.http_build_query(['categories' => ['it']]))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $remote->id)
+            ->assertJsonPath('data.0.category', 'it')
+            ->assertJsonPath('data.0.category_label', 'IT i technologie')
+            ->assertJsonPath('meta.filters.categories', ['it']);
 
         $this->getJson('/api/v1/candidate/offers?saved=1')
             ->assertOk()

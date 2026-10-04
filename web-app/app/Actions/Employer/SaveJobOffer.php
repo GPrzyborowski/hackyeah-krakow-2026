@@ -2,6 +2,7 @@
 
 namespace App\Actions\Employer;
 
+use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Enums\SkillImportance;
 use App\Enums\WorkMode;
@@ -29,6 +30,12 @@ class SaveJobOffer
                 'workday_ends_at' => $request->boolean('is_job_share') ? $request->validated('workday_ends_at') : null,
                 'status' => $request->isPublishing() ? OfferStatus::Published : OfferStatus::Draft,
             ]);
+
+            if ($request->validated('category') !== null) {
+                $offer->category = OfferCategory::from($request->validated('category'));
+            } elseif (! $offer->exists) {
+                $offer->category = OfferCategory::Other;
+            }
 
             if ($request->isPublishing() && $offer->published_at === null) {
                 $offer->published_at = now();

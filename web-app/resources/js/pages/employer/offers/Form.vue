@@ -14,6 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 const props = defineProps<{
     offer: EmployerOffer | null;
     companyHasApprovedReview: boolean;
+    categories: SelectOption[];
     workModes: SelectOption[];
     employmentFractions: SelectOption[];
 }>();
@@ -29,6 +30,7 @@ defineOptions({
 const form = useForm({
     action: 'draft' as 'draft' | 'publish',
     title: props.offer?.title ?? '',
+    category: props.offer?.category ?? '',
     city: props.offer?.city ?? '',
     work_mode: props.offer?.work_mode ?? 'hybrid',
     start_date: props.offer?.start_date ?? '',
@@ -143,7 +145,33 @@ const labelClass = 'text-xs font-semibold text-brand-green';
                             />
                         </label>
                     </div>
-                    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <label :class="labelClass">
+                            Branża
+                            <select
+                                v-model="form.category"
+                                :aria-invalid="
+                                    form.errors.category ? true : undefined
+                                "
+                                aria-describedby="category-error"
+                                :class="fieldClass"
+                                data-test="offer-category"
+                                required
+                            >
+                                <option value="" disabled>Wybierz branżę</option>
+                                <option
+                                    v-for="category in categories"
+                                    :key="category.value"
+                                    :value="category.value"
+                                >
+                                    {{ category.label }}
+                                </option>
+                            </select>
+                            <InputError
+                                id="category-error"
+                                :message="form.errors.category"
+                            />
+                        </label>
                         <label :class="labelClass">
                             Tryb pracy
                             <select

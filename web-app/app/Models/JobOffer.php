@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Enums\SkillImportance;
 use App\Enums\WorkMode;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $company_id
  * @property string $title
+ * @property OfferCategory $category
  * @property string|null $city
  * @property WorkMode $work_mode
  * @property EmploymentFraction $employment_fraction
@@ -38,7 +40,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $published_at
  */
 #[Fillable([
-    'title', 'city', 'work_mode', 'employment_fraction', 'salary_min', 'salary_max', 'start_date', 'description',
+    'title', 'category', 'city', 'work_mode', 'employment_fraction', 'salary_min', 'salary_max', 'start_date', 'description',
     'flexible_hours', 'fixed_meeting_hours', 'childcare_subsidy', 'nursery_distance_km', 'is_job_share', 'workday_starts_at', 'workday_ends_at',
     'status', 'published_at',
 ])]
@@ -170,6 +172,7 @@ class JobOffer extends Model
     protected function casts(): array
     {
         return [
+            'category' => OfferCategory::class,
             'work_mode' => WorkMode::class,
             'employment_fraction' => EmploymentFraction::class,
             'start_date' => 'date',

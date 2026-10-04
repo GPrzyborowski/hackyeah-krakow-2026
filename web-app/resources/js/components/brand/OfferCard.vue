@@ -71,7 +71,13 @@ const perks = computed(() =>
             class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
         >
             <div class="min-w-0">
-                <h3 class="text-xl font-semibold text-brand-green">
+                <p
+                    class="text-xs font-semibold tracking-wide text-brand-green/70 uppercase"
+                    data-test="offer-card-category"
+                >
+                    {{ offer.category_label }}
+                </p>
+                <h3 class="mt-1 text-xl font-semibold text-brand-green">
                     <Link
                         v-if="href"
                         :href="href"

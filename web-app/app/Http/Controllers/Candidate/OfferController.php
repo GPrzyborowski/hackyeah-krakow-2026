@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Candidate;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\WorkMode;
 use App\Http\Controllers\Candidate\Concerns\PresentsOffers;
 use App\Http\Controllers\Candidate\Concerns\ResolvesCandidateProfile;
@@ -35,6 +36,7 @@ class OfferController extends Controller
         return Inertia::render('candidate/offers/Index', [
             'offers' => $ranked->map(fn (array $row): array => $this->presentOffer($row['offer'], $row['match'], $interestedOfferIds, $savedOfferIds)),
             'filters' => $filters,
+            'categories' => collect(OfferCategory::cases())->map(fn (OfferCategory $category): array => ['value' => $category->value, 'label' => $category->label()]),
             'workModes' => collect(WorkMode::cases())->map(fn (WorkMode $mode): array => ['value' => $mode->value, 'label' => $mode->label()]),
             'employmentFractions' => collect(EmploymentFraction::cases())->map(fn (EmploymentFraction $fraction): array => ['value' => $fraction->value, 'label' => $fraction->label()]),
             'hasConfirmedSkills' => $profile->confirmedSkills()->exists(),

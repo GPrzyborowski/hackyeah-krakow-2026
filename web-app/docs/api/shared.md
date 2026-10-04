@@ -28,6 +28,7 @@ Published offers, newest first by default, no match score. Query (all optional, 
 | --- | --- | --- |
 | `q` | `rekrut` | Title, company name or skill contains |
 | `location` | `Kraków` | City contains; a value containing "zdal" also matches remote offers |
+| `category[]` | `it`, `health`, … (see below) | Industry ("Branża"), any of |
 | `work_mode[]` | `remote`, `hybrid`, `onsite` | Any of |
 | `fraction[]` | `1`, `3/4`, `3/5`, `1/2` | Employment fraction, any of |
 | `flexible` | `1` | Only flexible hours |
@@ -45,6 +46,8 @@ Published offers, newest first by default, no match score. Query (all optional, 
   "data": [{
     "id": 4,
     "title": "Specjalistka ds. kadr",
+    "category": "hr",
+    "category_label": "HR i rekrutacja",
     "city": "Kraków",
     "work_mode": "hybrid",
     "work_mode_label": "Hybrydowo",
@@ -68,10 +71,12 @@ Published offers, newest first by default, no match score. Query (all optional, 
   "links": { "first": "…?page=1", "last": "…?page=3", "prev": null, "next": "…?page=2" },
   "meta": {
     "current_page": 1, "last_page": 3, "per_page": 20, "total": 47,
-    "filters": { "q": "", "location": "", "work_mode": ["hybrid"], "fraction": [], "flexible": false, "childcare_subsidy": false, "nursery_nearby": false, "with_reviews": false, "job_share": false, "verified_only": false, "start_from": null, "sort": "newest" }
+    "filters": { "q": "", "location": "", "category": [], "work_mode": ["hybrid"], "fraction": [], "flexible": false, "childcare_subsidy": false, "nursery_nearby": false, "with_reviews": false, "job_share": false, "verified_only": false, "start_from": null, "sort": "newest" }
   }
 }
 ```
+
+Every offer has exactly one industry: `category` (value) and `category_label` (Polish label). Values: `it`, `health`, `hr`, `finance`, `marketing`, `customer_service`, `administration`, `sales`, `education`, `design`, `other` ("IT i technologie", "Medycyna i zdrowie", "HR i rekrutacja", "Finanse i księgowość", "Marketing i komunikacja", "Obsługa klienta", "Administracja i biuro", "Sprzedaż", "Edukacja", "Projektowanie i kreatywne", "Inne"). The same two fields are on the offer detail and on the offers of `GET /public/companies/{company}`.
 
 ### GET /public/offers/{offer}
 
@@ -111,7 +116,7 @@ Company profile with **approved** reviews only (anonymous) and published offers.
       "overall": 4.7, "quote": "…", "author_label": "Mama dwójki, księgowość"
     }],
     "offers": [{
-      "id": 4, "title": "…", "city": "Kraków", "work_mode": "hybrid", "work_mode_label": "Hybrydowo",
+      "id": 4, "title": "…", "category": "hr", "category_label": "HR i rekrutacja", "city": "Kraków", "work_mode": "hybrid", "work_mode_label": "Hybrydowo",
       "employment_fraction_label": "3/5 etatu", "salary_min": 6500, "salary_max": 8000, "start_date": "2027-09-01",
       "flexible_hours": true, "fixed_meeting_hours": false, "childcare_subsidy": true, "is_job_share": false
     }]

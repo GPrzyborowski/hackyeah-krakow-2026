@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\Employer;
 
 use App\Enums\InvitationStatus;
+use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Models\CompanyReview;
 use App\Models\Invitation;
@@ -105,6 +106,33 @@ class JobOfferTest extends TestCase
         $this->assertSame($employer->company_id, $offer->company_id);
         $this->assertEqualsCanonicalizing(['Onboarding', 'Prawo pracy'], $offer->requiredSkills()->pluck('name')->all());
         $this->assertSame(3, Skill::count());
+    }
+
+    public function test_category_is_optional_for_older_app_versions_and_defaults_to_other(): void
+    {
+        $employer = $this->employer();
+        Sanctum::actingAs($employer);
+
+        $this->postJson('/api/v1/employer/offers', $this->payload())
+            ->assertCreated()
+            ->assertJsonPath('data.category', 'other')
+            ->assertJsonPath('data.category_label', 'Inne');
+
+        $offer = JobOffer::sole();
+        $this->assertSame(OfferCategory::Other, $offer->category);
+
+        $this->putJson("/api/v1/employer/offers/{$offer->id}", $this->payload(['category' => 'health']))
+            ->assertOk()
+            ->assertJsonPath('data.category', 'health')
+            ->assertJsonPath('data.category_label', 'Medycyna i zdrowie');
+
+        $this->putJson("/api/v1/employer/offers/{$offer->id}", $this->payload())
+            ->assertOk()
+            ->assertJsonPath('data.category', 'health');
+
+        $this->putJson("/api/v1/employer/offers/{$offer->id}", $this->payload(['category' => 'astronomy']))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('category');
     }
 
     public function test_employer_publishes_a_job_share_offer(): void

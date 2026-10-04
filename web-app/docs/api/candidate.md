@@ -215,6 +215,7 @@ Published offers ranked by match (same filters as the web list). Query parameter
 | --- | --- |
 | `q` | text in title or skill names |
 | `location` | city substring; a value containing "zdaln" means remote offers |
+| `categories[]` | industry: `it`, `health`, `hr`, `finance`, `marketing`, `customer_service`, `administration`, `sales`, `education`, `design`, `other` |
 | `work_modes[]` | `remote`, `hybrid`, `onsite` |
 | `employment_fractions[]` | `1`, `3/4`, `3/5`, `1/2` |
 | `flexible_hours`, `childcare_subsidy`, `with_reviews`, `job_share`, `saved` | `1` to enable |
@@ -229,6 +230,7 @@ Offer card (also used in `home.top_offers`). `company.verified` = the company's 
 ```json
 {
   "id": 41, "title": "Specjalistka ds. rekrutacji IT", "city": "Kraków",
+  "category": "hr", "category_label": "HR i rekrutacja",
   "work_mode": "hybrid", "work_mode_label": "Hybrydowo",
   "employment_fraction": "3/5", "employment_fraction_label": "3/5 etatu",
   "salary_min": 6000, "salary_max": 8000, "start_date": "2027-09-01",
@@ -248,7 +250,7 @@ Offer card (also used in `home.top_offers`). `company.verified` = the company's 
 }
 ```
 
-The list response adds `meta.filters` (the effective filters, incl. the defaulted `start_from`), `meta.has_confirmed_skills`, `meta.work_modes` and `meta.employment_fractions` (filter choices).
+The list response adds `meta.filters` (the effective filters, incl. the defaulted `start_from`), `meta.has_confirmed_skills`, `meta.work_modes`, `meta.employment_fractions` and `meta.categories` (filter choices, `{ value, label }`).
 
 ### GET /candidate/offers/{offer}
 

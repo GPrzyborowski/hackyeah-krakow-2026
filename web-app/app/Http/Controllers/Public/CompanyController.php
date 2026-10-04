@@ -45,6 +45,8 @@ class CompanyController extends Controller
             'offers' => $company->jobOffers->map(fn (JobOffer $offer): array => [
                 'id' => $offer->id,
                 'title' => $offer->title,
+                'category' => $offer->category->value,
+                'category_label' => $offer->category->label(),
                 'city' => $offer->city,
                 'work_mode_label' => $offer->work_mode->label(),
                 'employment_fraction_label' => $offer->employment_fraction->label(),

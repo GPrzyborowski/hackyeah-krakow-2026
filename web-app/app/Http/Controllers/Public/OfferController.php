@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\WorkMode;
 use App\Http\Controllers\Controller;
 use App\Models\JobOffer;
@@ -31,6 +32,7 @@ class OfferController extends Controller
         return Inertia::render('public/offers/Index', [
             'offers' => $offers,
             'filters' => $filters,
+            'categories' => collect(OfferCategory::cases())->map(fn (OfferCategory $category): array => ['value' => $category->value, 'label' => $category->label()]),
             'workModes' => collect(WorkMode::cases())->map(fn (WorkMode $mode): array => ['value' => $mode->value, 'label' => $mode->label()]),
             'fractions' => collect(EmploymentFraction::cases())->map(fn (EmploymentFraction $fraction): array => ['value' => $fraction->value, 'label' => $fraction->label()]),
         ]);

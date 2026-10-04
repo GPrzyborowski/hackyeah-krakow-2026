@@ -32,6 +32,8 @@ export type MatchBreakdown = {
 export type CandidateOffer = {
     id: number;
     title: string;
+    category: string;
+    category_label: string;
     city: string | null;
     work_mode: string;
     work_mode_label: string;

@@ -28,6 +28,8 @@ class PublicOfferPresenter
         return [
             'id' => $offer->id,
             'title' => $offer->title,
+            'category' => $offer->category->value,
+            'category_label' => $offer->category->label(),
             'city' => $offer->city,
             'work_mode' => $offer->work_mode->value,
             'work_mode_label' => $offer->work_mode->label(),

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Public;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Enums\ReviewStatus;
 use App\Enums\WorkMode;
@@ -78,6 +79,25 @@ class OfferIndexTest extends TestCase
                 ->where('offers.data.0.id', $match->id)
                 ->where('filters.work_mode', [WorkMode::Remote->value])
                 ->where('filters.fraction', [EmploymentFraction::Half->value]),
+            );
+    }
+
+    public function test_offers_can_be_filtered_by_category(): void
+    {
+        $itOffer = JobOffer::factory()->published()->create(['category' => OfferCategory::It, 'published_at' => now()->subDay()]);
+        $healthOffer = JobOffer::factory()->published()->create(['category' => OfferCategory::Health, 'published_at' => now()]);
+        JobOffer::factory()->published()->create(['category' => OfferCategory::Finance]);
+
+        $this->get(route('public.offers.index', ['category' => [OfferCategory::It->value, OfferCategory::Health->value, 'invalid']]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('offers.data', 2)
+                ->where('offers.data.0.id', $healthOffer->id)
+                ->where('offers.data.0.category', 'health')
+                ->where('offers.data.0.category_label', 'Medycyna i zdrowie')
+                ->where('offers.data.1.id', $itOffer->id)
+                ->where('filters.category', [OfferCategory::It->value, OfferCategory::Health->value])
+                ->has('categories', count(OfferCategory::cases())),
             );
     }
 

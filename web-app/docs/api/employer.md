@@ -181,6 +181,7 @@ candidates never appear here.
 {
   "id": 21,
   "title": "Specjalistka ds. rekrutacji",
+  "category": "hr", "category_label": "HR i rekrutacja",
   "city": "Poznań",
   "work_mode": "hybrid", "work_mode_label": "Hybrydowo",
   "employment_fraction": "3/5", "employment_fraction_label": "3/5 etatu",
@@ -216,6 +217,7 @@ Throttle 20/min (moderated write). Body (same rules as the web form):
 | --- | --- |
 | `action` | required, `draft` or `publish` |
 | `title` | required, max 255, moderated |
+| `category` | optional (required in the web form): `it`, `health`, `hr`, `finance`, `marketing`, `customer_service`, `administration`, `sales`, `education`, `design`, `other`. When omitted, a new offer gets `other` and an update keeps the current value |
 | `city` | optional |
 | `work_mode` | required: `remote`, `hybrid`, `onsite` |
 | `start_date` | required date; when publishing not in the past |

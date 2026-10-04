@@ -35,6 +35,7 @@ class JobSharingFlowTest extends TestCase
             ->post(route('employer.offers.store'), [
                 'action' => 'publish',
                 'title' => 'Specjalistka HR (job sharing)',
+                'category' => 'hr',
                 'city' => 'Kraków',
                 'work_mode' => 'hybrid',
                 'start_date' => '2027-09-01',

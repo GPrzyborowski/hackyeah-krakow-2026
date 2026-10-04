@@ -115,8 +115,14 @@ const conditions = computed(() => [
         <div class="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_22rem]">
             <div class="flex min-w-0 flex-col gap-6">
                 <section class="rounded-3xl bg-white p-6 sm:p-8">
+                    <p
+                        class="text-xs font-semibold tracking-wide text-brand-green/70 uppercase"
+                        data-test="offer-category"
+                    >
+                        {{ offer.category_label }}
+                    </p>
                     <h1
-                        class="text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
+                        class="mt-1 text-3xl leading-tight font-semibold tracking-tight text-brand-green sm:text-4xl"
                     >
                         {{ offer.title }}
                     </h1>

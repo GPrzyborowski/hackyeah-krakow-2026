@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\CandidateStage;
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\OfferStatus;
 use App\Enums\ReviewStatus;
 use App\Enums\SkillImportance;
@@ -330,12 +331,13 @@ class DemoPolishSeeder extends Seeder
     }
 
     /**
-     * @param  array{title: string, mode: WorkMode, fraction: EmploymentFraction, salary: array{int, int}, start: string, flexible: bool, meetings: bool, childcare: bool, description: string, required: list<string>, nice: list<string>}  $definition
+     * @param  array{title: string, category: OfferCategory, mode: WorkMode, fraction: EmploymentFraction, salary: array{int, int}, start: string, flexible: bool, meetings: bool, childcare: bool, description: string, required: list<string>, nice: list<string>}  $definition
      */
     private function createOffer(Company $company, array $definition): void
     {
         $offer = new JobOffer([
             'title' => $definition['title'],
+            'category' => $definition['category'],
             'city' => 'Kraków',
             'work_mode' => $definition['mode'],
             'employment_fraction' => $definition['fraction'],
@@ -389,7 +391,7 @@ class DemoPolishSeeder extends Seeder
     }
 
     /**
-     * @return list<array{name: string, nip_prefix: string, email: string, recruiter: string, description: string, reviews: list<array{int, int, int, string, string}>, offers: list<array{title: string, mode: WorkMode, fraction: EmploymentFraction, salary: array{int, int}, start: string, flexible: bool, meetings: bool, childcare: bool, description: string, required: list<string>, nice: list<string>}>}>
+     * @return list<array{name: string, nip_prefix: string, email: string, recruiter: string, description: string, reviews: list<array{int, int, int, string, string}>, offers: list<array{title: string, category: OfferCategory, mode: WorkMode, fraction: EmploymentFraction, salary: array{int, int}, start: string, flexible: bool, meetings: bool, childcare: bool, description: string, required: list<string>, nice: list<string>}>}>
      */
     private function krakowCompanies(): array
     {
@@ -407,6 +409,7 @@ class DemoPolishSeeder extends Seeder
                 'offers' => [
                     [
                         'title' => 'Specjalistka ds. rekrutacji IT',
+                        'category' => OfferCategory::Hr,
                         'mode' => WorkMode::Hybrid,
                         'fraction' => EmploymentFraction::ThreeQuarters,
                         'salary' => [9500, 12500],
@@ -420,6 +423,7 @@ class DemoPolishSeeder extends Seeder
                     ],
                     [
                         'title' => 'Koordynatorka projektów IT',
+                        'category' => OfferCategory::It,
                         'mode' => WorkMode::Remote,
                         'fraction' => EmploymentFraction::ThreeFifths,
                         'salary' => [9000, 11500],
@@ -446,6 +450,7 @@ class DemoPolishSeeder extends Seeder
                 'offers' => [
                     [
                         'title' => 'Specjalistka ds. kadr i płac',
+                        'category' => OfferCategory::Hr,
                         'mode' => WorkMode::Hybrid,
                         'fraction' => EmploymentFraction::Full,
                         'salary' => [8500, 10500],
@@ -459,6 +464,7 @@ class DemoPolishSeeder extends Seeder
                     ],
                     [
                         'title' => 'Księgowa ds. rozrachunków',
+                        'category' => OfferCategory::Finance,
                         'mode' => WorkMode::Hybrid,
                         'fraction' => EmploymentFraction::ThreeQuarters,
                         'salary' => [8000, 10000],
@@ -472,6 +478,7 @@ class DemoPolishSeeder extends Seeder
                     ],
                     [
                         'title' => 'Analityczka danych – raportowanie',
+                        'category' => OfferCategory::It,
                         'mode' => WorkMode::Remote,
                         'fraction' => EmploymentFraction::ThreeQuarters,
                         'salary' => [12000, 15500],
@@ -497,6 +504,7 @@ class DemoPolishSeeder extends Seeder
                 'offers' => [
                     [
                         'title' => 'Specjalistka ds. marketingu',
+                        'category' => OfferCategory::Marketing,
                         'mode' => WorkMode::Remote,
                         'fraction' => EmploymentFraction::ThreeFifths,
                         'salary' => [7500, 9500],
@@ -510,6 +518,7 @@ class DemoPolishSeeder extends Seeder
                     ],
                     [
                         'title' => 'Konsultantka obsługi klienta',
+                        'category' => OfferCategory::CustomerService,
                         'mode' => WorkMode::Remote,
                         'fraction' => EmploymentFraction::Half,
                         'salary' => [4200, 5200],
@@ -535,6 +544,7 @@ class DemoPolishSeeder extends Seeder
                 'offers' => [
                     [
                         'title' => 'HR Business Partner',
+                        'category' => OfferCategory::Hr,
                         'mode' => WorkMode::Hybrid,
                         'fraction' => EmploymentFraction::ThreeQuarters,
                         'salary' => [8000, 10000],

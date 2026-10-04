@@ -22,6 +22,7 @@ type Option = { value: string; label: string };
 type Filters = {
     q: string;
     location: string;
+    category: string[];
     work_mode: string[];
     fraction: string[];
     flexible: boolean;
@@ -46,6 +47,7 @@ type Paginated<T> = {
 const props = defineProps<{
     offers: Paginated<PublicOffer>;
     filters: Filters;
+    categories: Option[];
     workModes: Option[];
     fractions: Option[];
 }>();
@@ -58,6 +60,7 @@ const isGuest = computed(() => !page.props.auth.user);
 const form = reactive<Filters>({
     q: props.filters.q,
     location: props.filters.location,
+    category: [...props.filters.category],
     work_mode: [...props.filters.work_mode],
     fraction: [...props.filters.fraction],
     flexible: props.filters.flexible,
@@ -123,6 +126,7 @@ function countToggles(toggles: { key: ToggleFilter }[]): number {
 }
 
 const sectionCounts = computed(() => ({
+    category: form.category.length,
     workMode: form.work_mode.length,
     fraction: form.fraction.length,
     parents: countToggles(parentToggles),
@@ -131,7 +135,7 @@ const sectionCounts = computed(() => ({
 }));
 
 /**
- * Sections start expanded when they hold an active filter; work mode and fraction are always open.
+ * Sections start expanded when they hold an active filter; industry, work mode and fraction are always open.
  */
 const initiallyOpen = {
     parents: sectionCounts.value.parents > 0,
@@ -161,6 +165,17 @@ const activeChips = computed(() => {
             clear: () => (form.location = ''),
         });
     }
+
+    form.category.forEach((value) =>
+        chips.push({
+            key: `category-${value}`,
+            label: labelFor(props.categories, value),
+            clear: () =>
+                (form.category = form.category.filter(
+                    (category) => category !== value,
+                )),
+        }),
+    );
 
     form.work_mode.forEach((value) =>
         chips.push({
@@ -216,6 +231,7 @@ const hasActiveFilters = computed(
     () =>
         form.q !== '' ||
         form.location !== '' ||
+        form.category.length > 0 ||
         form.work_mode.length > 0 ||
         form.fraction.length > 0 ||
         form.flexible ||
@@ -233,6 +249,7 @@ function applyFilters(): void {
         {
             q: form.q || undefined,
             location: form.location || undefined,
+            category: form.category.length ? form.category : undefined,
             work_mode: form.work_mode.length ? form.work_mode : undefined,
             fraction: form.fraction.length ? form.fraction : undefined,
             flexible: form.flexible ? 1 : undefined,
@@ -251,6 +268,7 @@ function applyFilters(): void {
 function resetFilters(): void {
     form.q = '';
     form.location = '';
+    form.category = [];
     form.work_mode = [];
     form.fraction = [];
     form.flexible = false;
@@ -363,6 +381,43 @@ const offerCountLabel = computed(() => {
                             Wyczyść
                         </button>
                     </div>
+
+                    <details open class="group/section rounded-2xl">
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Branża
+                                <span
+                                    v-if="sectionCounts.category"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.category }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Branża</legend>
+                            <label
+                                v-for="category in categories"
+                                :key="category.value"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form.category"
+                                    type="checkbox"
+                                    :value="category.value"
+                                    class="size-4 shrink-0 accent-brand-green"
+                                    :data-test="`filter-category-${category.value}`"
+                                    @change="applyFilters"
+                                />
+                                {{ category.label }}
+                            </label>
+                        </fieldset>
+                    </details>
 
                     <details open class="group/section rounded-2xl">
                         <summary

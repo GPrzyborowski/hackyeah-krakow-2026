@@ -40,6 +40,7 @@ class EmployerToCandidateTest extends TestCase
             ->post(route('employer.offers.store'), [
                 'action' => 'publish',
                 'title' => 'Specjalistka ds. rekrutacji IT',
+                'category' => 'hr',
                 'city' => 'Kraków',
                 'work_mode' => 'hybrid',
                 'start_date' => '2027-09-01',

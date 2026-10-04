@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Candidate;
 
 use App\Enums\EmploymentFraction;
+use App\Enums\OfferCategory;
 use App\Enums\WorkMode;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -18,6 +19,8 @@ class OfferFilterRequest extends FormRequest
         return [
             'q' => ['nullable', 'string', 'max:100'],
             'location' => ['nullable', 'string', 'max:100'],
+            'categories' => ['nullable', 'array'],
+            'categories.*' => [Rule::enum(OfferCategory::class)],
             'work_modes' => ['nullable', 'array'],
             'work_modes.*' => [Rule::enum(WorkMode::class)],
             'employment_fractions' => ['nullable', 'array'],

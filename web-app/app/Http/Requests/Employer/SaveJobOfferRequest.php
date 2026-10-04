@@ -4,6 +4,7 @@ namespace App\Http\Requests\Employer;
 
 use App\Enums\EmploymentFraction;
 use App\Enums\ModerationContext;
+use App\Enums\OfferCategory;
 use App\Enums\WorkMode;
 use App\Services\Ai\MessageModerator;
 use App\Services\Ai\ModerationRecorder;
@@ -36,6 +37,7 @@ class SaveJobOfferRequest extends FormRequest
         return [
             'action' => ['required', Rule::in([self::ACTION_DRAFT, self::ACTION_PUBLISH])],
             'title' => ['required', 'string', 'max:255'],
+            'category' => [...($this->isMobileApi() ? ['nullable'] : ['required']), Rule::enum(OfferCategory::class)],
             'city' => ['nullable', 'string', 'max:255'],
             'work_mode' => ['required', Rule::enum(WorkMode::class)],
             'start_date' => ['required', 'date', ...($isPublishing ? ['after_or_equal:today'] : [])],
@@ -79,6 +81,7 @@ class SaveJobOfferRequest extends FormRequest
     {
         return [
             'title' => 'nazwa stanowiska',
+            'category' => 'branża',
             'city' => 'miasto',
             'work_mode' => 'tryb pracy',
             'start_date' => 'planowany start',
@@ -117,6 +120,14 @@ class SaveJobOfferRequest extends FormRequest
                 }
             },
         ];
+    }
+
+    /**
+     * The mobile API keeps `category` optional so app versions without the field can still save offers.
+     */
+    public function isMobileApi(): bool
+    {
+        return $this->routeIs('api.*');
     }
 
     public function isPublishing(): bool
