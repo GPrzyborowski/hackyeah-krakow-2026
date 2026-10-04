@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { ChevronLeft, ChevronRight, SlidersHorizontal } from '@lucide/vue';
+import {
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    SlidersHorizontal,
+    X,
+} from '@lucide/vue';
 import { computed, reactive, ref } from 'vue';
+import { formatShortDate } from '@/components/brand/format';
 import OfferCard from '@/components/brand/OfferCard.vue';
 import type { PublicOffer } from '@/components/brand/types';
 import { register } from '@/routes';
@@ -70,6 +77,140 @@ const sortOptions: { value: Filters['sort']; label: string }[] = [
 ];
 
 const areFiltersOpen = ref(false);
+
+type ToggleFilter =
+    | 'flexible'
+    | 'nursery_nearby'
+    | 'childcare_subsidy'
+    | 'job_share'
+    | 'with_reviews'
+    | 'verified_only';
+
+const parentToggles: { key: ToggleFilter; label: string; test: string }[] = [
+    { key: 'flexible', label: 'Elastyczne godziny', test: 'filter-flexible' },
+    {
+        key: 'nursery_nearby',
+        label: 'Żłobek lub przedszkole w pobliżu',
+        test: 'filter-nursery-nearby',
+    },
+    {
+        key: 'childcare_subsidy',
+        label: 'Dofinansowanie żłobka lub przedszkola',
+        test: 'filter-childcare-subsidy',
+    },
+    {
+        key: 'job_share',
+        label: 'Job sharing (dwie osoby)',
+        test: 'filter-job-share',
+    },
+];
+
+const companyToggles: { key: ToggleFilter; label: string; test: string }[] = [
+    {
+        key: 'with_reviews',
+        label: 'Firma z opiniami rodziców',
+        test: 'filter-with-reviews',
+    },
+    {
+        key: 'verified_only',
+        label: 'Tylko zweryfikowane firmy',
+        test: 'filter-verified-only',
+    },
+];
+
+function countToggles(toggles: { key: ToggleFilter }[]): number {
+    return toggles.filter((toggle) => form[toggle.key]).length;
+}
+
+const sectionCounts = computed(() => ({
+    workMode: form.work_mode.length,
+    fraction: form.fraction.length,
+    parents: countToggles(parentToggles),
+    company: countToggles(companyToggles),
+    start: form.start_from ? 1 : 0,
+}));
+
+/**
+ * Sections start expanded when they hold an active filter; work mode and fraction are always open.
+ */
+const initiallyOpen = {
+    parents: sectionCounts.value.parents > 0,
+    company: sectionCounts.value.company > 0,
+    start: sectionCounts.value.start > 0,
+};
+
+function labelFor(options: Option[], value: string): string {
+    return options.find((option) => option.value === value)?.label ?? value;
+}
+
+const activeChips = computed(() => {
+    const chips: { key: string; label: string; clear: () => void }[] = [];
+
+    if (form.q) {
+        chips.push({
+            key: 'q',
+            label: `„${form.q}”`,
+            clear: () => (form.q = ''),
+        });
+    }
+
+    if (form.location) {
+        chips.push({
+            key: 'location',
+            label: form.location,
+            clear: () => (form.location = ''),
+        });
+    }
+
+    form.work_mode.forEach((value) =>
+        chips.push({
+            key: `work_mode-${value}`,
+            label: labelFor(props.workModes, value),
+            clear: () =>
+                (form.work_mode = form.work_mode.filter(
+                    (mode) => mode !== value,
+                )),
+        }),
+    );
+
+    form.fraction.forEach((value) =>
+        chips.push({
+            key: `fraction-${value}`,
+            label: labelFor(props.fractions, value),
+            clear: () =>
+                (form.fraction = form.fraction.filter(
+                    (fraction) => fraction !== value,
+                )),
+        }),
+    );
+
+    [...parentToggles, ...companyToggles]
+        .filter((toggle) => form[toggle.key])
+        .forEach((toggle) =>
+            chips.push({
+                key: toggle.key,
+                label: toggle.label,
+                clear: () => (form[toggle.key] = false),
+            }),
+        );
+
+    if (form.start_from) {
+        chips.push({
+            key: 'start_from',
+            label: `Start od ${formatShortDate(form.start_from)}`,
+            clear: () => (form.start_from = null),
+        });
+    }
+
+    return chips;
+});
+
+const activeFilterCount = computed(() => activeChips.value.length);
+
+function removeChip(clear: () => void): void {
+    clear();
+    applyFilters();
+}
 
 const hasActiveFilters = computed(
     () =>
@@ -187,7 +328,7 @@ const offerCountLabel = computed(() => {
         </form>
 
         <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr]">
-            <aside>
+            <aside class="lg:sticky lg:top-6 lg:self-start">
                 <button
                     type="button"
                     class="flex w-full items-center justify-between rounded-full bg-white px-5 py-3 text-sm font-semibold text-brand-green lg:hidden"
@@ -195,159 +336,226 @@ const offerCountLabel = computed(() => {
                     aria-controls="offer-filters"
                     @click="areFiltersOpen = !areFiltersOpen"
                 >
-                    Filtry
+                    <span class="flex items-center gap-2">
+                        Filtry
+                        <span
+                            v-if="activeFilterCount"
+                            class="rounded-full bg-brand-green px-2 py-0.5 text-xs text-white"
+                            >{{ activeFilterCount }}</span
+                        >
+                    </span>
                     <SlidersHorizontal class="size-4" />
                 </button>
 
                 <div
                     id="offer-filters"
-                    class="mt-2 rounded-3xl bg-white p-5 text-sm text-brand-green lg:mt-0 lg:block"
+                    class="mt-2 rounded-3xl bg-white p-2 text-sm text-brand-green lg:mt-0 lg:block"
                     :class="areFiltersOpen ? 'block' : 'hidden'"
                 >
-                    <h2 class="text-lg font-semibold">Filtry</h2>
-
-                    <fieldset class="mt-5">
-                        <legend class="font-semibold">Tryb pracy</legend>
-                        <label
-                            v-for="mode in workModes"
-                            :key="mode.value"
-                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
+                    <div class="flex items-center justify-between px-3 pt-3 pb-1">
+                        <h2 class="text-lg font-semibold">Filtry</h2>
+                        <button
+                            v-if="hasActiveFilters"
+                            type="button"
+                            class="text-xs font-medium underline underline-offset-2"
+                            @click="resetFilters"
                         >
-                            <input
-                                v-model="form.work_mode"
-                                type="checkbox"
-                                :value="mode.value"
-                                class="size-4 accent-brand-green"
-                                @change="applyFilters"
-                            />
-                            {{ mode.label }}
-                        </label>
-                    </fieldset>
-
-                    <fieldset class="mt-6">
-                        <legend class="font-semibold">Wymiar etatu</legend>
-                        <label
-                            v-for="fraction in fractions"
-                            :key="fraction.value"
-                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
-                        >
-                            <input
-                                v-model="form.fraction"
-                                type="checkbox"
-                                :value="fraction.value"
-                                class="size-4 accent-brand-green"
-                                @change="applyFilters"
-                            />
-                            {{ fraction.label }}
-                        </label>
-                    </fieldset>
-
-                    <fieldset class="mt-6">
-                        <legend class="font-semibold">Dla rodziców</legend>
-                        <label
-                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
-                        >
-                            <input
-                                v-model="form.flexible"
-                                type="checkbox"
-                                class="size-4 accent-brand-green"
-                                data-test="filter-flexible"
-                                @change="applyFilters"
-                            />
-                            Elastyczne godziny
-                        </label>
-                        <label
-                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
-                        >
-                            <input
-                                v-model="form.nursery_nearby"
-                                type="checkbox"
-                                class="size-4 accent-brand-green"
-                                data-test="filter-nursery-nearby"
-                                @change="applyFilters"
-                            />
-                            Żłobek lub przedszkole w pobliżu
-                        </label>
-                        <label
-                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
-                        >
-                            <input
-                                v-model="form.childcare_subsidy"
-                                type="checkbox"
-                                class="size-4 accent-brand-green"
-                                data-test="filter-childcare-subsidy"
-                                @change="applyFilters"
-                            />
-                            Dofinansowanie żłobka lub przedszkola
-                        </label>
-                        <label
-                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
-                        >
-                            <input
-                                v-model="form.with_reviews"
-                                type="checkbox"
-                                class="size-4 accent-brand-green"
-                                data-test="filter-with-reviews"
-                                @change="applyFilters"
-                            />
-                            Firma z opiniami rodziców
-                        </label>
-                        <label
-                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
-                        >
-                            <input
-                                v-model="form.job_share"
-                                type="checkbox"
-                                class="size-4 accent-brand-green"
-                                data-test="filter-job-share"
-                                @change="applyFilters"
-                            />
-                            Job sharing (dwie osoby)
-                        </label>
-                        <label
-                            class="mt-2.5 flex cursor-pointer items-center gap-2.5"
-                        >
-                            <input
-                                v-model="form.verified_only"
-                                type="checkbox"
-                                class="size-4 accent-brand-green"
-                                data-test="filter-verified-only"
-                                @change="applyFilters"
-                            />
-                            Tylko zweryfikowane firmy
-                        </label>
-                    </fieldset>
-
-                    <div class="mt-6">
-                        <label for="offer-start-from" class="font-semibold"
-                            >Mogę zacząć od</label
-                        >
-                        <input
-                            id="offer-start-from"
-                            v-model="form.start_from"
-                            type="date"
-                            class="mt-2.5 w-full rounded-2xl border border-brand-mint-soft px-3 py-2 text-sm text-brand-green"
-                            aria-describedby="offer-start-from-hint"
-                            data-test="filter-start-from"
-                            @change="applyFilters"
-                        />
-                        <p
-                            id="offer-start-from-hint"
-                            class="mt-1.5 text-xs text-brand-green/80"
-                        >
-                            Pokazujemy oferty, do których zdążysz (do 30 dni po
-                            starcie).
-                        </p>
+                            Wyczyść
+                        </button>
                     </div>
 
-                    <button
-                        v-if="hasActiveFilters"
-                        type="button"
-                        class="mt-6 text-xs font-medium underline underline-offset-2"
-                        @click="resetFilters"
+                    <details open class="group/section rounded-2xl">
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Tryb pracy
+                                <span
+                                    v-if="sectionCounts.workMode"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.workMode }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Tryb pracy</legend>
+                            <label
+                                v-for="mode in workModes"
+                                :key="mode.value"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form.work_mode"
+                                    type="checkbox"
+                                    :value="mode.value"
+                                    class="size-4 accent-brand-green"
+                                    @change="applyFilters"
+                                />
+                                {{ mode.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details open class="group/section rounded-2xl">
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Wymiar etatu
+                                <span
+                                    v-if="sectionCounts.fraction"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.fraction }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Wymiar etatu</legend>
+                            <label
+                                v-for="fraction in fractions"
+                                :key="fraction.value"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form.fraction"
+                                    type="checkbox"
+                                    :value="fraction.value"
+                                    class="size-4 accent-brand-green"
+                                    @change="applyFilters"
+                                />
+                                {{ fraction.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details
+                        :open="initiallyOpen.parents"
+                        class="group/section rounded-2xl"
                     >
-                        Wyczyść filtry
-                    </button>
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Dla rodziców
+                                <span
+                                    v-if="sectionCounts.parents"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.parents }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Dla rodziców</legend>
+                            <label
+                                v-for="toggle in parentToggles"
+                                :key="toggle.key"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form[toggle.key]"
+                                    type="checkbox"
+                                    class="size-4 shrink-0 accent-brand-green"
+                                    :data-test="toggle.test"
+                                    @change="applyFilters"
+                                />
+                                {{ toggle.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details
+                        :open="initiallyOpen.company"
+                        class="group/section rounded-2xl"
+                    >
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Firma
+                                <span
+                                    v-if="sectionCounts.company"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >{{ sectionCounts.company }}</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <fieldset class="px-3 pb-3">
+                            <legend class="sr-only">Firma</legend>
+                            <label
+                                v-for="toggle in companyToggles"
+                                :key="toggle.key"
+                                class="flex cursor-pointer items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-brand-cream"
+                            >
+                                <input
+                                    v-model="form[toggle.key]"
+                                    type="checkbox"
+                                    class="size-4 shrink-0 accent-brand-green"
+                                    :data-test="toggle.test"
+                                    @change="applyFilters"
+                                />
+                                {{ toggle.label }}
+                            </label>
+                        </fieldset>
+                    </details>
+
+                    <details
+                        :open="initiallyOpen.start"
+                        class="group/section rounded-2xl"
+                    >
+                        <summary
+                            class="flex cursor-pointer list-none items-center justify-between rounded-2xl px-3 py-3 font-semibold hover:bg-brand-cream [&::-webkit-details-marker]:hidden"
+                        >
+                            <span class="flex items-center gap-2">
+                                Termin startu
+                                <span
+                                    v-if="sectionCounts.start"
+                                    class="rounded-full bg-brand-mint-soft px-2 py-0.5 text-xs"
+                                    >1</span
+                                >
+                            </span>
+                            <ChevronDown
+                                class="size-4 transition group-open/section:rotate-180"
+                                aria-hidden="true"
+                            />
+                        </summary>
+                        <div class="px-3 pb-3">
+                            <label for="offer-start-from" class="sr-only"
+                                >Mogę zacząć od</label
+                            >
+                            <input
+                                id="offer-start-from"
+                                v-model="form.start_from"
+                                type="date"
+                                class="w-full rounded-2xl border border-brand-mint-soft px-3 py-2 text-sm text-brand-green"
+                                aria-describedby="offer-start-from-hint"
+                                data-test="filter-start-from"
+                                @change="applyFilters"
+                            />
+                            <p
+                                id="offer-start-from-hint"
+                                class="mt-1.5 text-xs text-brand-green/80"
+                            >
+                                Mogę zacząć od tej daty. Pokazujemy oferty, do
+                                których zdążysz (do 30 dni po starcie).
+                            </p>
+                        </div>
+                    </details>
                 </div>
             </aside>
 
@@ -385,6 +593,33 @@ const offerCountLabel = computed(() => {
                         Załóż profil
                     </Link>
                 </div>
+
+                <ul
+                    v-if="activeChips.length"
+                    class="mt-6 flex flex-wrap items-center gap-2"
+                    aria-label="Aktywne filtry"
+                >
+                    <li v-for="chip in activeChips" :key="chip.key">
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 rounded-full bg-brand-green px-3 py-1.5 text-xs font-medium text-white transition hover:bg-brand-green-soft"
+                            @click="removeChip(chip.clear)"
+                        >
+                            {{ chip.label }}
+                            <X class="size-3.5" aria-hidden="true" />
+                            <span class="sr-only">– usuń filtr</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            class="px-2 text-xs font-medium text-brand-green underline underline-offset-2"
+                            @click="resetFilters"
+                        >
+                            Wyczyść wszystko
+                        </button>
+                    </li>
+                </ul>
 
                 <div
                     class="mt-6 flex flex-wrap items-center justify-between gap-2"
