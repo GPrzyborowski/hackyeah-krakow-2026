@@ -199,30 +199,7 @@ const inputClass =
                     :message="form.errors.headline"
                 />
             </div>
-            <div>
-                <label
-                    for="years_of_experience"
-                    class="text-sm font-semibold text-brand-green"
-                    >Lata doświadczenia</label
-                >
-                <input
-                    id="years_of_experience"
-                    :aria-invalid="
-                        form.errors.years_of_experience ? true : undefined
-                    "
-                    aria-describedby="years_of_experience-error"
-                    v-model="form.years_of_experience"
-                    type="number"
-                    min="0"
-                    max="50"
-                    :class="inputClass"
-                />
-                <InputError
-                    id="years_of_experience-error"
-                    :message="form.errors.years_of_experience"
-                />
-            </div>
-            <div>
+            <div class="sm:col-span-2">
                 <label for="city" class="text-sm font-semibold text-brand-green"
                     >Miasto</label
                 >
