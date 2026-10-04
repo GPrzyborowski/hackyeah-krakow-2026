@@ -190,4 +190,20 @@
     body {
         @apply bg-background text-foreground;
     }
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--color-brand-green) 30%, transparent)
+            transparent;
+    }
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 9999px;
+        background: color-mix(in srgb, var(--color-brand-green) 30%, transparent);
+    }
 }

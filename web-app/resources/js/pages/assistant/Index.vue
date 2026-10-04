@@ -23,20 +23,43 @@ const form = useForm({ question: '' });
 const pendingQuestion = ref<string | null>(null);
 const thread = ref<HTMLElement | null>(null);
 
+function scrollBehavior(smooth: boolean): ScrollBehavior {
+    return smooth &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'smooth'
+        : 'auto';
+}
+
 function scrollToBottom(): void {
     void nextTick(() => {
         thread.value?.scrollTo({
             top: thread.value.scrollHeight,
-            behavior: window.matchMedia('(prefers-reduced-motion: reduce)')
-                .matches
-                ? 'auto'
-                : 'smooth',
+            behavior: scrollBehavior(true),
         });
     });
 }
 
-onMounted(scrollToBottom);
-watch(() => props.messages.length, scrollToBottom);
+/**
+ * Brings the latest question to the top of the thread, so a long answer is read from its first line.
+ */
+function scrollToLatestQuestion(smooth: boolean): void {
+    void nextTick(() => {
+        const questions =
+            thread.value?.querySelectorAll<HTMLElement>('[data-question]');
+        const latest = questions?.[questions.length - 1];
+
+        thread.value?.scrollTo({
+            top: latest ? latest.offsetTop - 16 : thread.value.scrollHeight,
+            behavior: scrollBehavior(smooth),
+        });
+    });
+}
+
+onMounted(() => scrollToLatestQuestion(false));
+watch(
+    () => props.messages.length,
+    () => scrollToLatestQuestion(true),
+);
 
 function ask(question?: string): void {
     if (question !== undefined) {
@@ -72,7 +95,10 @@ function ask(question?: string): void {
             >
                 Asystent AI
             </h1>
-            <p class="mt-1 text-sm text-brand-green/80">
+            <p
+                class="mt-1 text-sm text-brand-green/80"
+                :class="{ 'max-md:hidden': messages.length || pendingQuestion }"
+            >
                 Odpowiada na pytania o ciążę, urlopy, zasiłki i powrót do
                 pracy na podstawie przepisów i tekstów z bloga. Pod każdą
                 odpowiedzią pokazuje źródło. To informacja ogólna, a nie
@@ -82,7 +108,7 @@ function ask(question?: string): void {
 
         <div
             ref="thread"
-            class="flex flex-1 flex-col gap-4 overflow-y-auto rounded-3xl bg-brand-cream/60 p-4"
+            class="relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto rounded-3xl border border-brand-green/10 bg-white/60 p-4 [mask-image:linear-gradient(to_bottom,transparent,black_12px,black_calc(100%-12px),transparent)]"
             role="log"
             aria-live="polite"
             aria-label="Rozmowa z asystentem"
@@ -121,7 +147,11 @@ function ask(question?: string): void {
             </div>
 
             <template v-for="message in messages" :key="message.id">
-                <ChatBubble v-if="message.role === 'user'" :mine="true">
+                <ChatBubble
+                    v-if="message.role === 'user'"
+                    :mine="true"
+                    data-question
+                >
                     {{ message.content }}
                 </ChatBubble>
                 <div
