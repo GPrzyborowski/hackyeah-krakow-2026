@@ -35,6 +35,7 @@ const navItems = computed<PublicNavItem[]>(() => [
         title: 'Asystent AI',
         href: isSignedIn.value ? '/assistant' : register.url(),
     },
+    { title: 'Blog', href: '/blog' },
     {
         title: 'Dla pracodawców',
         href: register.url({ query: { role: 'employer' } }),
@@ -71,7 +72,7 @@ onUnmounted(stopListening);
                 </Link>
 
                 <nav
-                    class="hidden items-center gap-7 text-sm font-medium md:flex"
+                    class="hidden items-center gap-7 text-sm font-medium lg:flex"
                     aria-label="Główna nawigacja"
                 >
                     <Link
@@ -89,7 +90,7 @@ onUnmounted(stopListening);
                     </Link>
                 </nav>
 
-                <div class="hidden items-center gap-2 md:flex">
+                <div class="hidden items-center gap-2 lg:flex">
                     <Link
                         v-if="isSignedIn"
                         :href="dashboard()"
@@ -116,7 +117,7 @@ onUnmounted(stopListening);
 
                 <button
                     type="button"
-                    class="inline-flex size-10 items-center justify-center rounded-full border border-brand-green/60 bg-white md:hidden"
+                    class="inline-flex size-10 items-center justify-center rounded-full border border-brand-green/60 bg-white lg:hidden"
                     :aria-expanded="isMenuOpen"
                     aria-controls="public-mobile-menu"
                     :aria-label="isMenuOpen ? 'Zamknij menu' : 'Otwórz menu'"
@@ -130,7 +131,7 @@ onUnmounted(stopListening);
             <div
                 v-show="isMenuOpen"
                 id="public-mobile-menu"
-                class="absolute inset-x-0 top-full border-t border-brand-green/10 bg-brand-cream px-4 pb-6 shadow-lg md:hidden"
+                class="absolute inset-x-0 top-full border-t border-brand-green/10 bg-brand-cream px-4 pb-6 shadow-lg lg:hidden"
             >
                 <nav class="flex flex-col py-2" aria-label="Menu mobilne">
                     <Link
