@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Sparkles } from '@lucide/vue';
+import { ArrowLeft, FlaskConical, Sparkles } from '@lucide/vue';
+import HackathonArticleBadge from '@/components/brand/HackathonArticleBadge.vue';
 import { index as assistantIndex } from '@/routes/assistant';
 import { index, show } from '@/routes/blog';
 
@@ -55,6 +56,19 @@ const relatedColors = ['bg-brand-mint', 'bg-brand-yellow', 'bg-brand-peach'];
             {{ article.excerpt }}
         </p>
 
+        <p
+            class="mt-6 flex items-start gap-3 rounded-2xl bg-brand-yellow/60 p-4 text-sm text-brand-green"
+            role="note"
+            data-test="hackathon-article-note"
+        >
+            <FlaskConical class="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+            <span>
+                <strong class="font-semibold">To tekst testowy</strong>
+                przygotowany na hackathon HackYeah 2026. Nie traktuj go jako
+                porady prawnej ani źródła aktualnych przepisów.
+            </span>
+        </p>
+
         <div
             class="mt-8 rounded-3xl bg-white p-6 text-brand-green shadow-sm sm:p-10 [&_a]:font-medium [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:my-5 [&_blockquote]:rounded-2xl [&_blockquote]:bg-brand-mint-soft [&_blockquote]:p-4 [&_blockquote_p]:my-0 [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:text-xl [&_h2]:font-semibold [&_h2:first-child]:mt-0 [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:font-semibold [&_li]:my-1 [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-4 [&_p]:leading-relaxed [&_strong]:font-semibold [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6"
             data-test="article-body"
@@ -89,9 +103,11 @@ const relatedColors = ['bg-brand-mint', 'bg-brand-yellow', 'bg-brand-peach'];
                     class="group block"
                 >
                     <div
-                        class="aspect-[16/10] rounded-3xl transition group-hover:opacity-90"
+                        class="flex aspect-[16/10] items-start rounded-3xl p-3 transition group-hover:opacity-90"
                         :class="relatedColors[position % relatedColors.length]"
-                    />
+                    >
+                        <HackathonArticleBadge />
+                    </div>
                     <h3
                         class="mt-3 text-sm leading-snug font-semibold text-brand-green group-hover:underline"
                     >

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import HackathonArticleBadge from '@/components/brand/HackathonArticleBadge.vue';
 import type { PublicArticleSummary } from '@/components/brand/types';
 
 defineProps<{
@@ -23,9 +24,10 @@ const coverColors: Record<string, string> = {
         data-test="article-card"
     >
         <div
-            class="relative flex aspect-[16/9] items-end rounded-3xl p-4 transition group-hover:opacity-90"
+            class="relative flex aspect-[16/9] flex-col items-start justify-between rounded-3xl p-4 transition group-hover:opacity-90"
             :class="coverColors[article.category] ?? 'bg-brand-mint'"
         >
+            <HackathonArticleBadge />
             <span
                 class="rounded-full bg-white px-3 py-1 text-xs font-medium text-brand-green"
                 >{{ article.category_label }}</span

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import HackathonArticleBadge from '@/components/brand/HackathonArticleBadge.vue';
 import NewsletterSignup from '@/components/newsletter/NewsletterSignup.vue';
 import { index, show } from '@/routes/blog';
 
@@ -79,10 +80,13 @@ function chipClass(isActive: boolean): string {
             data-test="featured-article"
         >
             <div
-                class="flex min-h-48 items-center justify-center bg-brand-green p-10"
-                aria-hidden="true"
+                class="relative flex min-h-48 items-center justify-center bg-brand-green p-10"
             >
-                <div class="relative h-3 w-3/5 rounded-full bg-brand-mint/60">
+                <HackathonArticleBadge class="absolute top-4 left-4" />
+                <div
+                    class="relative h-3 w-3/5 rounded-full bg-brand-mint/60"
+                    aria-hidden="true"
+                >
                     <div
                         class="absolute inset-y-0 left-0 w-2/5 rounded-full bg-brand-peach"
                     />
@@ -126,9 +130,10 @@ function chipClass(isActive: boolean): string {
                 data-test="article-card"
             >
                 <div
-                    class="flex aspect-[16/10] items-end rounded-3xl p-4 transition group-hover:opacity-90"
+                    class="flex aspect-[16/10] flex-col items-start justify-between rounded-3xl p-4 transition group-hover:opacity-90"
                     :class="coverColors[position % coverColors.length]"
                 >
+                    <HackathonArticleBadge />
                     <span
                         class="rounded-full bg-white px-3 py-1 text-xs font-medium text-brand-green"
                     >
