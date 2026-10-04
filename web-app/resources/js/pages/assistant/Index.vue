@@ -64,7 +64,7 @@ function ask(question?: string): void {
     <Head title="Asystent" />
 
     <div
-        class="mx-auto flex h-[calc(100svh-9rem-env(safe-area-inset-bottom))] w-full max-w-3xl flex-col gap-4 p-4 md:h-[calc(100svh-5rem)] md:p-8"
+        class="mx-auto flex h-[calc(100dvh-9rem-env(safe-area-inset-bottom))] w-full max-w-3xl flex-col gap-4 p-4 md:h-[calc(100dvh-5rem)] md:p-8"
     >
         <header>
             <h1
@@ -73,8 +73,9 @@ function ask(question?: string): void {
                 Asystent
             </h1>
             <p class="mt-1 text-sm text-brand-green/80">
-                Zna Kodeks pracy, przepisy o urlopach i artykuły z bloga. Przy
-                każdej odpowiedzi pokazuje, skąd ją wziął.
+                Pytaj o urlopy, zasiłki i swoje prawa w pracy. Pod każdą
+                odpowiedzią znajdziesz przepis albo tekst z bloga, na którym
+                się opiera.
             </p>
         </header>
 
@@ -89,7 +90,7 @@ function ask(question?: string): void {
         >
             <div
                 v-if="messages.length === 0 && !pendingQuestion"
-                class="m-auto flex max-w-sm flex-col items-center gap-3 text-center text-brand-green"
+                class="m-auto flex max-w-md flex-col items-center gap-3 text-center text-brand-green"
             >
                 <div
                     class="flex size-12 items-center justify-center rounded-full bg-brand-yellow"
@@ -101,6 +102,21 @@ function ask(question?: string): void {
                     Np. czy musisz mówić o ciąży na rozmowie, ile trwa urlop
                     rodzicielski albo jak wrócić na część etatu.
                 </p>
+                <div
+                    v-if="suggestions.length"
+                    class="mt-2 flex flex-wrap justify-center gap-2"
+                >
+                    <button
+                        v-for="suggestion in suggestions"
+                        :key="suggestion"
+                        type="button"
+                        :disabled="form.processing"
+                        class="rounded-full border border-brand-green/60 bg-white px-4 py-2 text-xs font-medium text-brand-green transition hover:bg-brand-mint-soft disabled:opacity-50"
+                        @click="ask(suggestion)"
+                    >
+                        {{ suggestion }}
+                    </button>
+                </div>
             </div>
 
             <template v-for="message in messages" :key="message.id">
@@ -139,19 +155,6 @@ function ask(question?: string): void {
         </div>
 
         <div class="flex flex-col gap-3">
-            <div class="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-                <button
-                    v-for="suggestion in suggestions"
-                    :key="suggestion"
-                    type="button"
-                    :disabled="form.processing"
-                    class="shrink-0 rounded-full border border-brand-green/60 bg-white px-4 py-2 text-xs font-medium text-brand-green transition hover:bg-brand-mint-soft disabled:opacity-50"
-                    @click="ask(suggestion)"
-                >
-                    {{ suggestion }}
-                </button>
-            </div>
-
             <p
                 v-if="form.errors.question"
                 class="px-2 text-sm text-red-700"
