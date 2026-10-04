@@ -1,0 +1,15 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Wracam Logo Style -->
+    <!-- Dark Teal Main Circle -->
+    <path
+        android:fillColor="#0B3C35"
+        android:pathData="M54,54m-28,0a28,28 0,1 1,56 0a28,28 0,1 1,-56 0" />
+    <!-- Overlapping Coral Circle/Crescent -->
+    <path
+        android:fillColor="#FFAD99"
+        android:pathData="M66,42a14,14 0,1 1,-14 14a14,14 0,0 1,14 -14" />
+</vector>
