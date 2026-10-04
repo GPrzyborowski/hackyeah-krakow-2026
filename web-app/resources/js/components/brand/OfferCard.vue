@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Heart, Star } from '@lucide/vue';
+import {
+    CalendarDays,
+    Check,
+    Clock,
+    Heart,
+    MapPin,
+    Star,
+    UsersRound,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import {
     formatRating,
@@ -28,21 +36,32 @@ const salary = computed(() =>
     formatSalary(props.offer.salary_min, props.offer.salary_max),
 );
 
-const chips = computed(() =>
+const facts = computed(() =>
     [
         props.offer.job_share?.is_job_share
-            ? `Job sharing · ${jobShareLabel(props.offer.job_share.hours_per_person)}`
+            ? {
+                  icon: UsersRound,
+                  label: `Job sharing · ${jobShareLabel(props.offer.job_share.hours_per_person)}`,
+              }
             : null,
-        props.offer.employment_fraction_label,
-        props.offer.work_mode_label,
+        { icon: Clock, label: props.offer.employment_fraction_label },
+        { icon: MapPin, label: props.offer.work_mode_label },
+        {
+            icon: CalendarDays,
+            label: `Start od ${formatShortDate(props.offer.start_date)}`,
+        },
+    ].filter((fact) => fact !== null),
+);
+
+const perks = computed(() =>
+    [
         props.offer.flexible_hours ? 'Elastyczne godziny' : null,
         props.offer.fixed_meeting_hours ? 'Spotkania przed 15:00' : null,
         props.offer.childcare_subsidy ? 'Dofinansowanie żłobka' : null,
         props.offer.nursery_distance_km != null
             ? `Przedszkole ${props.offer.nursery_distance_km} km`
             : null,
-        `Start od ${formatShortDate(props.offer.start_date)}`,
-    ].filter((chip): chip is string => chip !== null),
+    ].filter((perk): perk is string => perk !== null),
 );
 </script>
 
@@ -76,7 +95,6 @@ const chips = computed(() =>
                     />
                     <span v-if="offer.company"> · </span>
                     <span>{{ offer.city ?? 'Polska' }}</span>
-                    <span> · {{ offer.work_mode_label.toLowerCase() }}</span>
                 </p>
             </div>
             <div class="flex shrink-0 flex-col gap-2 sm:items-end">
@@ -96,11 +114,26 @@ const chips = computed(() =>
 
         <ul class="mt-4 flex flex-wrap gap-2">
             <li
-                v-for="chip in chips"
-                :key="chip"
-                class="rounded-full bg-brand-cream px-3 py-1 text-xs text-brand-green"
+                v-for="fact in facts"
+                :key="fact.label"
+                class="inline-flex items-center gap-1 rounded-full bg-brand-mint-soft px-3 py-1 text-xs font-medium text-brand-green"
             >
-                {{ chip }}
+                <component
+                    :is="fact.icon"
+                    class="size-3.5"
+                    aria-hidden="true"
+                />
+                {{ fact.label }}
+            </li>
+        </ul>
+        <ul v-if="perks.length" class="mt-2 flex flex-wrap gap-2">
+            <li
+                v-for="perk in perks"
+                :key="perk"
+                class="inline-flex items-center gap-1 rounded-full border border-brand-green/30 px-3 py-1 text-xs text-brand-green"
+            >
+                <Check class="size-3.5" aria-hidden="true" />
+                {{ perk }}
             </li>
         </ul>
 

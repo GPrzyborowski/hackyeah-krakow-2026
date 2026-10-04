@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { tone = 'soft' } = defineProps<{
-    tone?: 'soft' | 'dark' | 'yellow' | 'peach' | 'outline';
+    tone?: 'soft' | 'dark' | 'yellow' | 'peach' | 'outline' | 'mint';
 }>();
 </script>
 
@@ -13,6 +13,7 @@ const { tone = 'soft' } = defineProps<{
             'bg-brand-yellow text-brand-green': tone === 'yellow',
             'bg-brand-peach text-brand-green': tone === 'peach',
             'border border-brand-green/30 text-brand-green': tone === 'outline',
+            'bg-brand-mint-soft text-brand-green': tone === 'mint',
         }"
     >
         <slot />

@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import { HeartHandshake, Star } from '@lucide/vue';
+import {
+    CalendarDays,
+    Check,
+    Clock,
+    HeartHandshake,
+    MapPin,
+    Star,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import Chip from '@/components/candidate/Chip.vue';
 import {
@@ -25,9 +32,16 @@ const { offer, href } = defineProps<{
 
 const detailHref = computed(() => href ?? show(offer.id));
 
-const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
-    .filter(Boolean)
-    .join(' lub ');
+const perks = computed(() =>
+    [
+        offer.flexible_hours ? 'Elastyczne godziny' : null,
+        offer.fixed_meeting_hours ? 'Spotkania przed 15:00' : null,
+        offer.childcare_subsidy ? 'Dofinansowanie żłobka' : null,
+        offer.nursery_distance_km !== null
+            ? `Przedszkole ${offer.nursery_distance_km} km`
+            : null,
+    ].filter((perk): perk is string => perk !== null),
+);
 </script>
 
 <template>
@@ -52,8 +66,7 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
                         compact
                         class="align-middle"
                     />
-                    ·
-                    {{ location || offer.work_mode_label.toLowerCase() }}
+                    · {{ offer.city ?? 'Polska' }}
                 </p>
             </div>
             <div
@@ -74,16 +87,27 @@ const location = [offer.city, offer.work_mode === 'remote' ? 'zdalnie' : null]
                 v-if="offer.job_share?.is_job_share"
                 :hours-per-person="offer.job_share.hours_per_person"
             />
-            <Chip>{{ offer.employment_fraction_label }}</Chip>
-            <Chip>{{ offer.work_mode_label }}</Chip>
-            <Chip v-if="offer.flexible_hours">Elastyczne godziny</Chip>
-            <Chip v-if="offer.fixed_meeting_hours">Spotkania przed 15:00</Chip>
-            <Chip v-if="offer.childcare_subsidy">Dofinansowanie żłobka</Chip>
-            <Chip v-if="offer.nursery_distance_km !== null"
-                >Przedszkole {{ offer.nursery_distance_km }} km</Chip
-            >
-            <Chip>Start od {{ formatShortDate(offer.start_date) }}</Chip>
+            <Chip tone="mint">
+                <Clock class="size-3.5" aria-hidden="true" />
+                {{ offer.employment_fraction_label }}
+            </Chip>
+            <Chip tone="mint">
+                <MapPin class="size-3.5" aria-hidden="true" />
+                {{ offer.work_mode_label }}
+            </Chip>
+            <Chip tone="mint">
+                <CalendarDays class="size-3.5" aria-hidden="true" />
+                Start od {{ formatShortDate(offer.start_date) }}
+            </Chip>
         </div>
+        <ul v-if="perks.length" class="mt-2 flex flex-wrap gap-2">
+            <li v-for="perk in perks" :key="perk">
+                <Chip tone="outline">
+                    <Check class="size-3.5" aria-hidden="true" />
+                    {{ perk }}
+                </Chip>
+            </li>
+        </ul>
 
         <div
             class="mt-4 flex flex-col gap-4 border-t border-brand-cream pt-4 md:flex-row md:items-center"
