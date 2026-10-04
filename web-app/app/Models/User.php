@@ -108,6 +108,18 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
+     * Employers count as verified while employer e-mail verification is switched off.
+     */
+    public function hasVerifiedEmail(): bool
+    {
+        if ($this->isEmployer() && ! config('auth.verify_employer_emails')) {
+            return true;
+        }
+
+        return $this->email_verified_at !== null;
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

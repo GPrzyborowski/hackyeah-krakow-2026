@@ -32,7 +32,10 @@ class AuthController extends Controller
         /** @var array<string, string> $input */
         $input = $request->only(['name', 'email', 'password', 'password_confirmation', 'role', 'company_name', 'company_nip']);
         $user = $createNewUser->create($input);
-        $user->sendEmailVerificationNotification();
+
+        if (! $user->hasVerifiedEmail()) {
+            $user->sendEmailVerificationNotification();
+        }
 
         return $this->tokenResponse($user, $request->string('device_name')->toString(), Response::HTTP_CREATED);
     }

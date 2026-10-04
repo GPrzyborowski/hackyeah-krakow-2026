@@ -109,8 +109,23 @@ class RegistrationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_unverified_employer_can_use_the_employer_panel_while_verification_is_switched_off(): void
+    {
+        $employer = User::factory()->employer()->unverified()->create();
+
+        $this->assertTrue($employer->hasVerifiedEmail());
+        $this->actingAs($employer)->get(route('employer.offers.index'))->assertOk();
+    }
+
+    public function test_unverified_candidate_still_has_to_verify_email(): void
+    {
+        $this->assertFalse(User::factory()->unverified()->create()->hasVerifiedEmail());
+    }
+
     public function test_freshly_registered_employer_must_verify_email_before_browsing_candidates()
     {
+        $this->requireEmployerEmailVerification();
+
         $this->post(route('register.store'), [
             'name' => 'Rekruterka',
             'email' => 'hr@example.com',

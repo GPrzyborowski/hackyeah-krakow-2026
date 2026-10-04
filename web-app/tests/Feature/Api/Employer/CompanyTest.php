@@ -109,6 +109,8 @@ class CompanyTest extends TestCase
 
     public function test_unverified_employers_are_forbidden(): void
     {
+        $this->requireEmployerEmailVerification();
+
         Sanctum::actingAs(User::factory()->employer()->unverified()->create());
 
         $this->getJson('/api/v1/employer/company')
@@ -119,6 +121,8 @@ class CompanyTest extends TestCase
 
     public function test_unverified_employer_gets_json_even_without_an_accept_header(): void
     {
+        $this->requireEmployerEmailVerification();
+
         $token = User::factory()->employer()->unverified()->create()->createToken('iPhone')->plainTextToken;
 
         $this->withToken($token)

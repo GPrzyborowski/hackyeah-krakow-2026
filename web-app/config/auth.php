@@ -114,4 +114,17 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Employer E-mail Verification
+    |--------------------------------------------------------------------------
+    |
+    | Switched off for the hackathon demo: employer accounts count as verified
+    | without clicking the e-mail link (the demo server only logs mail).
+    | Candidates still verify their address.
+    |
+    */
+
+    'verify_employer_emails' => (bool) env('AUTH_VERIFY_EMPLOYER_EMAILS', false),
+
 ];

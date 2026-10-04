@@ -55,6 +55,8 @@ class DashboardTest extends TestCase
 
     public function test_candidates_unverified_employers_and_employers_without_company_get_403(): void
     {
+        $this->requireEmployerEmailVerification();
+
         Sanctum::actingAs(User::factory()->create());
         $this->getJson('/api/v1/employer/dashboard')->assertForbidden();
 

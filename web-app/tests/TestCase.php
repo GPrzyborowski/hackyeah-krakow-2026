@@ -15,6 +15,14 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * Turn employer e-mail verification back on (it is switched off for the demo) so its flow can be tested.
+     */
+    protected function requireEmployerEmailVerification(): void
+    {
+        config()->set('auth.verify_employer_emails', true);
+    }
+
+    /**
      * Turn the 2FA login challenge back on (it is switched off for the demo) so its flow can be tested.
      */
     protected function enableTwoFactorChallenge(): void

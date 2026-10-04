@@ -108,6 +108,8 @@ class DashboardTest extends TestCase
 
     public function test_dashboard_redirect_and_access(): void
     {
+        $this->requireEmployerEmailVerification();
+
         $employer = $this->employer();
 
         $this->actingAs($employer)->get(route('dashboard'))->assertRedirect('/employer');
