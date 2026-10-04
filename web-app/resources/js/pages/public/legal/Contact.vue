@@ -63,10 +63,6 @@ const faq: { question: string; answer: string }[] = [
                 <p class="mt-0.5! font-semibold">ten sam adres, do 30 dni</p>
             </div>
         </div>
-        <p>
-            Administrator serwisu: <strong>[Nazwa administratora]</strong>,
-            [adres siedziby].
-        </p>
 
         <h2>Najczęstsze pytania</h2>
         <div class="mt-4 space-y-3">
